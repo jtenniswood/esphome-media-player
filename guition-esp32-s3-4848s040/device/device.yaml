@@ -217,7 +217,7 @@ touchscreen:
             return;
           }
           // Swipe up to close: panel is open
-          if (dy < -80 && abs(dy) > abs(dx) * 2 && id(is_panel_open)) {
+          if (dy < -40 && abs(dy) > abs(dx) * 2 && id(is_panel_open)) {
             id(close_settings_panel).execute();
             return;
           }

@@ -236,15 +236,12 @@ sensor:
             }
             return 0;
 
-  # Volume level: syncs the settings panel slider with HA
+  # Volume level: syncs the settings panel label with HA
   - platform: homeassistant
     entity_id: ${media_player}
     id: media_volume_sensor
     attribute: volume_level
     on_value:
-      - lvgl.slider.update:
-          id: volume_slider
-          value: !lambda 'return (int)(x * 100.0f);'
       - lvgl.label.update:
           id: volume_pct_label
           text: !lambda |-
