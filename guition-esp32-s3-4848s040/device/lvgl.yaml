@@ -117,13 +117,13 @@ lvgl:
             text_color: 0xFFFFFF
             text_align: left
 
-        # Progress bar at the bottom of the screen (seek handled by touchscreen)
+        # Progress bar: full screen width, at the very bottom of the screen
         - bar:
             id: media_progress_bar
             x: 0
-            y: 468
+            y: 472
             width: 480
-            height: 12
+            height: 8
             bg_color: 0x000000
             bg_opa: 50%
             radius: 0
