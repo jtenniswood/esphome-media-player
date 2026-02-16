@@ -182,6 +182,7 @@ touchscreen:
           id(touch_y_start) = touch.y;
           id(touch_x_end) = touch.x;
           id(touch_y_end) = touch.y;
+          if (touch.y > 450) id(is_user_seeking) = true;
       - script.execute: backlight_wake_timeout
     on_update:
       - lambda: |-
@@ -196,7 +197,7 @@ touchscreen:
           int dx = id(touch_x_end) - id(touch_x_start);
           int dy = id(touch_y_end) - id(touch_y_start);
           int sy = id(touch_y_start);
-          // Require 80px+ horizontal movement, clearly horizontal, and within top 350px
+          // Swipe to skip track (top 350px)
           if (sy <= 350 && abs(dx) > 80 && abs(dx) > abs(dy) * 2) {
             if (dx > 0) {
               id(swipe_previous_track).execute();
@@ -204,15 +205,46 @@ touchscreen:
               id(swipe_next_track).execute();
             }
           }
+          // Seek on progress bar tap (bottom 30px)
+          if (id(is_user_seeking)) {
+            id(is_user_seeking) = false;
+            id(seek_to_position).execute();
+          }
 
 
 # -----------------------------------------------------------------------------
-# SWIPE GESTURE SCRIPTS
+# GESTURE SCRIPTS
 # -----------------------------------------------------------------------------
-# Called by touchscreen on_release when a horizontal swipe is detected.
-# mode: single prevents duplicate triggers from rapid swipes.
+# Swipe: called by touchscreen on_release when a horizontal swipe is detected.
+# Seek: called when user taps the progress bar area at the bottom of the screen.
+# mode: single prevents duplicate triggers from rapid interactions.
 # -----------------------------------------------------------------------------
 script:
+  - id: seek_to_position
+    mode: single
+    then:
+      - lambda: |-
+          float pct = id(touch_x_end) / 480.0f;
+          if (pct < 0) pct = 0;
+          if (pct > 1) pct = 1;
+          float dur = id(media_duration_sensor).has_state() ? id(media_duration_sensor).state : 0.0f;
+          float pos = dur * pct;
+          id(last_media_position) = pos;
+          auto t = id(sntp_time).now();
+          if (t.is_valid()) id(last_position_timestamp) = t.timestamp;
+      - homeassistant.service:
+          service: media_player.media_seek
+          data:
+            entity_id: ${media_player}
+          variables:
+            seek_position: !lambda |-
+              float pct = id(touch_x_end) / 480.0f;
+              if (pct < 0) pct = 0;
+              if (pct > 1) pct = 1;
+              float dur = id(media_duration_sensor).has_state() ? id(media_duration_sensor).state : 0.0f;
+              char buf[16];
+              snprintf(buf, sizeof(buf), "%.1f", dur * pct);
+              return std::string(buf);
   - id: swipe_next_track
     mode: single
     then:

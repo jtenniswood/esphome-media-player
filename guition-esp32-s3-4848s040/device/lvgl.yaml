@@ -117,8 +117,8 @@ lvgl:
             text_color: 0xFFFFFF
             text_align: left
 
-        # Progress slider: interactive seek bar at the bottom of the screen
-        - slider:
+        # Progress bar at the bottom of the screen (seek handled by touchscreen)
+        - bar:
             id: media_progress_bar
             x: 0
             y: 468
@@ -133,34 +133,3 @@ lvgl:
             indicator:
               bg_color: 0xFFFFFF
               radius: 0
-            knob:
-              bg_color: 0xFFFFFF
-              radius: 8
-              width: 16
-              height: 16
-            on_press:
-              - lambda: 'id(is_user_seeking) = true;'
-            on_release:
-              - lambda: |-
-                  id(is_user_seeking) = false;
-                  float pct = id(touch_x_end) / 480.0f;
-                  if (pct < 0) pct = 0;
-                  if (pct > 1) pct = 1;
-                  float dur = id(media_duration_sensor).has_state() ? id(media_duration_sensor).state : 0.0f;
-                  float pos = dur * pct;
-                  id(last_media_position) = pos;
-                  auto t = id(sntp_time).now();
-                  if (t.is_valid()) id(last_position_timestamp) = t.timestamp;
-              - homeassistant.service:
-                  service: media_player.media_seek
-                  data:
-                    entity_id: ${media_player}
-                  variables:
-                    seek_position: !lambda |-
-                      float pct = id(touch_x_end) / 480.0f;
-                      if (pct < 0) pct = 0;
-                      if (pct > 1) pct = 1;
-                      float dur = id(media_duration_sensor).has_state() ? id(media_duration_sensor).state : 0.0f;
-                      char buf[16];
-                      snprintf(buf, sizeof(buf), "%.1f", dur * pct);
-                      return std::string(buf);

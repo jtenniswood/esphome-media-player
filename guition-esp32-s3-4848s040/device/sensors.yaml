@@ -56,7 +56,7 @@ interval:
                 condition:
                   lambda: 'return !id(is_user_seeking);'
                 then:
-                  - lvgl.slider.update:
+                  - lvgl.bar.update:
                       id: media_progress_bar
                       value: !lambda |-
                         float pos = id(last_position_timestamp) != 0 && id(media_position_sensor).has_state()
@@ -126,7 +126,7 @@ text_sensor:
       - lvgl.label.update:
           id: media_time_label
           text: "0:00 / -0:00"
-      - lvgl.slider.update:
+      - lvgl.bar.update:
           id: media_progress_bar
           value: 0
 
@@ -232,7 +232,7 @@ sensor:
           condition:
             lambda: 'return !id(is_user_seeking);'
           then:
-            - lvgl.slider.update:
+            - lvgl.bar.update:
                 id: media_progress_bar
                 value: !lambda |-
                   float pos = x;
