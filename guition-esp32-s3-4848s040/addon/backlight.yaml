@@ -25,4 +25,4 @@ script:
           then:
             - light.turn_on:
                 id: backlight
-                brightness: 40%
+                brightness: 30%
