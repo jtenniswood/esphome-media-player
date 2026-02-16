@@ -12,9 +12,13 @@ font:
       - "\U000F040A"  # mdi-play
       - "\U000F03E4"  # mdi-pause
       - "\U000F04AD"  # mdi-skip-next
+      - "\U000F0594"  # mdi-weather-night (night sound)
+      - "\U000F05CB"  # mdi-account-voice (speech enhancement)
 
 substitutions:
   skip_previous: "\U000F04AE"
   play:          "\U000F040A"
   pause:         "\U000F03E4"
   skip_next:     "\U000F04AD"
+  night_sound_icon:        "\U000F0594"
+  speech_enhancement_icon: "\U000F05CB"

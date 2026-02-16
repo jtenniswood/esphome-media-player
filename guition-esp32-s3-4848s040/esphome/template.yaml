@@ -5,6 +5,8 @@ substitutions:
   room: "Your Room"
   media_player: "media_player.office"
   home_assistant_url: "http://homeassistant.local:8123"
+  night_sound_switch: "switch.office_night_sound"
+  speech_enhancement_switch: "switch.office_speech_enhancement"
 
 # Wifi Setup
 wifi:

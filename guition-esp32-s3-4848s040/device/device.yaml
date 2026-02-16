@@ -210,17 +210,22 @@ touchscreen:
 # mode: single prevents duplicate triggers from rapid swipes.
 # -----------------------------------------------------------------------------
 script:
-  - id: show_skip_feedback
+  - id: show_next_feedback
     mode: restart
-    parameters:
-      message: string
     then:
-      - lvgl.label.update:
-          id: skip_feedback_label
-          text: !lambda 'return message;'
-      - lvgl.widget.show: skip_feedback_label
+      - script.stop: show_previous_feedback
+      - lvgl.widget.hide: skip_previous_feedback
+      - lvgl.widget.show: skip_next_feedback
       - delay: 2s
-      - lvgl.widget.hide: skip_feedback_label
+      - lvgl.widget.hide: skip_next_feedback
+  - id: show_previous_feedback
+    mode: restart
+    then:
+      - script.stop: show_next_feedback
+      - lvgl.widget.hide: skip_next_feedback
+      - lvgl.widget.show: skip_previous_feedback
+      - delay: 2s
+      - lvgl.widget.hide: skip_previous_feedback
   - id: swipe_next_track
     mode: single
     then:
@@ -228,9 +233,7 @@ script:
           service: media_player.media_next_track
           data:
             entity_id: ${media_player}
-      - script.execute:
-          id: show_skip_feedback
-          message: "Next track"
+      - script.execute: show_next_feedback
   - id: swipe_previous_track
     mode: single
     then:
@@ -238,9 +241,7 @@ script:
           service: media_player.media_previous_track
           data:
             entity_id: ${media_player}
-      - script.execute:
-          id: show_skip_feedback
-          message: "Previous track"
+      - script.execute: show_previous_feedback
 
 
 # -----------------------------------------------------------------------------
