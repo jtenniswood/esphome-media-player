@@ -34,14 +34,18 @@ lvgl:
             src: album_art_background
             opa: 100%
 
-        # Gradient overlay behind the bottom controls
-        - image:
+        # Semi-transparent black overlay behind the bottom controls
+        - obj:
             id: bottom_overlay
             x: 0
             y: 340
             width: 480
             height: 140
-            src: bottom_gradient
+            bg_color: 0x000000
+            bg_opa: 20%
+            radius: 0
+            border_width: 0
+            scrollbar_mode: "off"
 
         # Song title + artist sit on the same row as the control buttons (left side)
         - label:
