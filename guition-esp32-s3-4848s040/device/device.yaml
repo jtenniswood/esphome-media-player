@@ -211,8 +211,8 @@ touchscreen:
           int sy = id(touch_y_start);
 
           // --- Vertical swipe: settings panel open/close ---
-          // Swipe down to open: start in top 80px, panel closed
-          if (dy > 80 && abs(dy) > abs(dx) * 2 && sy < 80 && !id(is_panel_open)) {
+          // Swipe down to open: start in top 120px, 40px+ movement, panel closed
+          if (dy > 40 && abs(dy) > abs(dx) * 2 && sy < 120 && !id(is_panel_open)) {
             id(open_settings_panel).execute();
             return;
           }
