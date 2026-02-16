@@ -9,19 +9,19 @@ lvgl:
   buffer_size: 100%
 
   pages:
-    # Full 480px content width (no horizontal padding) so progress bar can span edge-to-edge.
-    # Top padding 12px, no bottom padding (progress bar flush to bottom edge).
-    # Text/buttons use 12px horizontal inset via x/width.
+    # 20px horizontal padding on both sides.
+    # Top padding 20px, no bottom padding (progress bar flush to bottom edge).
+    # Text/buttons use 20px horizontal inset via x/width.
     - id: main_page
       scrollbar_mode: "off"
       scrollable: false
       width: 100%
       height: 100%
       bg_color: 0x1E1E1E
-      pad_top: 12
+      pad_top: 20
       pad_bottom: 0
-      pad_left: 0
-      pad_right: 0
+      pad_left: 20
+      pad_right: 20
 
       widgets:
         # Full-screen artwork background (negative offsets cancel page padding)
@@ -47,7 +47,7 @@ lvgl:
         - label:
             id: media_title_label
             text: "—"
-            x: 12
+            x: 
             y: 356
             width: 370px
             height: 30px
@@ -228,6 +228,7 @@ lvgl:
             text_font: $icon_font
             text_color: 0xFFFFFF
             bg_color: $button_control_color
+            bg_opa: 100%
             pad_all: 16
             radius: 36px
             hidden: true
@@ -240,6 +241,7 @@ lvgl:
             text_font: $icon_font
             text_color: 0xFFFFFF
             bg_color: $button_control_color
+            bg_opa: 100%
             pad_all: 16
             radius: 36px
             hidden: true
