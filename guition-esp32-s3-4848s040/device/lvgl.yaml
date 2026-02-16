@@ -164,7 +164,7 @@ lvgl:
                   align: center
                   y: 16
                   text_color: 0xFFFFFF
-            on_click:
+            on_press:
               - homeassistant.service:
                   service: switch.toggle
                   data:
@@ -193,7 +193,7 @@ lvgl:
                   align: center
                   y: 16
                   text_color: 0xFFFFFF
-            on_click:
+            on_press:
               - homeassistant.service:
                   service: switch.toggle
                   data:
@@ -204,7 +204,7 @@ lvgl:
             id: media_time_label
             text: "0:00 / 0:00"
             x: 12
-            y: 422
+            y: 434
             width: 150px
             text_font: roboto15_font
             text_color: 0xFFFFFF
