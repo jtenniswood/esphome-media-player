@@ -45,9 +45,9 @@ interval:
                   }
                   float dur = id(media_duration_sensor).has_state() ? id(media_duration_sensor).state : 0.0f;
                   int e = (int)pos; if (e < 0) e = 0;
-                  int d = (int)dur; if (d < 0) d = 0;
+                  int rem = (int)(dur - pos); if (rem < 0) rem = 0;
                   char buf[24];
-                  snprintf(buf, sizeof(buf), "%d:%02d / %d:%02d", e / 60, e % 60, d / 60, d % 60);
+                  snprintf(buf, sizeof(buf), "%d:%02d / -%d:%02d", e / 60, e % 60, rem / 60, rem % 60);
                   return std::string(buf);
             - lvgl.bar.update:
                 id: media_progress_bar
@@ -118,7 +118,7 @@ text_sensor:
           text: !lambda 'return x.empty() ? std::string("—") : x;'
       - lvgl.label.update:
           id: media_time_label
-          text: "0:00 / 0:00"
+          text: "0:00 / -0:00"
       - lvgl.bar.update:
           id: media_progress_bar
           value: 0
@@ -197,8 +197,9 @@ sensor:
             int d = (int)x; if (d < 0) d = 0;
             float pos = id(last_media_position);
             int e = (int)pos; if (e < 0) e = 0;
+            int rem = d - e; if (rem < 0) rem = 0;
             char buf[24];
-            snprintf(buf, sizeof(buf), "%d:%02d / %d:%02d", e / 60, e % 60, d / 60, d % 60);
+            snprintf(buf, sizeof(buf), "%d:%02d / -%d:%02d", e / 60, e % 60, rem / 60, rem % 60);
             return std::string(buf);
 
   - platform: homeassistant
@@ -216,8 +217,9 @@ sensor:
             int e = (int)x; if (e < 0) e = 0;
             float dur = id(media_duration_sensor).has_state() ? id(media_duration_sensor).state : 0.0f;
             int d = (int)dur; if (d < 0) d = 0;
+            int rem = d - e; if (rem < 0) rem = 0;
             char buf[24];
-            snprintf(buf, sizeof(buf), "%d:%02d / %d:%02d", e / 60, e % 60, d / 60, d % 60);
+            snprintf(buf, sizeof(buf), "%d:%02d / -%d:%02d", e / 60, e % 60, rem / 60, rem % 60);
             return std::string(buf);
       - lvgl.bar.update:
           id: media_progress_bar
