@@ -170,7 +170,7 @@ lvgl:
             y: 428
             width: 150px
             text_font: roboto15_font
-            text_color: 0xBBBBBB
+            text_color: 0xDDDDDD
             text_align: left
 
         # Progress bar: full screen width, at the very bottom of the screen
