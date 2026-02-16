@@ -154,7 +154,10 @@ text_sensor:
                 url: !lambda |-
                   std::string path = x;
                   while (!path.empty() && (path.back() == '\n' || path.back() == '\r' || path.back() == ' ')) path.pop_back();
-                  return std::string("${home_assistant_url}") + path;
+                  // Route through wsrv.nl to convert progressive JPEG to baseline.
+                  // Replace ${home_assistant_url} with your externally-accessible HA URL if different.
+                  std::string source = std::string("${home_assistant_url}") + path;
+                  return std::string("https://wsrv.nl/?url=") + source + "&output=jpg";
 
   - platform: homeassistant
     entity_id: ${media_player}
