@@ -13,6 +13,10 @@ image:
   - file: "https://placehold.co/480x480/2d2d2d/555555"
     id: album_art_placeholder
     type: rgb565
+  - file: "https://raw.githubusercontent.com/jtenniswood/esphome-media-player/main/guition-esp32-s3-4848s040/assets/gradient.png"
+    id: bottom_gradient
+    type: RGB565
+    transparency: alpha_channel
 
 # Dynamic album art from media_player entity_picture (URL set by sensors.yaml).
 # Decoded at 480x480 to match the physical display resolution (1:1 pixel mapping).
