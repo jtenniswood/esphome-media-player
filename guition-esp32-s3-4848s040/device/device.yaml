@@ -162,6 +162,12 @@ globals:
   - id: is_ui_hidden
     type: bool
     initial_value: 'false'
+  - id: is_screen_dimmed
+    type: bool
+    initial_value: 'false'
+  - id: was_screen_dimmed
+    type: bool
+    initial_value: 'false'
 
 
 # -----------------------------------------------------------------------------
@@ -181,6 +187,7 @@ touchscreen:
     display: tft_display
     on_touch:
       - lambda: |-
+          id(was_screen_dimmed) = id(is_screen_dimmed);
           id(touch_x_start) = touch.x;
           id(touch_y_start) = touch.y;
           id(touch_x_end) = touch.x;
@@ -208,8 +215,19 @@ touchscreen:
             }
           }
           // Tap: minimal movement in top 350px — toggle UI visibility
+          // If screen was dimmed, just wake it (don't hide the UI).
+          // Only allow hiding the UI when media is actively playing.
           else if (sy <= 350 && abs(dx) < 20 && abs(dy) < 20) {
-            id(toggle_ui).execute();
+            if (id(was_screen_dimmed)) {
+              // Screen was dimmed — wake only, don't toggle
+            } else if (id(is_ui_hidden)) {
+              // UI is hidden — always allow showing it
+              id(toggle_ui).execute();
+            } else if (id(media_player_state_sensor).has_state() &&
+                       id(media_player_state_sensor).state == "playing") {
+              // UI is visible and media is playing — allow hiding
+              id(toggle_ui).execute();
+            }
           }
 
 
