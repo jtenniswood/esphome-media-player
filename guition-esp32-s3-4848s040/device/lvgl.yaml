@@ -133,3 +133,86 @@ lvgl:
             indicator:
               bg_color: 0xFFFFFF
               radius: 0
+
+        # ---------------------------------------------------------------
+        # SETTINGS PANEL (swipe-down from top)
+        # ---------------------------------------------------------------
+        # Starts off-screen above the display. Animated into view by
+        # open_settings_panel / close_settings_panel scripts in device.yaml.
+        # Covers 80% of screen (384px), leaving 96px of main view visible.
+        # ---------------------------------------------------------------
+        - obj:
+            id: settings_panel
+            x: 0
+            y: -384
+            width: 480
+            height: 384
+            bg_color: 0x1A1A1A
+            bg_opa: 95%
+            radius: 0
+            border_width: 0
+            pad_all: 0
+            scrollable: false
+            scrollbar_mode: "off"
+            widgets:
+              # Volume icon
+              - label:
+                  id: volume_icon_label
+                  text: $volume_icon
+                  text_font: $icon_font
+                  text_color: 0xFFFFFF
+                  x: 24
+                  y: 168
+                  width: 40px
+                  height: 40px
+                  text_align: center
+
+              # Volume slider
+              - slider:
+                  id: volume_slider
+                  x: 80
+                  y: 170
+                  width: 310
+                  height: 12
+                  min_value: 0
+                  max_value: 100
+                  value: 30
+                  on_value:
+                    - lvgl.label.update:
+                        id: volume_pct_label
+                        text: !lambda |-
+                          char buf[8];
+                          int v = (int)id(volume_slider).get_value();
+                          snprintf(buf, sizeof(buf), "%d%%", v);
+                          return std::string(buf);
+                    - homeassistant.service:
+                        service: media_player.volume_set
+                        data:
+                          entity_id: ${media_player}
+                        data_template:
+                          volume_level: !lambda 'return id(volume_slider).get_value() / 100.0f;'
+
+              # Volume percentage label
+              - label:
+                  id: volume_pct_label
+                  text: "30%"
+                  text_font: roboto19_font
+                  text_color: 0xDDDDDD
+                  x: 406
+                  y: 168
+                  width: 60px
+                  height: 24px
+                  text_align: center
+
+              # Drag handle indicator (visual cue to swipe up to close)
+              - obj:
+                  x: 210
+                  y: 366
+                  width: 60
+                  height: 4
+                  bg_color: 0x666666
+                  bg_opa: 100%
+                  radius: 2
+                  border_width: 0
+                  pad_all: 0
+                  scrollable: false

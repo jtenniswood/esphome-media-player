@@ -12,6 +12,7 @@ font:
       - "\U000F040A"  # mdi-play
       - "\U000F03E4"  # mdi-pause
       - "\U000F04AD"  # mdi-skip-next
+      - "\U000F057E"  # mdi-volume-high
   - file: 'https://github.com/Templarian/MaterialDesign-Webfont/raw/v7.4.47/fonts/materialdesignicons-webfont.ttf'
     id: icon_font_large
     size: 80
@@ -25,3 +26,4 @@ substitutions:
   pause:         "\U000F03E4"
   skip_next:     "\U000F04AD"
   tv_icon:       "\U000F0502"
+  volume_icon:   "\U000F057E"

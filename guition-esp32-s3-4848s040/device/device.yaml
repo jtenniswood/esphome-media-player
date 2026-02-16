@@ -168,6 +168,9 @@ globals:
   - id: was_screen_dimmed
     type: bool
     initial_value: 'false'
+  - id: is_panel_open
+    type: bool
+    initial_value: 'false'
 
 
 # -----------------------------------------------------------------------------
@@ -206,7 +209,24 @@ touchscreen:
           int dx = id(touch_x_end) - id(touch_x_start);
           int dy = id(touch_y_end) - id(touch_y_start);
           int sy = id(touch_y_start);
-          // Swipe: 80px+ horizontal movement, clearly horizontal
+
+          // --- Vertical swipe: settings panel open/close ---
+          // Swipe down to open: start in top 80px, panel closed
+          if (dy > 80 && abs(dy) > abs(dx) * 2 && sy < 80 && !id(is_panel_open)) {
+            id(open_settings_panel).execute();
+            return;
+          }
+          // Swipe up to close: panel is open
+          if (dy < -80 && abs(dy) > abs(dx) * 2 && id(is_panel_open)) {
+            id(close_settings_panel).execute();
+            return;
+          }
+          // When panel is open, ignore all other gestures (horizontal swipe / tap)
+          if (id(is_panel_open)) {
+            return;
+          }
+
+          // --- Horizontal swipe: track navigation ---
           if (abs(dx) > 80 && abs(dx) > abs(dy) * 2) {
             if (dx > 0) {
               id(swipe_previous_track).execute();
@@ -285,6 +305,37 @@ script:
           service: media_player.media_previous_track
           data:
             entity_id: ${media_player}
+  - id: open_settings_panel
+    mode: single
+    then:
+      - lambda: 'id(is_panel_open) = true;'
+      - lambda: |-
+          lv_anim_t a;
+          lv_anim_init(&a);
+          lv_anim_set_var(&a, id(settings_panel));
+          lv_anim_set_values(&a, -384, 0);
+          lv_anim_set_time(&a, 200);
+          lv_anim_set_exec_cb(&a, [](void *obj, int32_t v) {
+            lv_obj_set_y((lv_obj_t *)obj, v);
+          });
+          lv_anim_set_path_cb(&a, lv_anim_path_ease_out);
+          lv_anim_start(&a);
+  - id: close_settings_panel
+    mode: single
+    then:
+      - lambda: |-
+          lv_anim_t a;
+          lv_anim_init(&a);
+          lv_anim_set_var(&a, id(settings_panel));
+          lv_anim_set_values(&a, 0, -384);
+          lv_anim_set_time(&a, 200);
+          lv_anim_set_exec_cb(&a, [](void *obj, int32_t v) {
+            lv_obj_set_y((lv_obj_t *)obj, v);
+          });
+          lv_anim_set_path_cb(&a, lv_anim_path_ease_in);
+          lv_anim_start(&a);
+      - delay: 210ms
+      - lambda: 'id(is_panel_open) = false;'
 
 
 # -----------------------------------------------------------------------------

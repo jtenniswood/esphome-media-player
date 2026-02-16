@@ -38,6 +38,18 @@ lvgl:
       checked:
         bg_color: $button_on_color
         text_color: $button_text_color
+    slider:
+      bg_color: $slider_background_color
+      bg_opa: 100%
+      radius: 6px
+      indicator:
+        bg_color: $slider_active_color
+        radius: 6px
+      knob:
+        bg_color: $slider_knob_color
+        radius: 20px
+        width: 40px
+        height: 40px
     bar:
       indicator:
         bg_color: 0xFFFFFF
