@@ -13,7 +13,7 @@ image:
   - file: "https://placehold.co/480x480/2d2d2d/555555"
     id: album_art_placeholder
     type: rgb565
-  - file: "https://github.com/jtenniswood/esphome-media-player/raw/main/guition-esp32-s3-4848s040/assets/gradient.png"
+  - file: "https://raw.githubusercontent.com/jtenniswood/esphome-media-player/main/guition-esp32-s3-4848s040/assets/gradient.png"
     id: bottom_gradient
     type: RGB
     transparency: alpha_channel
