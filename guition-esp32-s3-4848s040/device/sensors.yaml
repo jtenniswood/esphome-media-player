@@ -156,6 +156,7 @@ text_sensor:
           condition:
             lambda: 'return x == "playing";'
           then:
+            - script.stop: backlight_wake_timeout
             - lvgl.widget.hide:
                 id: media_play_icon
             - lvgl.widget.show:

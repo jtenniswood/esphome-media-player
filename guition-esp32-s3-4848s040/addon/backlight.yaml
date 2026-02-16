@@ -7,3 +7,21 @@ light:
     restore_mode: ALWAYS_ON
     default_transition_length: 1s
     internal: true
+
+# Temporarily wake the backlight on touch; dims again after timeout
+# if media is not playing. mode: restart resets the countdown on each tap.
+script:
+  - id: backlight_wake_timeout
+    mode: restart
+    then:
+      - light.turn_on:
+          id: backlight
+          brightness: 100%
+      - delay: 10s
+      - if:
+          condition:
+            lambda: 'return !id(media_player_state_sensor).has_state() || id(media_player_state_sensor).state != "playing";'
+          then:
+            - light.turn_on:
+                id: backlight
+                brightness: 20%

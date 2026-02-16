@@ -182,6 +182,7 @@ touchscreen:
           id(touch_y_start) = touch.y;
           id(touch_x_end) = touch.x;
           id(touch_y_end) = touch.y;
+      - script.execute: backlight_wake_timeout
     on_update:
       - lambda: |-
           for (auto touch: touches) {
