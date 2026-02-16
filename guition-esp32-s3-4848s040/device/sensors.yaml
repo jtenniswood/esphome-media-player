@@ -84,13 +84,9 @@ script:
       - lvgl.widget.hide: media_title_label
       - lvgl.widget.hide: media_artist_label
       - lvgl.widget.hide: media_play_pause_button
-      - lvgl.widget.hide: media_next_button
-      - lvgl.widget.hide: media_previous_button
       - lvgl.widget.hide: media_time_label
       - lvgl.widget.hide: media_progress_bar
       - lvgl.widget.show: tv_source_label
-      - lvgl.widget.show: night_sound_button
-      - lvgl.widget.show: speech_enhancement_button
   - id: enter_music_mode
     then:
       - lambda: 'id(is_tv_mode) = false;'
@@ -98,13 +94,9 @@ script:
       - lvgl.widget.show: media_title_label
       - lvgl.widget.show: media_artist_label
       - lvgl.widget.show: media_play_pause_button
-      - lvgl.widget.show: media_next_button
-      - lvgl.widget.show: media_previous_button
       - lvgl.widget.show: media_time_label
       - lvgl.widget.show: media_progress_bar
       - lvgl.widget.hide: tv_source_label
-      - lvgl.widget.hide: night_sound_button
-      - lvgl.widget.hide: speech_enhancement_button
 
 text_sensor:
   - platform: homeassistant
@@ -186,43 +178,6 @@ text_sensor:
             - script.execute: enter_tv_mode
           else:
             - script.execute: enter_music_mode
-
-binary_sensor:
-  - platform: homeassistant
-    entity_id: ${night_sound_switch}
-    id: night_sound_sensor
-    on_state:
-      - if:
-          condition:
-            binary_sensor.is_on: night_sound_sensor
-          then:
-            - lvgl.widget.update:
-                id: night_sound_button
-                state:
-                  checked: true
-          else:
-            - lvgl.widget.update:
-                id: night_sound_button
-                state:
-                  checked: false
-
-  - platform: homeassistant
-    entity_id: ${speech_enhancement_switch}
-    id: speech_enhancement_sensor
-    on_state:
-      - if:
-          condition:
-            binary_sensor.is_on: speech_enhancement_sensor
-          then:
-            - lvgl.widget.update:
-                id: speech_enhancement_button
-                state:
-                  checked: true
-          else:
-            - lvgl.widget.update:
-                id: speech_enhancement_button
-                state:
-                  checked: false
 
 sensor:
   - platform: homeassistant

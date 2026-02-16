@@ -96,113 +96,15 @@ lvgl:
                   data:
                     entity_id: ${media_player}
 
-        - button:
-            id: media_next_button
-            x: 390
-            y: 356
-            width: 72px
-            height: 72px
-            hidden: true
-            styles: control_round
-            widgets:
-              - label:
-                  text_font: $icon_font
-                  align: center
-                  text: $skip_next
-                  text_color: 0xFFFFFF
-            on_press:
-              - homeassistant.service:
-                  service: media_player.media_next_track
-                  data:
-                    entity_id: ${media_player}
-
-        - button:
-            id: media_previous_button
-            x: 390
-            y: 356
-            width: 72px
-            height: 72px
-            hidden: true
-            styles: control_round
-            widgets:
-              - label:
-                  text_font: $icon_font
-                  align: center
-                  text: $skip_previous
-                  text_color: 0xFFFFFF
-            on_press:
-              - homeassistant.service:
-                  service: media_player.media_previous_track
-                  data:
-                    entity_id: ${media_player}
-
-        # TV mode: centered source label, shown only when source is "TV"
+        # TV mode: centered TV icon, shown only when source is "TV"
         - label:
             id: tv_source_label
-            text: "TV"
+            text: $tv_icon
             align: center
             y: -60
-            text_font: roboto30_font
+            text_font: icon_font_large
             text_color: 0xFFFFFF
             hidden: true
-
-        # TV mode: Night Sound toggle
-        - button:
-            id: night_sound_button
-            x: 30
-            y: 260
-            width: 200px
-            height: 80px
-            checkable: true
-            hidden: true
-            styles: control
-            widgets:
-              - label:
-                  text_font: $icon_font
-                  align: center
-                  y: -10
-                  text: $night_sound_icon
-                  text_color: 0xFFFFFF
-              - label:
-                  text: "Night Sound"
-                  text_font: roboto15_font
-                  align: center
-                  y: 16
-                  text_color: 0xFFFFFF
-            on_press:
-              - homeassistant.service:
-                  service: switch.toggle
-                  data:
-                    entity_id: ${night_sound_switch}
-
-        # TV mode: Speech Enhancement toggle
-        - button:
-            id: speech_enhancement_button
-            x: 250
-            y: 260
-            width: 200px
-            height: 80px
-            checkable: true
-            hidden: true
-            styles: control
-            widgets:
-              - label:
-                  text_font: $icon_font
-                  align: center
-                  y: -10
-                  text: $speech_enhancement_icon
-                  text_color: 0xFFFFFF
-              - label:
-                  text: "Speech"
-                  text_font: roboto15_font
-                  align: center
-                  y: 16
-                  text_color: 0xFFFFFF
-            on_press:
-              - homeassistant.service:
-                  service: switch.toggle
-                  data:
-                    entity_id: ${speech_enhancement_switch}
 
         # Play clock: elapsed / duration, below artist name
         - label:
