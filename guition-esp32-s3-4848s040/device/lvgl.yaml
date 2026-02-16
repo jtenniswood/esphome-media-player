@@ -106,6 +106,9 @@ lvgl:
                   service: media_player.media_next_track
                   data:
                     entity_id: ${media_player}
+              - script.execute:
+                  id: show_skip_feedback
+                  message: "Next >>"
 
         - button:
             id: media_previous_button
@@ -126,6 +129,9 @@ lvgl:
                   service: media_player.media_previous_track
                   data:
                     entity_id: ${media_player}
+              - script.execute:
+                  id: show_skip_feedback
+                  message: "<< Previous"
 
         # TV mode: centered source label, shown only when source is "TV"
         - label:
@@ -155,6 +161,19 @@ lvgl:
             text_font: roboto15_font
             text_color: 0xFFFFFF
             text_align: right
+
+        # Skip feedback toast: centered label shown briefly when a track is skipped
+        - label:
+            id: skip_feedback_label
+            align: center
+            text: ""
+            text_font: roboto30_font
+            text_color: 0xFFFFFF
+            bg_color: 0x000000
+            bg_opa: 70%
+            pad_all: 16
+            radius: 12
+            hidden: true
 
         # Progress bar: full screen width, at the very bottom of the screen
         - bar:

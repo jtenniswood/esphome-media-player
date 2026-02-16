@@ -5,8 +5,6 @@ substitutions:
   room: "Your Room"
   media_player: "media_player.office"
   home_assistant_url: "http://homeassistant.local:8123"
-  tv_source: "TV"
-
 # Wifi Setup
 wifi:
   ssid: !secret wifi_ssid
@@ -15,15 +13,15 @@ wifi:
 # Packages
 packages:
   setup:
-    url: https://github.com/jtenniswood/esphome-lvgl/
-    files: [guition-esp32-s3-4848s040-music/device/device.yaml,
-            guition-esp32-s3-4848s040-music/device/sensors.yaml,
-            guition-esp32-s3-4848s040-music/device/lvgl.yaml,
-            guition-esp32-s3-4848s040-music/addon/backlight.yaml,
-            guition-esp32-s3-4848s040-music/addon/time.yaml,
-            guition-esp32-s3-4848s040-music/addon/network.yaml,
-            guition-esp32-s3-4848s040-music/addon/music.yaml,
-            guition-esp32-s3-4848s040-music/assets/fonts.yaml,
-            guition-esp32-s3-4848s040-music/assets/icons.yaml,
-            guition-esp32-s3-4848s040-music/theme/button.yaml]
+    url: https://github.com/jtenniswood/esphome-media-player/
+    files: [guition-esp32-s3-4848s040/device/device.yaml,
+            guition-esp32-s3-4848s040/device/sensors.yaml,
+            guition-esp32-s3-4848s040/device/lvgl.yaml,
+            guition-esp32-s3-4848s040/addon/backlight.yaml,
+            guition-esp32-s3-4848s040/addon/time.yaml,
+            guition-esp32-s3-4848s040/addon/network.yaml,
+            guition-esp32-s3-4848s040/addon/music.yaml,
+            guition-esp32-s3-4848s040/assets/fonts.yaml,
+            guition-esp32-s3-4848s040/assets/icons.yaml,
+            guition-esp32-s3-4848s040/theme/button.yaml]
     refresh: 1sec
