@@ -1,0 +1,28 @@
+# Backlight
+light:
+  - platform: monochromatic
+    name: Backlight
+    id: backlight
+    output: backlight_output
+    restore_mode: ALWAYS_ON
+    default_transition_length: 1s
+    internal: true
+
+# Screensaver Presence Trigger
+binary_sensor:
+  - platform: homeassistant
+    id: presence
+    entity_id: binary_sensor.office_presence_group
+    on_press:
+      - lvgl.resume:
+      - delay: 10ms
+      - light.turn_on:
+          id: backlight
+      - logger.log: "Screensaver is turned off"
+
+    on_release:
+      - light.turn_off:
+          id: backlight
+      - lvgl.pause:
+          show_snow: true
+      - logger.log: "Screensaver is turned on"

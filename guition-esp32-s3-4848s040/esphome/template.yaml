@@ -1,0 +1,29 @@
+# ESP32-S3-Touch-LCD-7 Music Dashboard
+substitutions:
+  name: "your-device-name"
+  friendly_name: "Your Room Music"
+  room: "Your Room"
+  media_player: "media_player.office"
+  home_assistant_url: "http://homeassistant.local:8123"
+  tv_source: "TV"
+
+# Wifi Setup
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+# Packages
+packages:
+  setup:
+    url: https://github.com/jtenniswood/esphome-lvgl/
+    files: [guition-esp32-s3-4848s040-music/device/device.yaml,
+            guition-esp32-s3-4848s040-music/device/sensors.yaml,
+            guition-esp32-s3-4848s040-music/device/lvgl.yaml,
+            guition-esp32-s3-4848s040-music/addon/backlight.yaml,
+            guition-esp32-s3-4848s040-music/addon/time.yaml,
+            guition-esp32-s3-4848s040-music/addon/network.yaml,
+            guition-esp32-s3-4848s040-music/addon/music.yaml,
+            guition-esp32-s3-4848s040-music/assets/fonts.yaml,
+            guition-esp32-s3-4848s040-music/assets/icons.yaml,
+            guition-esp32-s3-4848s040-music/theme/button.yaml]
+    refresh: 1sec

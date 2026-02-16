@@ -1,0 +1,10 @@
+# ESPHome
+secrets.yaml
+.esphome/
+
+# macOS
+.DS_Store
+
+# IDE
+.vscode/
+.idea/

@@ -1,0 +1,17 @@
+# Only the 3 Roboto sizes used by the music dashboard (title, artist, time labels).
+# Omitting unused sizes (17, 18, 36, 44, 48, 72) to stay under flash limit.
+font:
+  - file: "gfonts://Roboto"
+    id: roboto30_font
+    size: 30
+    bpp: 4
+
+  - file: "gfonts://Roboto"
+    id: roboto19_font
+    size: 19
+    bpp: 4
+
+  - file: "gfonts://Roboto"
+    id: roboto15_font
+    size: 15
+    bpp: 4

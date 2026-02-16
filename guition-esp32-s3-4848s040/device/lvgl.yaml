@@ -1,0 +1,174 @@
+# =============================================================================
+# LVGL MUSIC DASHBOARD
+# =============================================================================
+# Single-screen now-playing view for Sonos (media_player.office).
+# Data from sensors.yaml; album art from online_image (addon/music.yaml).
+# =============================================================================
+
+lvgl:
+  buffer_size: 100%
+
+  pages:
+    # Full 480px content width (no horizontal padding) so progress bar can span edge-to-edge.
+    # Top padding 12px, no bottom padding (progress bar flush to bottom edge).
+    # Text/buttons use 12px horizontal inset via x/width.
+    - id: main_page
+      scrollbar_mode: "off"
+      scrollable: false
+      width: 100%
+      height: 100%
+      bg_color: 0x1E1E1E
+      pad_top: 12
+      pad_bottom: 0
+      pad_left: 0
+      pad_right: 0
+
+      widgets:
+        # Full-screen artwork background (negative offsets cancel page padding)
+        - image:
+            id: album_art_background_widget
+            x: 0
+            y: -12
+            width: 480px
+            height: 480px
+            src: album_art_background
+            opa: 100%
+
+        # Song title + artist sit on the same row as the control buttons (left side)
+        - label:
+            id: media_title_label
+            text: "—"
+            x: 12
+            y: 352
+            width: 284px
+            height: 30px
+            long_mode: dot
+            text_font: roboto30_font
+            text_color: 0xFFFFFF
+            text_align: left
+
+        - label:
+            id: media_artist_label
+            text: "—"
+            x: 12
+            y: 392
+            width: 284px
+            text_font: roboto19_font
+            text_color: 0xD0D0D0
+            text_align: left
+
+        # Control buttons: 72px round; play/pause + next aligned to the right
+        # Play/pause: two icon labels; visibility toggled by sensors.yaml from state
+        - button:
+            id: media_play_pause_button
+            x: 396
+            y: 344
+            width: 72px
+            height: 72px
+            styles: control_round
+            widgets:
+              - label:
+                  id: media_play_icon
+                  text_font: $icon_font
+                  align: center
+                  text: $play
+                  text_color: 0xFFFFFF
+                  hidden: false
+              - label:
+                  id: media_pause_icon
+                  text_font: $icon_font
+                  align: center
+                  text: $pause
+                  text_color: 0xFFFFFF
+                  hidden: true
+            on_press:
+              - homeassistant.service:
+                  service: media_player.media_play_pause
+                  data:
+                    entity_id: ${media_player}
+
+        - button:
+            id: media_next_button
+            x: 396
+            y: 344
+            width: 72px
+            height: 72px
+            hidden: true
+            styles: control_round
+            widgets:
+              - label:
+                  text_font: $icon_font
+                  align: center
+                  text: $skip_next
+                  text_color: 0xFFFFFF
+            on_press:
+              - homeassistant.service:
+                  service: media_player.media_next_track
+                  data:
+                    entity_id: ${media_player}
+
+        - button:
+            id: media_previous_button
+            x: 396
+            y: 344
+            width: 72px
+            height: 72px
+            hidden: true
+            styles: control_round
+            widgets:
+              - label:
+                  text_font: $icon_font
+                  align: center
+                  text: $skip_previous
+                  text_color: 0xFFFFFF
+            on_press:
+              - homeassistant.service:
+                  service: media_player.media_previous_track
+                  data:
+                    entity_id: ${media_player}
+
+        # TV mode: centered source label, shown only when source is "TV"
+        - label:
+            id: tv_source_label
+            text: "TV"
+            align: center
+            text_font: roboto30_font
+            text_color: 0xFFFFFF
+            hidden: true
+
+        # Play clocks: elapsed (left) and duration (right), below buttons and above progress bar
+        - label:
+            id: media_elapsed_label
+            text: "0:00"
+            x: 12
+            y: 440
+            width: 40px
+            text_font: roboto15_font
+            text_color: 0xFFFFFF
+
+        - label:
+            id: media_duration_label
+            text: "0:00"
+            x: 428
+            y: 440
+            width: 40px
+            text_font: roboto15_font
+            text_color: 0xFFFFFF
+            text_align: right
+
+        # Progress bar: full screen width, at the very bottom of the screen
+        - bar:
+            id: media_progress_bar
+            x: 0
+            y: 464
+            width: 480
+            height: 4
+            bg_color: 0x000000
+            bg_opa: 50%
+            radius: 0
+            min_value: 0
+            max_value: 100
+            value: 0
+            indicator:
+              bg_color: 0xFFFFFF
+              radius: 0

@@ -1,0 +1,29 @@
+# =============================================================================
+# MUSIC DASHBOARD - HTTP request, album art image
+# =============================================================================
+# Required for online_image (album art from Home Assistant entity_picture).
+# Placeholder image shown until art is downloaded.
+# =============================================================================
+
+http_request:
+  id: http_req
+
+# Placeholder shown while album art is loading or when no art is available.
+image:
+  - file: "https://placehold.co/480x480/2d2d2d/555555"
+    id: album_art_placeholder
+    type: rgb565
+
+# Dynamic album art from media_player entity_picture (URL set by sensors.yaml).
+# Decoded at 480x480 to match the physical display resolution (1:1 pixel mapping).
+online_image:
+  - url: "https://placehold.co/480x480/2d2d2d/555555"
+    id: album_art_background
+    type: rgb565
+    format: jpeg
+    placeholder: album_art_placeholder
+    resize: 480x480
+    on_download_finished:
+      - lvgl.image.update:
+          id: album_art_background_widget
+          src: album_art_background
