@@ -16,6 +16,9 @@ globals:
   - id: last_position_timestamp
     type: int
     initial_value: '0'
+  - id: is_tv_mode
+    type: bool
+    initial_value: 'false'
 
 # Refresh progress bar and elapsed time every second; when playing, estimate
 # position from last HA update + elapsed time so the clock moves smoothly
@@ -63,6 +66,45 @@ interval:
                   float dur = id(media_duration_sensor).has_state() ? id(media_duration_sensor).state : 0.0f;
                   if (dur > 0) return (int)((pos / dur) * 100.0f);
                   return 0;
+
+# ---------------------------------------------------------------------------
+# MODE-SWITCH SCRIPTS
+# ---------------------------------------------------------------------------
+# Reusable scripts to switch between TV mode and music mode.
+# Called from media_source_sensor (primary) and as fallback from
+# media_title_sensor / media_player_state_sensor so the display always
+# reflects the current playback type even when the source attribute is
+# unavailable or delayed.
+# ---------------------------------------------------------------------------
+script:
+  - id: enter_tv_mode
+    then:
+      - lambda: 'id(is_tv_mode) = true;'
+      - lvgl.widget.hide: album_art_background_widget
+      - lvgl.widget.hide: media_title_label
+      - lvgl.widget.hide: media_artist_label
+      - lvgl.widget.hide: media_play_pause_button
+      - lvgl.widget.hide: media_next_button
+      - lvgl.widget.hide: media_previous_button
+      - lvgl.widget.hide: media_time_label
+      - lvgl.widget.hide: media_progress_bar
+      - lvgl.widget.show: tv_source_label
+      - lvgl.widget.show: night_sound_button
+      - lvgl.widget.show: speech_enhancement_button
+  - id: enter_music_mode
+    then:
+      - lambda: 'id(is_tv_mode) = false;'
+      - lvgl.widget.show: album_art_background_widget
+      - lvgl.widget.show: media_title_label
+      - lvgl.widget.show: media_artist_label
+      - lvgl.widget.show: media_play_pause_button
+      - lvgl.widget.show: media_next_button
+      - lvgl.widget.show: media_previous_button
+      - lvgl.widget.show: media_time_label
+      - lvgl.widget.show: media_progress_bar
+      - lvgl.widget.hide: tv_source_label
+      - lvgl.widget.hide: night_sound_button
+      - lvgl.widget.hide: speech_enhancement_button
 
 text_sensor:
   - platform: homeassistant
