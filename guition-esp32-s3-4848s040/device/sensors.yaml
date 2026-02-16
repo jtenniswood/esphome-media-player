@@ -19,6 +19,12 @@ globals:
   - id: is_tv_mode
     type: bool
     initial_value: 'false'
+  - id: is_user_seeking
+    type: bool
+    initial_value: 'false'
+  - id: slider_seek_value
+    type: int
+    initial_value: '0'
 
 # Refresh progress bar and elapsed time every second; when playing, estimate
 # position from last HA update + elapsed time so the clock moves smoothly
@@ -49,23 +55,27 @@ interval:
                   char buf[24];
                   snprintf(buf, sizeof(buf), "%d:%02d / -%d:%02d", e / 60, e % 60, rem / 60, rem % 60);
                   return std::string(buf);
-            - lvgl.bar.update:
-                id: media_progress_bar
-                value: !lambda |-
-                  float pos = id(last_position_timestamp) != 0 && id(media_position_sensor).has_state()
-                    ? id(media_position_sensor).state : id(last_media_position);
-                  if (id(media_player_state_sensor).state == "playing") {
-                    auto t = id(sntp_time).now();
-                    if (t.is_valid() && id(last_position_timestamp) != 0) {
-                      pos = id(last_media_position) + (t.timestamp - id(last_position_timestamp));
-                      if (pos < 0) pos = 0;
-                      float dur = id(media_duration_sensor).has_state() ? id(media_duration_sensor).state : 0.0f;
-                      if (dur > 0 && pos > dur) pos = dur;
-                    }
-                  }
-                  float dur = id(media_duration_sensor).has_state() ? id(media_duration_sensor).state : 0.0f;
-                  if (dur > 0) return (int)((pos / dur) * 100.0f);
-                  return 0;
+            - if:
+                condition:
+                  lambda: 'return !id(is_user_seeking);'
+                then:
+                  - lvgl.slider.update:
+                      id: media_progress_bar
+                      value: !lambda |-
+                        float pos = id(last_position_timestamp) != 0 && id(media_position_sensor).has_state()
+                          ? id(media_position_sensor).state : id(last_media_position);
+                        if (id(media_player_state_sensor).state == "playing") {
+                          auto t = id(sntp_time).now();
+                          if (t.is_valid() && id(last_position_timestamp) != 0) {
+                            pos = id(last_media_position) + (t.timestamp - id(last_position_timestamp));
+                            if (pos < 0) pos = 0;
+                            float dur = id(media_duration_sensor).has_state() ? id(media_duration_sensor).state : 0.0f;
+                            if (dur > 0 && pos > dur) pos = dur;
+                          }
+                        }
+                        float dur = id(media_duration_sensor).has_state() ? id(media_duration_sensor).state : 0.0f;
+                        if (dur > 0) return (int)((pos / dur) * 100.0f);
+                        return 0;
 
 # ---------------------------------------------------------------------------
 # MODE-SWITCH SCRIPTS
@@ -119,7 +129,7 @@ text_sensor:
       - lvgl.label.update:
           id: media_time_label
           text: "0:00 / -0:00"
-      - lvgl.bar.update:
+      - lvgl.slider.update:
           id: media_progress_bar
           value: 0
 
@@ -221,12 +231,16 @@ sensor:
             char buf[24];
             snprintf(buf, sizeof(buf), "%d:%02d / -%d:%02d", e / 60, e % 60, rem / 60, rem % 60);
             return std::string(buf);
-      - lvgl.bar.update:
-          id: media_progress_bar
-          value: !lambda |-
-            float pos = x;
-            float dur = id(media_duration_sensor).state;
-            if (dur > 0) {
-              return (int)((pos / dur) * 100.0f);
-            }
-            return 0;
+      - if:
+          condition:
+            lambda: 'return !id(is_user_seeking);'
+          then:
+            - lvgl.slider.update:
+                id: media_progress_bar
+                value: !lambda |-
+                  float pos = x;
+                  float dur = id(media_duration_sensor).state;
+                  if (dur > 0) {
+                    return (int)((pos / dur) * 100.0f);
+                  }
+                  return 0;

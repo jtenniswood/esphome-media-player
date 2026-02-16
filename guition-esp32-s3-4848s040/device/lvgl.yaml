@@ -117,13 +117,13 @@ lvgl:
             text_color: 0xFFFFFF
             text_align: left
 
-        # Progress bar: full screen width, at the very bottom of the screen
-        - bar:
+        # Progress slider: interactive seek bar at the bottom of the screen
+        - slider:
             id: media_progress_bar
             x: 0
-            y: 476
+            y: 468
             width: 480
-            height: 6
+            height: 12
             bg_color: 0x000000
             bg_opa: 50%
             radius: 0
@@ -133,3 +133,28 @@ lvgl:
             indicator:
               bg_color: 0xFFFFFF
               radius: 0
+            knob:
+              bg_color: 0xFFFFFF
+              radius: 8
+              width: 16
+              height: 16
+            on_press:
+              - lambda: 'id(is_user_seeking) = true;'
+            on_value:
+              - lambda: 'if (id(is_user_seeking)) id(slider_seek_value) = (int)x;'
+            on_release:
+              - lambda: |-
+                  id(is_user_seeking) = false;
+                  float dur = id(media_duration_sensor).has_state() ? id(media_duration_sensor).state : 0.0f;
+                  float pos = dur * id(slider_seek_value) / 100.0f;
+                  id(last_media_position) = pos;
+                  auto t = id(sntp_time).now();
+                  if (t.is_valid()) id(last_position_timestamp) = t.timestamp;
+              - homeassistant.service:
+                  service: media_player.media_seek
+                  data:
+                    entity_id: ${media_player}
+                  variables:
+                    seek_position: !lambda |-
+                      float dur = id(media_duration_sensor).has_state() ? id(media_duration_sensor).state : 0.0f;
+                      return dur * id(slider_seek_value) / 100.0f;

@@ -195,8 +195,9 @@ touchscreen:
       - lambda: |-
           int dx = id(touch_x_end) - id(touch_x_start);
           int dy = id(touch_y_end) - id(touch_y_start);
-          // Require 80px+ horizontal movement and must be clearly horizontal
-          if (abs(dx) > 80 && abs(dx) > abs(dy) * 2) {
+          int sy = id(touch_y_start);
+          // Require 80px+ horizontal movement, clearly horizontal, and within top 350px
+          if (sy <= 350 && abs(dx) > 80 && abs(dx) > abs(dy) * 2) {
             if (dx > 0) {
               id(swipe_previous_track).execute();
             } else {
