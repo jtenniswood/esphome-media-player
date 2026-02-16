@@ -53,6 +53,8 @@ lvgl:
             x: 12
             y: 420
             width: 284px
+            height: 24px
+            long_mode: dot
             text_font: roboto19_font
             text_color: 0xFFFFFF
             text_align: left
@@ -202,7 +204,7 @@ lvgl:
             id: media_time_label
             text: "0:00 / 0:00"
             x: 12
-            y: 445
+            y: 452
             width: 150px
             text_font: roboto15_font
             text_color: 0xFFFFFF
