@@ -114,16 +114,16 @@ lvgl:
             y: 428
             width: 150px
             text_font: roboto15_font
-            text_color: 0xFFFFFF
+            text_color: 0xBBBBBB
             text_align: left
 
         # Progress bar: full screen width, at the very bottom of the screen
         - bar:
             id: media_progress_bar
             x: 0
-            y: 472
+            y: 474
             width: 480
-            height: 8
+            height: 6
             bg_color: 0x000000
             bg_opa: 50%
             radius: 0

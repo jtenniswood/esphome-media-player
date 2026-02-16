@@ -221,7 +221,7 @@ touchscreen:
 # -----------------------------------------------------------------------------
 script:
   - id: toggle_ui
-    mode: single
+    mode: restart
     then:
       - if:
           condition:
@@ -233,8 +233,21 @@ script:
             - lvgl.widget.show: media_artist_label
             - lvgl.widget.show: media_play_pause_button
             - lvgl.widget.show: media_time_label
+            - lambda: |-
+                lv_obj_fade_in(id(bottom_overlay), 500, 0);
+                lv_obj_fade_in(id(media_title_label), 500, 0);
+                lv_obj_fade_in(id(media_artist_label), 500, 0);
+                lv_obj_fade_in(id(media_play_pause_button), 500, 0);
+                lv_obj_fade_in(id(media_time_label), 500, 0);
           else:
             - lambda: 'id(is_ui_hidden) = true;'
+            - lambda: |-
+                lv_obj_fade_out(id(bottom_overlay), 2000, 0);
+                lv_obj_fade_out(id(media_title_label), 2000, 0);
+                lv_obj_fade_out(id(media_artist_label), 2000, 0);
+                lv_obj_fade_out(id(media_play_pause_button), 2000, 0);
+                lv_obj_fade_out(id(media_time_label), 2000, 0);
+            - delay: 2100ms
             - lvgl.widget.hide: bottom_overlay
             - lvgl.widget.hide: media_title_label
             - lvgl.widget.hide: media_artist_label
