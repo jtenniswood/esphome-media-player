@@ -32,13 +32,69 @@ lvgl:
             opa: 100%
 
         # Gradient overlay behind the bottom controls
-        - image:
+        # Stacked opacity bands simulate a smooth alpha fade from transparent
+        # to opaque black. Each band is a flat colour so there is no RGB565
+        # banding within any single band.
+        - obj:
             id: bottom_overlay
             x: 0
-            y: 350
+            y: 250
             width: 480
-            height: 130
-            src: bottom_gradient
+            height: 230
+            scrollbar_mode: "off"
+            scrollable: false
+            bg_opa: 0%
+            border_width: 0
+            pad_all: 0
+            widgets:
+              - obj:
+                  styles: grad_band
+                  y: 0
+                  width: 480
+                  height: 29
+                  bg_opa: 5%
+              - obj:
+                  styles: grad_band
+                  y: 29
+                  width: 480
+                  height: 29
+                  bg_opa: 12%
+              - obj:
+                  styles: grad_band
+                  y: 58
+                  width: 480
+                  height: 29
+                  bg_opa: 22%
+              - obj:
+                  styles: grad_band
+                  y: 87
+                  width: 480
+                  height: 29
+                  bg_opa: 38%
+              - obj:
+                  styles: grad_band
+                  y: 116
+                  width: 480
+                  height: 29
+                  bg_opa: 55%
+              - obj:
+                  styles: grad_band
+                  y: 145
+                  width: 480
+                  height: 28
+                  bg_opa: 72%
+              - obj:
+                  styles: grad_band
+                  y: 173
+                  width: 480
+                  height: 28
+                  bg_opa: 88%
+              - obj:
+                  styles: grad_band
+                  y: 201
+                  width: 480
+                  height: 29
+                  bg_opa: 100%
 
         # Song title
         - label:

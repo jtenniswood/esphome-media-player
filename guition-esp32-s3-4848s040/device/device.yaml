@@ -234,20 +234,20 @@ script:
             - lvgl.widget.show: media_play_pause_button
             - lvgl.widget.show: media_time_label
             - lambda: |-
-                lv_obj_fade_in(id(bottom_overlay), 300, 0);
-                lv_obj_fade_in(id(media_title_label), 300, 0);
-                lv_obj_fade_in(id(media_artist_label), 300, 0);
-                lv_obj_fade_in(id(media_play_pause_button), 300, 0);
-                lv_obj_fade_in(id(media_time_label), 300, 0);
+                lv_obj_fade_in(id(bottom_overlay), 200, 0);
+                lv_obj_fade_in(id(media_title_label), 200, 0);
+                lv_obj_fade_in(id(media_artist_label), 200, 0);
+                lv_obj_fade_in(id(media_play_pause_button), 200, 0);
+                lv_obj_fade_in(id(media_time_label), 200, 0);
           else:
             - lambda: 'id(is_ui_hidden) = true;'
             - lambda: |-
-                lv_obj_fade_out(id(bottom_overlay), 1000, 0);
-                lv_obj_fade_out(id(media_title_label), 1000, 0);
-                lv_obj_fade_out(id(media_artist_label), 1000, 0);
-                lv_obj_fade_out(id(media_play_pause_button), 1000, 0);
-                lv_obj_fade_out(id(media_time_label), 1000, 0);
-            - delay: 1100ms
+                lv_obj_fade_out(id(bottom_overlay), 200, 0);
+                lv_obj_fade_out(id(media_title_label), 200, 0);
+                lv_obj_fade_out(id(media_artist_label), 200, 0);
+                lv_obj_fade_out(id(media_play_pause_button), 200, 0);
+                lv_obj_fade_out(id(media_time_label), 200, 0);
+            - delay: 300ms
             - lvgl.widget.hide: bottom_overlay
             - lvgl.widget.hide: media_title_label
             - lvgl.widget.hide: media_artist_label
