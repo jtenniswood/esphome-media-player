@@ -131,5 +131,5 @@ lvgl:
             max_value: 100
             value: 0
             indicator:
-              bg_color: 0xDDDDDD
+              bg_color: 0xFFFFFF
               radius: 0
