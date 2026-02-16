@@ -183,31 +183,9 @@ text_sensor:
           condition:
             lambda: 'return x == "TV";'
           then:
-            # --- Enter TV mode ---
-            - lvgl.widget.hide: album_art_background_widget
-            - lvgl.widget.hide: media_title_label
-            - lvgl.widget.hide: media_artist_label
-            - lvgl.widget.hide: media_play_pause_button
-            - lvgl.widget.hide: media_next_button
-            - lvgl.widget.hide: media_previous_button
-            - lvgl.widget.hide: media_time_label
-            - lvgl.widget.hide: media_progress_bar
-            - lvgl.widget.show: tv_source_label
-            - lvgl.widget.show: night_sound_button
-            - lvgl.widget.show: speech_enhancement_button
+            - script.execute: enter_tv_mode
           else:
-            # --- Exit TV mode (music mode) ---
-            - lvgl.widget.show: album_art_background_widget
-            - lvgl.widget.show: media_title_label
-            - lvgl.widget.show: media_artist_label
-            - lvgl.widget.show: media_play_pause_button
-            - lvgl.widget.show: media_next_button
-            - lvgl.widget.show: media_previous_button
-            - lvgl.widget.show: media_time_label
-            - lvgl.widget.show: media_progress_bar
-            - lvgl.widget.hide: tv_source_label
-            - lvgl.widget.hide: night_sound_button
-            - lvgl.widget.hide: speech_enhancement_button
+            - script.execute: enter_music_mode
 
 binary_sensor:
   - platform: homeassistant

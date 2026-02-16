@@ -1,0 +1,46 @@
+# =============================================================================
+# HOME ASSISTANT CONFIGURATION — Album Art Proxy
+# =============================================================================
+# ESPHome's JPEG decoder does not support progressive JPEGs, which many music
+# services now use for album art. This configuration converts album art to
+# baseline JPEG before the ESPHome device downloads it.
+#
+# SETUP:
+#   1. Copy scripts/convert_album_art.py to /config/scripts/
+#   2. Add the shell_command and input_text sections below to your
+#      Home Assistant configuration.yaml (or merge into existing sections).
+#   3. Create the automation below (via UI or automations.yaml).
+#   4. Restart Home Assistant.
+#   5. Flash the updated ESPHome firmware to your device.
+#
+# HOW IT WORKS:
+#   1. HA automation triggers when the media player's entity_picture changes.
+#   2. shell_command runs the Python script, which downloads the art from HA's
+#      media proxy (using the signed URL) and re-encodes it as baseline JPEG.
+#   3. The converted image is saved to /config/www/album_art.jpg.
+#   4. The automation updates input_text.album_art_url with a cache-busted URL.
+#   5. ESPHome subscribes to that helper and downloads the converted image.
+#
+# NOTE: Change "media_player.office" below to match YOUR media player entity.
+# =============================================================================
+
+
+# --- Shell Command -----------------------------------------------------------
+# Runs the conversion script. The Jinja2 template reads the entity_picture
+# attribute at call time and passes the full URL to the script.
+# Change "media_player.office" to your entity.
+# -----------------------------------------------------------------------------
+shell_command:
+  convert_album_art: >-
+    python3 /config/scripts/convert_album_art.py
+    'http://127.0.0.1:8123{{ state_attr("media_player.office", "entity_picture") }}'
+
+
+# --- Input Text Helper -------------------------------------------------------
+# Stores the URL (with cache-busting timestamp) that ESPHome subscribes to.
+# Create via UI: Settings > Devices > Helpers > Add > Text, or add below.
+# -----------------------------------------------------------------------------
+input_text:
+  album_art_url:
+    name: Album Art URL
+    max: 255
