@@ -122,6 +122,15 @@ text_sensor:
       - lvgl.bar.update:
           id: media_progress_bar
           value: 0
+      # Fallback: if we're still in TV mode but the source is no longer "TV",
+      # switch to music mode (handles delayed or missing source updates).
+      - if:
+          condition:
+            lambda: |-
+              return id(is_tv_mode)
+                && (!id(media_source_sensor).has_state() || id(media_source_sensor).state != "TV");
+          then:
+            - script.execute: enter_music_mode
 
   - platform: homeassistant
     entity_id: ${media_player}
@@ -165,6 +174,15 @@ text_sensor:
             - light.turn_on:
                 id: backlight
                 brightness: 100%
+            # Fallback: if playback starts and source is no longer "TV",
+            # ensure we switch out of TV mode.
+            - if:
+                condition:
+                  lambda: |-
+                    return id(is_tv_mode)
+                      && (!id(media_source_sensor).has_state() || id(media_source_sensor).state != "TV");
+                then:
+                  - script.execute: enter_music_mode
           else:
             - lvgl.widget.show:
                 id: media_play_icon
