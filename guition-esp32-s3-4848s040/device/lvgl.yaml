@@ -47,7 +47,7 @@ lvgl:
         - label:
             id: media_title_label
             text: "—"
-            x: 20
+            x: 18
             y: 356
             width: 370px
             height: 30px
@@ -72,7 +72,7 @@ lvgl:
         # Play/pause: two icon labels; visibility toggled by sensors.yaml from state
         - button:
             id: media_play_pause_button
-            x: 388
+            x: 390
             y: 356
             width: 72px
             height: 72px
@@ -100,7 +100,7 @@ lvgl:
 
         - button:
             id: media_next_button
-            x: 388
+            x: 390
             y: 356
             width: 72px
             height: 72px
@@ -120,7 +120,7 @@ lvgl:
 
         - button:
             id: media_previous_button
-            x: 388
+            x: 390
             y: 356
             width: 72px
             height: 72px
