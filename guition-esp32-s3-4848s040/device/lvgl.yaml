@@ -204,7 +204,7 @@ lvgl:
             id: media_time_label
             text: "0:00 / 0:00"
             x: 12
-            y: 430
+            y: 426
             width: 150px
             text_font: roboto15_font
             text_color: 0xFFFFFF
