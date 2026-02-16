@@ -17,7 +17,6 @@ image:
     id: bottom_gradient
     type: RGB
     transparency: alpha_channel
-    resize: 480x140
 
 # Dynamic album art from media_player entity_picture (URL set by sensors.yaml).
 # Decoded at 480x480 to match the physical display resolution (1:1 pixel mapping).
