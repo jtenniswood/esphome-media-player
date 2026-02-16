@@ -47,7 +47,7 @@ lvgl:
         - label:
             id: media_title_label
             text: "—"
-            x: 
+            x: 0
             y: 356
             width: 370px
             height: 30px
