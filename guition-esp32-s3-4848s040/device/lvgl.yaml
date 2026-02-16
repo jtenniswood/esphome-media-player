@@ -64,7 +64,7 @@ lvgl:
         - button:
             id: media_play_pause_button
             x: 396
-            y: 346
+            y: 376
             width: 72px
             height: 72px
             styles: control_round
@@ -92,7 +92,7 @@ lvgl:
         - button:
             id: media_next_button
             x: 396
-            y: 346
+            y: 376
             width: 72px
             height: 72px
             hidden: true
@@ -113,7 +113,7 @@ lvgl:
         - button:
             id: media_previous_button
             x: 396
-            y: 346
+            y: 376
             width: 72px
             height: 72px
             hidden: true
