@@ -230,7 +230,7 @@ script:
             entity_id: ${media_player}
       - script.execute:
           id: show_skip_feedback
-          message: "Next >>"
+          message: "Next track"
   - id: swipe_previous_track
     mode: single
     then:
@@ -240,7 +240,7 @@ script:
             entity_id: ${media_player}
       - script.execute:
           id: show_skip_feedback
-          message: "<< Previous"
+          message: "Previous track"
 
 
 # -----------------------------------------------------------------------------

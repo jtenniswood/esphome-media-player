@@ -27,7 +27,7 @@ interval:
             lambda: 'return !id(media_source_sensor).has_state() || id(media_source_sensor).state != "TV";'
           then:
             - lvgl.label.update:
-                id: media_elapsed_label
+                id: media_time_label
                 text: !lambda |-
                   float pos = id(last_position_timestamp) != 0 && id(media_position_sensor).has_state()
                     ? id(media_position_sensor).state : id(last_media_position);
@@ -40,12 +40,11 @@ interval:
                       if (dur > 0 && pos > dur) pos = dur;
                     }
                   }
-                  char buf[12];
-                  int sec = (int)pos;
-                  if (sec < 0) sec = 0;
-                  int m = sec / 60;
-                  int s = sec % 60;
-                  snprintf(buf, sizeof(buf), "%02d:%02d", m, s);
+                  float dur = id(media_duration_sensor).has_state() ? id(media_duration_sensor).state : 0.0f;
+                  int e = (int)pos; if (e < 0) e = 0;
+                  int d = (int)dur; if (d < 0) d = 0;
+                  char buf[24];
+                  snprintf(buf, sizeof(buf), "%d:%02d / %d:%02d", e / 60, e % 60, d / 60, d % 60);
                   return std::string(buf);
             - lvgl.bar.update:
                 id: media_progress_bar
@@ -84,11 +83,8 @@ text_sensor:
           id: media_title_label
           text: !lambda 'return x.empty() ? std::string("—") : x;'
       - lvgl.label.update:
-          id: media_elapsed_label
-          text: "00:00"
-      - lvgl.label.update:
-          id: media_duration_label
-          text: "00:00"
+          id: media_time_label
+          text: "0:00 / 0:00"
       - lvgl.bar.update:
           id: media_progress_bar
           value: 0
@@ -152,8 +148,7 @@ text_sensor:
             - lvgl.widget.hide: media_play_pause_button
             - lvgl.widget.hide: media_next_button
             - lvgl.widget.hide: media_previous_button
-            - lvgl.widget.hide: media_elapsed_label
-            - lvgl.widget.hide: media_duration_label
+            - lvgl.widget.hide: media_time_label
             - lvgl.widget.hide: media_progress_bar
             - lvgl.widget.show: tv_source_label
           else:
@@ -164,8 +159,7 @@ text_sensor:
             - lvgl.widget.show: media_play_pause_button
             - lvgl.widget.show: media_next_button
             - lvgl.widget.show: media_previous_button
-            - lvgl.widget.show: media_elapsed_label
-            - lvgl.widget.show: media_duration_label
+            - lvgl.widget.show: media_time_label
             - lvgl.widget.show: media_progress_bar
             - lvgl.widget.hide: tv_source_label
 
@@ -176,14 +170,13 @@ sensor:
     attribute: media_duration
     on_value:
       - lvgl.label.update:
-          id: media_duration_label
+          id: media_time_label
           text: !lambda |-
-            char buf[12];
-            int sec = (int)x;
-            if (sec < 0) sec = 0;
-            int m = sec / 60;
-            int s = sec % 60;
-            snprintf(buf, sizeof(buf), "%02d:%02d", m, s);
+            int d = (int)x; if (d < 0) d = 0;
+            float pos = id(last_media_position);
+            int e = (int)pos; if (e < 0) e = 0;
+            char buf[24];
+            snprintf(buf, sizeof(buf), "%d:%02d / %d:%02d", e / 60, e % 60, d / 60, d % 60);
             return std::string(buf);
 
   - platform: homeassistant
@@ -196,14 +189,13 @@ sensor:
           auto t = id(sntp_time).now();
           if (t.is_valid()) id(last_position_timestamp) = t.timestamp;
       - lvgl.label.update:
-          id: media_elapsed_label
+          id: media_time_label
           text: !lambda |-
-            char buf[12];
-            int sec = (int)x;
-            if (sec < 0) sec = 0;
-            int m = sec / 60;
-            int s = sec % 60;
-            snprintf(buf, sizeof(buf), "%02d:%02d", m, s);
+            int e = (int)x; if (e < 0) e = 0;
+            float dur = id(media_duration_sensor).has_state() ? id(media_duration_sensor).state : 0.0f;
+            int d = (int)dur; if (d < 0) d = 0;
+            char buf[24];
+            snprintf(buf, sizeof(buf), "%d:%02d / %d:%02d", e / 60, e % 60, d / 60, d % 60);
             return std::string(buf);
       - lvgl.bar.update:
           id: media_progress_bar

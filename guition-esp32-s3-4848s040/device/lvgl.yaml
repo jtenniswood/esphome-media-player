@@ -54,7 +54,7 @@ lvgl:
             y: 392
             width: 284px
             text_font: roboto19_font
-            text_color: 0xD0D0D0
+            text_color: 0xFFFFFF
             text_align: left
 
         # Control buttons: 72px round; play/pause + next aligned to the right
@@ -108,7 +108,7 @@ lvgl:
                     entity_id: ${media_player}
               - script.execute:
                   id: show_skip_feedback
-                  message: "Next >>"
+                  message: "Next track"
 
         - button:
             id: media_previous_button
@@ -131,7 +131,7 @@ lvgl:
                     entity_id: ${media_player}
               - script.execute:
                   id: show_skip_feedback
-                  message: "<< Previous"
+                  message: "Previous track"
 
         # TV mode: centered source label, shown only when source is "TV"
         - label:
@@ -142,27 +142,18 @@ lvgl:
             text_color: 0xFFFFFF
             hidden: true
 
-        # Play clocks: elapsed (left) and duration (right), below buttons and above progress bar
+        # Play clock: elapsed / duration, below artist name
         - label:
-            id: media_elapsed_label
-            text: "0:00"
+            id: media_time_label
+            text: "0:00 / 0:00"
             x: 12
-            y: 440
-            width: 40px
+            y: 416
+            width: 150px
             text_font: roboto15_font
             text_color: 0xFFFFFF
+            text_align: left
 
-        - label:
-            id: media_duration_label
-            text: "0:00"
-            x: 428
-            y: 440
-            width: 40px
-            text_font: roboto15_font
-            text_color: 0xFFFFFF
-            text_align: right
-
-        # Skip feedback toast: centered label shown briefly when a track is skipped
+        # Skip feedback toast: centered pill shown briefly when a track is skipped
         - label:
             id: skip_feedback_label
             align: center
@@ -171,8 +162,11 @@ lvgl:
             text_color: 0xFFFFFF
             bg_color: 0x000000
             bg_opa: 70%
-            pad_all: 16
-            radius: 12
+            pad_top: 12
+            pad_bottom: 12
+            pad_left: 24
+            pad_right: 24
+            radius: 0x7FFF
             hidden: true
 
         # Progress bar: full screen width, at the very bottom of the screen
