@@ -39,7 +39,7 @@ lvgl:
             id: media_title_label
             text: "—"
             x: 12
-            y: 386
+            y: 356
             width: 284px
             height: 30px
             long_mode: dot
@@ -51,7 +51,7 @@ lvgl:
             id: media_artist_label
             text: "—"
             x: 12
-            y: 420
+            y: 396
             width: 284px
             height: 24px
             long_mode: dot
@@ -64,7 +64,7 @@ lvgl:
         - button:
             id: media_play_pause_button
             x: 396
-            y: 376
+            y: 346
             width: 72px
             height: 72px
             styles: control_round
@@ -92,7 +92,7 @@ lvgl:
         - button:
             id: media_next_button
             x: 396
-            y: 376
+            y: 346
             width: 72px
             height: 72px
             hidden: true
@@ -113,7 +113,7 @@ lvgl:
         - button:
             id: media_previous_button
             x: 396
-            y: 376
+            y: 346
             width: 72px
             height: 72px
             hidden: true
@@ -204,7 +204,7 @@ lvgl:
             id: media_time_label
             text: "0:00 / 0:00"
             x: 12
-            y: 452
+            y: 422
             width: 150px
             text_font: roboto15_font
             text_color: 0xFFFFFF
