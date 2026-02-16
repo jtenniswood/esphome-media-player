@@ -160,11 +160,17 @@ text_sensor:
                 id: media_play_icon
             - lvgl.widget.show:
                 id: media_pause_icon
+            - light.turn_on:
+                id: backlight
+                brightness: 100%
           else:
             - lvgl.widget.show:
                 id: media_play_icon
             - lvgl.widget.hide:
                 id: media_pause_icon
+            - light.turn_on:
+                id: backlight
+                brightness: 20%
 
   - platform: homeassistant
     entity_id: ${media_player}
