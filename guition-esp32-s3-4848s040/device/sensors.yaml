@@ -157,6 +157,7 @@ text_sensor:
             lambda: 'return x == "playing";'
           then:
             - script.stop: backlight_wake_timeout
+            - lvgl.resume:
             - lvgl.widget.hide:
                 id: media_play_icon
             - lvgl.widget.show:
@@ -169,9 +170,7 @@ text_sensor:
                 id: media_play_icon
             - lvgl.widget.hide:
                 id: media_pause_icon
-            - light.turn_on:
-                id: backlight
-                brightness: 20%
+            - script.execute: backlight_wake_timeout
 
   - platform: homeassistant
     entity_id: ${media_player}
