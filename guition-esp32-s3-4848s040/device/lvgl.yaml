@@ -111,7 +111,7 @@ lvgl:
             id: media_time_label
             text: "0:00  /  0:00"
             x: 18
-            y: 426
+            y: 428
             width: 150px
             text_font: roboto15_font
             text_color: 0xFFFFFF
@@ -140,13 +140,14 @@ lvgl:
               height: 16
             on_press:
               - lambda: 'id(is_user_seeking) = true;'
-            on_value:
-              - lambda: 'if (id(is_user_seeking)) id(slider_seek_value) = (int)x;'
             on_release:
               - lambda: |-
                   id(is_user_seeking) = false;
+                  float pct = id(touch_x_end) / 480.0f;
+                  if (pct < 0) pct = 0;
+                  if (pct > 1) pct = 1;
                   float dur = id(media_duration_sensor).has_state() ? id(media_duration_sensor).state : 0.0f;
-                  float pos = dur * id(slider_seek_value) / 100.0f;
+                  float pos = dur * pct;
                   id(last_media_position) = pos;
                   auto t = id(sntp_time).now();
                   if (t.is_valid()) id(last_position_timestamp) = t.timestamp;
@@ -156,5 +157,10 @@ lvgl:
                     entity_id: ${media_player}
                   variables:
                     seek_position: !lambda |-
+                      float pct = id(touch_x_end) / 480.0f;
+                      if (pct < 0) pct = 0;
+                      if (pct > 1) pct = 1;
                       float dur = id(media_duration_sensor).has_state() ? id(media_duration_sensor).state : 0.0f;
-                      return dur * id(slider_seek_value) / 100.0f;
+                      char buf[16];
+                      snprintf(buf, sizeof(buf), "%.1f", dur * pct);
+                      return std::string(buf);

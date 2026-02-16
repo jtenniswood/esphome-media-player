@@ -22,9 +22,6 @@ globals:
   - id: is_user_seeking
     type: bool
     initial_value: 'false'
-  - id: slider_seek_value
-    type: int
-    initial_value: '0'
 
 # Refresh progress bar and elapsed time every second; when playing, estimate
 # position from last HA update + elapsed time so the clock moves smoothly
