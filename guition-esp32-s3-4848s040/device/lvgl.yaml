@@ -182,7 +182,7 @@ lvgl:
                         id: volume_pct_label
                         text: !lambda |-
                           char buf[8];
-                          int v = (int)id(volume_slider).get_value();
+                          int v = (int)lv_slider_get_value(id(volume_slider));
                           snprintf(buf, sizeof(buf), "%d%%", v);
                           return std::string(buf);
                     - homeassistant.service:
@@ -190,7 +190,7 @@ lvgl:
                         data:
                           entity_id: ${media_player}
                         data_template:
-                          volume_level: !lambda 'return id(volume_slider).get_value() / 100.0f;'
+                          volume_level: !lambda 'return lv_slider_get_value(id(volume_slider)) / 100.0f;'
 
               # Volume percentage label
               - label:
