@@ -4,11 +4,7 @@
 # Subscribes to media_player attributes and updates LVGL labels, bar, image,
 # and play/pause icon. To use a different entity, override in your main YAML
 # with a package override or use a local copy and set entity_id.
-#
-# Album art: ESPHome's JPEG decoder only supports baseline JPEGs. Music
-# services often use progressive JPEGs. A Home Assistant automation converts
-# the art to baseline JPEG and writes the URL into input_text.album_art_url.
-# See /home-assistant/ in this repo for the required HA setup.
+# Album art base URL: http://192.168.1.30:8123 (path from HA already includes token).
 # =============================================================================
 
 # Store last HA position and time so we can estimate elapsed time between updates
@@ -125,13 +121,6 @@ text_sensor:
           if (t.is_valid()) {
             id(last_position_timestamp) = t.timestamp;
           }
-      # Fallback: if a real title arrives while in TV mode, the source
-      # attribute likely changed but the sensor didn't fire — switch to music
-      - if:
-          condition:
-            lambda: 'return !x.empty() && id(is_tv_mode);'
-          then:
-            - script.execute: enter_music_mode
       - lvgl.label.update:
           id: media_title_label
           text: !lambda 'return x.empty() ? std::string("—") : x;'
@@ -151,13 +140,10 @@ text_sensor:
           id: media_artist_label
           text: !lambda 'return x.empty() ? std::string("—") : x;'
 
-  # Album art URL — updated by the HA-side "Convert Album Art" automation.
-  # The automation converts progressive JPEGs (unsupported by ESPHome) to
-  # baseline JPEG and writes the cache-busted local URL into this helper.
-  # See /home-assistant/ in this repo for the required HA configuration.
   - platform: homeassistant
-    entity_id: input_text.album_art_url
-    id: album_art_url_sensor
+    entity_id: ${media_player}
+    id: media_entity_picture_sensor
+    attribute: entity_picture
     on_value:
       - if:
           condition:
@@ -187,12 +173,6 @@ text_sensor:
                 id: media_play_icon
             - lvgl.widget.hide:
                 id: media_pause_icon
-      # Fallback: if state changes and source is no longer TV, exit TV mode
-      - if:
-          condition:
-            lambda: 'return id(is_tv_mode) && (!id(media_source_sensor).has_state() || id(media_source_sensor).state != "TV");'
-          then:
-            - script.execute: enter_music_mode
 
   - platform: homeassistant
     entity_id: ${media_player}

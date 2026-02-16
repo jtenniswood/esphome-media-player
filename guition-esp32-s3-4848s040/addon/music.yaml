@@ -1,10 +1,7 @@
 # =============================================================================
 # MUSIC DASHBOARD - HTTP request, album art image
 # =============================================================================
-# Required for online_image (album art).
-# Album art is served from /config/www/album_art.jpg on the HA side after
-# being converted from progressive JPEG to baseline JPEG by the helper
-# automation. See /home-assistant/ in this repo for setup instructions.
+# Required for online_image (album art from Home Assistant entity_picture).
 # Placeholder image shown until art is downloaded.
 # =============================================================================
 
@@ -17,7 +14,7 @@ image:
     id: album_art_placeholder
     type: rgb565
 
-# Dynamic album art (URL set by sensors.yaml via input_text.album_art_url).
+# Dynamic album art from media_player entity_picture (URL set by sensors.yaml).
 # Decoded at 480x480 to match the physical display resolution (1:1 pixel mapping).
 online_image:
   - url: "https://placehold.co/480x480/2d2d2d/555555"
