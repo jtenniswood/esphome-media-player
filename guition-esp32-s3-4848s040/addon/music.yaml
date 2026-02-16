@@ -13,6 +13,10 @@ image:
   - file: "https://placehold.co/480x480/2d2d2d/555555"
     id: album_art_placeholder
     type: rgb565
+  - file: ../assets/gradient.png
+    id: bottom_gradient
+    type: RGBA
+    resize: 480x140
 
 # Dynamic album art from media_player entity_picture (URL set by sensors.yaml).
 # Decoded at 480x480 to match the physical display resolution (1:1 pixel mapping).
