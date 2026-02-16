@@ -218,10 +218,9 @@ lvgl:
             text: $skip_previous
             text_font: $icon_font
             text_color: 0xFFFFFF
-            bg_color: 0x000000
-            bg_opa: 50%
-            pad_all: 12
-            radius: 0x7FFF
+            bg_color: $button_control_color
+            pad_all: 16
+            radius: 36px
             hidden: true
 
         - label:
@@ -231,10 +230,9 @@ lvgl:
             text: $skip_next
             text_font: $icon_font
             text_color: 0xFFFFFF
-            bg_color: 0x000000
-            bg_opa: 50%
-            pad_all: 12
-            radius: 0x7FFF
+            bg_color: $button_control_color
+            pad_all: 16
+            radius: 36px
             hidden: true
 
         # Progress bar: full screen width, at the very bottom of the screen
