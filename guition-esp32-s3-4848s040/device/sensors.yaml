@@ -72,9 +72,8 @@ interval:
 # ---------------------------------------------------------------------------
 # Reusable scripts to switch between TV mode and music mode.
 # Called from media_source_sensor (primary) and as fallback from
-# media_title_sensor / media_player_state_sensor so the display always
-# reflects the current playback type even when the source attribute is
-# unavailable or delayed.
+# media_entity_picture_sensor so the display switches to music mode
+# when album art appears, even if the source attribute stays "TV".
 # ---------------------------------------------------------------------------
 script:
   - id: enter_tv_mode
@@ -122,16 +121,6 @@ text_sensor:
       - lvgl.bar.update:
           id: media_progress_bar
           value: 0
-      # Fallback: if we're still in TV mode but album art is present,
-      # the player is streaming music — switch to music mode.
-      - if:
-          condition:
-            lambda: |-
-              return id(is_tv_mode)
-                && id(media_entity_picture_sensor).has_state()
-                && !id(media_entity_picture_sensor).state.empty();
-          then:
-            - script.execute: enter_music_mode
 
   - platform: homeassistant
     entity_id: ${media_player}
@@ -181,16 +170,6 @@ text_sensor:
             - light.turn_on:
                 id: backlight
                 brightness: 100%
-            # Fallback: if playback starts and album art is present,
-            # the player is streaming music — switch out of TV mode.
-            - if:
-                condition:
-                  lambda: |-
-                    return id(is_tv_mode)
-                      && id(media_entity_picture_sensor).has_state()
-                      && !id(media_entity_picture_sensor).state.empty();
-                then:
-                  - script.execute: enter_music_mode
           else:
             - lvgl.widget.show:
                 id: media_play_icon
