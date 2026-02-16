@@ -27,3 +27,4 @@ script:
             - light.turn_on:
                 id: backlight
                 brightness: 30%
+                transition_length: 3s
