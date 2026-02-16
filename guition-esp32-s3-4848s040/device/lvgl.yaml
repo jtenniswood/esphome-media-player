@@ -109,7 +109,7 @@ lvgl:
         # Play clock: elapsed / duration, below artist name
         - label:
             id: media_time_label
-            text: "0:00 / 0:00"
+            text: "0:00  /  0:00"
             x: 18
             y: 426
             width: 150px

@@ -17,7 +17,7 @@ script:
       - light.turn_on:
           id: backlight
           brightness: 100%
-          transition_length: 250ms
+          transition_length: 1s
       - lvgl.resume:
       - delay: 10s
       - if:
@@ -26,5 +26,5 @@ script:
           then:
             - light.turn_on:
                 id: backlight
-                brightness: 30%
+                brightness: 25%
                 transition_length: 3s
