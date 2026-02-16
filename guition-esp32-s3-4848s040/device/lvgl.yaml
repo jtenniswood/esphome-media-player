@@ -18,17 +18,17 @@ lvgl:
       width: 100%
       height: 100%
       bg_color: 0x1E1E1E
-      pad_top: 20
+      pad_top:
       pad_bottom: 0
-      pad_left: 20
-      pad_right: 20
+      pad_left: 0
+      pad_right: 0
 
       widgets:
         # Full-screen artwork background (negative offsets cancel page padding)
         - image:
             id: album_art_background_widget
             x: 0
-            y: -12
+            y: 0
             width: 480px
             height: 480px
             src: album_art_background
@@ -59,7 +59,7 @@ lvgl:
         - label:
             id: media_artist_label
             text: "—"
-            x: 12
+            x: 20
             y: 396
             width: 370px
             height: 24px
@@ -117,7 +117,6 @@ lvgl:
                   service: media_player.media_next_track
                   data:
                     entity_id: ${media_player}
-              - script.execute: show_next_feedback
 
         - button:
             id: media_previous_button
@@ -138,7 +137,6 @@ lvgl:
                   service: media_player.media_previous_track
                   data:
                     entity_id: ${media_player}
-              - script.execute: show_previous_feedback
 
         # TV mode: centered source label, shown only when source is "TV"
         - label:
@@ -218,33 +216,6 @@ lvgl:
             text_font: roboto15_font
             text_color: 0xFFFFFF
             text_align: left
-
-        # Skip feedback icons: shown briefly on the matching screen edge when a track is skipped
-        - label:
-            id: skip_previous_feedback
-            align: left_mid
-            x: 16
-            text: $skip_previous
-            text_font: $icon_font
-            text_color: 0xFFFFFF
-            bg_color: $button_control_color
-            bg_opa: 100%
-            pad_all: 16
-            radius: 36px
-            hidden: true
-
-        - label:
-            id: skip_next_feedback
-            align: right_mid
-            x: -16
-            text: $skip_next
-            text_font: $icon_font
-            text_color: 0xFFFFFF
-            bg_color: $button_control_color
-            bg_opa: 100%
-            pad_all: 16
-            radius: 36px
-            hidden: true
 
         # Progress bar: full screen width, at the very bottom of the screen
         - bar:
