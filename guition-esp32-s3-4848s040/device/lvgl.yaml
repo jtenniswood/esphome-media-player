@@ -9,9 +9,6 @@ lvgl:
   buffer_size: 100%
 
   pages:
-    # 20px horizontal padding on both sides.
-    # Top padding 20px, no bottom padding (progress bar flush to bottom edge).
-    # Text/buttons use 20px horizontal inset via x/width.
     - id: main_page
       scrollbar_mode: "off"
       scrollable: false
@@ -24,7 +21,7 @@ lvgl:
       pad_right: 0
 
       widgets:
-        # Full-screen artwork background (negative offsets cancel page padding)
+        # Full-screen artwork background
         - image:
             id: album_art_background_widget
             x: 0
@@ -34,7 +31,7 @@ lvgl:
             src: album_art_background
             opa: 100%
 
-        # Gradient overlay behind the bottom controls (1px source stretched to full width)
+        # Gradient overlay behind the bottom controls
         - image:
             id: bottom_overlay
             x: 0
@@ -43,7 +40,7 @@ lvgl:
             height: 130
             src: bottom_gradient
 
-        # Song title + artist sit on the same row as the control buttons (left side)
+        # Song title
         - label:
             id: media_title_label
             text: "—"
@@ -56,10 +53,11 @@ lvgl:
             text_color: 0xFFFFFF
             text_align: left
 
+        # Artist name
         - label:
             id: media_artist_label
             text: "—"
-            x: 20
+            x: 18
             y: 396
             width: 370px
             height: 24px
@@ -210,7 +208,7 @@ lvgl:
         - label:
             id: media_time_label
             text: "0:00 / 0:00"
-            x: 20
+            x: 18
             y: 426
             width: 150px
             text_font: roboto15_font
