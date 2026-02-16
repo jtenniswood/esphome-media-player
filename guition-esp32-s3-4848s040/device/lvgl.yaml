@@ -40,7 +40,7 @@ lvgl:
             text: "—"
             x: 12
             y: 356
-            width: 284px
+            width: 370px
             height: 30px
             long_mode: dot
             text_font: roboto30_font
@@ -52,7 +52,7 @@ lvgl:
             text: "—"
             x: 12
             y: 396
-            width: 284px
+            width: 370px
             height: 24px
             long_mode: dot
             text_font: roboto19_font
@@ -204,7 +204,7 @@ lvgl:
             id: media_time_label
             text: "0:00 / 0:00"
             x: 12
-            y: 434
+            y: 430
             width: 150px
             text_font: roboto15_font
             text_color: 0xFFFFFF
