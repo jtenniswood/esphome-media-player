@@ -38,9 +38,9 @@ lvgl:
         - image:
             id: bottom_overlay
             x: 0
-            y: 340
+            y: 280
             width: 480
-            height: 140
+            height: 200
             src: bottom_gradient
 
         # Song title + artist sit on the same row as the control buttons (left side)
