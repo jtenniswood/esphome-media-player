@@ -77,7 +77,7 @@ number:
     min_value: 1
     max_value: 300
     step: 1
-    initial_value: 10
+    initial_value: 60
     optimistic: true
     restore_value: true
     unit_of_measurement: "s"
@@ -90,11 +90,36 @@ number:
     min_value: 1
     max_value: 600
     step: 1
-    initial_value: 30
+    initial_value: 300
     optimistic: true
     restore_value: true
     unit_of_measurement: "s"
     icon: "mdi:timer-off-outline"
+    entity_category: config
+
+
+# -----------------------------------------------------------------------------
+# SCREEN-OFF ENABLE/DISABLE (exposed to Home Assistant)
+# -----------------------------------------------------------------------------
+# Toggle switches to enable or disable the screen-off stage independently
+# for daytime and nighttime. When disabled, the screen stays dimmed but
+# never turns off completely. Both default to ON (screen off enabled).
+# -----------------------------------------------------------------------------
+switch:
+  - platform: template
+    name: "Day Screen Off"
+    id: backlight_day_screen_off
+    optimistic: true
+    restore_mode: RESTORE_DEFAULT_ON
+    icon: "mdi:monitor-off"
+    entity_category: config
+
+  - platform: template
+    name: "Night Screen Off"
+    id: backlight_night_screen_off
+    optimistic: true
+    restore_mode: RESTORE_DEFAULT_ON
+    icon: "mdi:monitor-off"
     entity_category: config
 
 
@@ -139,8 +164,17 @@ script:
                     : id(backlight_night_brightness).state;
                   return pct / 100.0f;
                 transition_length: 3s
-            - delay: !lambda 'return (uint32_t)(id(backlight_off_timeout).state * 1000);'
-            - light.turn_off:
-                id: backlight
-                transition_length: 3s
-            - lvgl.pause:
+            - if:
+                condition:
+                  lambda: |-
+                    bool is_day = id(sun_state_sensor).has_state() &&
+                                  id(sun_state_sensor).state == "above_horizon";
+                    return is_day
+                      ? id(backlight_day_screen_off).state
+                      : id(backlight_night_screen_off).state;
+                then:
+                  - delay: !lambda 'return (uint32_t)(id(backlight_off_timeout).state * 1000);'
+                  - light.turn_off:
+                      id: backlight
+                      transition_length: 3s
+                  - lvgl.pause:
