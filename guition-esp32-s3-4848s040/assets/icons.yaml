@@ -15,6 +15,7 @@ font:
       - "\U000F057E"  # mdi-volume-high
       - "\U000F0415"  # mdi-plus
       - "\U000F0374"  # mdi-minus
+      - "\U000F0156"  # mdi-close
   - file: 'https://github.com/Templarian/MaterialDesign-Webfont/raw/v7.4.47/fonts/materialdesignicons-webfont.ttf'
     id: icon_font_large
     size: 80
@@ -31,3 +32,4 @@ substitutions:
   volume_icon:   "\U000F057E"
   icon_plus:     "\U000F0415"
   icon_minus:    "\U000F0374"
+  icon_close:    "\U000F0156"

@@ -309,32 +309,11 @@ script:
     mode: single
     then:
       - lambda: 'id(is_panel_open) = true;'
-      - lambda: |-
-          lv_anim_t a;
-          lv_anim_init(&a);
-          lv_anim_set_var(&a, id(settings_panel));
-          lv_anim_set_values(&a, -384, 0);
-          lv_anim_set_time(&a, 200);
-          lv_anim_set_exec_cb(&a, [](void *obj, int32_t v) {
-            lv_obj_set_y((lv_obj_t *)obj, v);
-          });
-          lv_anim_set_path_cb(&a, lv_anim_path_ease_out);
-          lv_anim_start(&a);
+      - lvgl.widget.show: settings_panel
   - id: close_settings_panel
     mode: single
     then:
-      - lambda: |-
-          lv_anim_t a;
-          lv_anim_init(&a);
-          lv_anim_set_var(&a, id(settings_panel));
-          lv_anim_set_values(&a, 0, -384);
-          lv_anim_set_time(&a, 200);
-          lv_anim_set_exec_cb(&a, [](void *obj, int32_t v) {
-            lv_obj_set_y((lv_obj_t *)obj, v);
-          });
-          lv_anim_set_path_cb(&a, lv_anim_path_ease_in);
-          lv_anim_start(&a);
-      - delay: 210ms
+      - lvgl.widget.hide: settings_panel
       - lambda: 'id(is_panel_open) = false;'
 
 
