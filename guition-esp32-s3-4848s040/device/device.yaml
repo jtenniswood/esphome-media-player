@@ -193,6 +193,7 @@ touchscreen:
     display: tft_display
     on_touch:
       - lambda: |-
+          ESP_LOGI("touch", "Touch at (%d, %d) t=%lu ms", touch.x, touch.y, millis());
           id(was_screen_dimmed) = id(is_screen_dimmed);
           id(was_panel_open) = id(is_panel_open);
           id(touch_x_start) = touch.x;

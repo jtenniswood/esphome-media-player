@@ -19,6 +19,9 @@ globals:
   - id: is_tv_mode
     type: bool
     initial_value: 'false'
+  - id: artwork_request_time
+    type: uint32_t
+    initial_value: '0'
 
 # Refresh progress bar and elapsed time every second; when playing, estimate
 # position from last HA update + elapsed time so the clock moves smoothly
@@ -88,6 +91,9 @@ script:
     mode: restart
     then:
       - delay: 500ms
+      - lambda: |-
+          id(artwork_request_time) = millis();
+          ESP_LOGI("artwork", "Starting artwork download at %lu ms", millis());
       - online_image.set_url:
           id: album_art_background
           url: !lambda |-
