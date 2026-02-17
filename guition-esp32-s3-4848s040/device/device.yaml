@@ -39,7 +39,6 @@ esphome:
   name: ${name}
   friendly_name: ${friendly_name}
   area: ${room}
-  restore_from_flash: true
 
 
 # -----------------------------------------------------------------------------
@@ -212,8 +211,8 @@ touchscreen:
           int sy = id(touch_y_start);
 
           // --- Vertical swipe: settings panel open/close ---
-          // Swipe down to open: start in top 60px, 60px+ movement, panel closed
-          if (dy > 60 && abs(dy) > abs(dx) * 2 && sy < 60 && !id(is_panel_open)) {
+          // Swipe down to open: start in top 80px, 50px+ movement, panel closed
+          if (dy > 50 && abs(dy) > abs(dx) * 2 && sy < 80 && !id(is_panel_open)) {
             id(open_settings_panel).execute();
             return;
           }
