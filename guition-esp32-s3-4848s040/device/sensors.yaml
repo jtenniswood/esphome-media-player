@@ -38,32 +38,36 @@ interval:
             - lvgl.label.update:
                 id: media_time_label
                 text: !lambda |-
+                  float pos;
+                  float dur = id(media_duration_sensor).has_state() ? id(media_duration_sensor).state : 0.0f;
+                  bool playing = id(media_player_state_sensor).has_state() &&
+                                 id(media_player_state_sensor).state == "playing";
+                  auto t = id(sntp_time).now();
+                  if (playing && t.is_valid() && id(ha_position_epoch) != 0
+                      && id(media_position_sensor).has_state()) {
+                    // Primary: HA position + (now − HA timestamp) — mirrors HA frontend calc
+                    pos = id(media_position_sensor).state
+                        + (float)(t.timestamp - id(ha_position_epoch));
+                  } else if (playing && t.is_valid() && id(last_position_timestamp) != 0) {
+                    // Fallback: globals (used briefly after track-change reset)
+                    pos = id(last_media_position)
+                        + (float)(t.timestamp - id(last_position_timestamp));
+                  } else {
+                    pos = id(media_position_sensor).has_state()
+                        ? id(media_position_sensor).state : id(last_media_position);
+                  }
+                  if (pos < 0) pos = 0;
+                  if (dur > 0 && pos > dur) pos = dur;
                   // #region agent log
                   static int _dbg = 0; _dbg++;
-                  if (_dbg <= 5 || _dbg % 10 == 0) {
-                    ESP_LOGI("dbg", "H2-H5 TICK #%d: ts=%d pos=%.1f sntp=%d state=[%s] state_has=%d dur_has=%d dur=%.1f",
-                      _dbg,
-                      id(last_position_timestamp),
-                      id(last_media_position),
-                      id(sntp_time).now().is_valid() ? 1 : 0,
-                      id(media_player_state_sensor).has_state() ? id(media_player_state_sensor).state.c_str() : "NO_STATE",
-                      id(media_player_state_sensor).has_state() ? 1 : 0,
-                      id(media_duration_sensor).has_state() ? 1 : 0,
-                      id(media_duration_sensor).has_state() ? id(media_duration_sensor).state : -1.0f);
+                  if (_dbg <= 10 || _dbg % 10 == 0) {
+                    ESP_LOGI("dbg", "TICK #%d: pos=%.1f sensor=%.1f ha_ep=%d glob_pos=%.1f glob_ts=%d playing=%d sntp=%d dur=%.1f",
+                      _dbg, pos,
+                      id(media_position_sensor).has_state() ? id(media_position_sensor).state : -1.0f,
+                      id(ha_position_epoch), id(last_media_position), id(last_position_timestamp),
+                      playing ? 1 : 0, t.is_valid() ? 1 : 0, dur);
                   }
                   // #endregion
-                  float pos = id(last_position_timestamp) != 0 && id(media_position_sensor).has_state()
-                    ? id(media_position_sensor).state : id(last_media_position);
-                  if (id(media_player_state_sensor).state == "playing") {
-                    auto t = id(sntp_time).now();
-                    if (t.is_valid() && id(last_position_timestamp) != 0) {
-                      pos = id(last_media_position) + (t.timestamp - id(last_position_timestamp));
-                      if (pos < 0) pos = 0;
-                      float dur = id(media_duration_sensor).has_state() ? id(media_duration_sensor).state : 0.0f;
-                      if (dur > 0 && pos > dur) pos = dur;
-                    }
-                  }
-                  float dur = id(media_duration_sensor).has_state() ? id(media_duration_sensor).state : 0.0f;
                   int e = (int)pos; if (e < 0) e = 0;
                   int rem = (int)(dur - pos); if (rem < 0) rem = 0;
                   char buf[24];
@@ -72,18 +76,24 @@ interval:
             - lvgl.bar.update:
                 id: media_progress_bar
                 value: !lambda |-
-                  float pos = id(last_position_timestamp) != 0 && id(media_position_sensor).has_state()
-                    ? id(media_position_sensor).state : id(last_media_position);
-                  if (id(media_player_state_sensor).state == "playing") {
-                    auto t = id(sntp_time).now();
-                    if (t.is_valid() && id(last_position_timestamp) != 0) {
-                      pos = id(last_media_position) + (t.timestamp - id(last_position_timestamp));
-                      if (pos < 0) pos = 0;
-                      float dur = id(media_duration_sensor).has_state() ? id(media_duration_sensor).state : 0.0f;
-                      if (dur > 0 && pos > dur) pos = dur;
-                    }
-                  }
+                  float pos;
                   float dur = id(media_duration_sensor).has_state() ? id(media_duration_sensor).state : 0.0f;
+                  bool playing = id(media_player_state_sensor).has_state() &&
+                                 id(media_player_state_sensor).state == "playing";
+                  auto t = id(sntp_time).now();
+                  if (playing && t.is_valid() && id(ha_position_epoch) != 0
+                      && id(media_position_sensor).has_state()) {
+                    pos = id(media_position_sensor).state
+                        + (float)(t.timestamp - id(ha_position_epoch));
+                  } else if (playing && t.is_valid() && id(last_position_timestamp) != 0) {
+                    pos = id(last_media_position)
+                        + (float)(t.timestamp - id(last_position_timestamp));
+                  } else {
+                    pos = id(media_position_sensor).has_state()
+                        ? id(media_position_sensor).state : id(last_media_position);
+                  }
+                  if (pos < 0) pos = 0;
+                  if (dur > 0 && pos > dur) pos = dur;
                   if (dur > 0) return (int)((pos / dur) * 100.0f);
                   return 0;
 
@@ -165,6 +175,7 @@ text_sensor:
           then:
             - lambda: |-
                 id(last_media_position) = 0.0f;
+                id(ha_position_epoch) = 0;
                 auto t = id(sntp_time).now();
                 if (t.is_valid()) {
                   id(last_position_timestamp) = t.timestamp;
