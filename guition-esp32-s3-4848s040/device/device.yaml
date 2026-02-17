@@ -171,6 +171,9 @@ globals:
   - id: is_panel_open
     type: bool
     initial_value: 'false'
+  - id: was_panel_open
+    type: bool
+    initial_value: 'false'
 
 
 # -----------------------------------------------------------------------------
@@ -191,6 +194,7 @@ touchscreen:
     on_touch:
       - lambda: |-
           id(was_screen_dimmed) = id(is_screen_dimmed);
+          id(was_panel_open) = id(is_panel_open);
           id(touch_x_start) = touch.x;
           id(touch_y_start) = touch.y;
           id(touch_x_end) = touch.x;
@@ -211,8 +215,8 @@ touchscreen:
           int sy = id(touch_y_start);
 
           // --- Vertical swipe: settings panel open/close ---
-          // Swipe down to open: start in top 80px, 50px+ movement, panel closed
-          if (dy > 30 && abs(dy) > abs(dx) * 2 && sy < 80 && !id(is_panel_open)) {
+          // Swipe down to open: 30px+ downward movement, panel closed
+          if (dy > 30 && abs(dy) > abs(dx) * 2 && !id(is_panel_open)) {
             id(open_settings_panel).execute();
             return;
           }
@@ -221,8 +225,10 @@ touchscreen:
             id(close_settings_panel).execute();
             return;
           }
-          // When panel is open, ignore all other gestures (horizontal swipe / tap)
-          if (id(is_panel_open)) {
+          // When panel is (or was) open, ignore all main-screen gestures.
+          // was_panel_open guards against the close button tap bleeding
+          // through to toggle_ui after the panel has already been hidden.
+          if (id(is_panel_open) || id(was_panel_open)) {
             return;
           }
 
