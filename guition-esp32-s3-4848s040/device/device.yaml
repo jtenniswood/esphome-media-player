@@ -292,12 +292,12 @@ script:
           else:
             - lambda: 'id(is_ui_hidden) = true;'
             - lambda: |-
-                lv_obj_fade_out(id(bottom_overlay), 1500, 0);
-                lv_obj_fade_out(id(media_title_label), 1500, 0);
-                lv_obj_fade_out(id(media_artist_label), 1500, 0);
-                lv_obj_fade_out(id(media_play_pause_button), 1500, 0);
-                lv_obj_fade_out(id(media_time_label), 1500, 0);
-            - delay: 1600ms
+                lv_obj_fade_out(id(bottom_overlay), 500, 0);
+                lv_obj_fade_out(id(media_title_label), 500, 0);
+                lv_obj_fade_out(id(media_artist_label), 500, 0);
+                lv_obj_fade_out(id(media_play_pause_button), 500, 0);
+                lv_obj_fade_out(id(media_time_label), 500, 0);
+            - delay: 600ms
             - lvgl.widget.hide: bottom_overlay
             - lvgl.widget.hide: media_title_label
             - lvgl.widget.hide: media_artist_label

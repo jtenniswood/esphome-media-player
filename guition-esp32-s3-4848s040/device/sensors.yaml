@@ -388,3 +388,4 @@ number:
     unit_of_measurement: "s"
     icon: "mdi:timer-outline"
     entity_category: config
+    mode: box
