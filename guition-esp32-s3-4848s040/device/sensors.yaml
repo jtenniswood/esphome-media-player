@@ -103,11 +103,11 @@ text_sensor:
     id: media_title_sensor
     attribute: media_title
     on_value:
-      # Track changed (skip/next) — hide stale artwork and show loading spinner
-      # until the new album art download completes (or fails).
-      - lvgl.widget.hide: album_art_background_widget
+      # Track changed (skip/next) — dim stale artwork while new art loads.
+      - lvgl.widget.update:
+          id: album_art_background_widget
+          opa: 40%
       - lvgl.widget.hide: artwork_error_label
-      - lvgl.widget.show: artwork_spinner
       # Reset position to 0 and stamp the current time so the 1-second
       # interval timer can immediately start counting from 0 for the new
       # track (avoids stale timestamp = 0 blocking updates).
@@ -145,10 +145,11 @@ text_sensor:
           condition:
             lambda: 'return !x.empty();'
           then:
-            # New artwork URL — enter loading state and start download.
-            - lvgl.widget.hide: album_art_background_widget
+            # New artwork URL — dim stale artwork while new art loads.
+            - lvgl.widget.update:
+                id: album_art_background_widget
+                opa: 40%
             - lvgl.widget.hide: artwork_error_label
-            - lvgl.widget.show: artwork_spinner
             - online_image.set_url:
                 id: album_art_background
                 url: !lambda |-
