@@ -212,12 +212,12 @@ lvgl:
               - label:
                   id: volume_title_label
                   text: "Volume"
-                  text_font: roboto15_font
+                  text_font: roboto19_font
                   text_color: 0x888888
                   align: center
-                  y: -40
-                  width: 120
-                  height: 20
+                  y: -50
+                  width: 140
+                  height: 24
                   text_align: center
 
               # Large centered percentage label (overlaid on top of the arc)
@@ -236,8 +236,8 @@ lvgl:
               - button:
                   id: volume_down_button
                   align: center
-                  x: -50
-                  y: 160
+                  x: -42
+                  y: 135
                   width: 72px
                   height: 72px
                   styles: control_round
@@ -257,8 +257,8 @@ lvgl:
               - button:
                   id: volume_up_button
                   align: center
-                  x: 50
-                  y: 160
+                  x: 42
+                  y: 135
                   width: 72px
                   height: 72px
                   styles: control_round
