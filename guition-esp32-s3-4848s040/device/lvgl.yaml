@@ -184,23 +184,6 @@ lvgl:
             scrollbar_mode: "off"
             hidden: true
             widgets:
-              # Close button (top-right corner)
-              - button:
-                  id: settings_close_button
-                  x: 416
-                  y: 16
-                  width: 48px
-                  height: 48px
-                  styles: control_round
-                  widgets:
-                    - label:
-                        text_font: $icon_font
-                        align: center
-                        text: $icon_close
-                        text_color: 0xFFFFFF
-                  on_press:
-                    - script.execute: close_settings_panel
-
               # Volume icon
               - label:
                   id: volume_icon_label
