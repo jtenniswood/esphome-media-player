@@ -1,0 +1,36 @@
+# =============================================================================
+# MUSIC DASHBOARD - Album art (480×800 for JC4880P443)
+# =============================================================================
+
+http_request:
+  id: http_req
+
+image:
+  - file: "https://placehold.co/480x800/2d2d2d/555555"
+    id: album_art_placeholder
+    type: rgb565
+  - file: "https://raw.githubusercontent.com/jtenniswood/esphome-media-player/main/guition-esp32-s3-4848s040/assets/gradient.png"
+    id: bottom_gradient
+    type: RGB565
+    transparency: alpha_channel
+
+online_image:
+  - url: "https://placehold.co/480x800/2d2d2d/555555"
+    id: album_art_background
+    type: rgb565
+    format: jpeg
+    placeholder: album_art_placeholder
+    resize: 480x800
+    on_download_finished:
+      - lvgl.widget.hide: artwork_error_label
+      - lvgl.image.update:
+          id: album_art_background_widget
+          src: album_art_background
+      - lvgl.widget.update:
+          id: album_art_background_widget
+          opa: 100%
+    on_error:
+      - lvgl.widget.update:
+          id: album_art_background_widget
+          opa: 40%
+      - lvgl.widget.show: artwork_error_label

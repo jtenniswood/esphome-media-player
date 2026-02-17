@@ -1,0 +1,70 @@
+# Button and control styles (same as S3)
+substitutions:
+  icon_font: icon_font
+  text_font: roboto19_font
+  button_on_color: "0xFF8C00"
+  button_text_color: "0xFFFFFF"
+  button_control_color: "0x313131"
+  button_webhook_color: "0x212121"
+  button_height_single: 140px
+  button_width: 150px
+  padding: 12px
+  radius: 8px
+  slider_background_color: "0x505050"
+  slider_active_color: "0x2D2D2D"
+  slider_knob_color: "0xE5E5E5"
+
+lvgl:
+  style_definitions:
+    - id: webhook
+      bg_color: $button_webhook_color
+
+    - id: control
+      bg_color: $button_control_color
+
+    - id: control_round
+      bg_color: $button_control_color
+      radius: 36px
+
+  theme:
+    button:
+      text_font: $text_font
+      scroll_on_focus: false
+      radius: $radius
+      width: $button_width
+      height: $button_height_single
+      pad_all: $padding
+      shadow_width: 0
+      text_color: $button_text_color
+      checked:
+        bg_color: $button_on_color
+        text_color: $button_text_color
+    slider:
+      bg_color: $slider_background_color
+      bg_opa: 100%
+      radius: 6px
+      indicator:
+        bg_color: $slider_active_color
+        radius: 6px
+      knob:
+        bg_color: $slider_knob_color
+        radius: 20px
+        width: 40px
+        height: 40px
+    arc:
+      arc_color: 0x333333
+      arc_width: 12
+      indicator:
+        arc_color: 0x999999
+        arc_width: 12
+      knob:
+        bg_color: 0xFFFFFF
+        radius: 14
+    bar:
+      indicator:
+        bg_color: 0xFFFFFF
+        radius: 0
+      main:
+        bg_color: 0x000000
+        bg_opa: 50%
+        radius: 0

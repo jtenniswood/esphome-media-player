@@ -1,0 +1,29 @@
+# ESP32-P4 JC4880P443 Music Dashboard (480×800)
+# Copy this file to your ESPHome config and set name, wifi, media_player, etc.
+
+substitutions:
+  name: "your-p4-device-name"
+  friendly_name: "Your Room Music"
+  room: "Your Room"
+  media_player: "media_player.office"
+  home_assistant_url: "http://homeassistant.local:8123"
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+packages:
+  setup:
+    url: https://github.com/jtenniswood/esphome-media-player/
+    files:
+      - guition-esp32-p4-jc4880p443/device/device.yaml
+      - guition-esp32-p4-jc4880p443/device/sensors.yaml
+      - guition-esp32-p4-jc4880p443/device/lvgl.yaml
+      - guition-esp32-p4-jc4880p443/addon/backlight.yaml
+      - guition-esp32-p4-jc4880p443/addon/time.yaml
+      - guition-esp32-p4-jc4880p443/addon/network.yaml
+      - guition-esp32-p4-jc4880p443/addon/music.yaml
+      - guition-esp32-p4-jc4880p443/assets/fonts.yaml
+      - guition-esp32-p4-jc4880p443/assets/icons.yaml
+      - guition-esp32-p4-jc4880p443/theme/button.yaml
+    refresh: 1sec

@@ -1,0 +1,229 @@
+# =============================================================================
+# HARDWARE CONFIGURATION - Guition ESP32-P4 JC4880P443
+# =============================================================================
+# 480×800 portrait display (JC4880P443). Uses P4 + hosted C6 for connectivity.
+# =============================================================================
+
+esp32:
+  variant: esp32p4
+  flash_size: 16MB
+  framework:
+    type: esp-idf
+    advanced:
+      enable_idf_experimental_features: yes
+
+esphome:
+  name: ${name}
+  friendly_name: ${friendly_name}
+  area: ${room}
+
+# Secondary ESP32-C6 for connectivity
+esp32_hosted:
+  active_high: true
+  variant: ESP32C6
+  reset_pin: GPIO54
+  cmd_pin: GPIO19
+  clk_pin: GPIO18
+  d0_pin: GPIO14
+  d1_pin: GPIO15
+  d2_pin: GPIO16
+  d3_pin: GPIO17
+
+psram:
+  speed: 200MHz
+
+ota:
+  platform: esphome
+
+api:
+
+logger:
+
+esp_ldo:
+  - channel: 3
+    voltage: 2.5V
+
+# Backlight (addon/backlight.yaml provides light id: backlight using this output)
+output:
+  - platform: ledc
+    id: backlight_output
+    pin: GPIO23
+    frequency: 100Hz
+    inverted: false
+    min_power: 0.0
+    max_power: 0.8
+
+# I2C
+i2c:
+  sda: GPIO7
+  scl: GPIO8
+  scan: false
+  frequency: 400kHz
+
+# -----------------------------------------------------------------------------
+# SWIPE GESTURE GLOBALS (480×800 layout)
+# -----------------------------------------------------------------------------
+globals:
+  - id: touch_x_start
+    type: int
+    initial_value: '0'
+  - id: touch_y_start
+    type: int
+    initial_value: '0'
+  - id: touch_x_end
+    type: int
+    initial_value: '0'
+  - id: touch_y_end
+    type: int
+    initial_value: '0'
+  - id: is_ui_hidden
+    type: bool
+    initial_value: 'false'
+  - id: is_screen_dimmed
+    type: bool
+    initial_value: 'false'
+  - id: was_screen_dimmed
+    type: bool
+    initial_value: 'false'
+  - id: is_panel_open
+    type: bool
+    initial_value: 'false'
+  - id: was_panel_open
+    type: bool
+    initial_value: 'false'
+
+# -----------------------------------------------------------------------------
+# TOUCHSCREEN (GT911) - 480×800; play/pause exclude zone y 671–753
+# -----------------------------------------------------------------------------
+touchscreen:
+  - platform: gt911
+    id: tft_touch
+    display: tft_display
+    on_touch:
+      - lambda: |-
+          id(was_screen_dimmed) = id(is_screen_dimmed);
+          id(was_panel_open) = id(is_panel_open);
+          id(touch_x_start) = touch.x;
+          id(touch_y_start) = touch.y;
+          id(touch_x_end) = touch.x;
+          id(touch_y_end) = touch.y;
+      - script.execute: backlight_wake_timeout
+    on_update:
+      - lambda: |-
+          for (auto touch: touches) {
+            if (touch.state <= 2) {
+              id(touch_x_end) = touch.x;
+              id(touch_y_end) = touch.y;
+            }
+          }
+    on_release:
+      - lambda: |-
+          int dx = id(touch_x_end) - id(touch_x_start);
+          int dy = id(touch_y_end) - id(touch_y_start);
+          int sy = id(touch_y_start);
+
+          // Vertical swipe: settings panel open/close
+          if (dy > 20 && abs(dy) > abs(dx) * 2 && !id(is_panel_open)) {
+            id(open_settings_panel).execute();
+            return;
+          }
+          if (dy < -60 && abs(dy) > abs(dx) * 2 && id(is_panel_open)) {
+            id(close_settings_panel).execute();
+            return;
+          }
+          if (id(is_panel_open) || id(was_panel_open)) {
+            return;
+          }
+
+          // Horizontal swipe: track navigation
+          if (abs(dx) > 80 && abs(dx) > abs(dy) * 2) {
+            if (dx > 0) {
+              id(swipe_previous_track).execute();
+            } else {
+              id(swipe_next_track).execute();
+            }
+          }
+          // Tap: exclude play/pause button (x 385–467, y 671–753 on 480×800)
+          else if (abs(dx) < 20 && abs(dy) < 20) {
+            int sx = id(touch_x_start);
+            if (sx >= 385 && sx <= 467 && sy >= 671 && sy <= 753) {
+              return;
+            }
+            if (id(was_screen_dimmed)) {
+            } else if (id(is_ui_hidden)) {
+              id(toggle_ui).execute();
+            } else if (id(media_player_state_sensor).has_state() &&
+                       id(media_player_state_sensor).state == "playing") {
+              id(toggle_ui).execute();
+            }
+          }
+
+# -----------------------------------------------------------------------------
+# GESTURE SCRIPTS
+# -----------------------------------------------------------------------------
+script:
+  - id: toggle_ui
+    mode: restart
+    then:
+      - if:
+          condition:
+            lambda: 'return id(is_ui_hidden);'
+          then:
+            - lambda: 'id(is_ui_hidden) = false;'
+            - lvgl.widget.show: bottom_overlay
+            - lvgl.widget.show: media_title_label
+            - lvgl.widget.show: media_artist_label
+            - lvgl.widget.show: media_play_pause_button
+            - lvgl.widget.show: media_time_label
+            - lambda: |-
+                lv_obj_fade_in(id(bottom_overlay), 200, 0);
+                lv_obj_fade_in(id(media_title_label), 200, 0);
+                lv_obj_fade_in(id(media_artist_label), 200, 0);
+                lv_obj_fade_in(id(media_play_pause_button), 200, 0);
+                lv_obj_fade_in(id(media_time_label), 200, 0);
+          else:
+            - lambda: 'id(is_ui_hidden) = true;'
+            - lambda: |-
+                lv_obj_fade_out(id(bottom_overlay), 300, 0);
+                lv_obj_fade_out(id(media_title_label), 300, 0);
+                lv_obj_fade_out(id(media_artist_label), 300, 0);
+                lv_obj_fade_out(id(media_play_pause_button), 300, 0);
+                lv_obj_fade_out(id(media_time_label), 300, 0);
+            - delay: 400ms
+            - lvgl.widget.hide: bottom_overlay
+            - lvgl.widget.hide: media_title_label
+            - lvgl.widget.hide: media_artist_label
+            - lvgl.widget.hide: media_play_pause_button
+            - lvgl.widget.hide: media_time_label
+  - id: swipe_next_track
+    mode: single
+    then:
+      - homeassistant.service:
+          service: media_player.media_next_track
+          data:
+            entity_id: ${media_player}
+  - id: swipe_previous_track
+    mode: single
+    then:
+      - homeassistant.service:
+          service: media_player.media_previous_track
+          data:
+            entity_id: ${media_player}
+  - id: open_settings_panel
+    mode: single
+    then:
+      - lambda: 'id(is_panel_open) = true;'
+      - lvgl.widget.show: settings_panel
+  - id: close_settings_panel
+    mode: single
+    then:
+      - lvgl.widget.hide: settings_panel
+      - lambda: 'id(is_panel_open) = false;'
+
+# -----------------------------------------------------------------------------
+# DISPLAY (MIPI DSI - JC4880P443 480×800)
+# -----------------------------------------------------------------------------
+display:
+  - platform: mipi_dsi
+    id: tft_display
+    model: JC4880P443
