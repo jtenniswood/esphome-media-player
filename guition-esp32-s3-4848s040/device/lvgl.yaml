@@ -172,7 +172,7 @@ lvgl:
               - arc:
                   id: volume_arc
                   align: center
-                  y: -30
+                  y: -10
                   width: 380
                   height: 380
                   min_value: 0
@@ -208,6 +208,18 @@ lvgl:
                         data_template:
                           volume_level: "{{ vol_level }}"
 
+              # "Volume" label above the percentage
+              - label:
+                  id: volume_title_label
+                  text: "Volume"
+                  text_font: roboto15_font
+                  text_color: 0x888888
+                  align: center
+                  y: -40
+                  width: 120
+                  height: 20
+                  text_align: center
+
               # Large centered percentage label (overlaid on top of the arc)
               - label:
                   id: volume_pct_label
@@ -215,7 +227,7 @@ lvgl:
                   text_font: roboto56_font
                   text_color: 0xFFFFFF
                   align: center
-                  y: -30
+                  y: -10
                   width: 200
                   height: 60
                   text_align: center
@@ -225,7 +237,7 @@ lvgl:
                   id: volume_down_button
                   align: center
                   x: -50
-                  y: 190
+                  y: 160
                   width: 72px
                   height: 72px
                   styles: control_round
@@ -246,7 +258,7 @@ lvgl:
                   id: volume_up_button
                   align: center
                   x: 50
-                  y: 190
+                  y: 160
                   width: 72px
                   height: 72px
                   styles: control_round
