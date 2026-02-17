@@ -58,7 +58,7 @@ lvgl:
             id: media_title_label
             text: "—"
             x: 18
-            y: 356
+            y: 366
             width: 370px
             height: 30px
             long_mode: dot
@@ -71,7 +71,7 @@ lvgl:
             id: media_artist_label
             text: "—"
             x: 18
-            y: 396
+            y: 406
             width: 370px
             height: 24px
             long_mode: dot
@@ -84,7 +84,7 @@ lvgl:
         - button:
             id: media_play_pause_button
             x: 390
-            y: 356
+            y: 366
             width: 72px
             height: 72px
             styles: control_round
@@ -124,7 +124,7 @@ lvgl:
             id: media_time_label
             text: "0:00  /  0:00"
             x: 18
-            y: 428
+            y: 438
             width: 150px
             text_font: roboto15_font
             text_color: 0xDDDDDD
