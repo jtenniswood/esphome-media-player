@@ -212,7 +212,7 @@ touchscreen:
 
           // --- Vertical swipe: settings panel open/close ---
           // Swipe down to open: start in top 80px, 50px+ movement, panel closed
-          if (dy > 50 && abs(dy) > abs(dx) * 2 && sy < 80 && !id(is_panel_open)) {
+          if (dy > 30 && abs(dy) > abs(dx) * 2 && sy < 80 && !id(is_panel_open)) {
             id(open_settings_panel).execute();
             return;
           }
