@@ -54,7 +54,7 @@ lvgl:
       arc_color: 0x333333
       arc_width: 12
       indicator:
-        arc_color: 0x888888
+        arc_color: 0x999999
         arc_width: 12
       knob:
         bg_color: 0xFFFFFF

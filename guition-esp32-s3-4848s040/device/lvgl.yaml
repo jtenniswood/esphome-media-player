@@ -183,7 +183,7 @@ lvgl:
                   arc_width: 12
                   arc_rounded: true
                   indicator:
-                    arc_color: 0x888888
+                    arc_color: 0x999999
                     arc_width: 12
                     arc_rounded: true
                   knob:
