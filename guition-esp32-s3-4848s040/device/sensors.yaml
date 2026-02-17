@@ -40,7 +40,8 @@ interval:
                       if (id(last_position_timestamp) == 0) {
                         id(last_media_position) = pos;
                         id(last_position_timestamp) = t.timestamp;
-                        ESP_LOGD("dbg_sync", "BOOTSTRAP pos=%.1f ts=%d", pos, (int)t.timestamp);
+                        id(force_media_sync).execute();
+                        ESP_LOGD("dbg_sync", "BOOTSTRAP pos=%.1f ts=%d (requesting fresh sync)", pos, (int)t.timestamp);
                       }
                       pos = id(last_media_position) + (t.timestamp - id(last_position_timestamp));
                       if (pos < 0) pos = 0;
@@ -96,6 +97,12 @@ interval:
 # when album art appears, even if the source attribute stays "TV".
 # ---------------------------------------------------------------------------
 script:
+  - id: force_media_sync
+    then:
+      - homeassistant.service:
+          service: homeassistant.update_entity
+          data:
+            entity_id: ${media_player}
   - id: enter_tv_mode
     then:
       - lambda: 'id(is_tv_mode) = true;'
