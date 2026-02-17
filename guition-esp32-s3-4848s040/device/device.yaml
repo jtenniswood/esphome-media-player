@@ -240,10 +240,16 @@ touchscreen:
               id(swipe_next_track).execute();
             }
           }
-          // Tap: minimal movement in top 350px — toggle UI visibility
+          // Tap: minimal movement in bottom 130px — toggle UI visibility
+          // Excludes the play/pause button area (x:390-462, y:356-428).
           // If screen was dimmed, just wake it (don't hide the UI).
           // Only allow hiding the UI when media is actively playing.
-          else if (sy <= 350 && abs(dx) < 20 && abs(dy) < 20) {
+          else if (sy > 350 && abs(dx) < 20 && abs(dy) < 20) {
+            int sx = id(touch_x_start);
+            // Ignore taps on the play/pause button
+            if (sx >= 385 && sx <= 467 && sy >= 351 && sy <= 433) {
+              return;
+            }
             if (id(was_screen_dimmed)) {
               // Screen was dimmed — wake only, don't toggle
             } else if (id(is_ui_hidden)) {
@@ -260,7 +266,7 @@ touchscreen:
 # -----------------------------------------------------------------------------
 # GESTURE SCRIPTS
 # -----------------------------------------------------------------------------
-# Swipe: skip track. Tap (top 350px): toggle UI overlay visibility.
+# Swipe: skip track. Tap (bottom 130px, excluding play/pause): toggle UI overlay visibility.
 # mode: single prevents duplicate triggers from rapid interactions.
 # -----------------------------------------------------------------------------
 script:
