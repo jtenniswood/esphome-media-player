@@ -32,11 +32,16 @@ interval:
             - lvgl.label.update:
                 id: media_time_label
                 text: !lambda |-
-                  float pos = id(last_position_timestamp) != 0 && id(media_position_sensor).has_state()
+                  float pos = id(media_position_sensor).has_state()
                     ? id(media_position_sensor).state : id(last_media_position);
                   if (id(media_player_state_sensor).state == "playing") {
                     auto t = id(sntp_time).now();
-                    if (t.is_valid() && id(last_position_timestamp) != 0) {
+                    if (t.is_valid()) {
+                      if (id(last_position_timestamp) == 0) {
+                        id(last_media_position) = pos;
+                        id(last_position_timestamp) = t.timestamp;
+                        ESP_LOGD("dbg_sync", "BOOTSTRAP pos=%.1f ts=%d", pos, (int)t.timestamp);
+                      }
                       pos = id(last_media_position) + (t.timestamp - id(last_position_timestamp));
                       if (pos < 0) pos = 0;
                       float dur = id(media_duration_sensor).has_state() ? id(media_duration_sensor).state : 0.0f;
@@ -46,8 +51,9 @@ interval:
                     static int tick = 0;
                     if (++tick % 10 == 0) {
                       auto t2 = id(sntp_time).now();
-                      ESP_LOGD("dbg_sync", "TICK interp=%.1f last_pos=%.1f last_ts=%d now=%d elapsed=%d",
-                        pos, id(last_media_position), id(last_position_timestamp),
+                      ESP_LOGD("dbg_sync", "TICK interp=%.1f sensor=%.1f last_pos=%.1f last_ts=%d now=%d elapsed=%d",
+                        pos, id(media_position_sensor).has_state() ? id(media_position_sensor).state : -1.0f,
+                        id(last_media_position), id(last_position_timestamp),
                         t2.is_valid() ? (int)t2.timestamp : 0,
                         t2.is_valid() ? (int)(t2.timestamp - id(last_position_timestamp)) : -1);
                     }
@@ -62,11 +68,15 @@ interval:
             - lvgl.bar.update:
                 id: media_progress_bar
                 value: !lambda |-
-                  float pos = id(last_position_timestamp) != 0 && id(media_position_sensor).has_state()
+                  float pos = id(media_position_sensor).has_state()
                     ? id(media_position_sensor).state : id(last_media_position);
                   if (id(media_player_state_sensor).state == "playing") {
                     auto t = id(sntp_time).now();
-                    if (t.is_valid() && id(last_position_timestamp) != 0) {
+                    if (t.is_valid()) {
+                      if (id(last_position_timestamp) == 0) {
+                        id(last_media_position) = pos;
+                        id(last_position_timestamp) = t.timestamp;
+                      }
                       pos = id(last_media_position) + (t.timestamp - id(last_position_timestamp));
                       if (pos < 0) pos = 0;
                       float dur = id(media_duration_sensor).has_state() ? id(media_duration_sensor).state : 0.0f;
