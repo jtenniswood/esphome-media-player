@@ -110,6 +110,26 @@ script:
       - lvgl.widget.show: media_time_label
       - lvgl.widget.show: media_progress_bar
       - lvgl.widget.hide: tv_source_label
+  # Auto-show track info on track change, then auto-hide after configured duration.
+  # mode: restart ensures each new track resets the timer.
+  - id: auto_hide_track_info
+    mode: restart
+    then:
+      - if:
+          condition:
+            lambda: 'return id(is_ui_hidden);'
+          then:
+            - script.execute: toggle_ui
+      - if:
+          condition:
+            lambda: 'return id(track_info_duration).state > 0;'
+          then:
+            - delay: !lambda 'return (uint32_t)(id(track_info_duration).state * 1000);'
+            - if:
+                condition:
+                  lambda: 'return !id(is_ui_hidden);'
+                then:
+                  - script.execute: toggle_ui
 
 text_sensor:
   - platform: homeassistant
@@ -120,6 +140,8 @@ text_sensor:
       # #region agent log
       - lambda: 'ESP_LOGI("dbg", "H3 TITLE_UPDATE: [%s] sntp=%d ts=%d", x.c_str(), id(sntp_time).now().is_valid() ? 1 : 0, id(last_position_timestamp));'
       # #endregion
+      # Auto-show track info overlay (and start auto-hide timer)
+      - script.execute: auto_hide_track_info
       # Track changed (skip/next) — dim stale artwork while new art loads.
       - lvgl.widget.update:
           id: album_art_background_widget
@@ -291,3 +313,24 @@ sensor:
             char buf[8];
             snprintf(buf, sizeof(buf), "%d%%", (int)(x * 100.0f));
             return std::string(buf);
+
+
+# -----------------------------------------------------------------------------
+# USER-CONFIGURABLE SETTINGS (exposed to Home Assistant)
+# -----------------------------------------------------------------------------
+# How long track info (title, artist, time, play/pause) stays visible after
+# a track change before auto-hiding. Set to 0 to keep info always visible.
+# -----------------------------------------------------------------------------
+number:
+  - platform: template
+    name: "Track Info Duration"
+    id: track_info_duration
+    min_value: 0
+    max_value: 60
+    step: 1
+    initial_value: 10
+    optimistic: true
+    restore_value: true
+    unit_of_measurement: "s"
+    icon: "mdi:timer-outline"
+    entity_category: config
