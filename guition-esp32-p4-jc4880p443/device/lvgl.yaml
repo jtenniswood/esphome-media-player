@@ -6,6 +6,7 @@
 
 lvgl:
   buffer_size: 100%
+  byte_order: little_endian
 
   pages:
     - id: main_page
