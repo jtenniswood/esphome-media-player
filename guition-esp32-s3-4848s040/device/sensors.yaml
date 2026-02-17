@@ -32,6 +32,20 @@ interval:
             - lvgl.label.update:
                 id: media_time_label
                 text: !lambda |-
+                  // #region agent log
+                  static int _dbg = 0; _dbg++;
+                  if (_dbg <= 5 || _dbg % 10 == 0) {
+                    ESP_LOGI("dbg", "H2-H5 TICK #%d: ts=%d pos=%.1f sntp=%d state=[%s] state_has=%d dur_has=%d dur=%.1f",
+                      _dbg,
+                      id(last_position_timestamp),
+                      id(last_media_position),
+                      id(sntp_time).now().is_valid() ? 1 : 0,
+                      id(media_player_state_sensor).has_state() ? id(media_player_state_sensor).state.c_str() : "NO_STATE",
+                      id(media_player_state_sensor).has_state() ? 1 : 0,
+                      id(media_duration_sensor).has_state() ? 1 : 0,
+                      id(media_duration_sensor).has_state() ? id(media_duration_sensor).state : -1.0f);
+                  }
+                  // #endregion
                   float pos = id(last_position_timestamp) != 0 && id(media_position_sensor).has_state()
                     ? id(media_position_sensor).state : id(last_media_position);
                   if (id(media_player_state_sensor).state == "playing") {
@@ -103,6 +117,9 @@ text_sensor:
     id: media_title_sensor
     attribute: media_title
     on_value:
+      # #region agent log
+      - lambda: 'ESP_LOGI("dbg", "H3 TITLE_UPDATE: [%s] sntp=%d ts=%d", x.c_str(), id(sntp_time).now().is_valid() ? 1 : 0, id(last_position_timestamp));'
+      # #endregion
       # Track changed (skip/next) — dim stale artwork while new art loads.
       - lvgl.widget.update:
           id: album_art_background_widget
@@ -167,6 +184,9 @@ text_sensor:
     entity_id: ${media_player}
     id: media_player_state_sensor
     on_value:
+      # #region agent log
+      - lambda: 'ESP_LOGI("dbg", "H2 STATE_UPDATE: [%s] sntp=%d", x.c_str(), id(sntp_time).now().is_valid() ? 1 : 0);'
+      # #endregion
       - if:
           condition:
             lambda: 'return x == "playing";'
@@ -206,6 +226,9 @@ sensor:
     id: media_duration_sensor
     attribute: media_duration
     on_value:
+      # #region agent log
+      - lambda: 'ESP_LOGI("dbg", "H4 DUR_UPDATE: dur=%.1f", x);'
+      # #endregion
       - lvgl.label.update:
           id: media_time_label
           text: !lambda |-
@@ -223,9 +246,16 @@ sensor:
     attribute: media_position
     on_value:
       - lambda: |-
+          // #region agent log
+          ESP_LOGI("dbg", "H3 POS_UPDATE: x=%.1f sntp=%d ts_before=%d",
+            x, id(sntp_time).now().is_valid() ? 1 : 0, id(last_position_timestamp));
+          // #endregion
           id(last_media_position) = x;
           auto t = id(sntp_time).now();
           if (t.is_valid()) id(last_position_timestamp) = t.timestamp;
+          // #region agent log
+          ESP_LOGI("dbg", "H3 POS_UPDATE_AFTER: ts_after=%d pos=%.1f", id(last_position_timestamp), id(last_media_position));
+          // #endregion
       - lvgl.label.update:
           id: media_time_label
           text: !lambda |-

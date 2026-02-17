@@ -9,10 +9,19 @@ time:
      - 2.pool.ntp.org
     on_time_sync:
       - lambda: |-
+          // #region agent log
+          ESP_LOGI("dbg", "H1/H2 TIME_SYNC: last_pos_ts=%d pos_has_state=%d pos=%.1f",
+            id(last_position_timestamp),
+            id(media_position_sensor).has_state() ? 1 : 0,
+            id(last_media_position));
+          // #endregion
           // After reboot, HA may push media_position before SNTP syncs.
           // In that case last_position_timestamp stays 0 and the progress
           // clock freezes. Seed the timestamp now so the 1-second interval
           // can start interpolating immediately.
           if (id(last_position_timestamp) == 0 && id(media_position_sensor).has_state()) {
             id(last_position_timestamp) = id(sntp_time).now().timestamp;
+            // #region agent log
+            ESP_LOGI("dbg", "H1/H2 TIME_SYNC SEEDED: last_pos_ts=%d", id(last_position_timestamp));
+            // #endregion
           }
