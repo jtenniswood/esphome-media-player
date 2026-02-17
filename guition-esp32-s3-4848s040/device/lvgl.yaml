@@ -215,7 +215,7 @@ lvgl:
                   text_font: roboto19_font
                   text_color: 0x888888
                   align: center
-                  y: -50
+                  y: -60
                   width: 140
                   height: 24
                   text_align: center
@@ -236,7 +236,7 @@ lvgl:
               - button:
                   id: volume_down_button
                   align: center
-                  x: -42
+                  x: -48
                   y: 135
                   width: 72px
                   height: 72px
@@ -249,15 +249,22 @@ lvgl:
                         text_color: 0xFFFFFF
                   on_press:
                     - homeassistant.service:
-                        service: media_player.volume_down
+                        service: media_player.volume_set
                         data:
                           entity_id: ${media_player}
+                        variables:
+                          vol_level: !lambda |-
+                            float v = id(media_volume_sensor).state - 0.01f;
+                            if (v < 0.0f) v = 0.0f;
+                            return v;
+                        data_template:
+                          volume_level: "{{ vol_level }}"
 
               # Volume up button
               - button:
                   id: volume_up_button
                   align: center
-                  x: 42
+                  x: 48
                   y: 135
                   width: 72px
                   height: 72px
@@ -270,9 +277,16 @@ lvgl:
                         text_color: 0xFFFFFF
                   on_press:
                     - homeassistant.service:
-                        service: media_player.volume_up
+                        service: media_player.volume_set
                         data:
                           entity_id: ${media_player}
+                        variables:
+                          vol_level: !lambda |-
+                            float v = id(media_volume_sensor).state + 0.01f;
+                            if (v > 1.0f) v = 1.0f;
+                            return v;
+                        data_template:
+                          volume_level: "{{ vol_level }}"
 
               # Drag handle indicator (visual cue to swipe up to close)
               - obj:
