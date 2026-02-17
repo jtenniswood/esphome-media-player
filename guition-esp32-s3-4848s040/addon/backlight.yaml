@@ -99,15 +99,15 @@ number:
 
 
 # -----------------------------------------------------------------------------
-# SCREEN-OFF ENABLE/DISABLE (exposed to Home Assistant)
+# SCREENSAVER ENABLE/DISABLE (exposed to Home Assistant)
 # -----------------------------------------------------------------------------
 # Toggle switches to enable or disable the screen-off stage independently
 # for daytime and nighttime. When disabled, the screen stays dimmed but
-# never turns off completely. Both default to ON (screen off enabled).
+# never turns off completely. Both default to ON (screensaver enabled).
 # -----------------------------------------------------------------------------
 switch:
   - platform: template
-    name: "Day Screen Off"
+    name: "Daytime Screen Saver"
     id: backlight_day_screen_off
     optimistic: true
     restore_mode: RESTORE_DEFAULT_ON
@@ -115,7 +115,7 @@ switch:
     entity_category: config
 
   - platform: template
-    name: "Night Screen Off"
+    name: "Nighttime Screen Saver"
     id: backlight_night_screen_off
     optimistic: true
     restore_mode: RESTORE_DEFAULT_ON
