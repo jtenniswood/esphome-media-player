@@ -19,6 +19,9 @@ globals:
   - id: is_tv_mode
     type: bool
     initial_value: 'false'
+  - id: title_received_once
+    type: bool
+    initial_value: 'false'
 
 # Refresh progress bar and elapsed time every second; when playing, estimate
 # position from last HA update + elapsed time so the clock moves smoothly
@@ -138,7 +141,7 @@ text_sensor:
     attribute: media_title
     on_value:
       # #region agent log
-      - lambda: 'ESP_LOGI("dbg", "H3 TITLE_UPDATE: [%s] sntp=%d ts=%d", x.c_str(), id(sntp_time).now().is_valid() ? 1 : 0, id(last_position_timestamp));'
+      - lambda: 'ESP_LOGI("dbg", "H6 TITLE_UPDATE: [%s] first=%d sntp=%d ts=%d pos=%.1f", x.c_str(), id(title_received_once) ? 0 : 1, id(sntp_time).now().is_valid() ? 1 : 0, id(last_position_timestamp), id(last_media_position));'
       # #endregion
       # Auto-show track info overlay (and start auto-hide timer)
       - script.execute: auto_hide_track_info
@@ -147,24 +150,30 @@ text_sensor:
           id: album_art_background_widget
           opa: 40%
       - lvgl.widget.hide: artwork_error_label
-      # Reset position to 0 and stamp the current time so the 1-second
-      # interval timer can immediately start counting from 0 for the new
-      # track (avoids stale timestamp = 0 blocking updates).
-      - lambda: |-
-          id(last_media_position) = 0.0f;
-          auto t = id(sntp_time).now();
-          if (t.is_valid()) {
-            id(last_position_timestamp) = t.timestamp;
-          }
       - lvgl.label.update:
           id: media_title_label
           text: !lambda 'return x.empty() ? std::string("—") : x;'
-      - lvgl.label.update:
-          id: media_time_label
-          text: "0:00 / -0:00"
-      - lvgl.bar.update:
-          id: media_progress_bar
-          value: 0
+      # On first title push after boot (reconnect sync), skip position reset
+      # so we don't wipe the real position received from media_position_sensor.
+      # On real track changes (subsequent pushes), reset to 0 for instant feedback.
+      - if:
+          condition:
+            lambda: 'return id(title_received_once);'
+          then:
+            - lambda: |-
+                id(last_media_position) = 0.0f;
+                auto t = id(sntp_time).now();
+                if (t.is_valid()) {
+                  id(last_position_timestamp) = t.timestamp;
+                }
+            - lvgl.label.update:
+                id: media_time_label
+                text: "0:00 / -0:00"
+            - lvgl.bar.update:
+                id: media_progress_bar
+                value: 0
+          else:
+            - lambda: 'id(title_received_once) = true;'
 
   - platform: homeassistant
     entity_id: ${media_player}
