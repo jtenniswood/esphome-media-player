@@ -20,21 +20,14 @@ image:
 
 # Dynamic album art from media_player entity_picture (URL set by sensors.yaml).
 # Decoded at 480x480 to match the physical display resolution (1:1 pixel mapping).
-#
-# buffer_size: Controls how many bytes are downloaded + decoded per main-loop
-# iteration. The default (65536) blocks the loop for 200-300 ms per chunk,
-# freezing touch and LVGL. A smaller value (2048) keeps each iteration under
-# ~10-15 ms, letting the GT911 touchscreen and LVGL process between chunks.
 online_image:
   - url: "https://placehold.co/480x480/2d2d2d/555555"
     id: album_art_background
     type: rgb565
     format: jpeg
-    buffer_size: 2048
     placeholder: album_art_placeholder
     resize: 480x480
     on_download_finished:
-      - lambda: 'ESP_LOGI("artwork", "Download finished in %lu ms", millis() - id(artwork_request_time));'
       - lvgl.widget.hide: artwork_error_label
       - lvgl.image.update:
           id: album_art_background_widget
@@ -43,7 +36,6 @@ online_image:
           id: album_art_background_widget
           opa: 100%
     on_error:
-      - lambda: 'ESP_LOGW("artwork", "Download FAILED after %lu ms", millis() - id(artwork_request_time));'
       - lvgl.widget.update:
           id: album_art_background_widget
           opa: 40%

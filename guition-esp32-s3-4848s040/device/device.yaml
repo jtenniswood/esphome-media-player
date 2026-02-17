@@ -193,7 +193,6 @@ touchscreen:
     display: tft_display
     on_touch:
       - lambda: |-
-          ESP_LOGI("touch", "Touch at (%d, %d) t=%lu ms", touch.x, touch.y, millis());
           id(was_screen_dimmed) = id(is_screen_dimmed);
           id(was_panel_open) = id(is_panel_open);
           id(touch_x_start) = touch.x;
@@ -301,9 +300,6 @@ script:
   - id: swipe_next_track
     mode: single
     then:
-      # Cancel any pending artwork download so the main loop stays free
-      # for processing this skip and any that follow in quick succession.
-      - script.stop: load_artwork
       - homeassistant.service:
           service: media_player.media_next_track
           data:
@@ -311,7 +307,6 @@ script:
   - id: swipe_previous_track
     mode: single
     then:
-      - script.stop: load_artwork
       - homeassistant.service:
           service: media_player.media_previous_track
           data:
