@@ -31,6 +31,35 @@ lvgl:
             src: album_art_background
             opa: 100%
 
+        # Loading spinner: shown while new album art is downloading
+        - spinner:
+            id: artwork_spinner
+            align: center
+            y: -40
+            width: 64
+            height: 64
+            spin_time: 2s
+            arc_length: 60deg
+            arc_color: 0x555555
+            arc_width: 6
+            indicator:
+              arc_color: 0xFFFFFF
+              arc_width: 6
+            hidden: true
+
+        # Error label: shown when album art download fails
+        - label:
+            id: artwork_error_label
+            text: "Artwork unavailable"
+            align: center
+            y: -40
+            width: 300px
+            height: 30px
+            text_font: roboto19_font
+            text_color: 0x888888
+            text_align: center
+            hidden: true
+
         # Gradient overlay behind the bottom controls
         - image:
             id: bottom_overlay

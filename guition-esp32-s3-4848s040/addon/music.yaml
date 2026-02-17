@@ -28,6 +28,12 @@ online_image:
     placeholder: album_art_placeholder
     resize: 480x480
     on_download_finished:
+      - lvgl.widget.hide: artwork_spinner
+      - lvgl.widget.hide: artwork_error_label
       - lvgl.image.update:
           id: album_art_background_widget
           src: album_art_background
+      - lvgl.widget.show: album_art_background_widget
+    on_error:
+      - lvgl.widget.hide: artwork_spinner
+      - lvgl.widget.show: artwork_error_label
