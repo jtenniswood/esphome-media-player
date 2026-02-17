@@ -39,6 +39,7 @@ esphome:
   name: ${name}
   friendly_name: ${friendly_name}
   area: ${room}
+  restore_from_flash: true
 
 
 # -----------------------------------------------------------------------------
