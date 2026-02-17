@@ -1,8 +1,14 @@
-# Only the 3 Roboto sizes used by the music dashboard (title, artist, time labels).
-# Omitting unused sizes (17, 18, 36, 44, 48, 72) to stay under flash limit.
+# Roboto fonts used by the music dashboard.
 # Extended Latin glyphs cover accented characters (ñ, é, ü, etc.) for song metadata.
 # Two content lines in each >- block: the fold produces exactly one space glyph.
+# roboto56_font uses bold weight with minimal glyphs (digits + %) for the volume dial.
 font:
+  - file: "gfonts://Roboto@700"
+    id: roboto56_font
+    size: 56
+    bpp: 4
+    glyphs: " 0123456789%"
+
   - file: "gfonts://Roboto"
     id: roboto30_font
     size: 30
