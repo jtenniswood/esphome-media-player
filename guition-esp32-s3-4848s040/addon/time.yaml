@@ -7,3 +7,12 @@ time:
      - 0.pool.ntp.org
      - 1.pool.ntp.org
      - 2.pool.ntp.org
+    on_time_sync:
+      - lambda: |-
+          // After reboot, HA may push media_position before SNTP syncs.
+          // In that case last_position_timestamp stays 0 and the progress
+          // clock freezes. Seed the timestamp now so the 1-second interval
+          // can start interpolating immediately.
+          if (id(last_position_timestamp) == 0 && id(media_position_sensor).has_state()) {
+            id(last_position_timestamp) = id(sntp_time).now().timestamp;
+          }
