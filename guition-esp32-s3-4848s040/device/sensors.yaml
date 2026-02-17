@@ -32,33 +32,16 @@ interval:
             - lvgl.label.update:
                 id: media_time_label
                 text: !lambda |-
-                  float pos = id(media_position_sensor).has_state()
+                  float pos = id(last_position_timestamp) != 0 && id(media_position_sensor).has_state()
                     ? id(media_position_sensor).state : id(last_media_position);
                   if (id(media_player_state_sensor).state == "playing") {
                     auto t = id(sntp_time).now();
-                    if (t.is_valid()) {
-                      if (id(last_position_timestamp) == 0) {
-                        id(last_media_position) = pos;
-                        id(last_position_timestamp) = t.timestamp;
-                        id(force_media_sync).execute();
-                        ESP_LOGD("dbg_sync", "BOOTSTRAP pos=%.1f ts=%d (requesting fresh sync)", pos, (int)t.timestamp);
-                      }
+                    if (t.is_valid() && id(last_position_timestamp) != 0) {
                       pos = id(last_media_position) + (t.timestamp - id(last_position_timestamp));
                       if (pos < 0) pos = 0;
                       float dur = id(media_duration_sensor).has_state() ? id(media_duration_sensor).state : 0.0f;
                       if (dur > 0 && pos > dur) pos = dur;
                     }
-                    // #region agent log
-                    static int tick = 0;
-                    if (++tick % 10 == 0) {
-                      auto t2 = id(sntp_time).now();
-                      ESP_LOGD("dbg_sync", "TICK interp=%.1f sensor=%.1f last_pos=%.1f last_ts=%d now=%d elapsed=%d",
-                        pos, id(media_position_sensor).has_state() ? id(media_position_sensor).state : -1.0f,
-                        id(last_media_position), id(last_position_timestamp),
-                        t2.is_valid() ? (int)t2.timestamp : 0,
-                        t2.is_valid() ? (int)(t2.timestamp - id(last_position_timestamp)) : -1);
-                    }
-                    // #endregion
                   }
                   float dur = id(media_duration_sensor).has_state() ? id(media_duration_sensor).state : 0.0f;
                   int e = (int)pos; if (e < 0) e = 0;
@@ -69,15 +52,11 @@ interval:
             - lvgl.bar.update:
                 id: media_progress_bar
                 value: !lambda |-
-                  float pos = id(media_position_sensor).has_state()
+                  float pos = id(last_position_timestamp) != 0 && id(media_position_sensor).has_state()
                     ? id(media_position_sensor).state : id(last_media_position);
                   if (id(media_player_state_sensor).state == "playing") {
                     auto t = id(sntp_time).now();
-                    if (t.is_valid()) {
-                      if (id(last_position_timestamp) == 0) {
-                        id(last_media_position) = pos;
-                        id(last_position_timestamp) = t.timestamp;
-                      }
+                    if (t.is_valid() && id(last_position_timestamp) != 0) {
                       pos = id(last_media_position) + (t.timestamp - id(last_position_timestamp));
                       if (pos < 0) pos = 0;
                       float dur = id(media_duration_sensor).has_state() ? id(media_duration_sensor).state : 0.0f;
@@ -97,12 +76,6 @@ interval:
 # when album art appears, even if the source attribute stays "TV".
 # ---------------------------------------------------------------------------
 script:
-  - id: force_media_sync
-    then:
-      - homeassistant.service:
-          service: homeassistant.update_entity
-          data:
-            entity_id: ${media_player}
   - id: enter_tv_mode
     then:
       - lambda: 'id(is_tv_mode) = true;'
@@ -144,9 +117,6 @@ text_sensor:
           if (t.is_valid()) {
             id(last_position_timestamp) = t.timestamp;
           }
-          // #region agent log
-          ESP_LOGD("dbg_sync", "TITLE_RESET pos=0 ts=%d", id(last_position_timestamp));
-          // #endregion
       - lvgl.label.update:
           id: media_title_label
           text: !lambda 'return x.empty() ? std::string("—") : x;'
@@ -201,14 +171,6 @@ text_sensor:
           condition:
             lambda: 'return x == "playing";'
           then:
-            # #region agent log
-            - lambda: |-
-                auto t = id(sntp_time).now();
-                int stale = t.is_valid() ? (int)(t.timestamp - id(last_position_timestamp)) : -1;
-                ESP_LOGD("dbg_sync", "STATE->playing last_pos=%.1f last_ts=%d now=%d stale=%ds",
-                  id(last_media_position), id(last_position_timestamp),
-                  t.is_valid() ? (int)t.timestamp : 0, stale);
-            # #endregion
             - script.stop: backlight_wake_timeout
             - lvgl.resume:
             - lvgl.widget.hide:
@@ -219,11 +181,6 @@ text_sensor:
                 id: backlight
                 brightness: 100%
           else:
-            # #region agent log
-            - lambda: |-
-                ESP_LOGD("dbg_sync", "STATE->%s last_pos=%.1f last_ts=%d",
-                  x.c_str(), id(last_media_position), id(last_position_timestamp));
-            # #endregion
             - lvgl.widget.show:
                 id: media_play_icon
             - lvgl.widget.hide:
@@ -269,9 +226,6 @@ sensor:
           id(last_media_position) = x;
           auto t = id(sntp_time).now();
           if (t.is_valid()) id(last_position_timestamp) = t.timestamp;
-          // #region agent log
-          ESP_LOGD("dbg_sync", "POS_RECV pos=%.1f ts=%d", x, id(last_position_timestamp));
-          // #endregion
       - lvgl.label.update:
           id: media_time_label
           text: !lambda |-
