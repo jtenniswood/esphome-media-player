@@ -1,7 +1,8 @@
 # =============================================================================
 # HARDWARE CONFIGURATION - Guition ESP32-P4 JC4880P443
 # =============================================================================
-# 480×800 portrait display (JC4880P443). Uses P4 + hosted C6 for connectivity.
+# 4.3" MIPI DSI display 480×800, GT911 touch. Use this device file for hardware;
+# screen size differs from the S3 4848S040 (480×480).
 # =============================================================================
 
 esp32:
@@ -43,7 +44,7 @@ esp_ldo:
   - channel: 3
     voltage: 2.5V
 
-# Backlight (addon/backlight.yaml provides light id: backlight using this output)
+# Backlight (light entity with id backlight is in addon/backlight.yaml)
 output:
   - platform: ledc
     id: backlight_output
@@ -60,9 +61,76 @@ i2c:
   scan: false
   frequency: 400kHz
 
-# -----------------------------------------------------------------------------
-# SWIPE GESTURE GLOBALS (480×800 layout)
-# -----------------------------------------------------------------------------
+# Display: 480×800 (JC4880P443)
+display:
+  - platform: mipi_dsi
+    id: my_display
+    model: JC4880P443
+    dimensions:
+      width: 480
+      height: 800
+
+# Touchscreen
+touchscreen:
+  - platform: gt911
+    id: my_touchscreen
+    display: my_display
+    on_touch:
+      - lambda: |-
+          id(was_screen_dimmed) = id(is_screen_dimmed);
+          id(was_panel_open) = id(is_panel_open);
+          id(touch_x_start) = touch.x;
+          id(touch_y_start) = touch.y;
+          id(touch_x_end) = touch.x;
+          id(touch_y_end) = touch.y;
+      - script.execute: backlight_wake_timeout
+    on_update:
+      - lambda: |-
+          for (auto touch: touches) {
+            if (touch.state <= 2) {
+              id(touch_x_end) = touch.x;
+              id(touch_y_end) = touch.y;
+            }
+          }
+    on_release:
+      - lambda: |-
+          int dx = id(touch_x_end) - id(touch_x_start);
+          int dy = id(touch_y_end) - id(touch_y_start);
+          int sy = id(touch_y_start);
+
+          if (dy > 20 && abs(dy) > abs(dx) * 2 && !id(is_panel_open)) {
+            id(open_settings_panel).execute();
+            return;
+          }
+          if (dy < -60 && abs(dy) > abs(dx) * 2 && id(is_panel_open)) {
+            id(close_settings_panel).execute();
+            return;
+          }
+          if (id(is_panel_open) || id(was_panel_open)) {
+            return;
+          }
+
+          if (abs(dx) > 80 && abs(dx) > abs(dy) * 2) {
+            if (dx > 0) {
+              id(swipe_previous_track).execute();
+            } else {
+              id(swipe_next_track).execute();
+            }
+          }
+          else if (abs(dx) < 20 && abs(dy) < 20) {
+            int sx = id(touch_x_start);
+            if (sx >= 385 && sx <= 467 && sy >= 681 && sy <= 763) {
+              return;
+            }
+            if (id(was_screen_dimmed)) {
+            } else if (id(is_ui_hidden)) {
+              id(toggle_ui).execute();
+            } else if (id(media_player_state_sensor).has_state() &&
+                       id(media_player_state_sensor).state == "playing") {
+              id(toggle_ui).execute();
+            }
+          }
+
 globals:
   - id: touch_x_start
     type: int
@@ -92,75 +160,6 @@ globals:
     type: bool
     initial_value: 'false'
 
-# -----------------------------------------------------------------------------
-# TOUCHSCREEN (GT911) - 480×800; play/pause exclude zone y 671–753
-# -----------------------------------------------------------------------------
-touchscreen:
-  - platform: gt911
-    id: tft_touch
-    display: tft_display
-    on_touch:
-      - lambda: |-
-          id(was_screen_dimmed) = id(is_screen_dimmed);
-          id(was_panel_open) = id(is_panel_open);
-          id(touch_x_start) = touch.x;
-          id(touch_y_start) = touch.y;
-          id(touch_x_end) = touch.x;
-          id(touch_y_end) = touch.y;
-      - script.execute: backlight_wake_timeout
-    on_update:
-      - lambda: |-
-          for (auto touch: touches) {
-            if (touch.state <= 2) {
-              id(touch_x_end) = touch.x;
-              id(touch_y_end) = touch.y;
-            }
-          }
-    on_release:
-      - lambda: |-
-          int dx = id(touch_x_end) - id(touch_x_start);
-          int dy = id(touch_y_end) - id(touch_y_start);
-          int sy = id(touch_y_start);
-
-          // Vertical swipe: settings panel open/close
-          if (dy > 20 && abs(dy) > abs(dx) * 2 && !id(is_panel_open)) {
-            id(open_settings_panel).execute();
-            return;
-          }
-          if (dy < -60 && abs(dy) > abs(dx) * 2 && id(is_panel_open)) {
-            id(close_settings_panel).execute();
-            return;
-          }
-          if (id(is_panel_open) || id(was_panel_open)) {
-            return;
-          }
-
-          // Horizontal swipe: track navigation
-          if (abs(dx) > 80 && abs(dx) > abs(dy) * 2) {
-            if (dx > 0) {
-              id(swipe_previous_track).execute();
-            } else {
-              id(swipe_next_track).execute();
-            }
-          }
-          // Tap: exclude play/pause button (x 385–467, y 671–753 on 480×800)
-          else if (abs(dx) < 20 && abs(dy) < 20) {
-            int sx = id(touch_x_start);
-            if (sx >= 385 && sx <= 467 && sy >= 671 && sy <= 753) {
-              return;
-            }
-            if (id(was_screen_dimmed)) {
-            } else if (id(is_ui_hidden)) {
-              id(toggle_ui).execute();
-            } else if (id(media_player_state_sensor).has_state() &&
-                       id(media_player_state_sensor).state == "playing") {
-              id(toggle_ui).execute();
-            }
-          }
-
-# -----------------------------------------------------------------------------
-# GESTURE SCRIPTS
-# -----------------------------------------------------------------------------
 script:
   - id: toggle_ui
     mode: restart
@@ -219,11 +218,3 @@ script:
     then:
       - lvgl.widget.hide: settings_panel
       - lambda: 'id(is_panel_open) = false;'
-
-# -----------------------------------------------------------------------------
-# DISPLAY (MIPI DSI - JC4880P443 480×800)
-# -----------------------------------------------------------------------------
-display:
-  - platform: mipi_dsi
-    id: tft_display
-    model: JC4880P443

@@ -1,7 +1,7 @@
 # =============================================================================
 # LVGL MUSIC DASHBOARD - 480×800 (JC4880P443)
 # =============================================================================
-# Same layout as S3 4848S040 but scaled for portrait 480×800.
+# Layout adapted from S3 480×480 for portrait 480×800 display.
 # =============================================================================
 
 lvgl:
@@ -20,7 +20,6 @@ lvgl:
       pad_right: 0
 
       widgets:
-        # Full-screen artwork background (480×800)
         - image:
             id: album_art_background_widget
             x: 0
@@ -30,7 +29,6 @@ lvgl:
             src: album_art_background
             opa: 100%
 
-        # Error label when album art fails
         - label:
             id: artwork_error_label
             text: "Artwork unavailable"
@@ -43,7 +41,6 @@ lvgl:
             text_align: center
             hidden: true
 
-        # Gradient overlay behind bottom controls (y 670–800)
         - image:
             id: bottom_overlay
             x: 0
@@ -52,7 +49,6 @@ lvgl:
             height: 130
             src: bottom_gradient
 
-        # Song title
         - label:
             id: media_title_label
             text: "—"
@@ -65,7 +61,6 @@ lvgl:
             text_color: 0xFFFFFF
             text_align: left
 
-        # Artist name
         - label:
             id: media_artist_label
             text: "—"
@@ -78,7 +73,6 @@ lvgl:
             text_color: 0xFFFFFF
             text_align: left
 
-        # Play/pause button (right-aligned in bottom bar)
         - button:
             id: media_play_pause_button
             x: 390
@@ -107,7 +101,6 @@ lvgl:
                   data:
                     entity_id: ${media_player}
 
-        # TV mode: centered TV icon
         - label:
             id: tv_source_label
             text: $tv_icon
@@ -117,7 +110,6 @@ lvgl:
             text_color: 0xFFFFFF
             hidden: true
 
-        # Elapsed / duration
         - label:
             id: media_time_label
             text: "0:00  /  0:00"
@@ -128,7 +120,6 @@ lvgl:
             text_color: 0xDDDDDD
             text_align: left
 
-        # Progress bar at bottom
         - bar:
             id: media_progress_bar
             x: 0
@@ -145,9 +136,6 @@ lvgl:
               bg_color: 0xFFFFFF
               radius: 0
 
-        # -----------------------------------------------------------------------
-        # SETTINGS PANEL (swipe down to open, swipe up to close)
-        # -----------------------------------------------------------------------
         - obj:
             id: settings_panel
             x: 0
@@ -228,7 +216,7 @@ lvgl:
                   id: volume_down_button
                   align: center
                   x: -48
-                  y: 235
+                  y: 135
                   width: 72px
                   height: 72px
                   styles: control_round
@@ -255,7 +243,7 @@ lvgl:
                   id: volume_up_button
                   align: center
                   x: 48
-                  y: 235
+                  y: 135
                   width: 72px
                   height: 72px
                   styles: control_round
@@ -278,7 +266,6 @@ lvgl:
                         data_template:
                           volume_level: "{{ vol_level }}"
 
-              # Drag handle (swipe up to close)
               - obj:
                   x: 210
                   y: 796

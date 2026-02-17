@@ -1,4 +1,4 @@
-# Material Design Icons (same as S3)
+# http://materialdesignicons.com/cdn/7.4.47/
 font:
   - file: 'https://github.com/Templarian/MaterialDesign-Webfont/raw/v7.4.47/fonts/materialdesignicons-webfont.ttf'
     id: icon_font

@@ -1,7 +1,7 @@
 # =============================================================================
-# BACKLIGHT & SCREENSAVER
+# BACKLIGHT & SCREENSAVER - P4 JC4880P443
 # =============================================================================
-# Same as S3: dim then off timeouts; backlight_output from device, light id: backlight.
+# Same two-stage screensaver as S3. Backlight output from device/device.yaml.
 # =============================================================================
 
 light:

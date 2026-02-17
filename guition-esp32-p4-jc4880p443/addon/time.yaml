@@ -1,4 +1,4 @@
-# SNTP Time (for play progress elapsed-time estimation in sensors.yaml)
+# SNTP Time (used for play progress elapsed-time estimation in sensors.yaml)
 time:
   - platform: sntp
     id: sntp_time

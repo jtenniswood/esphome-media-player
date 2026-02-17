@@ -1,9 +1,14 @@
 # =============================================================================
-# SENSORS - Music dashboard (media_player; override ${media_player} in main YAML)
+# SENSORS - Music dashboard (media_player.office)
 # =============================================================================
-# Same logic as S3 setup; widget IDs match lvgl.yaml for 480×800.
+# Subscribes to media_player attributes and updates LVGL labels, bar, image,
+# and play/pause icon. To use a different entity, override in your main YAML
+# with a package override or use a local copy and set entity_id.
+# Album art base URL: http://192.168.1.30:8123 (path from HA already includes token).
 # =============================================================================
 
+# Store last HA position and time so we can estimate elapsed time between updates
+# (HA/Sonos often only push media_position every 5–10s; we tick every 1s)
 globals:
   - id: last_media_position
     type: float
@@ -21,6 +26,8 @@ globals:
     type: int
     initial_value: '0'
 
+# Refresh progress bar and elapsed time every second; when playing, estimate
+# position from last HA update + elapsed time so the clock moves smoothly
 interval:
   - interval: 1s
     then:
@@ -38,9 +45,11 @@ interval:
                   auto t = id(sntp_time).now();
                   if (playing && t.is_valid() && id(ha_position_epoch) != 0
                       && id(media_position_sensor).has_state()) {
+                    // Primary: HA position + (now − HA timestamp) — mirrors HA frontend calc
                     pos = id(media_position_sensor).state
                         + (float)(t.timestamp - id(ha_position_epoch));
                   } else if (playing && t.is_valid() && id(last_position_timestamp) != 0) {
+                    // Fallback: globals (used briefly after track-change reset)
                     pos = id(last_media_position)
                         + (float)(t.timestamp - id(last_position_timestamp));
                   } else {
@@ -78,6 +87,9 @@ interval:
                   if (dur > 0) return (int)((pos / dur) * 100.0f);
                   return 0;
 
+# ---------------------------------------------------------------------------
+# MODE-SWITCH SCRIPTS
+# ---------------------------------------------------------------------------
 script:
   - id: enter_tv_mode
     then:

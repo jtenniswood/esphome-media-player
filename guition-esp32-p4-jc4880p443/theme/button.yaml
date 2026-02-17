@@ -1,4 +1,3 @@
-# Button and control styles (same as S3)
 substitutions:
   icon_font: icon_font
   text_font: roboto19_font
