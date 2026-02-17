@@ -172,7 +172,7 @@ lvgl:
               - arc:
                   id: volume_arc
                   align: center
-                  y: -20
+                  y: -30
                   width: 380
                   height: 380
                   min_value: 0
@@ -180,17 +180,17 @@ lvgl:
                   value: 30
                   adjustable: true
                   arc_color: 0x333333
-                  arc_width: 22
+                  arc_width: 12
                   arc_rounded: true
                   indicator:
-                    arc_color: 0xFF8C00
-                    arc_width: 22
+                    arc_color: 0x888888
+                    arc_width: 12
                     arc_rounded: true
                   knob:
                     bg_color: 0xFFFFFF
-                    radius: 18
-                    width: 36
-                    height: 36
+                    radius: 14
+                    width: 28
+                    height: 28
                     border_width: 0
                   on_value:
                     - lvgl.label.update:
@@ -215,32 +215,52 @@ lvgl:
                   text_font: roboto56_font
                   text_color: 0xFFFFFF
                   align: center
-                  y: -20
+                  y: -30
                   width: 200
                   height: 60
                   text_align: center
 
-              # "MIN" label at bottom-left of the arc
-              - label:
-                  id: volume_min_label
-                  text: "MIN"
-                  text_font: roboto15_font
-                  text_color: 0x666666
-                  x: 60
-                  y: 390
-                  width: 50
-                  text_align: center
+              # Volume down button
+              - button:
+                  id: volume_down_button
+                  align: center
+                  x: -50
+                  y: 190
+                  width: 72px
+                  height: 72px
+                  styles: control_round
+                  widgets:
+                    - label:
+                        text_font: $icon_font
+                        align: center
+                        text: $icon_minus
+                        text_color: 0xFFFFFF
+                  on_press:
+                    - homeassistant.service:
+                        service: media_player.volume_down
+                        data:
+                          entity_id: ${media_player}
 
-              # "MAX" label at bottom-right of the arc
-              - label:
-                  id: volume_max_label
-                  text: "MAX"
-                  text_font: roboto15_font
-                  text_color: 0x666666
-                  x: 370
-                  y: 390
-                  width: 50
-                  text_align: center
+              # Volume up button
+              - button:
+                  id: volume_up_button
+                  align: center
+                  x: 50
+                  y: 190
+                  width: 72px
+                  height: 72px
+                  styles: control_round
+                  widgets:
+                    - label:
+                        text_font: $icon_font
+                        align: center
+                        text: $icon_plus
+                        text_color: 0xFFFFFF
+                  on_press:
+                    - homeassistant.service:
+                        service: media_player.volume_up
+                        data:
+                          entity_id: ${media_player}
 
               # Drag handle indicator (visual cue to swipe up to close)
               - obj:

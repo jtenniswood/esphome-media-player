@@ -1,9 +1,9 @@
 # Roboto fonts used by the music dashboard.
 # Extended Latin glyphs cover accented characters (ñ, é, ü, etc.) for song metadata.
 # Two content lines in each >- block: the fold produces exactly one space glyph.
-# roboto56_font uses bold weight with minimal glyphs (digits + %) for the volume dial.
+# roboto56_font uses regular weight with minimal glyphs (digits + %) for the volume dial.
 font:
-  - file: "gfonts://Roboto@700"
+  - file: "gfonts://Roboto"
     id: roboto56_font
     size: 56
     bpp: 4
