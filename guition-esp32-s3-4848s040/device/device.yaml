@@ -300,6 +300,9 @@ script:
   - id: swipe_next_track
     mode: single
     then:
+      # Cancel any pending artwork download so the main loop stays free
+      # for processing this skip and any that follow in quick succession.
+      - script.stop: load_artwork
       - homeassistant.service:
           service: media_player.media_next_track
           data:
@@ -307,6 +310,7 @@ script:
   - id: swipe_previous_track
     mode: single
     then:
+      - script.stop: load_artwork
       - homeassistant.service:
           service: media_player.media_previous_track
           data:

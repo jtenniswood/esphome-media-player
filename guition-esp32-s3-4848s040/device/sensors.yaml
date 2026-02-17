@@ -76,6 +76,24 @@ interval:
 # when album art appears, even if the source attribute stays "TV".
 # ---------------------------------------------------------------------------
 script:
+  # -------------------------------------------------------------------
+  # DEBOUNCED ARTWORK LOADER
+  # -------------------------------------------------------------------
+  # mode: restart — each new entity_picture update cancels the pending
+  # download and resets the timer. Only the LAST URL is fetched, after
+  # the user has stopped skipping for 500 ms. This keeps the main loop
+  # free (and touch/LVGL responsive) during rapid track changes.
+  # -------------------------------------------------------------------
+  - id: load_artwork
+    mode: restart
+    then:
+      - delay: 500ms
+      - online_image.set_url:
+          id: album_art_background
+          url: !lambda |-
+            std::string path = id(media_entity_picture_sensor).state;
+            while (!path.empty() && (path.back() == '\n' || path.back() == '\r' || path.back() == ' ')) path.pop_back();
+            return std::string("${home_assistant_url}") + path;
   - id: enter_tv_mode
     then:
       - lambda: 'id(is_tv_mode) = true;'
@@ -150,12 +168,11 @@ text_sensor:
                 id: album_art_background_widget
                 opa: 40%
             - lvgl.widget.hide: artwork_error_label
-            - online_image.set_url:
-                id: album_art_background
-                url: !lambda |-
-                  std::string path = x;
-                  while (!path.empty() && (path.back() == '\n' || path.back() == '\r' || path.back() == ' ')) path.pop_back();
-                  return std::string("${home_assistant_url}") + path;
+            # Debounce: restart-mode script delays the download so rapid
+            # skipping doesn't queue multiple blocking HTTP transfers.
+            # The actual URL is read from the sensor state when the
+            # script fires, so it always picks up the latest value.
+            - script.execute: load_artwork
             # Album art appeared — if we're in TV mode, music is now playing.
             - if:
                 condition:
