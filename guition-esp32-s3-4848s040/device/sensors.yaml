@@ -169,6 +169,9 @@ text_sensor:
                 url: !lambda |-
                   std::string path = x;
                   while (!path.empty() && (path.back() == '\n' || path.back() == '\r' || path.back() == ' ')) path.pop_back();
+                  if (path.substr(0, 7) == "http://" || path.substr(0, 8) == "https://") {
+                    return path;
+                  }
                   return std::string("${home_assistant_url}") + path;
 
   - platform: homeassistant
