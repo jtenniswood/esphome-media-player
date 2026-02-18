@@ -295,10 +295,18 @@ script:
             lambda: 'return id(is_ui_hidden);'
           then:
             - lambda: 'id(is_ui_hidden) = false;'
-            - lvgl.widget.show: now_playing_overlay
+            - lvgl.widget.show: bottom_overlay
+            - lvgl.widget.show: media_title_label
+            - lvgl.widget.show: media_artist_label
+            - lvgl.widget.show: media_play_pause_button
+            - lvgl.widget.show: media_time_label
           else:
             - lambda: 'id(is_ui_hidden) = true;'
-            - lvgl.widget.hide: now_playing_overlay
+            - lvgl.widget.hide: bottom_overlay
+            - lvgl.widget.hide: media_title_label
+            - lvgl.widget.hide: media_artist_label
+            - lvgl.widget.hide: media_play_pause_button
+            - lvgl.widget.hide: media_time_label
   # -- Track navigation (called by horizontal swipe gestures) --
   - id: swipe_next_track
     mode: single
@@ -356,7 +364,11 @@ script:
             lambda: 'return id(is_ui_hidden);'
           then:
             - lambda: 'id(is_ui_hidden) = false;'
-            - lvgl.widget.show: now_playing_overlay
+            - lvgl.widget.show: bottom_overlay
+            - lvgl.widget.show: media_title_label
+            - lvgl.widget.show: media_artist_label
+            - lvgl.widget.show: media_play_pause_button
+            - lvgl.widget.show: media_time_label
 
 
 # -----------------------------------------------------------------------------
