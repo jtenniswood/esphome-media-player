@@ -339,7 +339,7 @@ script:
           data:
             entity_id: ${media_player}
           variables:
-            vol_level: !lambda 'return id(volume_arc).get_value() / 100.0f;'
+            vol_level: !lambda 'return lv_arc_get_value(id(volume_arc)) / 100.0f;'
           data_template:
             volume_level: "{{ vol_level }}"
 
