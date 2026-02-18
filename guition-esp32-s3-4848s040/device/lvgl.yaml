@@ -79,7 +79,8 @@ lvgl:
             text_color: 0xFFFFFF
             text_align: left
 
-        # Play/pause button: two icon labels; visibility toggled by sensors.yaml
+        # Control buttons: 72px round; play/pause + next aligned to the right
+        # Play/pause: two icon labels; visibility toggled by sensors.yaml from state
         - button:
             id: media_play_pause_button
             x: 390
@@ -168,10 +169,16 @@ lvgl:
                   max_value: 100
                   value: 30
                   adjustable: true
+                  arc_color: 0x333333
+                  arc_width: 12
                   arc_rounded: true
                   indicator:
+                    arc_color: 0x999999
+                    arc_width: 12
                     arc_rounded: true
                   knob:
+                    bg_color: 0xFFFFFF
+                    radius: 14
                     width: 28
                     height: 28
                     border_width: 0
@@ -182,7 +189,14 @@ lvgl:
                           char buf[8];
                           snprintf(buf, sizeof(buf), "%d%%", (int)x);
                           return std::string(buf);
-                    - script.execute: debounced_volume_set
+                    - homeassistant.service:
+                        service: media_player.volume_set
+                        data:
+                          entity_id: ${media_player}
+                        variables:
+                          vol_level: !lambda 'return x / 100.0f;'
+                        data_template:
+                          volume_level: "{{ vol_level }}"
 
               # "Volume" label above the percentage
               - label:

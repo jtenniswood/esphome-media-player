@@ -347,20 +347,6 @@ script:
       - lvgl.widget.hide: settings_panel
       - lambda: 'id(is_panel_open) = false;'
 
-  # -- Debounced volume set (prevents flooding HA during arc drag) --
-  - id: debounced_volume_set
-    mode: restart
-    then:
-      - delay: 150ms
-      - homeassistant.service:
-          service: media_player.volume_set
-          data:
-            entity_id: ${media_player}
-          variables:
-            vol_level: !lambda 'return lv_arc_get_value(id(volume_arc)) / 100.0f;'
-          data_template:
-            volume_level: "{{ vol_level }}"
-
   # -- Reset to now-playing view (e.g. when a new track starts) --
   - id: show_track_view
     mode: single

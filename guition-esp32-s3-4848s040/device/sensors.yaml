@@ -28,36 +28,57 @@ globals:
 interval:
   - interval: 1s
     then:
-      - lambda: |-
-          bool playing = id(media_player_state_sensor).has_state() &&
-                         id(media_player_state_sensor).state == "playing";
-          if (!playing) return;
-
-          float dur = id(media_duration_sensor).has_state() ? id(media_duration_sensor).state : 0.0f;
-          float pos;
-          auto t = id(sntp_time).now();
-          if (t.is_valid() && id(ha_position_epoch) != 0
-              && id(media_position_sensor).has_state()) {
-            pos = id(media_position_sensor).state
-                + (float)(t.timestamp - id(ha_position_epoch));
-          } else if (t.is_valid() && id(last_position_timestamp) != 0) {
-            pos = id(last_media_position)
-                + (float)(t.timestamp - id(last_position_timestamp));
-          } else {
-            pos = id(media_position_sensor).has_state()
-                ? id(media_position_sensor).state : id(last_media_position);
-          }
-          if (pos < 0) pos = 0;
-          if (dur > 0 && pos > dur) pos = dur;
-
-          int e = (int)pos; if (e < 0) e = 0;
-          int rem = (int)(dur - pos); if (rem < 0) rem = 0;
-          char buf[24];
-          snprintf(buf, sizeof(buf), "%d:%02d / -%d:%02d", e/60, e%60, rem/60, rem%60);
-          lv_label_set_text(id(media_time_label), buf);
-
-          int pct = (dur > 0) ? (int)((pos / dur) * 100.0f) : 0;
-          lv_bar_set_value(id(media_progress_bar), pct, LV_ANIM_OFF);
+      - lvgl.label.update:
+            id: media_time_label
+            text: !lambda |-
+              float pos;
+              float dur = id(media_duration_sensor).has_state() ? id(media_duration_sensor).state : 0.0f;
+              bool playing = id(media_player_state_sensor).has_state() &&
+                             id(media_player_state_sensor).state == "playing";
+              auto t = id(sntp_time).now();
+              if (playing && t.is_valid() && id(ha_position_epoch) != 0
+                  && id(media_position_sensor).has_state()) {
+                // Primary: HA position + (now − HA timestamp) — mirrors HA frontend calc
+                pos = id(media_position_sensor).state
+                    + (float)(t.timestamp - id(ha_position_epoch));
+              } else if (playing && t.is_valid() && id(last_position_timestamp) != 0) {
+                // Fallback: globals (used briefly after track-change reset)
+                pos = id(last_media_position)
+                    + (float)(t.timestamp - id(last_position_timestamp));
+              } else {
+                pos = id(media_position_sensor).has_state()
+                    ? id(media_position_sensor).state : id(last_media_position);
+              }
+              if (pos < 0) pos = 0;
+              if (dur > 0 && pos > dur) pos = dur;
+              int e = (int)pos; if (e < 0) e = 0;
+              int rem = (int)(dur - pos); if (rem < 0) rem = 0;
+              char buf[24];
+              snprintf(buf, sizeof(buf), "%d:%02d / -%d:%02d", e / 60, e % 60, rem / 60, rem % 60);
+              return std::string(buf);
+      - lvgl.bar.update:
+            id: media_progress_bar
+            value: !lambda |-
+              float pos;
+              float dur = id(media_duration_sensor).has_state() ? id(media_duration_sensor).state : 0.0f;
+              bool playing = id(media_player_state_sensor).has_state() &&
+                             id(media_player_state_sensor).state == "playing";
+              auto t = id(sntp_time).now();
+              if (playing && t.is_valid() && id(ha_position_epoch) != 0
+                  && id(media_position_sensor).has_state()) {
+                pos = id(media_position_sensor).state
+                    + (float)(t.timestamp - id(ha_position_epoch));
+              } else if (playing && t.is_valid() && id(last_position_timestamp) != 0) {
+                pos = id(last_media_position)
+                    + (float)(t.timestamp - id(last_position_timestamp));
+              } else {
+                pos = id(media_position_sensor).has_state()
+                    ? id(media_position_sensor).state : id(last_media_position);
+              }
+              if (pos < 0) pos = 0;
+              if (dur > 0 && pos > dur) pos = dur;
+              if (dur > 0) return (int)((pos / dur) * 100.0f);
+              return 0;
 
 script:
   # Auto-show track info on track change, then auto-hide after configured duration.
@@ -213,6 +234,17 @@ sensor:
     entity_id: ${media_player}
     id: media_duration_sensor
     attribute: media_duration
+    on_value:
+      - lvgl.label.update:
+          id: media_time_label
+          text: !lambda |-
+            int d = (int)x; if (d < 0) d = 0;
+            float pos = id(last_media_position);
+            int e = (int)pos; if (e < 0) e = 0;
+            int rem = d - e; if (rem < 0) rem = 0;
+            char buf[24];
+            snprintf(buf, sizeof(buf), "%d:%02d / -%d:%02d", e / 60, e % 60, rem / 60, rem % 60);
+            return std::string(buf);
 
   - platform: homeassistant
     entity_id: ${media_player}
@@ -221,12 +253,34 @@ sensor:
     on_value:
       - lambda: |-
           id(last_media_position) = x;
+          // Prefer HA's own timestamp (compensates for stale position data,
+          // especially important on reboot when the position could be many
+          // seconds old). Fall back to SNTP time for fresh updates.
           if (id(ha_position_epoch) != 0) {
             id(last_position_timestamp) = id(ha_position_epoch);
           } else {
             auto t = id(sntp_time).now();
             if (t.is_valid()) id(last_position_timestamp) = t.timestamp;
           }
+      - lvgl.label.update:
+          id: media_time_label
+          text: !lambda |-
+            int e = (int)x; if (e < 0) e = 0;
+            float dur = id(media_duration_sensor).has_state() ? id(media_duration_sensor).state : 0.0f;
+            int d = (int)dur; if (d < 0) d = 0;
+            int rem = d - e; if (rem < 0) rem = 0;
+            char buf[24];
+            snprintf(buf, sizeof(buf), "%d:%02d / -%d:%02d", e / 60, e % 60, rem / 60, rem % 60);
+            return std::string(buf);
+      - lvgl.bar.update:
+          id: media_progress_bar
+          value: !lambda |-
+            float pos = x;
+            float dur = id(media_duration_sensor).state;
+            if (dur > 0) {
+              return (int)((pos / dur) * 100.0f);
+            }
+            return 0;
 
   # Volume level: syncs the settings panel arc + label with HA
   - platform: homeassistant

@@ -31,11 +31,6 @@ light:
 # Every HA instance has sun.sun by default. Its state is either
 # "above_horizon" (daytime) or "below_horizon" (nighttime).
 # -----------------------------------------------------------------------------
-globals:
-  - id: is_daytime
-    type: bool
-    initial_value: 'true'
-
 text_sensor:
   - platform: homeassistant
     entity_id: sun.sun
@@ -165,22 +160,23 @@ script:
               return !id(media_player_state_sensor).has_state() ||
                      id(media_player_state_sensor).state != "playing";
           then:
-            - lambda: |-
-                id(is_screen_dimmed) = true;
-                bool is_day = id(sun_state_sensor).has_state() &&
-                              id(sun_state_sensor).state == "above_horizon";
-                float pct = is_day
-                  ? id(backlight_day_brightness).state
-                  : id(backlight_night_brightness).state;
-                auto call = id(backlight).turn_on();
-                call.set_brightness(pct / 100.0f);
-                call.set_transition_length(3000);
-                call.perform();
-                id(is_daytime) = is_day;
+            - lambda: 'id(is_screen_dimmed) = true;'
+            - light.turn_on:
+                id: backlight
+                brightness: !lambda |-
+                  bool is_day = id(sun_state_sensor).has_state() &&
+                                id(sun_state_sensor).state == "above_horizon";
+                  float pct = is_day
+                    ? id(backlight_day_brightness).state
+                    : id(backlight_night_brightness).state;
+                  return pct / 100.0f;
+                transition_length: 3s
             - if:
                 condition:
                   lambda: |-
-                    return id(is_daytime)
+                    bool is_day = id(sun_state_sensor).has_state() &&
+                                  id(sun_state_sensor).state == "above_horizon";
+                    return is_day
                       ? id(backlight_day_screen_off).state
                       : id(backlight_night_screen_off).state;
                 then:
