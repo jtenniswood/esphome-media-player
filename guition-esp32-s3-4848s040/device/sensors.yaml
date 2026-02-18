@@ -113,7 +113,7 @@ text_sensor:
       # Track changed (skip/next) — dim stale artwork while new art loads.
       - lvgl.widget.update:
           id: album_art_background_widget
-          opa: 40%
+          opa: 50%
       - lvgl.widget.hide: artwork_error_label
       - lvgl.label.update:
           id: media_title_label
@@ -162,7 +162,7 @@ text_sensor:
             # New artwork URL — dim stale artwork while new art loads.
             - lvgl.widget.update:
                 id: album_art_background_widget
-                opa: 40%
+                opa: 50%
             - lvgl.widget.hide: artwork_error_label
             - online_image.set_url:
                 id: album_art_background
