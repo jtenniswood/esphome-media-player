@@ -226,9 +226,8 @@ touchscreen:
             id(open_settings_panel).execute();
             return;
           }
-          // Swipe up to close: only from below the arc (near drag handle)
-          // to prevent arc drags from being misinterpreted as close gestures
-          if (dy < -60 && sy >= 420 && abs(dy) > abs(dx) * 2 && id(is_panel_open)) {
+          // Swipe up to close: panel is open
+          if (dy < -60 && abs(dy) > abs(dx) * 2 && id(is_panel_open)) {
             id(close_settings_panel).execute();
             return;
           }
@@ -247,14 +246,14 @@ touchscreen:
               id(swipe_next_track).execute();
             }
           }
-          // Tap: minimal movement anywhere on screen — toggle UI visibility.
+          // Tap: minimal movement anywhere on screen — toggle UI visibility
+          // Excludes the play/pause button area (x:390-462, y:356-428).
           // If screen was dimmed, just wake it (don't hide the UI).
           // Only allow hiding the UI when media is actively playing.
           else if (abs(dx) < 20 && abs(dy) < 20) {
             int sx = id(touch_x_start);
-            // Play/pause button: x:390 y:366 w:72 h:72 -> bounds 390-462, 366-438
-            // Add 5px touch margin -> exclusion zone 385-467, 351-443
-            if (sx >= 385 && sx <= 467 && sy >= 351 && sy <= 443) {
+            // Ignore taps on the play/pause button
+            if (sx >= 385 && sx <= 467 && sy >= 351 && sy <= 433) {
               return;
             }
             if (id(was_screen_dimmed)) {
