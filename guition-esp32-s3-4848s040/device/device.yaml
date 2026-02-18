@@ -141,37 +141,43 @@ i2c:
 
 
 # -----------------------------------------------------------------------------
-# SWIPE GESTURE GLOBALS
+# GLOBAL STATE VARIABLES
 # -----------------------------------------------------------------------------
-# Track touch start and end coordinates across on_touch / on_update /
-# on_release so we can detect horizontal swipes for track navigation.
+# Shared state used across touch handling, gesture detection, UI visibility,
+# and the settings panel. These persist for the lifetime of the device and are
+# accessed from touchscreen handlers, scripts, and lambdas.
 # -----------------------------------------------------------------------------
 globals:
-  - id: touch_x_start
+  # -- Touch tracking (swipe gesture detection) --
+  - id: touch_x_start            # X coordinate when finger first touches
     type: int
     initial_value: '0'
-  - id: touch_y_start
+  - id: touch_y_start            # Y coordinate when finger first touches
     type: int
     initial_value: '0'
-  - id: touch_x_end
+  - id: touch_x_end              # X coordinate updated as finger moves
     type: int
     initial_value: '0'
-  - id: touch_y_end
+  - id: touch_y_end              # Y coordinate updated as finger moves
     type: int
     initial_value: '0'
-  - id: is_ui_hidden
+
+  # -- UI overlay visibility --
+  - id: is_ui_hidden             # True when title/artist/play button are hidden
     type: bool
     initial_value: 'false'
-  - id: is_screen_dimmed
+  - id: is_screen_dimmed         # True when backlight is in dimmed/idle state
     type: bool
     initial_value: 'false'
-  - id: was_screen_dimmed
+  - id: was_screen_dimmed        # Snapshot at touch-start; prevents toggle on wake
     type: bool
     initial_value: 'false'
-  - id: is_panel_open
+
+  # -- Settings panel state --
+  - id: is_panel_open            # True when the swipe-down settings panel is visible
     type: bool
     initial_value: 'false'
-  - id: was_panel_open
+  - id: was_panel_open           # Snapshot at touch-start; blocks bleed-through taps
     type: bool
     initial_value: 'false'
 
@@ -264,12 +270,22 @@ touchscreen:
 
 
 # -----------------------------------------------------------------------------
-# GESTURE SCRIPTS
+# INTERACTION SCRIPTS
 # -----------------------------------------------------------------------------
-# Swipe: skip track. Tap anywhere (excluding play/pause): toggle UI overlay visibility.
-# mode: single prevents duplicate triggers from rapid interactions.
+# Scripts triggered by touch gestures and UI events:
+#   toggle_ui           – Tap to show/hide the now-playing overlay (fade anim)
+#   swipe_next_track    – Swipe left to skip to the next track
+#   swipe_previous_track– Swipe right to go back to the previous track
+#   open_settings_panel – Swipe down to reveal the settings panel
+#   close_settings_panel– Swipe up (or tap close) to hide the settings panel
+#   show_track_view     – Resets to the main now-playing view (closes panel,
+#                         shows overlay); called when new media starts
+#
+# mode: single  – ignores re-triggers while already running
+# mode: restart – cancels the in-progress run and starts fresh
 # -----------------------------------------------------------------------------
 script:
+  # -- Toggle now-playing overlay (fade in / fade out) --
   - id: toggle_ui
     mode: restart
     then:
@@ -303,6 +319,7 @@ script:
             - lvgl.widget.hide: media_artist_label
             - lvgl.widget.hide: media_play_pause_button
             - lvgl.widget.hide: media_time_label
+  # -- Track navigation (called by horizontal swipe gestures) --
   - id: swipe_next_track
     mode: single
     then:
@@ -317,6 +334,8 @@ script:
           service: media_player.media_previous_track
           data:
             entity_id: ${media_player}
+
+  # -- Settings panel (called by vertical swipe gestures) --
   - id: open_settings_panel
     mode: single
     then:
@@ -327,6 +346,8 @@ script:
     then:
       - lvgl.widget.hide: settings_panel
       - lambda: 'id(is_panel_open) = false;'
+
+  # -- Reset to now-playing view (e.g. when a new track starts) --
   - id: show_track_view
     mode: single
     then:
