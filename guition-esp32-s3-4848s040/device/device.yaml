@@ -327,6 +327,25 @@ script:
     then:
       - lvgl.widget.hide: settings_panel
       - lambda: 'id(is_panel_open) = false;'
+  - id: show_track_view
+    mode: single
+    then:
+      - if:
+          condition:
+            lambda: 'return id(is_panel_open);'
+          then:
+            - lvgl.widget.hide: settings_panel
+            - lambda: 'id(is_panel_open) = false;'
+      - if:
+          condition:
+            lambda: 'return id(is_ui_hidden);'
+          then:
+            - lambda: 'id(is_ui_hidden) = false;'
+            - lvgl.widget.show: bottom_overlay
+            - lvgl.widget.show: media_title_label
+            - lvgl.widget.show: media_artist_label
+            - lvgl.widget.show: media_play_pause_button
+            - lvgl.widget.show: media_time_label
 
 
 # -----------------------------------------------------------------------------

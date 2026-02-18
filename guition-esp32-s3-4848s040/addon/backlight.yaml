@@ -140,12 +140,19 @@ script:
   - id: backlight_wake_timeout
     mode: restart
     then:
-      - lambda: 'id(is_screen_dimmed) = false;'
+      - lambda: |-
+          id(was_screen_dimmed) = id(is_screen_dimmed);
+          id(is_screen_dimmed) = false;
       - light.turn_on:
           id: backlight
           brightness: 100%
           transition_length: 1s
       - lvgl.resume:
+      - if:
+          condition:
+            lambda: 'return id(was_screen_dimmed);'
+          then:
+            - script.execute: show_track_view
       - delay: !lambda 'return (uint32_t)(id(backlight_dim_timeout).state * 1000);'
       - if:
           condition:

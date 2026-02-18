@@ -188,6 +188,12 @@ text_sensor:
             - light.turn_on:
                 id: backlight
                 brightness: 100%
+            - if:
+                condition:
+                  lambda: 'return id(is_screen_dimmed);'
+                then:
+                  - lambda: 'id(is_screen_dimmed) = false;'
+                  - script.execute: show_track_view
           else:
             - lvgl.widget.show:
                 id: media_play_icon
