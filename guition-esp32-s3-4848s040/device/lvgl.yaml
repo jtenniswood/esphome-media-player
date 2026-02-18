@@ -48,9 +48,9 @@ lvgl:
         - image:
             id: bottom_overlay
             x: 0
-            y: 280
+            y: 350
             width: 480
-            height: 200
+            height: 130
             src: bottom_gradient
 
         # Song title
