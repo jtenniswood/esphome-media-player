@@ -1,4 +1,4 @@
-# ESP32-S3-Touch-LCD-7 Music Dashboard
+# Guition ESP32-S3-4848S040 Music Dashboard
 substitutions:
   name: "your-device-name"
   friendly_name: "Your Room Music"

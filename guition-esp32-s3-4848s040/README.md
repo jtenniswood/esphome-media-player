@@ -12,16 +12,20 @@ A touch-screen music dashboard for the Guition ESP32-S3-4848S040, built with [ES
 
 ### Album Art Display
 
-Full-screen 480x480 album art fetched directly from your Home Assistant instance. A placeholder image is shown while art loads, and a friendly error message appears if the artwork is unavailable.
+Full-screen 480x480 album art fetched directly from your Home Assistant instance. When a new track starts, the current artwork dims to 40% opacity while the new image downloads, giving instant visual feedback that a change is happening. Once loaded, the new art fades back to full brightness. If the artwork is unavailable, a friendly error message appears over the dimmed image.
 
 ### Now Playing Info
 
-Displays the song title, artist name, elapsed and remaining time, and a progress bar at the bottom of the screen. The progress bar updates every second with smooth interpolation between Home Assistant position updates.
+Displays the song title, artist name, elapsed and remaining time, and a progress bar at the bottom of the screen. The progress bar updates every second with smooth interpolation between Home Assistant position updates. The device parses the `media_position_updated_at` timestamp from Home Assistant and compensates for staleness, so the displayed time stays accurate even when position updates arrive infrequently.
+
+### Auto-Hide Track Info
+
+When a new track starts, the overlay (title, artist, time, play/pause button) automatically appears. If **Track Info Duration** is set to a value greater than zero, the overlay will hide itself after that many seconds. Each new track resets the timer. Set to zero (the default) to keep the overlay permanently visible. See [Configurable Settings](#configurable-settings) for details.
 
 ### Touch Controls
 
 - **Play / Pause** -- a round button in the bottom-right corner toggles playback.
-- **Volume** -- swipe down to open the settings panel, then use the **+** and **-** buttons to adjust volume. The current volume percentage is displayed in the centre of the panel.
+- **Volume** -- swipe down to open the settings panel, which shows an interactive arc dial. Drag the arc knob to set volume, or use the **+** and **-** buttons for fine 1% adjustments. The current volume percentage is displayed in the centre of the dial.
 
 ### Touch Gestures
 
@@ -31,7 +35,7 @@ Displays the song title, artist name, elapsed and remaining time, and a progress
 | Swipe right | Skip to previous track |
 | Swipe down | Open settings panel (volume controls) |
 | Swipe up | Close settings panel |
-| Tap (top area) | Toggle UI overlay visibility |
+| Tap anywhere | Toggle UI overlay visibility (play/pause button area excluded) |
 
 ### TV Mode
 
@@ -113,6 +117,12 @@ These settings are exposed as entities under the device's **Configuration** sect
 | --- | --- | --- | --- | --- |
 | Dim Timeout | 1 -- 300 s | 1 s | 60 s | Seconds of inactivity before the screen dims |
 | Screen Off Timeout | 1 -- 600 s | 1 s | 300 s | Seconds after dimming before the screen turns off |
+
+**Track Info:**
+
+| Setting | Range | Step | Default | Description |
+| --- | --- | --- | --- | --- |
+| Track Info Duration | 0 -- 60 s | 1 s | 0 s | Seconds the track info overlay stays visible after a track change. 0 = always visible. |
 
 ---
 
@@ -232,6 +242,6 @@ The project uses a modular, package-based architecture. Your device configuratio
 | `device/` | Hardware configuration (display, touch, backlight, GPIO), media player sensors, and LVGL UI layout |
 | `addon/` | Optional feature modules: backlight/screensaver, album art fetching, time sync (SNTP), network diagnostics |
 | `assets/` | Font definitions (Roboto) and icon sets (Material Design Icons) |
-| `theme/` | Button and slider styling for the LVGL interface |
+| `theme/` | Button, arc, and slider styling for the LVGL interface |
 
 The `packages` block in the template pulls these files at each compile, meaning you get the latest improvements without manually updating your configuration.
