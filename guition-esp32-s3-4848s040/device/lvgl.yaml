@@ -44,81 +44,93 @@ lvgl:
             text_align: center
             hidden: true
 
-        # Gradient overlay behind the bottom controls
-        - image:
-            id: bottom_overlay
+        # Now-playing overlay (gradient, title, artist, play/pause, time)
+        # Shown/hidden as a single group by toggle_ui and show_track_view scripts.
+        - obj:
+            id: now_playing_overlay
             x: 0
-            y: 350
+            y: 0
             width: 480
-            height: 130
-            src: bottom_gradient
-
-        # Song title
-        - label:
-            id: media_title_label
-            text: "—"
-            x: 18
-            y: 366
-            width: 370px
-            height: 30px
-            long_mode: dot
-            text_font: roboto30_font
-            text_color: 0xFFFFFF
-            text_align: left
-
-        # Artist name
-        - label:
-            id: media_artist_label
-            text: "—"
-            x: 18
-            y: 406
-            width: 370px
-            height: 24px
-            long_mode: dot
-            text_font: roboto19_font
-            text_color: 0xFFFFFF
-            text_align: left
-
-        # Control buttons: 72px round; play/pause + next aligned to the right
-        # Play/pause: two icon labels; visibility toggled by sensors.yaml from state
-        - button:
-            id: media_play_pause_button
-            x: 390
-            y: 366
-            width: 72px
-            height: 72px
-            styles: control_round
+            height: 480
+            bg_opa: 0%
+            border_width: 0
+            pad_all: 0
+            scrollable: false
             widgets:
-              - label:
-                  id: media_play_icon
-                  text_font: $icon_font
-                  align: center
-                  text: $play
-                  text_color: 0xFFFFFF
-                  hidden: false
-              - label:
-                  id: media_pause_icon
-                  text_font: $icon_font
-                  align: center
-                  text: $pause
-                  text_color: 0xFFFFFF
-                  hidden: true
-            on_press:
-              - homeassistant.service:
-                  service: media_player.media_play_pause
-                  data:
-                    entity_id: ${media_player}
+              # Gradient overlay behind the bottom controls
+              - image:
+                  id: bottom_overlay
+                  x: 0
+                  y: 350
+                  width: 480
+                  height: 130
+                  src: bottom_gradient
 
-        # Play clock: elapsed / duration, below artist name
-        - label:
-            id: media_time_label
-            text: "0:00  /  0:00"
-            x: 18
-            y: 438
-            width: 150px
-            text_font: roboto15_font
-            text_color: 0xDDDDDD
-            text_align: left
+              # Song title
+              - label:
+                  id: media_title_label
+                  text: "—"
+                  x: 18
+                  y: 366
+                  width: 370px
+                  height: 30px
+                  long_mode: dot
+                  text_font: roboto30_font
+                  text_color: 0xFFFFFF
+                  text_align: left
+
+              # Artist name
+              - label:
+                  id: media_artist_label
+                  text: "—"
+                  x: 18
+                  y: 406
+                  width: 370px
+                  height: 24px
+                  long_mode: dot
+                  text_font: roboto19_font
+                  text_color: 0xFFFFFF
+                  text_align: left
+
+              # Play/pause button: two icon labels; visibility toggled by sensors.yaml
+              - button:
+                  id: media_play_pause_button
+                  x: 390
+                  y: 366
+                  width: 72px
+                  height: 72px
+                  styles: control_round
+                  widgets:
+                    - label:
+                        id: media_play_icon
+                        text_font: $icon_font
+                        align: center
+                        text: $play
+                        text_color: 0xFFFFFF
+                        hidden: false
+                    - label:
+                        id: media_pause_icon
+                        text_font: $icon_font
+                        align: center
+                        text: $pause
+                        text_color: 0xFFFFFF
+                        hidden: true
+                  on_press:
+                    - homeassistant.service:
+                        service: media_player.media_play_pause
+                        data:
+                          entity_id: ${media_player}
+
+              # Play clock: elapsed / duration, below artist name
+              - label:
+                  id: media_time_label
+                  text: "0:00  /  0:00"
+                  x: 18
+                  y: 438
+                  width: 150px
+                  text_font: roboto15_font
+                  text_color: 0xDDDDDD
+                  text_align: left
 
         # Progress bar: full screen width, at the very bottom of the screen
         - bar:
@@ -169,16 +181,10 @@ lvgl:
                   max_value: 100
                   value: 30
                   adjustable: true
-                  arc_color: 0x333333
-                  arc_width: 12
                   arc_rounded: true
                   indicator:
-                    arc_color: 0x999999
-                    arc_width: 12
                     arc_rounded: true
                   knob:
-                    bg_color: 0xFFFFFF
-                    radius: 14
                     width: 28
                     height: 28
                     border_width: 0
@@ -189,14 +195,7 @@ lvgl:
                           char buf[8];
                           snprintf(buf, sizeof(buf), "%d%%", (int)x);
                           return std::string(buf);
-                    - homeassistant.service:
-                        service: media_player.volume_set
-                        data:
-                          entity_id: ${media_player}
-                        variables:
-                          vol_level: !lambda 'return x / 100.0f;'
-                        data_template:
-                          volume_level: "{{ vol_level }}"
+                    - script.execute: debounced_volume_set
 
               # "Volume" label above the percentage
               - label:
