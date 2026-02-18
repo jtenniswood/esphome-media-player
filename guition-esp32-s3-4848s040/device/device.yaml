@@ -226,8 +226,9 @@ touchscreen:
             id(open_settings_panel).execute();
             return;
           }
-          // Swipe up to close: panel is open
-          if (dy < -60 && abs(dy) > abs(dx) * 2 && id(is_panel_open)) {
+          // Swipe up to close: only from below the arc (near drag handle)
+          // to prevent arc drags from being misinterpreted as close gestures
+          if (dy < -60 && sy >= 420 && abs(dy) > abs(dx) * 2 && id(is_panel_open)) {
             id(close_settings_panel).execute();
             return;
           }

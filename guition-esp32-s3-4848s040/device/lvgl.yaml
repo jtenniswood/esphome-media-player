@@ -55,6 +55,7 @@ lvgl:
             bg_opa: 0%
             border_width: 0
             pad_all: 0
+            clickable: false
             scrollable: false
             widgets:
               # Gradient overlay behind the bottom controls
