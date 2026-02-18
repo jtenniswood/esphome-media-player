@@ -6,6 +6,8 @@ A touch-screen music dashboard for the Guition ESP32-S3-4848S040, built with [ES
 
 **Hardware:** ESP32-S3 with a 4-inch 480x480 capacitive touch LCD (RGB565, ST7701S controller, GT911 touch).
 
+**Tested with:** Google speakers and Sonos speakers.
+
 ---
 
 ## Features
