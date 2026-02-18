@@ -286,7 +286,7 @@ touchscreen:
 # mode: restart – cancels the in-progress run and starts fresh
 # -----------------------------------------------------------------------------
 script:
-  # -- Toggle now-playing overlay (fade in / fade out) --
+  # -- Toggle now-playing overlay (show / hide) --
   - id: toggle_ui
     mode: restart
     then:
@@ -296,11 +296,8 @@ script:
           then:
             - lambda: 'id(is_ui_hidden) = false;'
             - lvgl.widget.show: now_playing_overlay
-            - lambda: 'lv_obj_fade_in(id(now_playing_overlay), 200, 0);'
           else:
             - lambda: 'id(is_ui_hidden) = true;'
-            - lambda: 'lv_obj_fade_out(id(now_playing_overlay), 300, 0);'
-            - delay: 400ms
             - lvgl.widget.hide: now_playing_overlay
   # -- Track navigation (called by horizontal swipe gestures) --
   - id: swipe_next_track
