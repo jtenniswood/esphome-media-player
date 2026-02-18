@@ -16,9 +16,6 @@ globals:
   - id: last_position_timestamp
     type: int
     initial_value: '0'
-  - id: is_tv_mode
-    type: bool
-    initial_value: 'false'
   - id: title_received_once
     type: bool
     initial_value: 'false'
@@ -31,91 +28,59 @@ globals:
 interval:
   - interval: 1s
     then:
-      - if:
-          condition:
-            lambda: 'return !id(is_tv_mode);'
-          then:
-            - lvgl.label.update:
-                id: media_time_label
-                text: !lambda |-
-                  float pos;
-                  float dur = id(media_duration_sensor).has_state() ? id(media_duration_sensor).state : 0.0f;
-                  bool playing = id(media_player_state_sensor).has_state() &&
-                                 id(media_player_state_sensor).state == "playing";
-                  auto t = id(sntp_time).now();
-                  if (playing && t.is_valid() && id(ha_position_epoch) != 0
-                      && id(media_position_sensor).has_state()) {
-                    // Primary: HA position + (now − HA timestamp) — mirrors HA frontend calc
-                    pos = id(media_position_sensor).state
-                        + (float)(t.timestamp - id(ha_position_epoch));
-                  } else if (playing && t.is_valid() && id(last_position_timestamp) != 0) {
-                    // Fallback: globals (used briefly after track-change reset)
-                    pos = id(last_media_position)
-                        + (float)(t.timestamp - id(last_position_timestamp));
-                  } else {
-                    pos = id(media_position_sensor).has_state()
-                        ? id(media_position_sensor).state : id(last_media_position);
-                  }
-                  if (pos < 0) pos = 0;
-                  if (dur > 0 && pos > dur) pos = dur;
-                  int e = (int)pos; if (e < 0) e = 0;
-                  int rem = (int)(dur - pos); if (rem < 0) rem = 0;
-                  char buf[24];
-                  snprintf(buf, sizeof(buf), "%d:%02d / -%d:%02d", e / 60, e % 60, rem / 60, rem % 60);
-                  return std::string(buf);
-            - lvgl.bar.update:
-                id: media_progress_bar
-                value: !lambda |-
-                  float pos;
-                  float dur = id(media_duration_sensor).has_state() ? id(media_duration_sensor).state : 0.0f;
-                  bool playing = id(media_player_state_sensor).has_state() &&
-                                 id(media_player_state_sensor).state == "playing";
-                  auto t = id(sntp_time).now();
-                  if (playing && t.is_valid() && id(ha_position_epoch) != 0
-                      && id(media_position_sensor).has_state()) {
-                    pos = id(media_position_sensor).state
-                        + (float)(t.timestamp - id(ha_position_epoch));
-                  } else if (playing && t.is_valid() && id(last_position_timestamp) != 0) {
-                    pos = id(last_media_position)
-                        + (float)(t.timestamp - id(last_position_timestamp));
-                  } else {
-                    pos = id(media_position_sensor).has_state()
-                        ? id(media_position_sensor).state : id(last_media_position);
-                  }
-                  if (pos < 0) pos = 0;
-                  if (dur > 0 && pos > dur) pos = dur;
-                  if (dur > 0) return (int)((pos / dur) * 100.0f);
-                  return 0;
+      - lvgl.label.update:
+            id: media_time_label
+            text: !lambda |-
+              float pos;
+              float dur = id(media_duration_sensor).has_state() ? id(media_duration_sensor).state : 0.0f;
+              bool playing = id(media_player_state_sensor).has_state() &&
+                             id(media_player_state_sensor).state == "playing";
+              auto t = id(sntp_time).now();
+              if (playing && t.is_valid() && id(ha_position_epoch) != 0
+                  && id(media_position_sensor).has_state()) {
+                // Primary: HA position + (now − HA timestamp) — mirrors HA frontend calc
+                pos = id(media_position_sensor).state
+                    + (float)(t.timestamp - id(ha_position_epoch));
+              } else if (playing && t.is_valid() && id(last_position_timestamp) != 0) {
+                // Fallback: globals (used briefly after track-change reset)
+                pos = id(last_media_position)
+                    + (float)(t.timestamp - id(last_position_timestamp));
+              } else {
+                pos = id(media_position_sensor).has_state()
+                    ? id(media_position_sensor).state : id(last_media_position);
+              }
+              if (pos < 0) pos = 0;
+              if (dur > 0 && pos > dur) pos = dur;
+              int e = (int)pos; if (e < 0) e = 0;
+              int rem = (int)(dur - pos); if (rem < 0) rem = 0;
+              char buf[24];
+              snprintf(buf, sizeof(buf), "%d:%02d / -%d:%02d", e / 60, e % 60, rem / 60, rem % 60);
+              return std::string(buf);
+      - lvgl.bar.update:
+            id: media_progress_bar
+            value: !lambda |-
+              float pos;
+              float dur = id(media_duration_sensor).has_state() ? id(media_duration_sensor).state : 0.0f;
+              bool playing = id(media_player_state_sensor).has_state() &&
+                             id(media_player_state_sensor).state == "playing";
+              auto t = id(sntp_time).now();
+              if (playing && t.is_valid() && id(ha_position_epoch) != 0
+                  && id(media_position_sensor).has_state()) {
+                pos = id(media_position_sensor).state
+                    + (float)(t.timestamp - id(ha_position_epoch));
+              } else if (playing && t.is_valid() && id(last_position_timestamp) != 0) {
+                pos = id(last_media_position)
+                    + (float)(t.timestamp - id(last_position_timestamp));
+              } else {
+                pos = id(media_position_sensor).has_state()
+                    ? id(media_position_sensor).state : id(last_media_position);
+              }
+              if (pos < 0) pos = 0;
+              if (dur > 0 && pos > dur) pos = dur;
+              if (dur > 0) return (int)((pos / dur) * 100.0f);
+              return 0;
 
-# ---------------------------------------------------------------------------
-# MODE-SWITCH SCRIPTS
-# ---------------------------------------------------------------------------
-# Reusable scripts to switch between TV mode and music mode.
-# Called from media_source_sensor (primary) and as fallback from
-# media_entity_picture_sensor so the display switches to music mode
-# when album art appears, even if the source attribute stays "TV".
-# ---------------------------------------------------------------------------
 script:
-  - id: enter_tv_mode
-    then:
-      - lambda: 'id(is_tv_mode) = true;'
-      - lvgl.widget.hide: album_art_background_widget
-      - lvgl.widget.hide: media_title_label
-      - lvgl.widget.hide: media_artist_label
-      - lvgl.widget.hide: media_play_pause_button
-      - lvgl.widget.hide: media_time_label
-      - lvgl.widget.hide: media_progress_bar
-      - lvgl.widget.show: tv_source_label
-  - id: enter_music_mode
-    then:
-      - lambda: 'id(is_tv_mode) = false;'
-      - lvgl.widget.show: album_art_background_widget
-      - lvgl.widget.show: media_title_label
-      - lvgl.widget.show: media_artist_label
-      - lvgl.widget.show: media_play_pause_button
-      - lvgl.widget.show: media_time_label
-      - lvgl.widget.show: media_progress_bar
-      - lvgl.widget.hide: tv_source_label
   # Auto-show track info on track change, then auto-hide after configured duration.
   # mode: restart ensures each new track resets the timer.
   - id: auto_hide_track_info
@@ -205,12 +170,6 @@ text_sensor:
                   std::string path = x;
                   while (!path.empty() && (path.back() == '\n' || path.back() == '\r' || path.back() == ' ')) path.pop_back();
                   return std::string("${home_assistant_url}") + path;
-            # Album art appeared — if we're in TV mode, music is now playing.
-            - if:
-                condition:
-                  lambda: 'return id(is_tv_mode);'
-                then:
-                  - script.execute: enter_music_mode
 
   - platform: homeassistant
     entity_id: ${media_player}
@@ -235,19 +194,6 @@ text_sensor:
             - lvgl.widget.hide:
                 id: media_pause_icon
             - script.execute: backlight_wake_timeout
-
-  - platform: homeassistant
-    entity_id: ${media_player}
-    id: media_source_sensor
-    attribute: source
-    on_value:
-      - if:
-          condition:
-            lambda: 'return x == "TV";'
-          then:
-            - script.execute: enter_tv_mode
-          else:
-            - script.execute: enter_music_mode
 
   # HA reports media_position as of media_position_updated_at (often seconds stale).
   # Parse the UTC timestamp so the interval timer can compensate for staleness.

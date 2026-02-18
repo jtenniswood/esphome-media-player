@@ -109,16 +109,6 @@ lvgl:
                   data:
                     entity_id: ${media_player}
 
-        # TV mode: centered TV icon, shown only when source is "TV"
-        - label:
-            id: tv_source_label
-            text: $tv_icon
-            align: center
-            y: -60
-            text_font: icon_font_large
-            text_color: 0xFFFFFF
-            hidden: true
-
         # Play clock: elapsed / duration, below artist name
         - label:
             id: media_time_label

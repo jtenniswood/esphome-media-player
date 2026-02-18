@@ -37,10 +37,6 @@ When a new track starts, the overlay (title, artist, time, play/pause button) au
 | Swipe up | Close settings panel |
 | Tap anywhere | Toggle UI overlay visibility (play/pause button area excluded) |
 
-### TV Mode
-
-When the media player's source attribute is set to "TV", the dashboard automatically switches to a simplified view with a centred TV icon. The standard music UI is restored when the source changes back.
-
 ### Screensaver
 
 A two-stage screensaver helps save power and reduce glare:
