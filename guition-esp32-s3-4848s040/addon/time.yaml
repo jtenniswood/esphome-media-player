@@ -1,12 +1,7 @@
-# SNTP Time (used for play progress elapsed-time estimation in sensors.yaml)
+# Time from Home Assistant (used for play progress elapsed-time estimation in sensors.yaml)
 time:
-  - platform: sntp
+  - platform: homeassistant
     id: sntp_time
-    timezone: ${timezone}
-    servers:
-     - 0.pool.ntp.org
-     - 1.pool.ntp.org
-     - 2.pool.ntp.org
     on_time_sync:
       - lambda: |-
           // After reboot, HA may push media_position before SNTP syncs.
