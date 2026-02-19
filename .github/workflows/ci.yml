@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  pull_request:
+    paths:
+      - '**.yaml'
+      - '.github/workflows/ci.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - '**.yaml'
+      - '.github/workflows/ci.yml'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build firmware
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Build
+        uses: esphome/build-action@v7
+        with:
+          yaml-file: guition-esp32-s3-4848s040/guition-esp32-s3-4848s040.factory.yaml

@@ -39,16 +39,28 @@ esphome:
   name: ${name}
   friendly_name: ${friendly_name}
   area: ${room}
+  project:
+    name: jtenniswood.music-dashboard
+    version: dev
 
 
 # -----------------------------------------------------------------------------
 # OVER THE AIR (OTA) UPDATES
 # -----------------------------------------------------------------------------
 # Allows updating the firmware wirelessly without plugging in USB.
-# Once configured, you can flash new code from ESPHome dashboard.
+# - platform: esphome  -- updates pushed from the ESPHome dashboard
+# - platform: http_request -- pulls updates from GitHub Releases automatically
 # -----------------------------------------------------------------------------
 ota:
-  platform: esphome
+  - platform: esphome
+  - platform: http_request
+
+http_request:
+
+update:
+  - platform: http_request
+    name: Firmware
+    source: https://jtenniswood.github.io/esphome-media-player/firmware/music-dashboard.manifest.json
 
 
 # -----------------------------------------------------------------------------

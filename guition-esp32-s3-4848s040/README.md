@@ -65,6 +65,10 @@ The device exposes diagnostic sensors to Home Assistant:
 
 Firmware can be updated over-the-air from the ESPHome dashboard -- no need to reconnect USB after the initial flash.
 
+### Automatic Firmware Updates
+
+When a new release is published on GitHub, the device detects it automatically. A firmware update notification appears on the device page in Home Assistant -- click Install and the device updates itself over the air.
+
 ---
 
 ## Where to Buy
@@ -74,6 +78,22 @@ Firmware can be updated over-the-air from the ESPHome dashboard -- no need to re
 ## Stand
 
 - **Desktop stand** (3D printable): [MakerWorld](https://makerworld.com/en/models/2327976-touch-screen-desktop-stand-for-guition-4848s040#profileId-2543111)
+
+---
+
+## Quick Install
+
+The easiest way to get started is to install pre-built firmware directly from your browser -- no compiling, no command line, no ESPHome experience required.
+
+**[Open the Install Page](https://jtenniswood.github.io/esphome-media-player/)**
+
+You will need:
+
+- A **Guition ESP32-S3-4848S040** panel and a **USB-C cable**
+- **Google Chrome**, **Microsoft Edge**, or **Opera** (required for browser-based flashing)
+- **Home Assistant** running on your network with a media player already set up
+
+The install page walks you through every step: flash the firmware, connect to WiFi, add to Home Assistant, and configure your media player.
 
 ---
 
@@ -124,7 +144,9 @@ These settings are exposed as entities under the device's **Configuration** sect
 
 ---
 
-## Beginner's Setup Guide
+## Manual Setup (Advanced)
+
+If you prefer to compile the firmware yourself, or want to customise the configuration before the first flash, follow the steps below. This requires the ESPHome add-on or CLI.
 
 ### Prerequisites
 
@@ -228,6 +250,14 @@ After adoption, navigate to the device page in Home Assistant:
 2. Click on your device.
 3. Under the **Configuration** section, you will find the backlight and screensaver settings described in [Configurable Settings](#configurable-settings).
 4. Adjust the brightness levels and timeouts to your preference.
+
+---
+
+## Firmware Updates
+
+When a new version is released on GitHub, your device detects it automatically. A **Firmware Update** notification appears on the device page in Home Assistant. Click **Install** to update the device over the air -- no USB cable or recompilation needed.
+
+This works regardless of whether you used the [Quick Install](#quick-install) or [Manual Setup](#manual-setup-advanced) method.
 
 ---
 
