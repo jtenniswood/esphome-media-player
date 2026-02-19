@@ -10,9 +10,6 @@ esphome:
 dashboard_import:
   package_import_url: github://jtenniswood/esphome-media-player/guition-esp32-s3-4848s040/guition-esp32-s3-4848s040.yaml@main
 
-esp32_improv:
-  authorizer: none
-
 improv_serial:
 
 captive_portal:

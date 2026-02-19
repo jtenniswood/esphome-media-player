@@ -47,7 +47,7 @@ Before you begin, make sure you have:
 After the firmware is installed, the device needs to connect to your WiFi network.
 
 1. On your phone or computer, look for a new WiFi network called **music-dashboard-XXXXXX** (the last part is unique to your device).
-2. Connect to that WiFi network.
+2. Connect to that WiFi network (no password needed).
 3. A setup page should open automatically. If it does not, open a browser and go to **192.168.4.1**.
 4. Select your home WiFi network from the list and enter your WiFi password.
 5. Click **Save**. The device will restart and connect to your home network.
