@@ -161,6 +161,7 @@ wifi:
 
 packages:
   music_dashboard: github://jtenniswood/esphome-media-player/guition-esp32-s3-4848s040/packages/packages.yaml@main
+  refresh: 1sec
 ```
 
 > **Tip:** Replace `@main` with a release tag (e.g. `@v1.0.0`) to pin to a specific version.
