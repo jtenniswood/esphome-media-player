@@ -186,18 +186,11 @@ wifi:
 packages:
   setup:
     url: https://github.com/jtenniswood/esphome-media-player/
-    files: [guition-esp32-s3-4848s040/device/device.yaml,
-            guition-esp32-s3-4848s040/device/sensors.yaml,
-            guition-esp32-s3-4848s040/device/lvgl.yaml,
-            guition-esp32-s3-4848s040/addon/backlight.yaml,
-            guition-esp32-s3-4848s040/addon/time.yaml,
-            guition-esp32-s3-4848s040/addon/network.yaml,
-            guition-esp32-s3-4848s040/addon/music.yaml,
-            guition-esp32-s3-4848s040/assets/fonts.yaml,
-            guition-esp32-s3-4848s040/assets/icons.yaml,
-            guition-esp32-s3-4848s040/theme/button.yaml]
+    file: guition-esp32-s3-4848s040/guition-esp32-s3-4848s040.yaml
     refresh: 1sec
 ```
+
+The template imports the base device configuration as a single remote package. All component packages (hardware, UI, add-ons, assets, themes) are defined inside that base file, so your template stays short and automatically picks up any new packages added in future releases.
 
 ### Step 3: Edit Substitutions
 
@@ -265,11 +258,21 @@ This works regardless of whether you used the [Quick Install](#quick-install) or
 
 The project uses a modular, package-based architecture. Your device configuration (the template) pulls all component files directly from this GitHub repository, so updates are automatic.
 
+### Configuration Files
+
+| File | Purpose |
+| --- | --- |
+| [`guition-esp32-s3-4848s040.yaml`](guition-esp32-s3-4848s040.yaml) | Base device configuration. Defines default substitutions, WiFi AP fallback, and the list of component packages. This is the single source of truth for what packages are included. |
+| [`esphome/template.yaml`](esphome/template.yaml) | User-facing template for manual setup. Imports the base configuration as a single remote package and lets you override substitutions and WiFi credentials. |
+| [`guition-esp32-s3-4848s040.factory.yaml`](guition-esp32-s3-4848s040.factory.yaml) | Factory firmware for the web installer. Includes the base configuration and adds MAC-based naming, project metadata, `dashboard_import`, `improv_serial`, and `captive_portal`. |
+
+### Component Packages
+
 | Directory | Purpose |
 | --- | --- |
 | `device/` | Hardware configuration (display, touch, backlight, GPIO), media player sensors, and LVGL UI layout |
-| `addon/` | Optional feature modules: backlight/screensaver, album art fetching, time sync (Home Assistant), network diagnostics |
+| `addon/` | Feature modules: backlight/screensaver, album art fetching, time sync (Home Assistant), network diagnostics |
 | `assets/` | Font definitions (Roboto) and icon sets (Material Design Icons) |
 | `theme/` | Button, arc, and slider styling for the LVGL interface |
 
-The `packages` block in the template pulls these files at each compile, meaning you get the latest improvements without manually updating your configuration.
+The base configuration (`guition-esp32-s3-4848s040.yaml`) lists all component packages in one place. Both the user template and the factory firmware reference this base file, so adding or removing packages only requires a change in one file.
