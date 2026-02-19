@@ -238,7 +238,7 @@ The project uses a modular, package-based architecture. Your device configuratio
 | Directory | Purpose |
 | --- | --- |
 | `device/` | Hardware configuration (display, touch, backlight, GPIO), media player sensors, and LVGL UI layout |
-| `addon/` | Optional feature modules: backlight/screensaver, album art fetching, time sync (SNTP), network diagnostics |
+| `addon/` | Optional feature modules: backlight/screensaver, album art fetching, time sync (Home Assistant), network diagnostics |
 | `assets/` | Font definitions (Roboto) and icon sets (Material Design Icons) |
 | `theme/` | Button, arc, and slider styling for the LVGL interface |
 

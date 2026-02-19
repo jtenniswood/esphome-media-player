@@ -1,19 +1,14 @@
-# SNTP Time (used for play progress elapsed-time estimation in sensors.yaml)
+# Home Assistant Time (used for play progress elapsed-time estimation in sensors.yaml)
 time:
-  - platform: sntp
-    id: sntp_time
-    timezone: Europe/London
-    servers:
-     - 0.pool.ntp.org
-     - 1.pool.ntp.org
-     - 2.pool.ntp.org
+  - platform: homeassistant
+    id: ha_time
     on_time_sync:
       - lambda: |-
-          // After reboot, HA may push media_position before SNTP syncs.
+          // After reboot, HA may push media_position before time syncs.
           // Seed the timestamp now so the interval can start interpolating.
           // Prefer ha_position_epoch (from media_position_updated_at) for accuracy.
           if (id(last_position_timestamp) == 0 && id(media_position_sensor).has_state()) {
             id(last_position_timestamp) = id(ha_position_epoch) != 0
               ? id(ha_position_epoch)
-              : id(sntp_time).now().timestamp;
+              : id(ha_time).now().timestamp;
           }

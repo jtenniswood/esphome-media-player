@@ -35,7 +35,7 @@ interval:
               float dur = id(media_duration_sensor).has_state() ? id(media_duration_sensor).state : 0.0f;
               bool playing = id(media_player_state_sensor).has_state() &&
                              id(media_player_state_sensor).state == "playing";
-              auto t = id(sntp_time).now();
+              auto t = id(ha_time).now();
               if (playing && t.is_valid() && id(ha_position_epoch) != 0
                   && id(media_position_sensor).has_state()) {
                 // Primary: HA position + (now − HA timestamp) — mirrors HA frontend calc
@@ -63,7 +63,7 @@ interval:
               float dur = id(media_duration_sensor).has_state() ? id(media_duration_sensor).state : 0.0f;
               bool playing = id(media_player_state_sensor).has_state() &&
                              id(media_player_state_sensor).state == "playing";
-              auto t = id(sntp_time).now();
+              auto t = id(ha_time).now();
               if (playing && t.is_valid() && id(ha_position_epoch) != 0
                   && id(media_position_sensor).has_state()) {
                 pos = id(media_position_sensor).state
@@ -128,7 +128,7 @@ text_sensor:
             - lambda: |-
                 id(last_media_position) = 0.0f;
                 id(ha_position_epoch) = 0;
-                auto t = id(sntp_time).now();
+                auto t = id(ha_time).now();
                 if (t.is_valid()) {
                   id(last_position_timestamp) = t.timestamp;
                 }
@@ -255,11 +255,11 @@ sensor:
           id(last_media_position) = x;
           // Prefer HA's own timestamp (compensates for stale position data,
           // especially important on reboot when the position could be many
-          // seconds old). Fall back to SNTP time for fresh updates.
+          // seconds old). Fall back to HA time for fresh updates.
           if (id(ha_position_epoch) != 0) {
             id(last_position_timestamp) = id(ha_position_epoch);
           } else {
-            auto t = id(sntp_time).now();
+            auto t = id(ha_time).now();
             if (t.is_valid()) id(last_position_timestamp) = t.timestamp;
           }
       - lvgl.label.update:
