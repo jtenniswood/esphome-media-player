@@ -86,6 +86,20 @@ logger:
 
 
 # -----------------------------------------------------------------------------
+# WIFI SETUP (USB + Captive Portal)
+# -----------------------------------------------------------------------------
+# Enables two ways to configure WiFi on a new or factory-reset device:
+# - improv_serial: Send WiFi credentials over USB using the Improv protocol
+#                  (works with ESPHome dashboard, improv-wifi.com, or HA)
+# - captive_portal: If WiFi fails, the device creates its own hotspot.
+#                   Connect to it and a setup page opens automatically.
+# -----------------------------------------------------------------------------
+improv_serial:
+
+captive_portal:
+
+
+# -----------------------------------------------------------------------------
 # PSRAM (External Memory)
 # -----------------------------------------------------------------------------
 # The display requires extra memory for graphics. PSRAM is external RAM
