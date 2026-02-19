@@ -59,6 +59,9 @@ ota:
 # The encryption key is typically set in your secrets.yaml file.
 # -----------------------------------------------------------------------------
 api:
+  on_client_connected:
+    - lambda: |-
+        id(ha_base_url) = "http://" + client_address + ":8123";
 
 
 # -----------------------------------------------------------------------------

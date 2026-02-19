@@ -4,12 +4,16 @@
 # Subscribes to media_player attributes and updates LVGL labels, bar, image,
 # and play/pause icon. To use a different entity, override in your main YAML
 # with a package override or use a local copy and set entity_id.
-# Album art base URL: http://192.168.1.30:8123 (path from HA already includes token).
+# Album art URL is built automatically from the HA API client's IP address;
+# override home_assistant_url in substitutions for non-standard setups.
 # =============================================================================
 
 # Store last HA position and time so we can estimate elapsed time between updates
 # (HA/Sonos often only push media_position every 5–10s; we tick every 1s)
 globals:
+  - id: ha_base_url
+    type: std::string
+    initial_value: '"http://homeassistant.local:8123"'
   - id: last_media_position
     type: float
     initial_value: '0.0'
@@ -160,7 +164,7 @@ text_sensor:
                   if (path.substr(0, 7) == "http://" || path.substr(0, 8) == "https://") {
                     return path;
                   }
-                  return std::string("${home_assistant_url}") + path;
+                  return id(ha_base_url) + path;
 
   - platform: homeassistant
     entity_id: ${media_player}

@@ -14,7 +14,7 @@ A touch-screen music dashboard for the Guition ESP32-S3-4848S040, built with [ES
 
 ### Album Art Display
 
-Full-screen 480x480 album art fetched directly from your Home Assistant instance. When a new track starts, the current artwork dims to 40% opacity while the new image downloads, giving instant visual feedback that a change is happening. Once loaded, the new art fades back to full brightness. If the artwork is unavailable, a friendly error message appears over the dimmed image.
+Full-screen 480x480 album art fetched directly from your Home Assistant instance. The device automatically detects your Home Assistant URL from the API connection, so no manual URL configuration is needed. When a new track starts, the current artwork dims to 40% opacity while the new image downloads, giving instant visual feedback that a change is happening. Once loaded, the new art fades back to full brightness. If the artwork is unavailable, a friendly error message appears over the dimmed image.
 
 ### Now Playing Info
 
@@ -89,7 +89,6 @@ These values are defined in the `substitutions` block of your ESPHome configurat
 | `friendly_name` | Display name shown in Home Assistant | `Living Room Music` |
 | `room` | Home Assistant area / room | `Living Room` |
 | `media_player` | Entity ID of the media player to control | `media_player.living_room` |
-| `home_assistant_url` | URL of your Home Assistant instance | `http://homeassistant.local:8123` |
 
 ### Backlight and Screensaver Settings (adjustable at runtime)
 
@@ -155,7 +154,6 @@ substitutions:
   friendly_name: "Your Room Music"
   room: "Your Room"
   media_player: "media_player.office"
-  home_assistant_url: "http://homeassistant.local:8123"
 
 wifi:
   ssid: !secret wifi_ssid
@@ -185,7 +183,8 @@ Update the `substitutions` block with your own values:
 - **`friendly_name`** -- the name you want to see in Home Assistant. Example: `Living Room Music`
 - **`room`** -- the Home Assistant area this device belongs to. Example: `Living Room`
 - **`media_player`** -- the entity ID of the media player you want to control. You can find this in Home Assistant under Settings > Devices & Services > Entities. Example: `media_player.living_room_sonos`
-- **`home_assistant_url`** -- the URL you use to access Home Assistant. Example: `http://homeassistant.local:8123`
+
+> **Note:** The Home Assistant URL for album art is detected automatically from the API connection. If your setup uses HTTPS or a non-standard port, add `home_assistant_url: "https://your-ha:port"` to the `substitutions` block to override the auto-detected value.
 
 ### Step 4: Set WiFi Credentials
 

@@ -4,7 +4,6 @@ substitutions:
   friendly_name: "Your Room Music"
   room: "Your Room"
   media_player: "media_player.office"
-  home_assistant_url: "http://homeassistant.local:8123"
 
 # Wifi Setup
 wifi:
