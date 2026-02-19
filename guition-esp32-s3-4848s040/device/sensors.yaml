@@ -1,9 +1,10 @@
 # =============================================================================
-# SENSORS - Music dashboard
+# SENSORS - Music dashboard (media_player.office)
 # =============================================================================
 # Subscribes to media_player attributes and updates LVGL labels, bar, image,
-# and play/pause icon. The HA base URL for album art is auto-detected from
-# the API connection (see ha_base_url global in device.yaml).
+# and play/pause icon. To use a different entity, override in your main YAML
+# with a package override or use a local copy and set entity_id.
+# Album art base URL: http://192.168.1.30:8123 (path from HA already includes token).
 # =============================================================================
 
 # Store last HA position and time so we can estimate elapsed time between updates
@@ -159,7 +160,7 @@ text_sensor:
                   if (path.substr(0, 7) == "http://" || path.substr(0, 8) == "https://") {
                     return path;
                   }
-                  return id(ha_base_url) + path;
+                  return std::string("${home_assistant_url}") + path;
 
   - platform: homeassistant
     entity_id: ${media_player}

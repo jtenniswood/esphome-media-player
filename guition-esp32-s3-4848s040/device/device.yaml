@@ -39,28 +39,16 @@ esphome:
   name: ${name}
   friendly_name: ${friendly_name}
   area: ${room}
-  project:
-    name: jtenniswood.music-dashboard
-    version: dev
 
 
 # -----------------------------------------------------------------------------
 # OVER THE AIR (OTA) UPDATES
 # -----------------------------------------------------------------------------
 # Allows updating the firmware wirelessly without plugging in USB.
-# - platform: esphome  -- updates pushed from the ESPHome dashboard
-# - platform: http_request -- pulls updates from GitHub Releases automatically
+# Once configured, you can flash new code from ESPHome dashboard.
 # -----------------------------------------------------------------------------
 ota:
-  - platform: esphome
-  - platform: http_request
-
-http_request:
-
-update:
-  - platform: http_request
-    name: Firmware
-    source: https://jtenniswood.github.io/esphome-media-player/firmware/music-dashboard.manifest.json
+  platform: esphome
 
 
 # -----------------------------------------------------------------------------
@@ -68,12 +56,9 @@ update:
 # -----------------------------------------------------------------------------
 # Enables communication between this device and Home Assistant.
 # Without this, the device won't appear in Home Assistant.
-# When HA connects, we capture its IP to build album art URLs automatically.
+# The encryption key is typically set in your secrets.yaml file.
 # -----------------------------------------------------------------------------
 api:
-  on_client_connected:
-    - lambda: |-
-        id(ha_base_url) = "http://" + client_address + ":8123";
 
 
 # -----------------------------------------------------------------------------
@@ -83,20 +68,6 @@ api:
 # View logs in ESPHome dashboard or via serial connection.
 # -----------------------------------------------------------------------------
 logger:
-
-
-# -----------------------------------------------------------------------------
-# WIFI SETUP (USB + Captive Portal)
-# -----------------------------------------------------------------------------
-# Enables two ways to configure WiFi on a new or factory-reset device:
-# - improv_serial: Send WiFi credentials over USB using the Improv protocol
-#                  (works with ESPHome dashboard, improv-wifi.com, or HA)
-# - captive_portal: If WiFi fails, the device creates its own hotspot.
-#                   Connect to it and a setup page opens automatically.
-# -----------------------------------------------------------------------------
-improv_serial:
-
-captive_portal:
 
 
 # -----------------------------------------------------------------------------
@@ -201,11 +172,6 @@ globals:
   - id: was_screen_dimmed        # Snapshot at touch-start; prevents toggle on wake
     type: bool
     initial_value: 'false'
-
-  # -- Home Assistant connection --
-  - id: ha_base_url              # HA base URL (auto-detected from API connection)
-    type: std::string
-    initial_value: '"http://homeassistant.local:8123"'
 
   # -- Settings panel state --
   - id: is_panel_open            # True when the swipe-down settings panel is visible

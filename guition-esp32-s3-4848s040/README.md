@@ -65,10 +65,6 @@ The device exposes diagnostic sensors to Home Assistant:
 
 Firmware can be updated over-the-air from the ESPHome dashboard -- no need to reconnect USB after the initial flash.
 
-### Automatic Firmware Updates
-
-When a new release is published on GitHub, the device detects it automatically. A firmware update notification appears on the device page in Home Assistant -- click Install and the device updates itself over the air.
-
 ---
 
 ## Where to Buy
@@ -78,22 +74,6 @@ When a new release is published on GitHub, the device detects it automatically. 
 ## Stand
 
 - **Desktop stand** (3D printable): [MakerWorld](https://makerworld.com/en/models/2327976-touch-screen-desktop-stand-for-guition-4848s040#profileId-2543111)
-
----
-
-## Quick Install
-
-The easiest way to get started is to install pre-built firmware directly from your browser -- no compiling, no command line, no ESPHome experience required.
-
-**[Open the Install Page](https://jtenniswood.github.io/esphome-media-player/)**
-
-You will need:
-
-- A **Guition ESP32-S3-4848S040** panel and a **USB-C cable**
-- **Google Chrome**, **Microsoft Edge**, or **Opera** (required for browser-based flashing)
-- **Home Assistant** running on your network with a media player already set up
-
-The install page walks you through every step: flash the firmware, connect to WiFi, add to Home Assistant, and configure your media player.
 
 ---
 
@@ -109,6 +89,7 @@ These values are defined in the `substitutions` block of your ESPHome configurat
 | `friendly_name` | Display name shown in Home Assistant | `Living Room Music` |
 | `room` | Home Assistant area / room | `Living Room` |
 | `media_player` | Entity ID of the media player to control | `media_player.living_room` |
+| `home_assistant_url` | URL of your Home Assistant instance | `http://homeassistant.local:8123` |
 
 ### Backlight and Screensaver Settings (adjustable at runtime)
 
@@ -143,9 +124,7 @@ These settings are exposed as entities under the device's **Configuration** sect
 
 ---
 
-## Manual Setup (Advanced)
-
-If you prefer to compile the firmware yourself, or want to customise the configuration before the first flash, follow the steps below. This requires the ESPHome add-on or CLI.
+## Beginner's Setup Guide
 
 ### Prerequisites
 
@@ -172,10 +151,11 @@ Replace the entire contents of the new device's configuration with the template 
 
 ```yaml
 substitutions:
-  name: "your-device-name"                          # Device hostname (lowercase, hyphens only)
-  friendly_name: "Your Room Music"                  # Name shown in Home Assistant
-  room: "Your Room"                                 # Home Assistant area
-  media_player: "media_player.CHANGE_ME"            # Your media player entity ID
+  name: "your-device-name"
+  friendly_name: "Your Room Music"
+  room: "Your Room"
+  media_player: "media_player.office"
+  home_assistant_url: "http://homeassistant.local:8123"
 
 wifi:
   ssid: !secret wifi_ssid
@@ -184,11 +164,18 @@ wifi:
 packages:
   setup:
     url: https://github.com/jtenniswood/esphome-media-player/
-    file: guition-esp32-s3-4848s040/guition-esp32-s3-4848s040.yaml
+    files: [guition-esp32-s3-4848s040/device/device.yaml,
+            guition-esp32-s3-4848s040/device/sensors.yaml,
+            guition-esp32-s3-4848s040/device/lvgl.yaml,
+            guition-esp32-s3-4848s040/addon/backlight.yaml,
+            guition-esp32-s3-4848s040/addon/time.yaml,
+            guition-esp32-s3-4848s040/addon/network.yaml,
+            guition-esp32-s3-4848s040/addon/music.yaml,
+            guition-esp32-s3-4848s040/assets/fonts.yaml,
+            guition-esp32-s3-4848s040/assets/icons.yaml,
+            guition-esp32-s3-4848s040/theme/button.yaml]
     refresh: 1sec
 ```
-
-The template imports the base device configuration as a single remote package. All component packages (hardware, UI, add-ons, assets, themes) are defined inside that base file, so your template stays short and automatically picks up any new packages added in future releases.
 
 ### Step 3: Edit Substitutions
 
@@ -198,6 +185,7 @@ Update the `substitutions` block with your own values:
 - **`friendly_name`** -- the name you want to see in Home Assistant. Example: `Living Room Music`
 - **`room`** -- the Home Assistant area this device belongs to. Example: `Living Room`
 - **`media_player`** -- the entity ID of the media player you want to control. You can find this in Home Assistant under Settings > Devices & Services > Entities. Example: `media_player.living_room_sonos`
+- **`home_assistant_url`** -- the URL you use to access Home Assistant. Example: `http://homeassistant.local:8123`
 
 ### Step 4: Set WiFi Credentials
 
@@ -243,33 +231,15 @@ After adoption, navigate to the device page in Home Assistant:
 
 ---
 
-## Firmware Updates
-
-When a new version is released on GitHub, your device detects it automatically. A **Firmware Update** notification appears on the device page in Home Assistant. Click **Install** to update the device over the air -- no USB cable or recompilation needed.
-
-This works regardless of whether you used the [Quick Install](#quick-install) or [Manual Setup](#manual-setup-advanced) method.
-
----
-
 ## How It Works
 
 The project uses a modular, package-based architecture. Your device configuration (the template) pulls all component files directly from this GitHub repository, so updates are automatic.
 
-### Configuration Files
-
-| File | Purpose |
-| --- | --- |
-| [`guition-esp32-s3-4848s040.yaml`](guition-esp32-s3-4848s040.yaml) | Base device configuration. Defines default substitutions, WiFi AP fallback, and the list of component packages. This is the single source of truth for what packages are included. |
-| [`esphome/template.yaml`](esphome/template.yaml) | User-facing template for manual setup. Imports the base configuration as a single remote package and lets you override substitutions and WiFi credentials. |
-| [`guition-esp32-s3-4848s040.factory.yaml`](guition-esp32-s3-4848s040.factory.yaml) | Factory firmware for the web installer. Includes the base configuration and adds MAC-based naming, project metadata, `dashboard_import`, `improv_serial`, and `captive_portal`. |
-
-### Component Packages
-
 | Directory | Purpose |
 | --- | --- |
 | `device/` | Hardware configuration (display, touch, backlight, GPIO), media player sensors, and LVGL UI layout |
-| `addon/` | Feature modules: backlight/screensaver, album art fetching, time sync (Home Assistant), network diagnostics |
+| `addon/` | Optional feature modules: backlight/screensaver, album art fetching, time sync (Home Assistant), network diagnostics |
 | `assets/` | Font definitions (Roboto) and icon sets (Material Design Icons) |
 | `theme/` | Button, arc, and slider styling for the LVGL interface |
 
-The base configuration (`guition-esp32-s3-4848s040.yaml`) lists all component packages in one place. Both the user template and the factory firmware reference this base file, so adding or removing packages only requires a change in one file.
+The `packages` block in the template pulls these files at each compile, meaning you get the latest improvements without manually updating your configuration.
