@@ -185,6 +185,7 @@ text_sensor:
                 then:
                   - lambda: 'id(is_screen_dimmed) = false;'
                   - script.execute: show_track_view
+            - script.execute: auto_hide_track_info
           else:
             - script.stop: auto_hide_track_info
             - script.execute: show_track_view
