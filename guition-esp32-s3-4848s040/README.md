@@ -160,20 +160,10 @@ wifi:
   password: !secret wifi_password
 
 packages:
-  setup:
-    url: https://github.com/jtenniswood/esphome-media-player/
-    files: [guition-esp32-s3-4848s040/device/device.yaml,
-            guition-esp32-s3-4848s040/device/sensors.yaml,
-            guition-esp32-s3-4848s040/device/lvgl.yaml,
-            guition-esp32-s3-4848s040/addon/backlight.yaml,
-            guition-esp32-s3-4848s040/addon/time.yaml,
-            guition-esp32-s3-4848s040/addon/network.yaml,
-            guition-esp32-s3-4848s040/addon/music.yaml,
-            guition-esp32-s3-4848s040/assets/fonts.yaml,
-            guition-esp32-s3-4848s040/assets/icons.yaml,
-            guition-esp32-s3-4848s040/theme/button.yaml]
-    refresh: 1sec
+  music_dashboard: github://jtenniswood/esphome-media-player/guition-esp32-s3-4848s040/packages/packages.yaml@main
 ```
+
+> **Tip:** Replace `@main` with a release tag (e.g. `@v1.0.0`) to pin to a specific version.
 
 ### Step 3: Edit Substitutions
 
@@ -232,13 +222,14 @@ After adoption, navigate to the device page in Home Assistant:
 
 ## How It Works
 
-The project uses a modular, package-based architecture. Your device configuration (the template) pulls all component files directly from this GitHub repository, so updates are automatic.
+The project uses a modular, package-based architecture. Your device configuration (the template) references a single [package.yaml](package.yaml) entry point, which pulls in all component files from this repository via `!include`. Updates are automatic when using `@main`.
 
-| Directory | Purpose |
+| Directory / File | Purpose |
 | --- | --- |
+| `package.yaml` | Single entry point that includes all component files below |
 | `device/` | Hardware configuration (display, touch, backlight, GPIO), media player sensors, and LVGL UI layout |
 | `addon/` | Optional feature modules: backlight/screensaver, album art fetching, time sync (Home Assistant), network diagnostics |
 | `assets/` | Font definitions (Roboto) and icon sets (Material Design Icons) |
 | `theme/` | Button, arc, and slider styling for the LVGL interface |
 
-The `packages` block in the template pulls these files at each compile, meaning you get the latest improvements without manually updating your configuration.
+The single `packages` line in the template pulls `package.yaml` at each compile, which in turn includes all the modular component files. Pin to a release tag (e.g. `@v1.0.0`) for stability, or use `@main` to always get the latest version.
