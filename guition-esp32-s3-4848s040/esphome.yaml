@@ -1,8 +1,7 @@
 # Guition ESP32-S3-4848S040 Music Dashboard
 substitutions:
-  name: "your-device-name"
-  friendly_name: "Your Room Music"
-  room: "Your Room"
+  name: "music-dashboard"
+  friendly_name: "Music Dashboard"
   media_player: "media_player.office"
 
 # Wifi Setup
