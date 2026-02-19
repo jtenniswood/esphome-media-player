@@ -160,11 +160,14 @@ wifi:
   password: !secret wifi_password
 
 packages:
-  music_dashboard: github://jtenniswood/esphome-media-player/guition-esp32-s3-4848s040/packages.yaml@main
-  refresh: 1sec
+  music_dashboard:
+    url: https://github.com/jtenniswood/esphome-media-player
+    file: guition-esp32-s3-4848s040/packages.yaml
+    ref: main
+    refresh: 1s
 ```
 
-> **Tip:** Replace `@main` with a release tag (e.g. `@v1.0.0`) to pin to a specific version.
+> **Tip:** Replace `main` in `ref:` with a release tag (e.g. `v1.0.0`) to pin to a specific version.
 
 ### Step 3: Edit Substitutions
 
