@@ -6,7 +6,7 @@
 # =============================================================================
 
 lvgl:
-  buffer_size: 100%
+  buffer_size: 25%
 
   pages:
     - id: main_page
@@ -189,14 +189,7 @@ lvgl:
                           char buf[8];
                           snprintf(buf, sizeof(buf), "%d%%", (int)x);
                           return std::string(buf);
-                    - homeassistant.service:
-                        service: media_player.volume_set
-                        data:
-                          entity_id: ${media_player}
-                        variables:
-                          vol_level: !lambda 'return x / 100.0f;'
-                        data_template:
-                          volume_level: "{{ vol_level }}"
+                    - script.execute: debounce_volume
 
               # "Volume" label above the percentage
               - label:
@@ -238,17 +231,12 @@ lvgl:
                         text: $icon_minus
                         text_color: 0xFFFFFF
                   on_press:
-                    - homeassistant.service:
-                        service: media_player.volume_set
-                        data:
-                          entity_id: ${media_player}
-                        variables:
-                          vol_level: !lambda |-
-                            float v = id(media_volume_sensor).state - 0.01f;
-                            if (v < 0.0f) v = 0.0f;
-                            return v;
-                        data_template:
-                          volume_level: "{{ vol_level }}"
+                    - lvgl.arc.update:
+                        id: volume_arc
+                        value: !lambda |-
+                          int v = (int)id(volume_arc).get_value() - 1;
+                          if (v < 0) v = 0;
+                          return v;
 
               # Volume up button
               - button:
@@ -266,17 +254,12 @@ lvgl:
                         text: $icon_plus
                         text_color: 0xFFFFFF
                   on_press:
-                    - homeassistant.service:
-                        service: media_player.volume_set
-                        data:
-                          entity_id: ${media_player}
-                        variables:
-                          vol_level: !lambda |-
-                            float v = id(media_volume_sensor).state + 0.01f;
-                            if (v > 1.0f) v = 1.0f;
-                            return v;
-                        data_template:
-                          volume_level: "{{ vol_level }}"
+                    - lvgl.arc.update:
+                        id: volume_arc
+                        value: !lambda |-
+                          int v = (int)id(volume_arc).get_value() + 1;
+                          if (v > 100) v = 100;
+                          return v;
 
               # Drag handle indicator (visual cue to swipe up to close)
               - obj:

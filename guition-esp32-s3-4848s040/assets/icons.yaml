@@ -1,5 +1,5 @@
 # http://materialdesignicons.com/cdn/7.4.47/
-# Icons used by the music dashboard (device/lvgl.yaml): prev, play/pause, next
+# Icons used by the music dashboard (device/lvgl.yaml): play/pause, plus/minus
 # MaterialDesign-Webfont TTF uses codepoints U+F03xx / U+F04xx (PUA).
 
 font:
@@ -8,21 +8,13 @@ font:
     size: 40
     bpp: 4
     glyphs:
-      - "\U000F04AE"  # mdi-skip-previous
       - "\U000F040A"  # mdi-play
       - "\U000F03E4"  # mdi-pause
-      - "\U000F04AD"  # mdi-skip-next
-      - "\U000F057E"  # mdi-volume-high
       - "\U000F0415"  # mdi-plus
       - "\U000F0374"  # mdi-minus
-      - "\U000F0156"  # mdi-close
 
 substitutions:
-  skip_previous: "\U000F04AE"
   play:          "\U000F040A"
   pause:         "\U000F03E4"
-  skip_next:     "\U000F04AD"
-  volume_icon:   "\U000F057E"
   icon_plus:     "\U000F0415"
   icon_minus:    "\U000F0374"
-  icon_close:    "\U000F0156"
