@@ -1,9 +1,8 @@
 substitutions:
-  name: "music-dashboard"
-  friendly_name: "Music Dashboard"
-  room: "Living Room"
-  media_player: "media_player.living_room"
-  home_assistant_url: "http://homeassistant.local:8123"
+  name: "music-dashboard"                          # Device hostname (lowercase, hyphens only)
+  friendly_name: "Music Dashboard"                  # Name shown in Home Assistant
+  room: "Living Room"                               # Home Assistant area
+  media_player: "media_player.CHANGE_ME"            # Your media player entity ID
 
 wifi:
   ap:

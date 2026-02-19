@@ -66,6 +66,8 @@ Once the device is on your WiFi network, Home Assistant will discover it automat
 4. The device is now connected with default settings.
 
 > **Tip:** If the device does not appear within a minute, make sure it is on the same network as Home Assistant. You can also try going to **Settings > Devices & Services > Add Integration > ESPHome** and entering the device's IP address manually.
+>
+> **Using ESPHome in Docker (not the HA add-on)?** Device discovery requires the container to run with `--network=host` (or `network_mode: host` in docker-compose) so that mDNS broadcasts can reach the container. Without host networking, the device won't appear as discovered.
 
 ---
 
@@ -84,7 +86,6 @@ substitutions:
   friendly_name: "Living Room Music"                 # Name shown in Home Assistant
   room: "Living Room"                                # Home Assistant area
   media_player: "media_player.living_room_speaker"   # Your media player entity ID
-  home_assistant_url: "http://homeassistant.local:8123"  # Your Home Assistant URL
 ```
 
 5. Add your WiFi credentials below the substitutions:

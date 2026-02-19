@@ -68,9 +68,12 @@ update:
 # -----------------------------------------------------------------------------
 # Enables communication between this device and Home Assistant.
 # Without this, the device won't appear in Home Assistant.
-# The encryption key is typically set in your secrets.yaml file.
+# When HA connects, we capture its IP to build album art URLs automatically.
 # -----------------------------------------------------------------------------
 api:
+  on_client_connected:
+    - lambda: |-
+        id(ha_base_url) = "http://" + client_address + ":8123";
 
 
 # -----------------------------------------------------------------------------
@@ -184,6 +187,11 @@ globals:
   - id: was_screen_dimmed        # Snapshot at touch-start; prevents toggle on wake
     type: bool
     initial_value: 'false'
+
+  # -- Home Assistant connection --
+  - id: ha_base_url              # HA base URL (auto-detected from API connection)
+    type: std::string
+    initial_value: '"http://homeassistant.local:8123"'
 
   # -- Settings panel state --
   - id: is_panel_open            # True when the swipe-down settings panel is visible

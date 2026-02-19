@@ -109,7 +109,6 @@ These values are defined in the `substitutions` block of your ESPHome configurat
 | `friendly_name` | Display name shown in Home Assistant | `Living Room Music` |
 | `room` | Home Assistant area / room | `Living Room` |
 | `media_player` | Entity ID of the media player to control | `media_player.living_room` |
-| `home_assistant_url` | URL of your Home Assistant instance | `http://homeassistant.local:8123` |
 
 ### Backlight and Screensaver Settings (adjustable at runtime)
 
@@ -173,11 +172,10 @@ Replace the entire contents of the new device's configuration with the template 
 
 ```yaml
 substitutions:
-  name: "your-device-name"
-  friendly_name: "Your Room Music"
-  room: "Your Room"
-  media_player: "media_player.office"
-  home_assistant_url: "http://homeassistant.local:8123"
+  name: "your-device-name"                          # Device hostname (lowercase, hyphens only)
+  friendly_name: "Your Room Music"                  # Name shown in Home Assistant
+  room: "Your Room"                                 # Home Assistant area
+  media_player: "media_player.CHANGE_ME"            # Your media player entity ID
 
 wifi:
   ssid: !secret wifi_ssid
@@ -200,7 +198,6 @@ Update the `substitutions` block with your own values:
 - **`friendly_name`** -- the name you want to see in Home Assistant. Example: `Living Room Music`
 - **`room`** -- the Home Assistant area this device belongs to. Example: `Living Room`
 - **`media_player`** -- the entity ID of the media player you want to control. You can find this in Home Assistant under Settings > Devices & Services > Entities. Example: `media_player.living_room_sonos`
-- **`home_assistant_url`** -- the URL you use to access Home Assistant. Example: `http://homeassistant.local:8123`
 
 ### Step 4: Set WiFi Credentials
 

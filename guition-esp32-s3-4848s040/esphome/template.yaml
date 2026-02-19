@@ -1,10 +1,9 @@
 # Guition ESP32-S3-4848S040 Music Dashboard
 substitutions:
-  name: "your-device-name"
-  friendly_name: "Your Room Music"
-  room: "Your Room"
-  media_player: "media_player.office"
-  home_assistant_url: "http://homeassistant.local:8123"
+  name: "your-device-name"                          # Device hostname (lowercase, hyphens only)
+  friendly_name: "Your Room Music"                  # Name shown in Home Assistant
+  room: "Your Room"                                 # Home Assistant area
+  media_player: "media_player.CHANGE_ME"            # Your media player entity ID
 
 wifi:
   ssid: !secret wifi_ssid
