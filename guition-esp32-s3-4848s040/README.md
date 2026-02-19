@@ -146,7 +146,7 @@ Before you start, make sure you have:
 
 ### Step 2: Paste the Template Configuration
 
-Replace the entire contents of the new device's configuration with the template below (also available at [esphome/template.yaml](esphome/template.yaml)):
+Replace the entire contents of the new device's configuration with the template below (also available at [esphome.yaml](esphome.yaml)):
 
 ```yaml
 substitutions:
