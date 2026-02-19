@@ -83,7 +83,10 @@ script:
             - delay: !lambda 'return (uint32_t)(id(track_info_duration).state * 1000);'
             - if:
                 condition:
-                  lambda: 'return !id(is_ui_hidden);'
+                  lambda: |-
+                    return !id(is_ui_hidden) &&
+                           id(media_player_state_sensor).has_state() &&
+                           id(media_player_state_sensor).state == "playing";
                 then:
                   - script.execute: toggle_ui
 
@@ -183,6 +186,8 @@ text_sensor:
                   - lambda: 'id(is_screen_dimmed) = false;'
                   - script.execute: show_track_view
           else:
+            - script.stop: auto_hide_track_info
+            - script.execute: show_track_view
             - lvgl.widget.show:
                 id: media_play_icon
             - lvgl.widget.hide:
