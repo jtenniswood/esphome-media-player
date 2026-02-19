@@ -12,8 +12,4 @@ wifi:
 
 # Packages
 packages:
-  music_dashboard:
-    url: https://github.com/jtenniswood/esphome-media-player
-    file: guition-esp32-s3-4848s040/packages.yaml
-    ref: main
-    refresh: 1s
+  music_dashboard: github://jtenniswood/esphome-media-player/guition-esp32-s3-4848s040/packages.yaml@main
