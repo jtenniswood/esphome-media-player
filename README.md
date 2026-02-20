@@ -71,7 +71,18 @@ These values are defined in the `substitutions` block of your ESPHome configurat
 | --------------- | ---------------------------------------- | -------------------------- |
 | `name`          | Device hostname on your network          | `living-room-music`        |
 | `friendly_name` | Display name shown in Home Assistant     | `Living Room Music`        |
-| `media_player`  | Entity ID of the media player to control | `media_player.living_room` |
+
+### Media Player Selection (configurable at runtime)
+
+The media player entity is configured from the Home Assistant device settings page — no YAML editing or reflashing required. After first boot, the display shows **"Set media player in device settings"** until you configure it:
+
+1. Go to **Settings > Devices & Services > ESPHome** and click on your device.
+2. Under **Configuration**, find the **Media Player** text field.
+3. Enter the entity ID of the media player you want to control (e.g., `media_player.living_room`).
+
+The device will immediately start tracking the selected media player. The selection persists across reboots. You can change it at any time without reflashing.
+
+> **Tip:** If you already know your media player entity ID during setup, you can pre-fill it in the `substitutions` block with `media_player: "media_player.living_room"`. This sets the initial value so it's ready on first boot.
 
 
 ### Backlight and Screensaver Settings (adjustable at runtime)
@@ -149,7 +160,7 @@ Copy and paste the entire contents of the new device's configuration with the te
 substitutions:
   name: "your-device-name"
   friendly_name: "Your Room Music"
-  media_player: "media_player.office"
+  media_player: ""
 
 wifi:
   ssid: !secret wifi_ssid
@@ -167,11 +178,9 @@ packages:
 
 Update the `substitutions` block with your own values:
 
-- `**name`** -- a unique hostname for this device (lowercase, hyphens only, no spaces). 
-- `**friendly_name`** -- the name you want to see in Home Assistant. 
-- `**media_player`** -- the entity ID of the media player you want to control in Home Assistant.
-
-![Player Entity](images/player_entity.png)
+- **`name`** -- a unique hostname for this device (lowercase, hyphens only, no spaces). 
+- **`friendly_name`** -- the name you want to see in Home Assistant. 
+- **`media_player`** -- (optional) pre-fill the entity ID of the media player to control. Leave empty (`""`) to set it from Home Assistant after first boot.
 
 ### Step 4: Set WiFi Credentials
 
@@ -206,14 +215,15 @@ Once the device boots and connects to your WiFi:
 2. Click **Configure** and follow the prompts to adopt the device.
 3. The device and its entities will appear in Home Assistant.
 
-### Step 7: Configure Settings
+### Step 7: Select Your Media Player
 
 After adoption, navigate to the device page in Home Assistant:
 
 1. Go to **Settings > Devices & Services > ESPHome**.
 2. Click on your device.
-3. Under the **Configuration** section, you will find the backlight and screensaver settings described in [Configurable Settings](#configurable-settings).
-4. Adjust the brightness levels and timeouts to your preference.
+3. Under the **Configuration** section, find the **Media Player** text field.
+4. Enter the entity ID of the media player you want to control (e.g., `media_player.living_room`). The dashboard will immediately start showing the current track.
+5. Optionally adjust the brightness levels, timeouts, and other settings described in [Configurable Settings](#configurable-settings).
 
 ![Device Settings](images/device-settings.png)
 

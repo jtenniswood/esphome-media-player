@@ -1,9 +1,9 @@
 # =============================================================================
-# SENSORS - Music dashboard (media_player.office)
+# SENSORS - Music dashboard
 # =============================================================================
-# Subscribes to media_player attributes and updates LVGL labels, bar, image,
-# and play/pause icon. To use a different entity, override in your main YAML
-# with a package override or use a local copy and set entity_id.
+# Template sensors receive state from dynamic subscriptions managed by
+# media_player_select.yaml. Updates LVGL labels, bar, image, and play/pause
+# icon via on_value automations.
 # Album art URL is built automatically from the HA API client's IP address;
 # override home_assistant_url in substitutions for non-standard setups.
 # =============================================================================
@@ -95,10 +95,8 @@ script:
                   - script.execute: toggle_ui
 
 text_sensor:
-  - platform: homeassistant
-    entity_id: ${media_player}
+  - platform: template
     id: media_title_sensor
-    attribute: media_title
     on_value:
       # Auto-show track info overlay (and start auto-hide timer)
       - script.execute: auto_hide_track_info
@@ -133,19 +131,15 @@ text_sensor:
           else:
             - lambda: 'id(title_received_once) = true;'
 
-  - platform: homeassistant
-    entity_id: ${media_player}
+  - platform: template
     id: media_artist_sensor
-    attribute: media_artist
     on_value:
       - lvgl.label.update:
           id: media_artist_label
           text: !lambda 'return x.empty() ? std::string("—") : x;'
 
-  - platform: homeassistant
-    entity_id: ${media_player}
+  - platform: template
     id: media_entity_picture_sensor
-    attribute: entity_picture
     on_value:
       - if:
           condition:
@@ -166,8 +160,7 @@ text_sensor:
                   }
                   return id(ha_base_url) + path;
 
-  - platform: homeassistant
-    entity_id: ${media_player}
+  - platform: template
     id: media_player_state_sensor
     on_value:
       - if:
@@ -201,10 +194,8 @@ text_sensor:
 
   # HA reports media_position as of media_position_updated_at (often seconds stale).
   # Parse the UTC timestamp so the interval timer can compensate for staleness.
-  - platform: homeassistant
-    entity_id: ${media_player}
+  - platform: template
     id: media_position_updated_at_sensor
-    attribute: media_position_updated_at
     on_value:
       - lambda: |-
           // Parse ISO 8601 UTC datetime to UNIX epoch
@@ -225,15 +216,11 @@ text_sensor:
           }
 
 sensor:
-  - platform: homeassistant
-    entity_id: ${media_player}
+  - platform: template
     id: media_duration_sensor
-    attribute: media_duration
 
-  - platform: homeassistant
-    entity_id: ${media_player}
+  - platform: template
     id: media_position_sensor
-    attribute: media_position
     on_value:
       - lambda: |-
           id(last_media_position) = x;
@@ -244,11 +231,8 @@ sensor:
             if (t.is_valid()) id(last_position_timestamp) = t.timestamp;
           }
 
-  # Volume level: syncs the settings panel arc + label with HA
-  - platform: homeassistant
-    entity_id: ${media_player}
+  - platform: template
     id: media_volume_sensor
-    attribute: volume_level
     on_value:
       - lvgl.arc.update:
           id: volume_arc

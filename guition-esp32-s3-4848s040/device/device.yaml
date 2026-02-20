@@ -61,6 +61,7 @@ api:
   on_client_connected:
     - lambda: |-
         id(ha_base_url) = "http://" + client_address + ":8123";
+    - script.execute: subscribe_media_player
 
 
 # -----------------------------------------------------------------------------
@@ -327,15 +328,19 @@ script:
     then:
       - homeassistant.service:
           service: media_player.media_next_track
-          data:
-            entity_id: ${media_player}
+          variables:
+            my_entity: !lambda 'return id(media_player_entity).state;'
+          data_template:
+            entity_id: "{{ my_entity }}"
   - id: swipe_previous_track
     mode: single
     then:
       - homeassistant.service:
           service: media_player.media_previous_track
-          data:
-            entity_id: ${media_player}
+          variables:
+            my_entity: !lambda 'return id(media_player_entity).state;'
+          data_template:
+            entity_id: "{{ my_entity }}"
 
   # -- Settings panel (called by vertical swipe gestures) --
   - id: open_settings_panel
@@ -356,11 +361,11 @@ script:
       - delay: 250ms
       - homeassistant.service:
           service: media_player.volume_set
-          data:
-            entity_id: ${media_player}
           variables:
+            my_entity: !lambda 'return id(media_player_entity).state;'
             vol_level: !lambda 'return lv_arc_get_value(id(volume_arc)) / 100.0f;'
           data_template:
+            entity_id: "{{ my_entity }}"
             volume_level: "{{ vol_level }}"
 
   # -- Reset to now-playing view (e.g. when a new track starts) --
