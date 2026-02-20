@@ -24,7 +24,7 @@ Displays the song title, artist name, elapsed and remaining time, and a progress
 
 When a new track starts, the overlay (title, artist, time, play/pause button) automatically appears. There are controls in the device page inside Home Assistant. Setting the timer to 0 will keep the overlay permanently visible. See [Configurable Settings](#configurable-settings) for details.
 
-[![Watch the video](https://img.youtube.com/vi/aShTf0Q-5A0/maxresdefault.jpg)](https://youtu.be/aShTf0Q-5A0)
+<iframe width="1205" height="678" src="https://www.youtube.com/embed/aShTf0Q-5A0" title="Esphome Media Player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
 ### Touch Controls
 
