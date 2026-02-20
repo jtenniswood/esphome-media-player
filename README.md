@@ -1,6 +1,6 @@
 # Guition ESP32-S3 4848S040 (4.0") Music Dashboard
 
-![Guition ESP32-S3 Music Dashboard](images/guition-esp32-s3-4848s040-example2.jpg)
+Guition ESP32-S3 Music Dashboard
 
 I want to use the cheap [Guition ESP32-S3-4848S040](https://s.click.aliexpress.com/e/_c3sIhvBv) to build a controller to show track artwork and have the ability to skip, pause and control the volume of any media player in Home Assistant
 
@@ -50,8 +50,6 @@ Settings are fully configurable from Home Assistant (see [Configurable Settings]
 
 ---
 
-
-
 ## Configurable Settings
 
 ### Template Settings (set once during setup)
@@ -68,7 +66,7 @@ These values are defined in the `substitutions` block of your ESPHome configurat
 
 ### Backlight and Screensaver Settings (adjustable at runtime)
 
-![Home Assistant Settings](images/ha-settings.png)
+![Home Assistant Settings](images/device-settings.png)
 
 These settings are exposed as entities under the device's **Configuration** section in Home Assistant. All values persist across reboots.
 
@@ -212,6 +210,6 @@ If you have any feedback or suggestions, please just log an issue.
 
 ## Gallery
 
-![Example 1](images/guition-esp32-s3-4848s040-example2.jpg)
-![Example 2](images/guition-esp32-s3-4848s040-example3.jpg)
-![Volume Control](images/guition-esp32-s3-4848s040-volume.jpg)
+![Volume Controls](images/guition-esp32-s3-4848s040-volume.jpg)
+![Example Media](images/guition-esp32-s3-4848s040-example2.jpg)
+![Example Media](images/guition-esp32-s3-4848s040-example3.jpg)
