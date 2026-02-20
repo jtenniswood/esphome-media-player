@@ -68,6 +68,8 @@ These values are defined in the `substitutions` block of your ESPHome configurat
 
 ### Backlight and Screensaver Settings (adjustable at runtime)
 
+![Home Assistant Settings](images/ha-settings.png)
+
 These settings are exposed as entities under the device's **Configuration** section in Home Assistant. All values persist across reboots.
 
 **Switches:**
