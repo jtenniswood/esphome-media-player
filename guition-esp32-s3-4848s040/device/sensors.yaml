@@ -44,16 +44,16 @@ interval:
           float &last_pos    = tv ? id(last_tv_media_position)    : id(last_media_position);
           int   &last_ts     = tv ? id(last_tv_position_timestamp): id(last_position_timestamp);
           int   &pos_epoch   = tv ? id(tv_ha_position_epoch)      : id(ha_position_epoch);
-          auto  &pos_sensor  = tv ? id(tv_media_position_sensor)  : id(media_position_sensor);
+          auto  *pos_sensor  = tv ? id(tv_media_position_sensor)  : id(media_position_sensor);
 
           float pos;
           auto t = id(ha_time).now();
-          if (playing && t.is_valid() && pos_epoch != 0 && pos_sensor.has_state()) {
-            pos = pos_sensor.state + (float)(t.timestamp - pos_epoch);
+          if (playing && t.is_valid() && pos_epoch != 0 && pos_sensor->has_state()) {
+            pos = pos_sensor->state + (float)(t.timestamp - pos_epoch);
           } else if (playing && t.is_valid() && last_ts != 0) {
             pos = last_pos + (float)(t.timestamp - last_ts);
           } else {
-            pos = pos_sensor.has_state() ? pos_sensor.state : last_pos;
+            pos = pos_sensor->has_state() ? pos_sensor->state : last_pos;
           }
           if (pos < 0) pos = 0;
           if (dur > 0 && pos > dur) pos = dur;
