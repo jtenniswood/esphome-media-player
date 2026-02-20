@@ -10,6 +10,16 @@ It is built with [ESPHome](https://esphome.io/) and [LVGL](https://lvgl.io/). It
 
 ---
 
+## Where to Buy
+
+- **Panel:** [AliExpress](https://s.click.aliexpress.com/e/_c3sIhvBv) (~£16)
+
+## Stand
+
+- **Desktop stand** (3D printable): [MakerWorld](https://makerworld.com/en/models/2327976-touch-screen-desktop-stand-for-guition-4848s040#profileId-2543111)
+
+---
+
 ## Features
 
 ### Album Art Display
@@ -45,16 +55,6 @@ When playback is paused, the device has a two-stage screensaver.
 2. After a further timeout, the screen turns off completely.
 
 Settings are fully configurable from Home Assistant (see [Configurable Settings](#configurable-settings) below).
-
----
-
-## Where to Buy
-
-- **Panel:** [AliExpress](https://s.click.aliexpress.com/e/_c3sIhvBv) (~£16)
-
-## Stand
-
-- **Desktop stand** (3D printable): [MakerWorld](https://makerworld.com/en/models/2327976-touch-screen-desktop-stand-for-guition-4848s040#profileId-2543111)
 
 ---
 
