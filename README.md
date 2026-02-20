@@ -50,11 +50,10 @@ Settings are fully configurable from Home Assistant (see [Configurable Settings]
 
 ## Where to Buy
 
-- **Panel:** [AliExpress](https://s.click.aliexpress.com/e/_c3sIhvBv) (~£16)
-
-## Stand
-
-- **Desktop stand** (3D printable): [MakerWorld](https://makerworld.com/en/models/2327976-touch-screen-desktop-stand-for-guition-4848s040#profileId-2543111)
+> [!TIP]
+> **Panel:** [Guition ESP32-S3-4848S040 on AliExpress](https://s.click.aliexpress.com/e/_c3sIhvBv) (~£16)
+>
+> **Desktop stand** (3D printable): [MakerWorld](https://makerworld.com/en/models/2327976-touch-screen-desktop-stand-for-guition-4848s040#profileId-2543111)
 
 ---
 
