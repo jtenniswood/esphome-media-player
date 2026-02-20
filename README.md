@@ -1,5 +1,7 @@
 # Guition ESP32-S3 4848S040 (4.0") Music Dashboard
 
+![Guition ESP32-S3 Music Dashboard](images/guition-esp32-s3-4848s040-example2.jpg)
+
 I want to use the cheap [Guition ESP32-S3-4848S040](https://s.click.aliexpress.com/e/_c3sIhvBv) to build a controller to show track artwork and have the ability to skip, pause and control the volume of any media player in Home Assistant
 
 It is built with [ESPHome](https://esphome.io/) and [LVGL](https://lvgl.io/). It connects to [Home Assistant](https://www.home-assistant.io/) to control and collect the track data, and has been tested with Google and Sonos speakers.
@@ -47,6 +49,8 @@ Settings are fully configurable from Home Assistant (see [Configurable Settings]
 - **Desktop stand** (3D printable): [MakerWorld](https://makerworld.com/en/models/2327976-touch-screen-desktop-stand-for-guition-4848s040#profileId-2543111)
 
 ---
+
+
 
 ## Configurable Settings
 
@@ -201,3 +205,11 @@ After adoption, navigate to the device page in Home Assistant:
 ---
 
 If you have any feedback or suggestions, please just log an issue.
+
+---
+
+## Gallery
+
+![Example 1](images/guition-esp32-s3-4848s040-example2.jpg)
+![Example 2](images/guition-esp32-s3-4848s040-example3.jpg)
+![Volume Control](images/guition-esp32-s3-4848s040-volume.jpg)
