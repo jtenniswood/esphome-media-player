@@ -20,6 +20,14 @@ It is built with [ESPHome](https://esphome.io/) and [LVGL](https://lvgl.io/). It
 
 ---
 
+### Demo Video
+
+[![ESPHome Media Player Demo Video](https://img.youtube.com/vi/aShTf0Q-5A0/maxresdefault.jpg)](https://youtu.be/aShTf0Q-5A0)
+
+[▶️ **Watch on YouTube**](https://youtu.be/aShTf0Q-5A0)
+
+---
+
 ## Features
 
 ### Album Art Display
@@ -33,12 +41,6 @@ Displays the song title, artist name, elapsed and remaining time, and a progress
 ### Auto-Hide Track Info
 
 When a new track starts, the overlay (title, artist, time, play/pause button) automatically appears. There are controls in the device page inside Home Assistant. Setting the timer to 0 will keep the overlay permanently visible. See [Configurable Settings](#configurable-settings) for details.
-
-### Demo Video
-
-[![ESPHome Media Player Demo Video](https://img.youtube.com/vi/aShTf0Q-5A0/maxresdefault.jpg)](https://youtu.be/aShTf0Q-5A0)
-
-[▶️ **Watch on YouTube**](https://youtu.be/aShTf0Q-5A0)
 
 ### Touch Controls
 
