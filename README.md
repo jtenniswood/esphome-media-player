@@ -126,15 +126,18 @@ Before you start, make sure you have:
 
 ### Step 1: Add a New Device in ESPHome
 
-1. Open the **ESPHome dashboard** in Home Assistant (Settings > Add-ons > ESPHome > Open Web UI).
-2. Click **New Device** in the top-right corner.
-3. Give it a name (e.g., `living-room-music`) and click **Next**.
-4. Select **ESP32-S3** as the device type.
-5. Click **Skip** on the installation step for now -- you will edit the configuration first.
+1. Open the **ESPHome dashboard** in Home Assistant.
+2. Click **New Device** in the top-right corner, and then **Continue**. to install using Esphome.
+
+![Create Configuration](images/new_config.png)
+
+3. Select **Empty Configuration** to start with a blank template.
+4. Give it a name (e.g., `living-room-music`) and click **Next**.
+5. Then click **Edit** on the new device being highlighted.
 
 ### Step 2: Paste the Template Configuration
 
-Replace the entire contents of the new device's configuration with the template below (also available at [esphome.yaml](guition-esp32-s3-4848s040/esphome.yaml)):
+Copy and paste the entire contents of the new device's configuration with the template below (also available at [esphome.yaml](guition-esp32-s3-4848s040/esphome.yaml)):
 
 ```yaml
 substitutions:
@@ -154,15 +157,16 @@ packages:
     refresh: 1s
 ```
 
-> **Tip:** Replace `@main` with a release tag (e.g. `@v1.0.0`) to pin to a specific version.
-
 ### Step 3: Edit Substitutions
 
 Update the `substitutions` block with your own values:
 
 - `**name`** -- a unique hostname for this device (lowercase, hyphens only, no spaces). 
 - `**friendly_name`** -- the name you want to see in Home Assistant. 
-- `**media_player`** -- the entity ID of the media player you want to control.
+- `**media_player`** -- the entity ID of the media player you want to control in Home Assistant.
+
+![Player Entity](images/player_entity.png)
+
 
 ### Step 4: Set WiFi Credentials
 
@@ -180,7 +184,7 @@ wifi_password: "YourWiFiPassword"
 
 ### Step 5: Flash the Firmware
 
-For the first installation, you need to flash via USB:
+For the first installation, you need to flash via USB and use the Chrome browser:
 
 1. Connect the Guition panel to your computer with a USB-C cable.
 2. In the ESPHome dashboard, click the three-dot menu on your device and select **Install**.
@@ -205,6 +209,8 @@ After adoption, navigate to the device page in Home Assistant:
 2. Click on your device.
 3. Under the **Configuration** section, you will find the backlight and screensaver settings described in [Configurable Settings](#configurable-settings).
 4. Adjust the brightness levels and timeouts to your preference.
+
+![Device Settings](images/device-settings.png)
 
 ---
 
