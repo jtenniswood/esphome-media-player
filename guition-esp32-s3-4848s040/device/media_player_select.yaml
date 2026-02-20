@@ -28,6 +28,19 @@ text:
     max_length: 100
     on_value:
       - script.execute: subscribe_media_player
+      # Force HA to reconnect so it picks up new subscriptions.
+      # subscribe_home_assistant_state() adds to an internal list but the
+      # already-connected client never learns about them — a fresh connection
+      # triggers a new subscription exchange that includes everything.
+      # The guard skips this on boot (no clients yet) and on empty input.
+      - delay: 100ms
+      - lambda: |-
+          std::string entity = id(media_player_entity).state;
+          if (entity.empty() || esphome::api::global_api_server == nullptr) return;
+          for (auto &client : esphome::api::global_api_server->get_clients()) {
+            client->send_disconnect_request(esphome::api::DisconnectRequest());
+          }
+          ESP_LOGI("media_select", "Disconnecting API clients to force re-subscription");
 
 script:
   - id: subscribe_media_player
