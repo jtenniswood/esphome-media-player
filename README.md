@@ -26,13 +26,9 @@ When a new track starts, the overlay (title, artist, time, play/pause button) au
 
 ### Demo Video
 
-<div align="center">
-  <a href="https://youtu.be/aShTf0Q-5A0">
-    <img src="https://img.youtube.com/vi/aShTf0Q-5A0/maxresdefault.jpg" alt="ESPHome Media Player Demo Video" width="600">
-  </a>
-  <br>
-  <a href="https://youtu.be/aShTf0Q-5A0">▶️ <b>Watch on YouTube</b></a>
-</div>
+[![ESPHome Media Player Demo Video](https://img.youtube.com/vi/aShTf0Q-5A0/maxresdefault.jpg)](https://youtu.be/aShTf0Q-5A0)
+
+[▶️ **Watch on YouTube**](https://youtu.be/aShTf0Q-5A0)
 
 ### Touch Controls
 
