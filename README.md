@@ -1,5 +1,7 @@
 # Guition ESP32-S3 4848S040 (4.0") Music Dashboard
 
+![Guition ESP32-S3 Music Dashboard](images/guition-esp32-s3-4848s040-example1.jpg)
+
 Guition ESP32-S3 Music Dashboard
 
 I want to use the cheap [Guition ESP32-S3-4848S040](https://s.click.aliexpress.com/e/_c3sIhvBv) to build a controller to show track artwork and have the ability to skip, pause and control the volume of any media player in Home Assistant
