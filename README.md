@@ -1,8 +1,8 @@
-# Guition ESP32-S3 4848S040 (4.0") Music Dashboard
+# Guition ESP32-S3 4848S040 (4.0") Media Controller
 
-![Guition ESP32-S3 Music Dashboard](images/guition-esp32-s3-4848s040-example1.jpg)
+Guition ESP32-S3 Media Controller
 
-Guition ESP32-S3 Music Dashboard
+Guition ESP32-S3 Media Controller
 
 I want to use the cheap [Guition ESP32-S3-4848S040](https://s.click.aliexpress.com/e/_c3sIhvBv) to build a controller to show track artwork and have the ability to skip, pause and control the volume of any media player in Home Assistant
 
@@ -24,14 +24,10 @@ Displays the song title, artist name, elapsed and remaining time, and a progress
 
 When a new track starts, the overlay (title, artist, time, play/pause button) automatically appears. There are controls in the device page inside Home Assistant. Setting the timer to 0 will keep the overlay permanently visible. See [Configurable Settings](#configurable-settings) for details.
 
-<div align="center">
-  <h3>📺 Demo Video</h3>
-  <a href="https://youtu.be/aShTf0Q-5A0">
-    <img src="https://img.youtube.com/vi/aShTf0Q-5A0/maxresdefault.jpg" alt="ESPHome Media Player Demo Video" width="600">
-  </a>
-  <br>
-  <a href="https://youtu.be/aShTf0Q-5A0">▶️ <b>Watch on YouTube</b></a>
-</div>
+### Demo Video
+
+  
+**[Watch on YouTube](https://youtu.be/aShTf0Q-5A0)**
 
 ### Touch Controls
 
@@ -77,7 +73,7 @@ These values are defined in the `substitutions` block of your ESPHome configurat
 
 ### Backlight and Screensaver Settings (adjustable at runtime)
 
-![Home Assistant Settings](images/device-settings.png)
+Home Assistant Settings
 
 These settings are exposed as entities under the device's **Configuration** section in Home Assistant. All values persist across reboots.
 
@@ -136,11 +132,11 @@ Before you start, make sure you have:
 1. Open the **ESPHome dashboard** in Home Assistant.
 2. Click **New Device** in the top-right corner, and then **Continue**. to install using Esphome.
 
-![Create Configuration](images/new_config.png)
+Create Configuration
 
-3. Select **Empty Configuration** to start with a blank template.
-4. Give it a name (e.g., `living-room-music`) and click **Next**.
-5. Then click **Edit** on the new device being highlighted.
+1. Select **Empty Configuration** to start with a blank template.
+2. Give it a name (e.g., `living-room-music`) and click **Next**.
+3. Then click **Edit** on the new device being highlighted.
 
 ### Step 2: Paste the Template Configuration
 
@@ -172,8 +168,7 @@ Update the `substitutions` block with your own values:
 - `**friendly_name`** -- the name you want to see in Home Assistant. 
 - `**media_player`** -- the entity ID of the media player you want to control in Home Assistant.
 
-![Player Entity](images/player_entity.png)
-
+Player Entity
 
 ### Step 4: Set WiFi Credentials
 
@@ -217,7 +212,7 @@ After adoption, navigate to the device page in Home Assistant:
 3. Under the **Configuration** section, you will find the backlight and screensaver settings described in [Configurable Settings](#configurable-settings).
 4. Adjust the brightness levels and timeouts to your preference.
 
-![Device Settings](images/device-settings.png)
+Device Settings
 
 ---
 
@@ -227,6 +222,6 @@ If you have any feedback or suggestions, please just log an issue.
 
 ## Gallery
 
-![Volume Controls](images/guition-esp32-s3-4848s040-volume.jpg)
-![Example Media](images/guition-esp32-s3-4848s040-example2.jpg)
-![Example Media](images/guition-esp32-s3-4848s040-example3.jpg)
+Volume Controls
+Example Media
+Example Media
