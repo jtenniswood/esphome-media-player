@@ -29,6 +29,10 @@ online_image:
     resize: 480x480
     on_download_finished:
       - lvgl.widget.hide: artwork_error_label
+      - lambda: |-
+          lv_img_set_zoom(id(album_art_background_widget), 256);
+          lv_obj_set_pos(id(album_art_background_widget), 0, 0);
+          lv_obj_set_size(id(album_art_background_widget), 480, 480);
       - lvgl.image.update:
           id: album_art_background_widget
           src: album_art_background
@@ -42,7 +46,7 @@ online_image:
       - lvgl.widget.show: artwork_error_label
 
   # TV mode main background — no forced resize so aspect ratio is preserved.
-  # The native image is displayed within the 480x480 widget; LVGL clips overflow.
+  # After download, the widget is scaled to fit within 480x480 and centered.
   - url: "https://placehold.co/480x270/2d2d2d/555555"
     id: tv_art_background
     type: rgb565
@@ -53,6 +57,26 @@ online_image:
       - lvgl.image.update:
           id: album_art_background_widget
           src: tv_art_background
+      - lambda: |-
+          int img_w = id(tv_art_background)->get_width();
+          int img_h = id(tv_art_background)->get_height();
+
+          // Scale to fit within 480x480 while preserving aspect ratio
+          int zoom = 256;
+          if (img_w > 480 || img_h > 480) {
+            float sx = 480.0f / (float)img_w;
+            float sy = 480.0f / (float)img_h;
+            float scale = (sx < sy) ? sx : sy;
+            zoom = (int)(scale * 256.0f);
+          }
+          lv_img_set_zoom(id(album_art_background_widget), zoom);
+
+          int disp_w = (img_w * zoom) / 256;
+          int disp_h = (img_h * zoom) / 256;
+
+          // Size widget to image (prevents tiling) and center on screen
+          lv_obj_set_size(id(album_art_background_widget), disp_w, disp_h);
+          lv_obj_set_pos(id(album_art_background_widget), (480 - disp_w) / 2, (480 - disp_h) / 2);
       - lvgl.widget.update:
           id: album_art_background_widget
           opa: 100%
