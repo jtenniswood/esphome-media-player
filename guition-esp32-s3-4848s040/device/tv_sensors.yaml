@@ -74,16 +74,7 @@ text_sensor:
                 opa: 50%
             - lvgl.widget.hide: artwork_error_label
             - online_image.set_url:
-                id: album_art_background
-                url: !lambda |-
-                  std::string path = x;
-                  while (!path.empty() && (path.back() == '\n' || path.back() == '\r' || path.back() == ' ')) path.pop_back();
-                  if (path.substr(0, 7) == "http://" || path.substr(0, 8) == "https://") {
-                    return path;
-                  }
-                  return id(ha_base_url) + path;
-            - online_image.set_url:
-                id: tv_art_panel
+                id: tv_art_background
                 url: !lambda |-
                   std::string path = x;
                   while (!path.empty() && (path.back() == '\n' || path.back() == '\r' || path.back() == ' ')) path.pop_back();

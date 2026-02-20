@@ -422,7 +422,6 @@ script:
     mode: single
     then:
       - lambda: 'id(is_tv_mode) = true;'
-      - lvgl.widget.show: tv_art_panel_widget
       - lambda: |-
           // Push current TV sensor values to widgets immediately
           if (id(tv_media_title_sensor).has_state()) {
@@ -447,14 +446,7 @@ script:
                 opa: 50%
             - lvgl.widget.hide: artwork_error_label
             - online_image.set_url:
-                id: album_art_background
-                url: !lambda |-
-                  std::string path = id(tv_entity_picture_sensor).state;
-                  while (!path.empty() && (path.back() == '\n' || path.back() == '\r' || path.back() == ' ')) path.pop_back();
-                  if (path.substr(0, 7) == "http://" || path.substr(0, 8) == "https://") return path;
-                  return id(ha_base_url) + path;
-            - online_image.set_url:
-                id: tv_art_panel
+                id: tv_art_background
                 url: !lambda |-
                   std::string path = id(tv_entity_picture_sensor).state;
                   while (!path.empty() && (path.back() == '\n' || path.back() == '\r' || path.back() == ' ')) path.pop_back();
@@ -481,7 +473,6 @@ script:
     mode: single
     then:
       - lambda: 'id(is_tv_mode) = false;'
-      - lvgl.widget.hide: tv_art_panel_widget
       - lambda: |-
           // Push current Sonos sensor values back to widgets
           if (id(media_title_sensor).has_state()) {

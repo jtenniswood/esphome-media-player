@@ -41,20 +41,23 @@ online_image:
           opa: 40%
       - lvgl.widget.show: artwork_error_label
 
-  - url: "https://placehold.co/120x120/2d2d2d/555555"
-    id: tv_art_panel
+  # TV mode main background — no forced resize so aspect ratio is preserved.
+  # The native image is displayed within the 480x480 widget; LVGL clips overflow.
+  - url: "https://placehold.co/480x270/2d2d2d/555555"
+    id: tv_art_background
     type: rgb565
     format: jpeg
     placeholder: album_art_placeholder
-    resize: 120x120
     on_download_finished:
+      - lvgl.widget.hide: artwork_error_label
       - lvgl.image.update:
-          id: tv_art_panel_widget
-          src: tv_art_panel
+          id: album_art_background_widget
+          src: tv_art_background
       - lvgl.widget.update:
-          id: tv_art_panel_widget
+          id: album_art_background_widget
           opa: 100%
     on_error:
       - lvgl.widget.update:
-          id: tv_art_panel_widget
+          id: album_art_background_widget
           opa: 40%
+      - lvgl.widget.show: artwork_error_label

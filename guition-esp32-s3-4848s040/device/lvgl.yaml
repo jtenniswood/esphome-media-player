@@ -195,17 +195,6 @@ lvgl:
                           return std::string(buf);
                     - script.execute: debounce_volume
 
-              # TV artwork thumbnail (visible only in TV mode)
-              - image:
-                  id: tv_art_panel_widget
-                  align: center
-                  y: -50
-                  width: 120
-                  height: 120
-                  src: tv_art_panel
-                  opa: 0%
-                  hidden: true
-
               # "Volume" label above the percentage
               - label:
                   id: volume_title_label
