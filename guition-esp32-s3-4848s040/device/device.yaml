@@ -183,6 +183,23 @@ globals:
     type: bool
     initial_value: 'false'
 
+  # -- TV source mode --
+  - id: is_tv_mode               # True when Sonos source is "TV"
+    type: bool
+    initial_value: 'false'
+  - id: last_tv_media_position
+    type: float
+    initial_value: '0.0'
+  - id: last_tv_position_timestamp
+    type: int
+    initial_value: '0'
+  - id: tv_ha_position_epoch
+    type: int
+    initial_value: '0'
+  - id: tv_title_received_once
+    type: bool
+    initial_value: 'false'
+
 
 # -----------------------------------------------------------------------------
 # TOUCHSCREEN (GT911 Controller)
@@ -263,10 +280,11 @@ touchscreen:
             } else if (id(is_ui_hidden)) {
               // UI is hidden — always allow showing it
               id(toggle_ui).execute();
-            } else if (id(media_player_state_sensor).has_state() &&
-                       id(media_player_state_sensor).state == "playing") {
-              // UI is visible and media is playing — allow hiding
-              id(toggle_ui).execute();
+            } else {
+              bool playing = id(is_tv_mode)
+                  ? (id(tv_media_player_state_sensor).has_state() && id(tv_media_player_state_sensor).state == "playing")
+                  : (id(media_player_state_sensor).has_state() && id(media_player_state_sensor).state == "playing");
+              if (playing) id(toggle_ui).execute();
             }
           }
 
@@ -327,15 +345,23 @@ script:
     then:
       - homeassistant.service:
           service: media_player.media_next_track
-          data:
-            entity_id: ${media_player}
+          variables:
+            target: !lambda |-
+              if (id(is_tv_mode)) return std::string("${tv_media_player}");
+              return std::string("${media_player}");
+          data_template:
+            entity_id: "{{ target }}"
   - id: swipe_previous_track
     mode: single
     then:
       - homeassistant.service:
           service: media_player.media_previous_track
-          data:
-            entity_id: ${media_player}
+          variables:
+            target: !lambda |-
+              if (id(is_tv_mode)) return std::string("${tv_media_player}");
+              return std::string("${media_player}");
+          data_template:
+            entity_id: "{{ target }}"
 
   # -- Settings panel (called by vertical swipe gestures) --
   - id: open_settings_panel
@@ -390,6 +416,113 @@ script:
                 lv_obj_fade_in(id(media_artist_label), 200, 0);
                 lv_obj_fade_in(id(media_play_pause_button), 200, 0);
                 lv_obj_fade_in(id(media_time_label), 200, 0);
+
+  # -- TV source mode transitions --
+  - id: enter_tv_mode
+    mode: single
+    then:
+      - lambda: 'id(is_tv_mode) = true;'
+      - lvgl.widget.show: tv_art_panel_widget
+      - lambda: |-
+          // Push current TV sensor values to widgets immediately
+          if (id(tv_media_title_sensor).has_state()) {
+            std::string title = id(tv_media_title_sensor).state;
+            if (title.substr(0, 8) == "(null): ") title = title.substr(8);
+            lv_label_set_text(id(media_title_label), title.empty() ? "—" : title.c_str());
+          } else {
+            lv_label_set_text(id(media_title_label), "TV");
+          }
+          if (id(tv_media_artist_sensor).has_state()) {
+            auto &a = id(tv_media_artist_sensor).state;
+            lv_label_set_text(id(media_artist_label), a.empty() ? "—" : a.c_str());
+          } else {
+            lv_label_set_text(id(media_artist_label), "—");
+          }
+      - if:
+          condition:
+            lambda: 'return id(tv_entity_picture_sensor).has_state() && !id(tv_entity_picture_sensor).state.empty();'
+          then:
+            - lvgl.widget.update:
+                id: album_art_background_widget
+                opa: 50%
+            - lvgl.widget.hide: artwork_error_label
+            - online_image.set_url:
+                id: album_art_background
+                url: !lambda |-
+                  std::string path = id(tv_entity_picture_sensor).state;
+                  while (!path.empty() && (path.back() == '\n' || path.back() == '\r' || path.back() == ' ')) path.pop_back();
+                  if (path.substr(0, 7) == "http://" || path.substr(0, 8) == "https://") return path;
+                  return id(ha_base_url) + path;
+            - online_image.set_url:
+                id: tv_art_panel
+                url: !lambda |-
+                  std::string path = id(tv_entity_picture_sensor).state;
+                  while (!path.empty() && (path.back() == '\n' || path.back() == '\r' || path.back() == ' ')) path.pop_back();
+                  if (path.substr(0, 7) == "http://" || path.substr(0, 8) == "https://") return path;
+                  return id(ha_base_url) + path;
+          else:
+            - lvgl.widget.update:
+                id: album_art_background_widget
+                opa: 40%
+      - if:
+          condition:
+            lambda: |-
+              return id(tv_media_player_state_sensor).has_state() &&
+                     id(tv_media_player_state_sensor).state == "playing";
+          then:
+            - lvgl.widget.hide: media_play_icon
+            - lvgl.widget.show: media_pause_icon
+          else:
+            - lvgl.widget.show: media_play_icon
+            - lvgl.widget.hide: media_pause_icon
+      - script.execute: show_track_view
+
+  - id: exit_tv_mode
+    mode: single
+    then:
+      - lambda: 'id(is_tv_mode) = false;'
+      - lvgl.widget.hide: tv_art_panel_widget
+      - lambda: |-
+          // Push current Sonos sensor values back to widgets
+          if (id(media_title_sensor).has_state()) {
+            auto &t = id(media_title_sensor).state;
+            lv_label_set_text(id(media_title_label), t.empty() ? "—" : t.c_str());
+          } else {
+            lv_label_set_text(id(media_title_label), "—");
+          }
+          if (id(media_artist_sensor).has_state()) {
+            auto &a = id(media_artist_sensor).state;
+            lv_label_set_text(id(media_artist_label), a.empty() ? "—" : a.c_str());
+          } else {
+            lv_label_set_text(id(media_artist_label), "—");
+          }
+      - if:
+          condition:
+            lambda: 'return id(media_entity_picture_sensor).has_state() && !id(media_entity_picture_sensor).state.empty();'
+          then:
+            - lvgl.widget.update:
+                id: album_art_background_widget
+                opa: 50%
+            - lvgl.widget.hide: artwork_error_label
+            - online_image.set_url:
+                id: album_art_background
+                url: !lambda |-
+                  std::string path = id(media_entity_picture_sensor).state;
+                  while (!path.empty() && (path.back() == '\n' || path.back() == '\r' || path.back() == ' ')) path.pop_back();
+                  if (path.substr(0, 7) == "http://" || path.substr(0, 8) == "https://") return path;
+                  return id(ha_base_url) + path;
+      - if:
+          condition:
+            lambda: |-
+              return id(media_player_state_sensor).has_state() &&
+                     id(media_player_state_sensor).state == "playing";
+          then:
+            - lvgl.widget.hide: media_play_icon
+            - lvgl.widget.show: media_pause_icon
+          else:
+            - lvgl.widget.show: media_play_icon
+            - lvgl.widget.hide: media_pause_icon
+      - script.execute: show_track_view
 
 
 # -----------------------------------------------------------------------------

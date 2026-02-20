@@ -106,8 +106,12 @@ lvgl:
             on_press:
               - homeassistant.service:
                   service: media_player.media_play_pause
-                  data:
-                    entity_id: ${media_player}
+                  variables:
+                    target: !lambda |-
+                      if (id(is_tv_mode)) return std::string("${tv_media_player}");
+                      return std::string("${media_player}");
+                  data_template:
+                    entity_id: "{{ target }}"
 
         # Play clock: elapsed / duration, below artist name
         - label:
@@ -190,6 +194,17 @@ lvgl:
                           snprintf(buf, sizeof(buf), "%d%%", (int)x);
                           return std::string(buf);
                     - script.execute: debounce_volume
+
+              # TV artwork thumbnail (visible only in TV mode)
+              - image:
+                  id: tv_art_panel_widget
+                  align: center
+                  y: -50
+                  width: 120
+                  height: 120
+                  src: tv_art_panel
+                  opa: 0%
+                  hidden: true
 
               # "Volume" label above the percentage
               - label:

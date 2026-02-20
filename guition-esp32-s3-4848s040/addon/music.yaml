@@ -40,3 +40,21 @@ online_image:
           id: album_art_background_widget
           opa: 40%
       - lvgl.widget.show: artwork_error_label
+
+  - url: "https://placehold.co/120x120/2d2d2d/555555"
+    id: tv_art_panel
+    type: rgb565
+    format: jpeg
+    placeholder: album_art_placeholder
+    resize: 120x120
+    on_download_finished:
+      - lvgl.image.update:
+          id: tv_art_panel_widget
+          src: tv_art_panel
+      - lvgl.widget.update:
+          id: tv_art_panel_widget
+          opa: 100%
+    on_error:
+      - lvgl.widget.update:
+          id: tv_art_panel_widget
+          opa: 40%
