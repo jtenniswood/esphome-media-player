@@ -18,6 +18,9 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
+    if: >-
+      github.event_name == 'push' ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
     steps:
       - uses: actions/checkout@v6
       - run: mkdir -p output/firmware
@@ -30,6 +33,7 @@ jobs:
           latest: true
           fileName: "*"
           out-file-path: output/firmware
+        continue-on-error: true
       - uses: actions/upload-pages-artifact@v4
         with:
           path: output
