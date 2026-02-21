@@ -63,6 +63,7 @@ api:
         id(ha_base_url) = "http://" + client_address + ":8123";
     - lvgl.widget.hide: ha_setup_prompt
     - script.execute: subscribe_media_player
+    - script.execute: subscribe_tv_media_player
   on_client_disconnected:
     - lvgl.widget.hide: setup_prompt
     - lvgl.widget.show: ha_setup_prompt
@@ -367,7 +368,7 @@ script:
           service: media_player.media_next_track
           variables:
             target: !lambda |-
-              if (id(is_tv_mode)) return std::string("${tv_media_player}");
+              if (id(is_tv_mode)) return id(tv_media_player_entity).state;
               return id(media_player_entity).state;
           data_template:
             entity_id: "{{ target }}"
@@ -378,7 +379,7 @@ script:
           service: media_player.media_previous_track
           variables:
             target: !lambda |-
-              if (id(is_tv_mode)) return std::string("${tv_media_player}");
+              if (id(is_tv_mode)) return id(tv_media_player_entity).state;
               return id(media_player_entity).state;
           data_template:
             entity_id: "{{ target }}"
@@ -404,7 +405,7 @@ script:
           service: media_player.volume_set
           variables:
             target: !lambda |-
-              if (id(is_tv_mode)) return std::string("${tv_media_player}");
+              if (id(is_tv_mode)) return id(tv_media_player_entity).state;
               return id(media_player_entity).state;
             vol_level: !lambda 'return lv_arc_get_value(id(volume_arc)) / 100.0f;'
           data_template:

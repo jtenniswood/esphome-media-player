@@ -30,7 +30,6 @@ Copy and paste the entire contents of the new device's configuration with the te
 substitutions:
   name: "your-device-name"
   friendly_name: "Your Room Music"
-  media_player: ""
 
 wifi:
   ssid: !secret wifi_ssid
@@ -40,7 +39,7 @@ packages:
   music_dashboard:
     url: https://github.com/jtenniswood/esphome-media-player
     files: [guition-esp32-s3-4848s040/packages.yaml]
-    ref: main
+    ref: tv
     refresh: 1s
 ```
 
@@ -51,6 +50,7 @@ Update the `substitutions` block with your own values:
 - **`name`** -- a unique hostname for this device (lowercase, hyphens only, no spaces).
 - **`friendly_name`** -- the name you want to see in Home Assistant.
 - **`media_player`** -- (optional) pre-fill the entity ID of the media player to control. Leave empty (`""`) to set it from Home Assistant after first boot.
+- **`tv_media_player`** -- (optional) pre-fill the entity ID of a secondary TV media player (e.g., Apple TV). Leave empty (`""`) to set it from Home Assistant after first boot.
 
 ## Step 4: Set WiFi Credentials
 
@@ -93,6 +93,7 @@ After adoption, navigate to the device page in Home Assistant:
 2. Click on your device.
 3. Under the **Configuration** section, find the **Media Player** text field.
 4. Enter the entity ID of the media player you want to control (e.g., `media_player.living_room`). The dashboard will immediately start showing the current track.
-5. Optionally adjust the brightness levels, timeouts, and other settings described in [Configurable Settings](../README.md#configurable-settings).
+5. Optionally set the **TV Media Player** field to a secondary media player entity (e.g., `media_player.apple_tv`). When the main player's source switches to "TV", the dashboard will automatically display and control this entity instead.
+6. Optionally adjust the brightness levels, timeouts, and other settings described in [Configurable Settings](../README.md#configurable-settings).
 
 ![Device Settings](../images/ha-device-settings.png)
