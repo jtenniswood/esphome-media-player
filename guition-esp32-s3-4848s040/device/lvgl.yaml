@@ -231,6 +231,16 @@ lvgl:
                   height: 100
                   text_align: center
               - label:
+                  id: actions_device_info
+                  text: ""
+                  text_font: roboto19_font
+                  text_color: 0x666666
+                  align: center
+                  y: 130
+                  width: 420
+                  height: 50
+                  text_align: center
+              - label:
                   text: "Tap to continue"
                   text_font: roboto19_font
                   text_color: 0x555555
