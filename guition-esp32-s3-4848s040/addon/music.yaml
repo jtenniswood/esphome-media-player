@@ -135,7 +135,7 @@ light:
             - lambda: |-
                 float r, g, b;
                 id(accent_color_light)->current_values_as_rgb(&r, &g, &b);
-                lv_obj_set_style_bg_color(id(main_page),
+                lv_obj_set_style_bg_color(id(main_page)->obj,
                   lv_color_make((int)(r * 255), (int)(g * 255), (int)(b * 255)), 0);
 
 # -----------------------------------------------------------------------------
