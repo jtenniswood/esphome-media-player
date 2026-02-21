@@ -58,64 +58,6 @@ Settings are fully configurable from Home Assistant (see [Configurable Settings]
 
 ---
 
-## Configurable Settings
-
-### Media Player Selection (configurable at runtime)
-
-The media player entity is configured from the Home Assistant device settings page — no YAML editing or reflashing required. After first boot, the display shows **"Set media player in device settings"** until you configure it:
-
-1. Go to **Settings > Devices & Services > ESPHome** and click on your device.
-2. Under **Configuration**, find the **Media Player** text field.
-3. Enter the entity ID of the media player you want to control (e.g., `media_player.living_room`).
-
-The device will immediately start tracking the selected media player. The selection persists across reboots. You can change it at any time without reflashing.
-
-> **Tip:** If you already know your media player entity ID during setup, you can pre-fill it in the `substitutions` block with `media_player: "media_player.living_room"`. This sets the initial value so it's ready on first boot.
-
-
-### Backlight and Screensaver Settings (adjustable at runtime)
-
-![Home Assistant Settings](images/device-settings.png)
-
-These settings are exposed as entities under the device's **Configuration** section in Home Assistant. All values persist across reboots.
-
-**Switches:**
-
-
-| Setting                | Default | Description                                                                                                    |
-| ---------------------- | ------- | -------------------------------------------------------------------------------------------------------------- |
-| Daytime Screen Saver   | ON      | Allow the screen to turn off completely during the day. When off, the screen stays dimmed but never turns off. |
-| Nighttime Screen Saver | ON      | Allow the screen to turn off completely at night. When off, the screen stays dimmed but never turns off.       |
-
-
-**Brightness:**
-
-
-| Setting              | Range     | Step | Default | Description                                  |
-| -------------------- | --------- | ---- | ------- | -------------------------------------------- |
-| Day Dim Brightness   | 0 -- 100% | 5%   | 35%     | Screen brightness when dimmed during the day |
-| Night Dim Brightness | 0 -- 100% | 5%   | 25%     | Screen brightness when dimmed at night       |
-
-
-**Timeouts:**
-
-
-| Setting            | Range      | Step | Default | Description                                       |
-| ------------------ | ---------- | ---- | ------- | ------------------------------------------------- |
-| Dim Timeout        | 1 -- 300 s | 1 s  | 60 s    | Seconds of inactivity before the screen dims      |
-| Screen Off Timeout | 1 -- 600 s | 1 s  | 300 s   | Seconds after dimming before the screen turns off |
-
-
-**Track Info:**
-
-
-| Setting             | Range     | Step | Default | Description                                                                            |
-| ------------------- | --------- | ---- | ------- | -------------------------------------------------------------------------------------- |
-| Track Info Duration | 0 -- 60 s | 1 s  | 0 s     | Seconds the track info overlay stays visible after a track change. 0 = always visible. |
-
-
----
-
 ## Quick Install (Recommended)
 
 The easiest way to get started -- no ESPHome knowledge required.
@@ -165,7 +107,61 @@ The device automatically checks for firmware updates every 6 hours. When an upda
 
 ---
 
-## Alternative: Manual install using ESPHome Dashboard
+## Configurable Settings
+
+### Media Player Selection (configurable at runtime)
+
+The media player entity is configured from the Home Assistant device settings page — no YAML editing or reflashing required. After first boot, the display shows **"Set media player in device settings"** until you configure it:
+
+1. Go to **Settings > Devices & Services > ESPHome** and click on your device.
+2. Under **Configuration**, find the **Media Player** text field.
+3. Enter the entity ID of the media player you want to control (e.g., `media_player.living_room`).
+
+The device will immediately start tracking the selected media player. The selection persists across reboots. You can change it at any time without reflashing.
+
+
+### Backlight and Screensaver Settings (adjustable at runtime)
+
+These settings are exposed as entities under the device's **Configuration** section in Home Assistant. All values persist across reboots.
+
+**Switches:**
+
+
+| Setting                | Default | Description                                                                                                    |
+| ---------------------- | ------- | -------------------------------------------------------------------------------------------------------------- |
+| Daytime Screen Saver   | ON      | Allow the screen to turn off completely during the day. When off, the screen stays dimmed but never turns off. |
+| Nighttime Screen Saver | ON      | Allow the screen to turn off completely at night. When off, the screen stays dimmed but never turns off.       |
+
+
+**Brightness:**
+
+
+| Setting              | Range     | Step | Default | Description                                  |
+| -------------------- | --------- | ---- | ------- | -------------------------------------------- |
+| Day Dim Brightness   | 0 -- 100% | 5%   | 35%     | Screen brightness when dimmed during the day |
+| Night Dim Brightness | 0 -- 100% | 5%   | 25%     | Screen brightness when dimmed at night       |
+
+
+**Timeouts:**
+
+
+| Setting            | Range      | Step | Default | Description                                       |
+| ------------------ | ---------- | ---- | ------- | ------------------------------------------------- |
+| Dim Timeout        | 1 -- 300 s | 1 s  | 60 s    | Seconds of inactivity before the screen dims      |
+| Screen Off Timeout | 1 -- 600 s | 1 s  | 300 s   | Seconds after dimming before the screen turns off |
+
+
+**Track Info:**
+
+
+| Setting             | Range     | Step | Default | Description                                                                            |
+| ------------------- | --------- | ---- | ------- | -------------------------------------------------------------------------------------- |
+| Track Info Duration | 0 -- 60 s | 1 s  | 0 s     | Seconds the track info overlay stays visible after a track change. 0 = always visible. |
+
+
+---
+
+## Manual install using ESPHome Dashboard
 
 If you prefer full control through the ESPHome dashboard, see the [Manual Setup Guide](docs/manual-setup.md).
 
