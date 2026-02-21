@@ -47,7 +47,7 @@ esphome:
 # Once configured, you can flash new code from ESPHome dashboard.
 # -----------------------------------------------------------------------------
 ota:
-  platform: esphome
+  - platform: esphome
 
 
 # -----------------------------------------------------------------------------

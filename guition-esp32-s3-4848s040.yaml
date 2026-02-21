@@ -1,0 +1,15 @@
+substitutions:
+  name: "media-player"
+  friendly_name: "Media Player"
+  media_player: ""
+
+esphome:
+  name_add_mac_suffix: true
+
+packages:
+  music_dashboard: !include guition-esp32-s3-4848s040/packages.yaml
+
+wifi:
+  ap:
+
+captive_portal:

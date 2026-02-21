@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  pull_request:
+    paths:
+      - "**/*.yaml"
+      - ".github/workflows/ci.yml"
+  schedule:
+    - cron: "0 0 * * *"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    name: Building ${{ matrix.esphome-version }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        esphome-version: [stable, beta, dev]
+    steps:
+      - uses: actions/checkout@v6
+      - name: Build regular
+        uses: esphome/build-action@v7
+        with:
+          yaml-file: guition-esp32-s3-4848s040.yaml
+          version: ${{ matrix.esphome-version }}
+      - name: Build factory
+        uses: esphome/build-action@v7
+        with:
+          yaml-file: guition-esp32-s3-4848s040.factory.yaml
+          version: ${{ matrix.esphome-version }}

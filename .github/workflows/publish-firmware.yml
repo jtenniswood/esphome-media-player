@@ -1,0 +1,27 @@
+name: Publish Firmware
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  build-firmware:
+    name: Build Firmware
+    uses: esphome/workflows/.github/workflows/build.yml@2025.10.0
+    with:
+      files: guition-esp32-s3-4848s040.factory.yaml
+      esphome-version: 2025.11.3
+      combined-name: media-player
+      release-summary: ${{ github.event.release.body }}
+      release-url: ${{ github.event.release.html_url }}
+      release-version: ${{ github.event.release.tag_name }}
+
+  upload-to-release:
+    name: Upload to Release
+    uses: esphome/workflows/.github/workflows/upload-to-gh-release.yml@2025.10.0
+    needs: build-firmware
+    with:
+      version: ${{ github.event.release.tag_name }}
