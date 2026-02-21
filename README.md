@@ -177,11 +177,13 @@ The device automatically checks for firmware updates every 6 hours. When an upda
 
 ---
 
-## Alternative: Manual Setup via ESPHome Dashboard
+## Alternative: Manual install using ESPHome Dashboard
 
 If you prefer full control through the ESPHome dashboard, see the [Manual Setup Guide](docs/manual-setup.md).
 
 ---
+
+## Feedback
 
 If you have any feedback or suggestions, please just log an issue.
 
