@@ -1,3 +1,7 @@
+substitutions:
+  media_player: ""
+  tv_media_player: ""
+
 packages:
   music: !include addon/music.yaml
   backlight: !include addon/backlight.yaml

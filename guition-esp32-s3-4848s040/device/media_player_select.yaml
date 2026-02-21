@@ -162,6 +162,7 @@ script:
           sub_num("media_duration", id(media_duration_sensor));
           sub_num("media_position", id(media_position_sensor));
           sub_num("volume_level", id(media_volume_sensor));
+          sub_text("source", id(media_source_sensor));
 
           ESP_LOGI("media_select", "Subscribed to '%s'", entity.c_str());
 

@@ -236,10 +236,8 @@ text_sensor:
                   id(last_position_timestamp) = epoch;
                 }
 
-  - platform: homeassistant
-    entity_id: ${media_player}
+  - platform: template
     id: media_source_sensor
-    attribute: source
     on_value:
       - if:
           condition:
