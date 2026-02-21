@@ -1,12 +1,10 @@
 # =============================================================================
-# MUSIC DASHBOARD - HTTP request, album art image, accent color
+# MUSIC DASHBOARD - HTTP request, album art image
 # =============================================================================
 # Required for online_image (album art from Home Assistant entity_picture).
 # Placeholder image shown until art is downloaded.
-#
-# Accent color: a virtual RGB light whose color is set by HA's color_extractor
-# integration. In TV mode the dominant album-art color is applied as the LVGL
-# page background behind the letterboxed image.
+# In TV mode, edge pixels are sampled after download to set the LVGL page
+# background behind the letterboxed image.
 # =============================================================================
 
 http_request:
@@ -67,8 +65,9 @@ online_image:
           src: tv_art_background
       - lambda: |-
           auto *w = id(album_art_background_widget);
-          int img_w = id(tv_art_background)->get_width();
-          int img_h = id(tv_art_background)->get_height();
+          auto *img = id(tv_art_background);
+          int img_w = img->get_width();
+          int img_h = img->get_height();
 
           int zoom = 256;
           if (img_w > 480 || img_h > 480) {
@@ -84,6 +83,29 @@ online_image:
           lv_obj_set_size(w, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
           lv_obj_update_layout(lv_obj_get_parent(w));
           lv_obj_align(w, LV_ALIGN_CENTER, 0, 0);
+
+          // Sample edge pixels to derive a background color for letterbox bars
+          long r_sum = 0, g_sum = 0, b_sum = 0;
+          int count = 0;
+          int step_x = img_w > 10 ? img_w / 10 : 1;
+          int step_y = img_h > 10 ? img_h / 10 : 1;
+          for (int x = 0; x < img_w; x += step_x) {
+            auto c = img->get_pixel(x, 0);
+            r_sum += c.r; g_sum += c.g; b_sum += c.b; count++;
+            c = img->get_pixel(x, img_h - 1);
+            r_sum += c.r; g_sum += c.g; b_sum += c.b; count++;
+          }
+          for (int y = 0; y < img_h; y += step_y) {
+            auto c = img->get_pixel(0, y);
+            r_sum += c.r; g_sum += c.g; b_sum += c.b; count++;
+            c = img->get_pixel(img_w - 1, y);
+            r_sum += c.r; g_sum += c.g; b_sum += c.b; count++;
+          }
+          if (count > 0) {
+            int r = r_sum / count, g = g_sum / count, b = b_sum / count;
+            ESP_LOGI("accent", "TV bg color: rgb(%d,%d,%d) from %d edge samples", r, g, b, count);
+            lv_obj_set_style_bg_color(lv_scr_act(), lv_color_make(r, g, b), 0);
+          }
       - lvgl.widget.update:
           id: album_art_background_widget
           opa: 100%
@@ -92,93 +114,3 @@ online_image:
           id: album_art_background_widget
           opa: 40%
       - lvgl.widget.show: artwork_error_label
-
-# -----------------------------------------------------------------------------
-# ACCENT COLOR LIGHT (virtual RGB — no physical hardware)
-# -----------------------------------------------------------------------------
-# Exposed to HA so color_extractor can target it via light.turn_on with
-# color_extract_url. The on_state callback applies the extracted color as
-# the LVGL page background when in TV mode.
-# -----------------------------------------------------------------------------
-output:
-  - platform: template
-    id: accent_red
-    type: float
-    write_action:
-      - lambda: ''
-  - platform: template
-    id: accent_green
-    type: float
-    write_action:
-      - lambda: ''
-  - platform: template
-    id: accent_blue
-    type: float
-    write_action:
-      - lambda: ''
-
-light:
-  - platform: rgb
-    name: "Accent Color"
-    id: accent_color_light
-    red: accent_red
-    green: accent_green
-    blue: accent_blue
-    default_transition_length: 0s
-    entity_category: config
-    icon: "mdi:palette"
-    on_state:
-      - lambda: |-
-          float r, g, b;
-          id(accent_color_light)->current_values_as_rgb(&r, &g, &b);
-          int ri = (int)(r * 255), gi = (int)(g * 255), bi = (int)(b * 255);
-          ESP_LOGI("accent", "on_state: rgb(%d,%d,%d) tv_mode=%d", ri, gi, bi, (int)id(is_tv_mode));
-          if (!id(is_tv_mode)) return;
-          lv_obj_set_style_bg_color(lv_scr_act(), lv_color_make(ri, gi, bi), 0);
-
-# -----------------------------------------------------------------------------
-# ACCENT COLOR EXTRACTION SCRIPT
-# -----------------------------------------------------------------------------
-# Calls light.turn_on with color_extract_url so HA's color_extractor
-# integration extracts the dominant color and applies it to the accent light.
-# -----------------------------------------------------------------------------
-script:
-  - id: extract_accent_color
-    mode: restart
-    then:
-      - lambda: |-
-          std::string n = App.get_name();
-          for (auto &c : n) if (c == '-') c = '_';
-          std::string entity = "light." + n + "_accent_color";
-
-          std::string path = id(is_tv_mode)
-            ? id(tv_entity_picture_sensor).state
-            : id(media_entity_picture_sensor).state;
-          while (!path.empty() && (path.back() == '\n' || path.back() == '\r' || path.back() == ' '))
-            path.pop_back();
-          std::string url;
-          if (path.substr(0, 7) == "http://" || path.substr(0, 8) == "https://")
-            url = path;
-          else
-            url = id(ha_base_url) + path;
-
-          ESP_LOGI("accent", "extract_accent_color: entity=%s url=%s", entity.c_str(), url.c_str());
-      - homeassistant.service:
-          service: light.turn_on
-          variables:
-            target_entity: !lambda |-
-              std::string n = App.get_name();
-              for (auto &c : n) if (c == '-') c = '_';
-              return "light." + n + "_accent_color";
-            image_url: !lambda |-
-              std::string path = id(is_tv_mode)
-                ? id(tv_entity_picture_sensor).state
-                : id(media_entity_picture_sensor).state;
-              while (!path.empty() && (path.back() == '\n' || path.back() == '\r' || path.back() == ' '))
-                path.pop_back();
-              if (path.substr(0, 7) == "http://" || path.substr(0, 8) == "https://")
-                return path;
-              return id(ha_base_url) + path;
-          data_template:
-            entity_id: "{{ target_entity }}"
-            color_extract_url: "{{ image_url }}"

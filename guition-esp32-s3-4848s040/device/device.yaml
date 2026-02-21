@@ -486,7 +486,6 @@ script:
                   while (!path.empty() && (path.back() == '\n' || path.back() == '\r' || path.back() == ' ')) path.pop_back();
                   if (path.substr(0, 7) == "http://" || path.substr(0, 8) == "https://") return path;
                   return id(ha_base_url) + path;
-            - script.execute: extract_accent_color
           else:
             - lvgl.widget.update:
                 id: album_art_background_widget

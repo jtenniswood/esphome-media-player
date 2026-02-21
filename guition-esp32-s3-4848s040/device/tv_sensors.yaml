@@ -88,7 +88,6 @@ text_sensor:
                     return path;
                   }
                   return id(ha_base_url) + path;
-            - script.execute: extract_accent_color
 
   - platform: template
     id: tv_media_player_state_sensor
