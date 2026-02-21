@@ -72,7 +72,12 @@ The easiest way to get started -- no ESPHome knowledge required.
 ### Step 1: Flash the Firmware
 
 1. Connect the Guition panel to your computer with a USB-C cable.
-2. Visit the **[Web Installer](https://jtenniswood.github.io/esphome-media-player/)** and click **Install**.
+2. Visit the Web Installer and click **Install**.
+
+   <a href="https://jtenniswood.github.io/esphome-media-player/">
+     <img src="https://img.shields.io/badge/Open_Web_Installer-blue?style=for-the-badge&logo=esphome&logoColor=white" alt="Open Web Installer" />
+   </a>
+
 3. Select the serial port for your device and wait for the flash to complete.
 
 > **Tip:** If the device is not detected, you may need to install the [CH340 USB driver](https://www.wch-ic.com/downloads/CH341SER_EXE.html) for your operating system.
