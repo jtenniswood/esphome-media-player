@@ -509,7 +509,7 @@ script:
     then:
       - lambda: |-
           id(is_tv_mode) = false;
-          lv_obj_set_style_bg_color(id(main_page)->obj, lv_color_make(0, 0, 0), 0);
+          lv_obj_set_style_bg_color(lv_scr_act(), lv_color_make(0, 0, 0), 0);
       - lambda: |-
           // Push current Sonos sensor values back to widgets
           if (id(media_title_sensor).has_state()) {

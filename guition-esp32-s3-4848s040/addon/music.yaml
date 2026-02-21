@@ -128,15 +128,13 @@ light:
     entity_category: config
     icon: "mdi:palette"
     on_state:
-      - if:
-          condition:
-            lambda: 'return id(is_tv_mode);'
-          then:
-            - lambda: |-
-                float r, g, b;
-                id(accent_color_light)->current_values_as_rgb(&r, &g, &b);
-                lv_obj_set_style_bg_color(id(main_page)->obj,
-                  lv_color_make((int)(r * 255), (int)(g * 255), (int)(b * 255)), 0);
+      - lambda: |-
+          float r, g, b;
+          id(accent_color_light)->current_values_as_rgb(&r, &g, &b);
+          int ri = (int)(r * 255), gi = (int)(g * 255), bi = (int)(b * 255);
+          ESP_LOGI("accent", "on_state: rgb(%d,%d,%d) tv_mode=%d", ri, gi, bi, (int)id(is_tv_mode));
+          if (!id(is_tv_mode)) return;
+          lv_obj_set_style_bg_color(lv_scr_act(), lv_color_make(ri, gi, bi), 0);
 
 # -----------------------------------------------------------------------------
 # ACCENT COLOR EXTRACTION SCRIPT
@@ -148,6 +146,23 @@ script:
   - id: extract_accent_color
     mode: restart
     then:
+      - lambda: |-
+          std::string n = App.get_name();
+          for (auto &c : n) if (c == '-') c = '_';
+          std::string entity = "light." + n + "_accent_color";
+
+          std::string path = id(is_tv_mode)
+            ? id(tv_entity_picture_sensor).state
+            : id(media_entity_picture_sensor).state;
+          while (!path.empty() && (path.back() == '\n' || path.back() == '\r' || path.back() == ' '))
+            path.pop_back();
+          std::string url;
+          if (path.substr(0, 7) == "http://" || path.substr(0, 8) == "https://")
+            url = path;
+          else
+            url = id(ha_base_url) + path;
+
+          ESP_LOGI("accent", "extract_accent_color: entity=%s url=%s", entity.c_str(), url.c_str());
       - homeassistant.service:
           service: light.turn_on
           variables:
