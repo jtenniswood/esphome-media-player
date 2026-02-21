@@ -2,7 +2,7 @@
 
 ![Guition ESP32-S3 Media Controller](images/guition-esp32-s3-4848s040-example1.jpg)
 
-## Guition ESP32-S3 Media Controller
+## Introduction
 
 I really wanted a way to control my music, whilst being able to see the track cover art, without costing a fortune, by using this £15 [Guition ESP32-S3-4848S040](https://s.click.aliexpress.com/e/_c3sIhvBv) screen and home assistant.
 
