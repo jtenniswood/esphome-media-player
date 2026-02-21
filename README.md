@@ -2,9 +2,9 @@
 
 ![Guition ESP32-S3 Media Controller](images/guition-esp32-s3-4848s040-example1.jpg)
 
-Guition ESP32-S3 Media Controller
+## Guition ESP32-S3 Media Controller
 
-I want to use the cheap [Guition ESP32-S3-4848S040](https://s.click.aliexpress.com/e/_c3sIhvBv) to build a controller to show track artwork and have the ability to skip, pause and control the volume of any media player in Home Assistant
+I really wanted a way to control my music, whilst being able to see the track cover art, without costing a fortune, by using this £15 [Guition ESP32-S3-4848S040](https://s.click.aliexpress.com/e/_c3sIhvBv) screen and home assistant.
 
 It is built with [ESPHome](https://esphome.io/) and [LVGL](https://lvgl.io/). It connects to [Home Assistant](https://www.home-assistant.io/) to control and collect the track data, and has been tested with Google and Sonos speakers.
 
