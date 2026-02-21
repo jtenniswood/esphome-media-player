@@ -457,6 +457,7 @@ lvgl:
             pad_all: 0
             scrollable: false
             scrollbar_mode: "off"
+            hidden: true
             widgets:
               - label:
                   text_font: $icon_font
