@@ -1,6 +1,6 @@
 # http://materialdesignicons.com/cdn/7.4.47/
-# Icons used by the music dashboard (device/lvgl.yaml): play/pause, plus/minus
-# MaterialDesign-Webfont TTF uses codepoints U+F03xx / U+F04xx (PUA).
+# Icons used by the music dashboard (device/lvgl.yaml): play/pause, plus/minus, wifi
+# MaterialDesign-Webfont TTF uses codepoints U+F03xx / U+F04xx / U+F05xx (PUA).
 
 font:
   - file: 'https://github.com/Templarian/MaterialDesign-Webfont/raw/v7.4.47/fonts/materialdesignicons-webfont.ttf'
@@ -12,9 +12,11 @@ font:
       - "\U000F03E4"  # mdi-pause
       - "\U000F0415"  # mdi-plus
       - "\U000F0374"  # mdi-minus
+      - "\U000F05A9"  # mdi-wifi
 
 substitutions:
   play:          "\U000F040A"
   pause:         "\U000F03E4"
   icon_plus:     "\U000F0415"
   icon_minus:    "\U000F0374"
+  icon_wifi:     "\U000F05A9"
