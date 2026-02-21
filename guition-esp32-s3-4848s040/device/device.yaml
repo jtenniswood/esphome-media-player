@@ -61,7 +61,11 @@ api:
   on_client_connected:
     - lambda: |-
         id(ha_base_url) = "http://" + client_address + ":8123";
+    - lvgl.widget.hide: ha_setup_prompt
     - script.execute: subscribe_media_player
+  on_client_disconnected:
+    - lvgl.widget.hide: setup_prompt
+    - lvgl.widget.show: ha_setup_prompt
 
 
 # -----------------------------------------------------------------------------

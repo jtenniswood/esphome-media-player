@@ -8,8 +8,10 @@
 wifi:
   on_connect:
     - lvgl.widget.hide: wifi_setup_prompt
+    - lvgl.widget.show: ha_setup_prompt
   on_disconnect:
     - lvgl.widget.show: wifi_setup_prompt
+    - lvgl.widget.hide: ha_setup_prompt
 
 esphome:
   on_boot:

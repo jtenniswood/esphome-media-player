@@ -62,7 +62,7 @@ script:
 
           // Empty — show setup prompt, nothing to subscribe to
           if (entity.empty()) {
-            lv_obj_clear_flag(id(setup_prompt_label), LV_OBJ_FLAG_HIDDEN);
+            lv_obj_clear_flag(id(setup_prompt), LV_OBJ_FLAG_HIDDEN);
             return;
           }
 
@@ -79,7 +79,7 @@ script:
           id(last_position_timestamp) = 0;
 
           // --- Reset UI ---
-          lv_obj_add_flag(id(setup_prompt_label), LV_OBJ_FLAG_HIDDEN);
+          lv_obj_add_flag(id(setup_prompt), LV_OBJ_FLAG_HIDDEN);
           lv_label_set_text(id(media_title_label), "\xe2\x80\x94");
           lv_label_set_text(id(media_artist_label), "\xe2\x80\x94");
           lv_label_set_text(id(media_time_label), "0:00 / -0:00");

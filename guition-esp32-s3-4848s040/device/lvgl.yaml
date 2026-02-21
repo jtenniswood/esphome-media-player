@@ -45,16 +45,46 @@ lvgl:
             hidden: true
 
         # Setup prompt: shown when no media player entity is configured
-        - label:
-            id: setup_prompt_label
-            text: "Set media player in\ndevice settings"
-            align: center
-            width: 350px
-            height: 60px
-            text_font: roboto19_font
-            text_color: 0x888888
-            text_align: center
+        # (managed by subscribe_media_player in media_player_select.yaml)
+        - obj:
+            id: setup_prompt
+            x: 0
+            y: 0
+            width: 480
+            height: 480
+            bg_color: 0x000000
+            bg_opa: 100%
+            radius: 0
+            border_width: 0
+            pad_all: 0
+            scrollable: false
+            scrollbar_mode: "off"
             hidden: true
+            widgets:
+              - label:
+                  text_font: $icon_font
+                  align: center
+                  y: -80
+                  text: $icon_cast
+                  text_color: 0xFFFFFF
+              - label:
+                  text: "Media Player"
+                  text_font: roboto30_font
+                  text_color: 0xFFFFFF
+                  align: center
+                  y: -20
+                  width: 400
+                  height: 36
+                  text_align: center
+              - label:
+                  text: "Set the media player entity\nyou want to control in\ndevice settings"
+                  text_font: roboto19_font
+                  text_color: 0x888888
+                  align: center
+                  y: 40
+                  width: 400
+                  height: 80
+                  text_align: center
 
         # Gradient overlay behind the bottom controls
         - image:
@@ -289,11 +319,57 @@ lvgl:
                   scrollable: false
 
         # ---------------------------------------------------------------
+        # HOME ASSISTANT SETUP PROMPT (WiFi connected, HA not yet)
+        # ---------------------------------------------------------------
+        # Shown after WiFi connects but before HA API connects.
+        # Hidden by api on_client_connected; shown by on_client_disconnected.
+        # ---------------------------------------------------------------
+        - obj:
+            id: ha_setup_prompt
+            x: 0
+            y: 0
+            width: 480
+            height: 480
+            bg_color: 0x000000
+            bg_opa: 100%
+            radius: 0
+            border_width: 0
+            pad_all: 0
+            scrollable: false
+            scrollbar_mode: "off"
+            hidden: true
+            widgets:
+              - label:
+                  text_font: $icon_font
+                  align: center
+                  y: -80
+                  text: $icon_ha
+                  text_color: 0xFFFFFF
+              - label:
+                  text: "Home Assistant"
+                  text_font: roboto30_font
+                  text_color: 0xFFFFFF
+                  align: center
+                  y: -20
+                  width: 400
+                  height: 36
+                  text_align: center
+              - label:
+                  text: "Add this device in\nSettings > Devices > ESPHome"
+                  text_font: roboto19_font
+                  text_color: 0x888888
+                  align: center
+                  y: 40
+                  width: 400
+                  height: 80
+                  text_align: center
+
+        # ---------------------------------------------------------------
         # WIFI SETUP PROMPT (shown when WiFi is not connected)
         # ---------------------------------------------------------------
-        # Full-screen overlay shown on first boot (or whenever WiFi drops)
-        # to instruct the user to connect to the device's hotspot.
+        # Full-screen overlay shown on first boot (or whenever WiFi drops).
         # Hidden by wifi on_connect; shown by wifi on_disconnect.
+        # Rendered last so it covers the HA prompt when both apply.
         # ---------------------------------------------------------------
         - obj:
             id: wifi_setup_prompt
