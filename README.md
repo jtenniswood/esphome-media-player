@@ -60,16 +60,6 @@ Settings are fully configurable from Home Assistant (see [Configurable Settings]
 
 ## Configurable Settings
 
-### Template Settings (set once during setup)
-
-These values are defined in the `substitutions` block of your ESPHome configuration. You set them when you first create the device and they rarely need changing.
-
-
-| Setting         | Description                              | Example                    |
-| --------------- | ---------------------------------------- | -------------------------- |
-| `name`          | Device hostname on your network          | `living-room-music`        |
-| `friendly_name` | Display name shown in Home Assistant     | `Living Room Music`        |
-
 ### Media Player Selection (configurable at runtime)
 
 The media player entity is configured from the Home Assistant device settings page — no YAML editing or reflashing required. After first boot, the display shows **"Set media player in device settings"** until you configure it:
