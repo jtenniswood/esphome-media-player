@@ -26,6 +26,9 @@ globals:
   - id: ha_position_epoch
     type: int
     initial_value: '0'
+  - id: artist_has_content
+    type: bool
+    initial_value: 'false'
 
 # Refresh progress bar and elapsed time every second; when playing, estimate
 # position from last HA update + elapsed time so the clock moves smoothly
@@ -157,9 +160,20 @@ text_sensor:
           condition:
             lambda: 'return !id(is_tv_mode);'
           then:
-            - lvgl.label.update:
-                id: media_artist_label
-                text: !lambda 'return x.empty() ? std::string("—") : x;'
+            - if:
+                condition:
+                  lambda: 'return !x.empty() && x != "—" && x != "\xe2\x80\x94";'
+                then:
+                  - lambda: 'id(artist_has_content) = true;'
+                  - lvgl.label.update:
+                      id: media_artist_label
+                      text: !lambda 'return x;'
+                  - lvgl.widget.show: media_artist_label
+                  - lambda: 'lv_obj_set_y(id(media_time_label), 438);'
+                else:
+                  - lambda: 'id(artist_has_content) = false;'
+                  - lvgl.widget.hide: media_artist_label
+                  - lambda: 'lv_obj_set_y(id(media_time_label), 406);'
 
   - platform: template
     id: media_entity_picture_sensor

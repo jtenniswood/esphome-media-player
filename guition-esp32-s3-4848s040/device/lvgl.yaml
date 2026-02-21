@@ -66,10 +66,10 @@ lvgl:
             text_color: 0xFFFFFF
             text_align: left
 
-        # Artist name
+        # Artist name (hidden by default; shown when artist data is available)
         - label:
             id: media_artist_label
-            text: "—"
+            text: ""
             x: 18
             y: 406
             width: 370px
@@ -78,6 +78,7 @@ lvgl:
             text_font: roboto19_font
             text_color: 0xFFFFFF
             text_align: left
+            hidden: true
 
         # Control buttons: 72px round; play/pause + next aligned to the right
         # Play/pause: two icon labels; visibility toggled by sensors.yaml from state
@@ -113,12 +114,12 @@ lvgl:
                   data_template:
                     entity_id: "{{ target }}"
 
-        # Play clock: elapsed / duration, below artist name
+        # Play clock: starts at y=406 (collapsed); shifts to y=438 when artist is visible
         - label:
             id: media_time_label
             text: "0:00  /  0:00"
             x: 18
-            y: 438
+            y: 406
             width: 200px
             text_font: roboto15_font
             text_color: 0xDDDDDD

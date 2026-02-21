@@ -337,13 +337,15 @@ script:
             - lambda: 'id(is_ui_hidden) = false;'
             - lvgl.widget.show: bottom_overlay
             - lvgl.widget.show: media_title_label
-            - lvgl.widget.show: media_artist_label
             - lvgl.widget.show: media_play_pause_button
             - lvgl.widget.show: media_time_label
             - lambda: |-
                 lv_obj_fade_in(id(bottom_overlay), 200, 0);
                 lv_obj_fade_in(id(media_title_label), 200, 0);
-                lv_obj_fade_in(id(media_artist_label), 200, 0);
+                if (id(artist_has_content)) {
+                  lv_obj_clear_flag(id(media_artist_label), LV_OBJ_FLAG_HIDDEN);
+                  lv_obj_fade_in(id(media_artist_label), 200, 0);
+                }
                 lv_obj_fade_in(id(media_play_pause_button), 200, 0);
                 lv_obj_fade_in(id(media_time_label), 200, 0);
           else:
@@ -351,7 +353,9 @@ script:
             - lambda: |-
                 lv_obj_fade_out(id(bottom_overlay), 300, 0);
                 lv_obj_fade_out(id(media_title_label), 300, 0);
-                lv_obj_fade_out(id(media_artist_label), 300, 0);
+                if (id(artist_has_content)) {
+                  lv_obj_fade_out(id(media_artist_label), 300, 0);
+                }
                 lv_obj_fade_out(id(media_play_pause_button), 300, 0);
                 lv_obj_fade_out(id(media_time_label), 300, 0);
             - delay: 400ms
@@ -430,13 +434,15 @@ script:
             - lambda: 'id(is_ui_hidden) = false;'
             - lvgl.widget.show: bottom_overlay
             - lvgl.widget.show: media_title_label
-            - lvgl.widget.show: media_artist_label
             - lvgl.widget.show: media_play_pause_button
             - lvgl.widget.show: media_time_label
             - lambda: |-
                 lv_obj_fade_in(id(bottom_overlay), 200, 0);
                 lv_obj_fade_in(id(media_title_label), 200, 0);
-                lv_obj_fade_in(id(media_artist_label), 200, 0);
+                if (id(artist_has_content)) {
+                  lv_obj_clear_flag(id(media_artist_label), LV_OBJ_FLAG_HIDDEN);
+                  lv_obj_fade_in(id(media_artist_label), 200, 0);
+                }
                 lv_obj_fade_in(id(media_play_pause_button), 200, 0);
                 lv_obj_fade_in(id(media_time_label), 200, 0);
 
@@ -454,11 +460,16 @@ script:
           } else {
             lv_label_set_text(id(media_title_label), "TV");
           }
-          if (id(tv_media_artist_sensor).has_state()) {
-            auto &a = id(tv_media_artist_sensor).state;
-            lv_label_set_text(id(media_artist_label), a.empty() ? "—" : a.c_str());
+          if (id(tv_media_artist_sensor).has_state() && !id(tv_media_artist_sensor).state.empty()
+              && id(tv_media_artist_sensor).state != "—" && id(tv_media_artist_sensor).state != "\xe2\x80\x94") {
+            id(artist_has_content) = true;
+            lv_label_set_text(id(media_artist_label), id(tv_media_artist_sensor).state.c_str());
+            lv_obj_clear_flag(id(media_artist_label), LV_OBJ_FLAG_HIDDEN);
+            lv_obj_set_y(id(media_time_label), 438);
           } else {
-            lv_label_set_text(id(media_artist_label), "—");
+            id(artist_has_content) = false;
+            lv_obj_add_flag(id(media_artist_label), LV_OBJ_FLAG_HIDDEN);
+            lv_obj_set_y(id(media_time_label), 406);
           }
       - if:
           condition:
@@ -504,11 +515,16 @@ script:
           } else {
             lv_label_set_text(id(media_title_label), "—");
           }
-          if (id(media_artist_sensor).has_state()) {
-            auto &a = id(media_artist_sensor).state;
-            lv_label_set_text(id(media_artist_label), a.empty() ? "—" : a.c_str());
+          if (id(media_artist_sensor).has_state() && !id(media_artist_sensor).state.empty()
+              && id(media_artist_sensor).state != "—" && id(media_artist_sensor).state != "\xe2\x80\x94") {
+            id(artist_has_content) = true;
+            lv_label_set_text(id(media_artist_label), id(media_artist_sensor).state.c_str());
+            lv_obj_clear_flag(id(media_artist_label), LV_OBJ_FLAG_HIDDEN);
+            lv_obj_set_y(id(media_time_label), 438);
           } else {
-            lv_label_set_text(id(media_artist_label), "—");
+            id(artist_has_content) = false;
+            lv_obj_add_flag(id(media_artist_label), LV_OBJ_FLAG_HIDDEN);
+            lv_obj_set_y(id(media_time_label), 406);
           }
       - if:
           condition:
