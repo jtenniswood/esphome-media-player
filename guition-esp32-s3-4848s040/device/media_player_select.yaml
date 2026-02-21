@@ -124,41 +124,44 @@ script:
           int gen = id(subscription_gen);
           int *gen_ptr = &id(subscription_gen);
 
+          // Select the const-string-ref overload (avoids ambiguity with StringRef overload)
+          using sub_fn_t = void(esphome::api::APIServer::*)(
+              std::string, esphome::optional<std::string>,
+              std::function<void(const std::string &)>);
+          constexpr sub_fn_t subscribe = static_cast<sub_fn_t>(
+              &esphome::api::APIServer::subscribe_home_assistant_state);
+          auto *api = esphome::api::global_api_server;
+
           // --- Helper: subscribe to a text attribute ---
           auto sub_text = [&](const std::string &attr, esphome::text_sensor::TextSensor *sensor) {
-            std::function<void(const std::string &)> cb = [gen, gen_ptr, sensor](const std::string &state) {
-              if (gen != *gen_ptr) return;
-              sensor->publish_state(state);
-            };
-            esphome::api::global_api_server->subscribe_home_assistant_state(
-                entity, esphome::optional<std::string>(attr), cb);
+            (api->*subscribe)(entity, esphome::optional<std::string>(attr),
+                [gen, gen_ptr, sensor](const std::string &state) {
+                  if (gen != *gen_ptr) return;
+                  sensor->publish_state(state);
+                });
           };
 
           // --- Helper: subscribe to a numeric attribute ---
           auto sub_num = [&](const std::string &attr, esphome::sensor::Sensor *sensor) {
-            std::function<void(const std::string &)> cb = [gen, gen_ptr, sensor](const std::string &state) {
-              if (gen != *gen_ptr) return;
-              auto v = esphome::parse_number<float>(state);
-              if (v.has_value()) sensor->publish_state(v.value());
-            };
-            esphome::api::global_api_server->subscribe_home_assistant_state(
-                entity, esphome::optional<std::string>(attr), cb);
+            (api->*subscribe)(entity, esphome::optional<std::string>(attr),
+                [gen, gen_ptr, sensor](const std::string &state) {
+                  if (gen != *gen_ptr) return;
+                  auto v = esphome::parse_number<float>(state);
+                  if (v.has_value()) sensor->publish_state(v.value());
+                });
           };
 
-          // --- Subscribe to all 8 media player attributes ---
+          // --- Subscribe to all media player attributes ---
           sub_text("media_title", id(media_title_sensor));
           sub_text("media_artist", id(media_artist_sensor));
           sub_text("entity_picture", id(media_entity_picture_sensor));
 
           // Main state (playing/paused/idle) — empty attribute = entity state
-          {
-            std::function<void(const std::string &)> cb = [gen, gen_ptr](const std::string &state) {
-              if (gen != *gen_ptr) return;
-              id(media_player_state_sensor).publish_state(state);
-            };
-            esphome::api::global_api_server->subscribe_home_assistant_state(
-                entity, esphome::optional<std::string>(""), cb);
-          }
+          (api->*subscribe)(entity, esphome::optional<std::string>(""),
+              [gen, gen_ptr](const std::string &state) {
+                if (gen != *gen_ptr) return;
+                id(media_player_state_sensor).publish_state(state);
+              });
 
           sub_text("media_position_updated_at", id(media_position_updated_at_sensor));
           sub_num("media_duration", id(media_duration_sensor));
@@ -198,25 +201,31 @@ script:
           int gen = id(tv_subscription_gen);
           int *gen_ptr = &id(tv_subscription_gen);
 
+          // Select the const-string-ref overload (avoids ambiguity with StringRef overload)
+          using sub_fn_t = void(esphome::api::APIServer::*)(
+              std::string, esphome::optional<std::string>,
+              std::function<void(const std::string &)>);
+          constexpr sub_fn_t subscribe = static_cast<sub_fn_t>(
+              &esphome::api::APIServer::subscribe_home_assistant_state);
+          auto *api = esphome::api::global_api_server;
+
           // --- Helper: subscribe to a text attribute ---
           auto sub_text = [&](const std::string &attr, esphome::text_sensor::TextSensor *sensor) {
-            std::function<void(const std::string &)> cb = [gen, gen_ptr, sensor](const std::string &state) {
-              if (gen != *gen_ptr) return;
-              sensor->publish_state(state);
-            };
-            esphome::api::global_api_server->subscribe_home_assistant_state(
-                entity, esphome::optional<std::string>(attr), cb);
+            (api->*subscribe)(entity, esphome::optional<std::string>(attr),
+                [gen, gen_ptr, sensor](const std::string &state) {
+                  if (gen != *gen_ptr) return;
+                  sensor->publish_state(state);
+                });
           };
 
           // --- Helper: subscribe to a numeric attribute ---
           auto sub_num = [&](const std::string &attr, esphome::sensor::Sensor *sensor) {
-            std::function<void(const std::string &)> cb = [gen, gen_ptr, sensor](const std::string &state) {
-              if (gen != *gen_ptr) return;
-              auto v = esphome::parse_number<float>(state);
-              if (v.has_value()) sensor->publish_state(v.value());
-            };
-            esphome::api::global_api_server->subscribe_home_assistant_state(
-                entity, esphome::optional<std::string>(attr), cb);
+            (api->*subscribe)(entity, esphome::optional<std::string>(attr),
+                [gen, gen_ptr, sensor](const std::string &state) {
+                  if (gen != *gen_ptr) return;
+                  auto v = esphome::parse_number<float>(state);
+                  if (v.has_value()) sensor->publish_state(v.value());
+                });
           };
 
           // --- Subscribe to all TV media player attributes ---
@@ -224,14 +233,12 @@ script:
           sub_text("media_artist", id(tv_media_artist_sensor));
           sub_text("entity_picture", id(tv_entity_picture_sensor));
 
-          {
-            std::function<void(const std::string &)> cb = [gen, gen_ptr](const std::string &state) {
-              if (gen != *gen_ptr) return;
-              id(tv_media_player_state_sensor).publish_state(state);
-            };
-            esphome::api::global_api_server->subscribe_home_assistant_state(
-                entity, esphome::optional<std::string>(""), cb);
-          }
+          // TV state (playing/paused/idle) — empty attribute = entity state
+          (api->*subscribe)(entity, esphome::optional<std::string>(""),
+              [gen, gen_ptr](const std::string &state) {
+                if (gen != *gen_ptr) return;
+                id(tv_media_player_state_sensor).publish_state(state);
+              });
 
           sub_text("media_position_updated_at", id(tv_media_position_updated_at_sensor));
           sub_num("media_duration", id(tv_media_duration_sensor));
