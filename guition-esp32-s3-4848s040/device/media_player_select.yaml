@@ -95,9 +95,9 @@ script:
           auto sub_text = [&](const std::string &attr, esphome::text_sensor::TextSensor *sensor) {
             esphome::api::global_api_server->subscribe_home_assistant_state(
                 entity, attr,
-                [gen, gen_ptr, sensor](esphome::StringRef state) {
+                [gen, gen_ptr, sensor](const std::string &state) {
                   if (gen != *gen_ptr) return;
-                  sensor->publish_state(std::string(state.c_str(), state.size()));
+                  sensor->publish_state(state);
                 });
           };
 
@@ -105,9 +105,9 @@ script:
           auto sub_num = [&](const std::string &attr, esphome::sensor::Sensor *sensor) {
             esphome::api::global_api_server->subscribe_home_assistant_state(
                 entity, attr,
-                [gen, gen_ptr, sensor](esphome::StringRef state) {
+                [gen, gen_ptr, sensor](const std::string &state) {
                   if (gen != *gen_ptr) return;
-                  auto v = esphome::parse_number<float>(std::string(state.c_str(), state.size()));
+                  auto v = esphome::parse_number<float>(state);
                   if (v.has_value()) sensor->publish_state(v.value());
                 });
           };
@@ -120,9 +120,9 @@ script:
           // Main state (playing/paused/idle) — empty attribute = entity state
           esphome::api::global_api_server->subscribe_home_assistant_state(
               entity, std::string(""),
-              [gen, gen_ptr](esphome::StringRef state) {
+              [gen, gen_ptr](const std::string &state) {
                 if (gen != *gen_ptr) return;
-                id(media_player_state_sensor).publish_state(std::string(state.c_str(), state.size()));
+                id(media_player_state_sensor).publish_state(state);
               });
 
           sub_text("media_position_updated_at", id(media_position_updated_at_sensor));
