@@ -2,21 +2,19 @@
 
 ![Guition ESP32-S3 Media Controller](images/guition-esp32-s3-4848s040-example1.jpg)
 
-Guition ESP32-S3 Media Controller
+## Introduction
 
-I want to use the cheap [Guition ESP32-S3-4848S040](https://s.click.aliexpress.com/e/_c3sIhvBv) to build a controller to show track artwork and have the ability to skip, pause and control the volume of any media player in Home Assistant
+I really wanted a way to control my music, whilst being able to see the track cover art, without costing a fortune, by using this £16 [Guition ESP32-S3-4848S040](https://s.click.aliexpress.com/e/_c3sIhvBv) screen and home assistant.
 
 It is built with [ESPHome](https://esphome.io/) and [LVGL](https://lvgl.io/). It connects to [Home Assistant](https://www.home-assistant.io/) to control and collect the track data, and has been tested with Google and Sonos speakers.
 
 ---
 
-## Where to Buy
+## Parts
 
-- **Panel:** [AliExpress](https://s.click.aliexpress.com/e/_c3sIhvBv) (~£16)
+- **Esp32 Screen:** [AliExpress](https://s.click.aliexpress.com/e/_c3sIhvBv) (~£16)
 
-## Stand
-
-- **Desktop stand** (3D printable): [MakerWorld](https://makerworld.com/en/models/2327976-touch-screen-desktop-stand-for-guition-4848s040#profileId-2543111)
+- **Desktop Stand** (3D printable): [MakerWorld](https://makerworld.com/en/models/2327976-touch-screen-desktop-stand-for-guition-4848s040#profileId-2543111)
 
 ---
 
@@ -24,7 +22,7 @@ It is built with [ESPHome](https://esphome.io/) and [LVGL](https://lvgl.io/). It
 
 [![ESPHome Media Player Demo Video](https://img.youtube.com/vi/aShTf0Q-5A0/maxresdefault.jpg)](https://youtu.be/aShTf0Q-5A0)
 
-[▶️ **Watch on YouTube**](https://youtu.be/aShTf0Q-5A0)
+[**Watch on YouTube**](https://youtu.be/aShTf0Q-5A0)
 
 ---
 
@@ -60,23 +58,92 @@ Settings are fully configurable from Home Assistant (see [Configurable Settings]
 
 ---
 
+## Install Guide
+
+The easiest way to get started -- no ESPHome knowledge required.
+
+### What You Need
+
+- A **Guition ESP32-S3-4848S040** panel (see [Where to Buy](#where-to-buy))
+- A **USB-C cable**
+- **Google Chrome** or **Microsoft Edge** on desktop
+- **Home Assistant** with a media player entity already configured
+
+### Step 1: Flash the Firmware
+
+1. Connect the Guition panel to your computer with a USB-C cable.
+2. Visit the Web Installer and click **Install**.
+
+   <a href="https://jtenniswood.github.io/esphome-media-player/">
+     <img src="https://img.shields.io/badge/Open_Web_Installer-blue?style=for-the-badge&logo=esphome&logoColor=white" alt="Open Web Installer" />
+   </a>
+
+3. Select the serial port for your device and wait for the flash to complete.
+
+> **Tip:** If the device is not detected, you may need to install the [CH340 USB driver](https://www.wch-ic.com/downloads/CH341SER_EXE.html) for your operating system.
+
+### Step 2: Connect to WiFi
+
+After flashing, the device will create a WiFi hotspot:
+
+1. Connect to the hotspot from your phone or computer.
+2. A captive portal will open -- enter your home WiFi network name and password.
+3. The device will restart and connect to your network.
+
+### Step 3: Adopt in Home Assistant
+
+Once the device connects to your WiFi:
+
+1. Home Assistant should automatically discover it. Check **Settings > Devices & Services** for a new ESPHome notification.
+2. Click **Configure** and follow the prompts to adopt the device.
+3. The device and its entities will appear in Home Assistant.
+
+![Discovered Device](images/ha-discovered.png)
+
+### Step 4: Select Your Media Player
+
+1. Go to **Settings > Devices & Services > ESPHome** and click on your device.
+2. Under **Configuration**, find the **Media Player** text field.
+3. Enter the entity ID of the media player you want to control (e.g., `media_player.living_room`).
+
+![Device Settings](images/ha-device-settings.png)
+
+### Step 5: Enable Device Controls
+
+To allow the screen to control your media player (play, pause, skip, volume), you need to grant the device permission in Home Assistant.
+
+1. Go to **Settings > Devices & Services > Integrations** and click on **ESPHome** (not the blue device count link).
+
+![ESPHome Integration](images/ha-esphome-list.png)
+
+2. Find your device and click the **cog icon** to open its settings.
+
+![Device Settings Cog](images/ha-esphome-device.png)
+
+3. Enable **"Allow the device to perform Home Assistant actions"** and click **Submit**.
+
+![Enable Device Actions](images/ha-enable-controls.png)
+
+### Automatic Updates
+
+The device automatically checks for firmware updates every 6 hours. When an update is available, a **Firmware Update** entity appears in Home Assistant. You can trigger the update from there or let it notify you.
+
+---
+
 ## Configurable Settings
 
-### Template Settings (set once during setup)
+### Media Player Selection (configurable at runtime)
 
-These values are defined in the `substitutions` block of your ESPHome configuration. You set them when you first create the device and they rarely need changing.
+The media player entity is configured from the Home Assistant device settings page — no YAML editing or reflashing required. After first boot, the display shows **"Set media player in device settings"** until you configure it:
 
+1. Go to **Settings > Devices & Services > ESPHome** and click on your device.
+2. Under **Configuration**, find the **Media Player** text field.
+3. Enter the entity ID of the media player you want to control (e.g., `media_player.living_room`).
 
-| Setting         | Description                              | Example                    |
-| --------------- | ---------------------------------------- | -------------------------- |
-| `name`          | Device hostname on your network          | `living-room-music`        |
-| `friendly_name` | Display name shown in Home Assistant     | `Living Room Music`        |
-| `media_player`  | Entity ID of the media player to control | `media_player.living_room` |
+The device will immediately start tracking the selected media player. The selection persists across reboots. You can change it at any time without reflashing.
 
 
 ### Backlight and Screensaver Settings (adjustable at runtime)
-
-![Home Assistant Settings](images/device-settings.png)
 
 These settings are exposed as entities under the device's **Configuration** section in Home Assistant. All values persist across reboots.
 
@@ -117,107 +184,13 @@ These settings are exposed as entities under the device's **Configuration** sect
 
 ---
 
-## Beginner's Setup Guide
+## Manual install using ESPHome Dashboard
 
-### Prerequisites
-
-Before you start, make sure you have:
-
-- A **Guition ESP32-S3-4848S040** panel (see [Where to Buy](#where-to-buy))
-- **Home Assistant** installed and running
-- The **ESPHome add-on** (or ESPHome CLI) installed -- [installation guide](https://esphome.io/guides/getting_started_hassio.html)
-- A **USB-C cable** for the initial flash
-- Your **WiFi network** name and password
-- A **media player** already set up in Home Assistant (e.g., Sonos, Google Cast, or any `media_player` entity)
-
-### Step 1: Add a New Device in ESPHome
-
-1. Open the **ESPHome dashboard** in Home Assistant.
-2. Click **New Device** in the top-right corner, and then **Continue**. to install using Esphome.
-
-![Create Configuration](images/new_config.png)
-
-3. Select **Empty Configuration** to start with a blank template.
-2. Give it a name (e.g., `living-room-music`) and click **Next**.
-3. Then click **Edit** on the new device being highlighted.
-
-### Step 2: Paste the Template Configuration
-
-Copy and paste the entire contents of the new device's configuration with the template below (also available at [esphome.yaml](guition-esp32-s3-4848s040/esphome.yaml)):
-
-```yaml
-substitutions:
-  name: "your-device-name"
-  friendly_name: "Your Room Music"
-  media_player: "media_player.office"
-
-wifi:
-  ssid: !secret wifi_ssid
-  password: !secret wifi_password
-
-packages:
-  music_dashboard:
-    url: https://github.com/jtenniswood/esphome-media-player
-    files: [guition-esp32-s3-4848s040/packages.yaml]
-    ref: main
-    refresh: 1s
-```
-
-### Step 3: Edit Substitutions
-
-Update the `substitutions` block with your own values:
-
-- `**name`** -- a unique hostname for this device (lowercase, hyphens only, no spaces). 
-- `**friendly_name`** -- the name you want to see in Home Assistant. 
-- `**media_player`** -- the entity ID of the media player you want to control in Home Assistant.
-
-![Player Entity](images/player_entity.png)
-
-### Step 4: Set WiFi Credentials
-
-The template uses ESPHome secrets for WiFi credentials. If you have not already set these up:
-
-1. In the ESPHome dashboard, click **Secrets** in the top-right corner.
-2. Add the following lines:
-
-```yaml
-wifi_ssid: "YourWiFiNetworkName"
-wifi_password: "YourWiFiPassword"
-```
-
-1. Click **Save**.
-
-### Step 5: Flash the Firmware
-
-For the first installation, you need to flash via USB and use the Chrome browser:
-
-1. Connect the Guition panel to your computer with a USB-C cable.
-2. In the ESPHome dashboard, click the three-dot menu on your device and select **Install**.
-3. Choose **Plug into this computer** (or **Manual download** if using the CLI).
-4. Wait for the firmware to compile and upload. The first build takes several minutes as it downloads all dependencies.
-
-> **Tip:** If ESPHome does not detect the device over USB, you may need to install the CH340 USB driver for your operating system.
-
-### Step 6: Adopt in Home Assistant
-
-Once the device boots and connects to your WiFi:
-
-1. Home Assistant should automatically discover it. Check **Settings > Devices & Services** for a new ESPHome notification.
-2. Click **Configure** and follow the prompts to adopt the device.
-3. The device and its entities will appear in Home Assistant.
-
-### Step 7: Configure Settings
-
-After adoption, navigate to the device page in Home Assistant:
-
-1. Go to **Settings > Devices & Services > ESPHome**.
-2. Click on your device.
-3. Under the **Configuration** section, you will find the backlight and screensaver settings described in [Configurable Settings](#configurable-settings).
-4. Adjust the brightness levels and timeouts to your preference.
-
-![Device Settings](images/device-settings.png)
+If you prefer full control through the ESPHome dashboard, see the [Manual Setup Guide](docs/manual-setup.md).
 
 ---
+
+## Feedback
 
 If you have any feedback or suggestions, please just log an issue.
 

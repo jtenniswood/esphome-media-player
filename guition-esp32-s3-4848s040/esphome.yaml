@@ -2,8 +2,8 @@
 substitutions:
   name: "music-dashboard"
   friendly_name: "Music Dashboard"
-  media_player: "media_player.office"
-  tv_media_player: "media_player.office_apple_tv"
+  media_player: ""
+  tv_media_player: ""
 
 # Wifi Setup
 wifi:

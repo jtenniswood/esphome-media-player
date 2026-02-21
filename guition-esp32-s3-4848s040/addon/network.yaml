@@ -1,3 +1,31 @@
+# =============================================================================
+# NETWORK & WIFI SETUP PROMPT
+# =============================================================================
+# WiFi diagnostics and a first-boot setup screen that tells the user to
+# connect to the device's hotspot to configure WiFi credentials.
+# =============================================================================
+
+wifi:
+  on_connect:
+    - lvgl.widget.hide: wifi_setup_prompt
+    - lvgl.widget.show: ha_setup_prompt
+  on_disconnect:
+    - lvgl.widget.show: wifi_setup_prompt
+    - lvgl.widget.hide: ha_setup_prompt
+
+esphome:
+  on_boot:
+    priority: -100
+    then:
+      - lambda: |-
+          std::string name = App.get_name();
+          std::string wifi_text = "Connect to the WiFi hotspot\n'" + name + "'\nto configure your network";
+          lv_label_set_text(id(wifi_setup_instructions), wifi_text.c_str());
+          std::string ha_text = "Add '" + name + "' in\nSettings > Devices > ESPHome";
+          lv_label_set_text(id(ha_setup_instructions), ha_text.c_str());
+          std::string actions_text = "Look for '" + name + "'";
+          lv_label_set_text(id(actions_device_info), actions_text.c_str());
+
 # Online Status
 binary_sensor:
   - platform: status

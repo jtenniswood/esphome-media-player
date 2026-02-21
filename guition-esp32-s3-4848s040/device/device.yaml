@@ -47,7 +47,7 @@ esphome:
 # Once configured, you can flash new code from ESPHome dashboard.
 # -----------------------------------------------------------------------------
 ota:
-  platform: esphome
+  - platform: esphome
 
 
 # -----------------------------------------------------------------------------
@@ -61,6 +61,11 @@ api:
   on_client_connected:
     - lambda: |-
         id(ha_base_url) = "http://" + client_address + ":8123";
+    - lvgl.widget.hide: ha_setup_prompt
+    - script.execute: subscribe_media_player
+  on_client_disconnected:
+    - lvgl.widget.hide: setup_prompt
+    - lvgl.widget.show: ha_setup_prompt
 
 
 # -----------------------------------------------------------------------------
@@ -183,8 +188,14 @@ globals:
     type: bool
     initial_value: 'false'
 
+  # -- Setup flow --
+  - id: actions_prompt_acked
+    type: bool
+    restore_value: true
+    initial_value: 'false'
+
   # -- TV source mode --
-  - id: is_tv_mode               # True when Sonos source is "TV"
+  - id: is_tv_mode
     type: bool
     initial_value: 'false'
   - id: last_tv_media_position
@@ -238,6 +249,15 @@ touchscreen:
           int dx = id(touch_x_end) - id(touch_x_start);
           int dy = id(touch_y_end) - id(touch_y_start);
           int sy = id(touch_y_start);
+
+          // --- Dismiss actions prompt on tap ---
+          if (!lv_obj_has_flag(id(actions_prompt), LV_OBJ_FLAG_HIDDEN)) {
+            if (abs(dx) < 20 && abs(dy) < 20) {
+              lv_obj_add_flag(id(actions_prompt), LV_OBJ_FLAG_HIDDEN);
+              id(actions_prompt_acked) = true;
+            }
+            return;
+          }
 
           // --- Vertical swipe: settings panel open/close ---
           // Swipe down to open: 30px+ downward movement, panel closed
@@ -348,7 +368,7 @@ script:
           variables:
             target: !lambda |-
               if (id(is_tv_mode)) return std::string("${tv_media_player}");
-              return std::string("${media_player}");
+              return id(media_player_entity).state;
           data_template:
             entity_id: "{{ target }}"
   - id: swipe_previous_track
@@ -359,7 +379,7 @@ script:
           variables:
             target: !lambda |-
               if (id(is_tv_mode)) return std::string("${tv_media_player}");
-              return std::string("${media_player}");
+              return id(media_player_entity).state;
           data_template:
             entity_id: "{{ target }}"
 
@@ -382,11 +402,13 @@ script:
       - delay: 250ms
       - homeassistant.service:
           service: media_player.volume_set
-          data:
-            entity_id: ${media_player}
           variables:
+            target: !lambda |-
+              if (id(is_tv_mode)) return std::string("${tv_media_player}");
+              return id(media_player_entity).state;
             vol_level: !lambda 'return lv_arc_get_value(id(volume_arc)) / 100.0f;'
           data_template:
+            entity_id: "{{ target }}"
             volume_level: "{{ vol_level }}"
 
   # -- Reset to now-playing view (e.g. when a new track starts) --
