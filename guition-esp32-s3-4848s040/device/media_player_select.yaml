@@ -131,3 +131,7 @@ script:
           sub_num("volume_level", id(media_volume_sensor));
 
           ESP_LOGI("media_select", "Subscribed to '%s'", entity.c_str());
+
+          if (!id(actions_prompt_acked)) {
+            lv_obj_clear_flag(id(actions_prompt), LV_OBJ_FLAG_HIDDEN);
+          }

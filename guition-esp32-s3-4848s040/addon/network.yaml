@@ -19,8 +19,10 @@ esphome:
     then:
       - lambda: |-
           std::string name = App.get_name();
-          std::string text = "Connect to the WiFi hotspot\n'" + name + "'\nto configure your network";
-          lv_label_set_text(id(wifi_setup_instructions), text.c_str());
+          std::string wifi_text = "Connect to the WiFi hotspot\n'" + name + "'\nto configure your network";
+          lv_label_set_text(id(wifi_setup_instructions), wifi_text.c_str());
+          std::string ha_text = "Add '" + name + "' in\nSettings > Devices > ESPHome";
+          lv_label_set_text(id(ha_setup_instructions), ha_text.c_str());
 
 # Online Status
 binary_sensor:

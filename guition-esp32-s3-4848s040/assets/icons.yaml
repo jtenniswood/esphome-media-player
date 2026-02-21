@@ -15,6 +15,7 @@ font:
       - "\U000F05A9"  # mdi-wifi
       - "\U000F07D0"  # mdi-home-assistant
       - "\U000F0118"  # mdi-cast
+      - "\U000F0565"  # mdi-shield-check
 
 substitutions:
   play:          "\U000F040A"
@@ -24,3 +25,4 @@ substitutions:
   icon_wifi:     "\U000F05A9"
   icon_ha:       "\U000F07D0"
   icon_cast:     "\U000F0118"
+  icon_shield:   "\U000F0565"

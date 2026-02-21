@@ -16,7 +16,7 @@ If you prefer to manage the device through the ESPHome dashboard instead of usin
 1. Open the **ESPHome dashboard** in Home Assistant.
 2. Click **New Device** in the top-right corner, and then **Continue**.
 
-![Create Configuration](../images/new_config.png)
+![Create Configuration](../images/esp-new_config.png)
 
 3. Select **Empty Configuration** to start with a blank template.
 4. Give it a name (e.g., `living-room-music`) and click **Next**.
@@ -95,4 +95,4 @@ After adoption, navigate to the device page in Home Assistant:
 4. Enter the entity ID of the media player you want to control (e.g., `media_player.living_room`). The dashboard will immediately start showing the current track.
 5. Optionally adjust the brightness levels, timeouts, and other settings described in [Configurable Settings](../README.md#configurable-settings).
 
-![Device Settings](../images/device-settings.png)
+![Device Settings](../images/ha-device-settings.png)

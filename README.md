@@ -58,7 +58,7 @@ Settings are fully configurable from Home Assistant (see [Configurable Settings]
 
 ---
 
-## Quick Install (Recommended)
+## Install Guide
 
 The easiest way to get started -- no ESPHome knowledge required.
 
@@ -99,7 +99,23 @@ Once the device connects to your WiFi:
 2. Under **Configuration**, find the **Media Player** text field.
 3. Enter the entity ID of the media player you want to control (e.g., `media_player.living_room`).
 
-![Device Settings](images/device-settings.png)
+![Device Settings](images/ha-device-settings.png)
+
+### Step 5: Enable Device Controls
+
+To allow the screen to control your media player (play, pause, skip, volume), you need to grant the device permission in Home Assistant.
+
+1. Go to **Settings > Devices & Services > Integrations** and click on **ESPHome** (not the blue device count link).
+
+![ESPHome Integration](images/ha-esphome-list.png)
+
+2. Find your device and click the **cog icon** to open its settings.
+
+![Device Settings Cog](images/ha-esphome-device.png)
+
+3. Enable **"Allow the device to perform Home Assistant actions"** and click **Submit**.
+
+![Enable Device Actions](images/ha-enable-controls.png)
 
 ### Automatic Updates
 
