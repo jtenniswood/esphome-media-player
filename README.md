@@ -98,6 +98,8 @@ Once the device connects to your WiFi:
 2. Click **Configure** and follow the prompts to adopt the device.
 3. The device and its entities will appear in Home Assistant.
 
+![Discovered Device](images/ha-discovered.png)
+
 ### Step 4: Select Your Media Player
 
 1. Go to **Settings > Devices & Services > ESPHome** and click on your device.
