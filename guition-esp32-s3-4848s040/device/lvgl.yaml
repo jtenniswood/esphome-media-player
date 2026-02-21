@@ -119,7 +119,7 @@ lvgl:
             text: "0:00  /  0:00"
             x: 18
             y: 438
-            width: 150px
+            width: 200px
             text_font: roboto15_font
             text_color: 0xDDDDDD
             text_align: left
