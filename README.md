@@ -4,19 +4,17 @@
 
 ## Introduction
 
-I really wanted a way to control my music, whilst being able to see the track cover art, without costing a fortune, by using this £15 [Guition ESP32-S3-4848S040](https://s.click.aliexpress.com/e/_c3sIhvBv) screen and home assistant.
+I really wanted a way to control my music, whilst being able to see the track cover art, without costing a fortune, by using this £16 [Guition ESP32-S3-4848S040](https://s.click.aliexpress.com/e/_c3sIhvBv) screen and home assistant.
 
 It is built with [ESPHome](https://esphome.io/) and [LVGL](https://lvgl.io/). It connects to [Home Assistant](https://www.home-assistant.io/) to control and collect the track data, and has been tested with Google and Sonos speakers.
 
 ---
 
-## Where to Buy
+## Parts
 
-- **Panel:** [AliExpress](https://s.click.aliexpress.com/e/_c3sIhvBv) (~£16)
+- **Esp32 Screen:** [AliExpress](https://s.click.aliexpress.com/e/_c3sIhvBv) (~£16)
 
-## Stand
-
-- **Desktop stand** (3D printable): [MakerWorld](https://makerworld.com/en/models/2327976-touch-screen-desktop-stand-for-guition-4848s040#profileId-2543111)
+- **Desktop Stand** (3D printable): [MakerWorld](https://makerworld.com/en/models/2327976-touch-screen-desktop-stand-for-guition-4848s040#profileId-2543111)
 
 ---
 
@@ -24,7 +22,7 @@ It is built with [ESPHome](https://esphome.io/) and [LVGL](https://lvgl.io/). It
 
 [![ESPHome Media Player Demo Video](https://img.youtube.com/vi/aShTf0Q-5A0/maxresdefault.jpg)](https://youtu.be/aShTf0Q-5A0)
 
-[▶️ **Watch on YouTube**](https://youtu.be/aShTf0Q-5A0)
+[**Watch on YouTube**](https://youtu.be/aShTf0Q-5A0)
 
 ---
 
