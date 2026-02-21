@@ -486,6 +486,7 @@ script:
                   while (!path.empty() && (path.back() == '\n' || path.back() == '\r' || path.back() == ' ')) path.pop_back();
                   if (path.substr(0, 7) == "http://" || path.substr(0, 8) == "https://") return path;
                   return id(ha_base_url) + path;
+            - script.execute: extract_accent_color
           else:
             - lvgl.widget.update:
                 id: album_art_background_widget
@@ -506,7 +507,9 @@ script:
   - id: exit_tv_mode
     mode: single
     then:
-      - lambda: 'id(is_tv_mode) = false;'
+      - lambda: |-
+          id(is_tv_mode) = false;
+          lv_obj_set_style_bg_color(id(main_page), lv_color_make(0, 0, 0), 0);
       - lambda: |-
           // Push current Sonos sensor values back to widgets
           if (id(media_title_sensor).has_state()) {

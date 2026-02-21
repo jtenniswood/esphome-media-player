@@ -1,8 +1,12 @@
 # =============================================================================
-# MUSIC DASHBOARD - HTTP request, album art image
+# MUSIC DASHBOARD - HTTP request, album art image, accent color
 # =============================================================================
 # Required for online_image (album art from Home Assistant entity_picture).
 # Placeholder image shown until art is downloaded.
+#
+# Accent color: a virtual RGB light whose color is set by HA's color_extractor
+# integration. In TV mode the dominant album-art color is applied as the LVGL
+# page background behind the letterboxed image.
 # =============================================================================
 
 http_request:
@@ -88,3 +92,78 @@ online_image:
           id: album_art_background_widget
           opa: 40%
       - lvgl.widget.show: artwork_error_label
+
+# -----------------------------------------------------------------------------
+# ACCENT COLOR LIGHT (virtual RGB — no physical hardware)
+# -----------------------------------------------------------------------------
+# Exposed to HA so color_extractor can target it via light.turn_on with
+# color_extract_url. The on_state callback applies the extracted color as
+# the LVGL page background when in TV mode.
+# -----------------------------------------------------------------------------
+output:
+  - platform: template
+    id: accent_red
+    type: float
+    write_action:
+      - lambda: ''
+  - platform: template
+    id: accent_green
+    type: float
+    write_action:
+      - lambda: ''
+  - platform: template
+    id: accent_blue
+    type: float
+    write_action:
+      - lambda: ''
+
+light:
+  - platform: rgb
+    name: "Accent Color"
+    id: accent_color_light
+    red: accent_red
+    green: accent_green
+    blue: accent_blue
+    default_transition_length: 0s
+    entity_category: config
+    icon: "mdi:palette"
+    on_state:
+      - if:
+          condition:
+            lambda: 'return id(is_tv_mode);'
+          then:
+            - lambda: |-
+                float r, g, b;
+                id(accent_color_light)->current_values_as_rgb(&r, &g, &b);
+                lv_obj_set_style_bg_color(id(main_page),
+                  lv_color_make((int)(r * 255), (int)(g * 255), (int)(b * 255)), 0);
+
+# -----------------------------------------------------------------------------
+# ACCENT COLOR EXTRACTION SCRIPT
+# -----------------------------------------------------------------------------
+# Calls light.turn_on with color_extract_url so HA's color_extractor
+# integration extracts the dominant color and applies it to the accent light.
+# -----------------------------------------------------------------------------
+script:
+  - id: extract_accent_color
+    mode: restart
+    then:
+      - homeassistant.service:
+          service: light.turn_on
+          variables:
+            target_entity: !lambda |-
+              std::string n = App.get_name();
+              for (auto &c : n) if (c == '-') c = '_';
+              return "light." + n + "_accent_color";
+            image_url: !lambda |-
+              std::string path = id(is_tv_mode)
+                ? id(tv_entity_picture_sensor).state
+                : id(media_entity_picture_sensor).state;
+              while (!path.empty() && (path.back() == '\n' || path.back() == '\r' || path.back() == ' '))
+                path.pop_back();
+              if (path.substr(0, 7) == "http://" || path.substr(0, 8) == "https://")
+                return path;
+              return id(ha_base_url) + path;
+          data_template:
+            entity_id: "{{ target_entity }}"
+            color_extract_url: "{{ image_url }}"

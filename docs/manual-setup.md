@@ -85,7 +85,17 @@ Once the device boots and connects to your WiFi:
 2. Click **Configure** and follow the prompts to adopt the device.
 3. The device and its entities will appear in Home Assistant.
 
-## Step 7: Select Your Media Player
+## Step 7: Enable Color Extractor (optional)
+
+To display a matching background color behind letterboxed TV artwork, add the **Color Extractor** integration:
+
+1. Go to **Settings > Devices & Services**.
+2. Click **Add Integration** and search for **Color Extractor**.
+3. Click to add it -- no further configuration is needed.
+
+Once enabled, the device will automatically extract the dominant color from TV cover art and use it as the screen background in TV mode.
+
+## Step 8: Select Your Media Player
 
 After adoption, navigate to the device page in Home Assistant:
 
