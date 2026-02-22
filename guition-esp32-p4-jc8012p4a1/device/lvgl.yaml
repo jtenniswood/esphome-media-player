@@ -98,8 +98,10 @@ lvgl:
             on_press:
               - homeassistant.service:
                   service: media_player.media_play_pause
-                  data:
-                    entity_id: "${media_player}"
+                  variables:
+                    target: !lambda 'return id(media_player_entity).state;'
+                  data_template:
+                    entity_id: "{{ target }}"
 
         # Play clock: y=386 collapsed, y=420 when artist visible
         - label:

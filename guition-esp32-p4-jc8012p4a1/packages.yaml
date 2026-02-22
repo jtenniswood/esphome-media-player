@@ -9,6 +9,7 @@ packages:
   fonts: !include assets/fonts.yaml
   icons: !include assets/icons.yaml
   device: !include device/device.yaml
+  media_player_select: !include device/media_player_select.yaml
   sensors: !include device/sensors.yaml
   lvgl: !include device/lvgl.yaml
   button: !include theme/button.yaml

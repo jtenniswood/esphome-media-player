@@ -267,15 +267,19 @@ script:
     then:
       - homeassistant.service:
           service: media_player.media_next_track
-          data:
-            entity_id: "${media_player}"
+          variables:
+            target: !lambda 'return id(media_player_entity).state;'
+          data_template:
+            entity_id: "{{ target }}"
   - id: swipe_previous_track
     mode: single
     then:
       - homeassistant.service:
           service: media_player.media_previous_track
-          data:
-            entity_id: "${media_player}"
+          variables:
+            target: !lambda 'return id(media_player_entity).state;'
+          data_template:
+            entity_id: "{{ target }}"
 
   - id: open_settings_panel
     mode: single
@@ -295,9 +299,10 @@ script:
       - homeassistant.service:
           service: media_player.volume_set
           variables:
+            target: !lambda 'return id(media_player_entity).state;'
             vol_level: !lambda 'return lv_arc_get_value(id(volume_arc)) / 100.0f;'
           data_template:
-            entity_id: "${media_player}"
+            entity_id: "{{ target }}"
             volume_level: "{{ vol_level }}"
 
   - id: show_track_view

@@ -1,0 +1,129 @@
+# =============================================================================
+# MEDIA PLAYER SELECTOR
+# =============================================================================
+# Runtime entity selection — set the media player from the HA device page
+# instead of hardcoding in YAML substitutions. Persists across reboots.
+#
+# On entity change: resets UI state, bumps a generation counter to discard
+# stale callbacks from previous subscriptions, then dynamically subscribes
+# to all media_player attributes via the native API.
+# =============================================================================
+
+globals:
+  - id: subscription_gen
+    type: int
+    initial_value: '0'
+
+text:
+  - platform: template
+    name: "Media Player"
+    id: media_player_entity
+    entity_category: config
+    icon: "mdi:cast-audio"
+    mode: text
+    optimistic: true
+    restore_value: true
+    initial_value: "${media_player}"
+    min_length: 0
+    max_length: 100
+    on_value:
+      - script.execute: subscribe_media_player
+      - delay: 500ms
+      - if:
+          condition:
+            lambda: |-
+              std::string entity = id(media_player_entity).state;
+              return !entity.empty()
+                  && entity.substr(0, 13) == "media_player."
+                  && esphome::api::global_api_server != nullptr
+                  && esphome::api::global_api_server->is_connected();
+          then:
+            - logger.log:
+                level: INFO
+                tag: media_select
+                format: "Rebooting to apply new media player subscription"
+            - delay: 200ms
+            - lambda: 'App.safe_reboot();'
+
+script:
+  - id: subscribe_media_player
+    mode: restart
+    then:
+      - lambda: |-
+          if (esphome::api::global_api_server == nullptr) return;
+
+          std::string entity = id(media_player_entity).state;
+
+          if (entity.empty()) {
+            lv_obj_clear_flag(id(setup_prompt), LV_OBJ_FLAG_HIDDEN);
+            return;
+          }
+
+          if (entity.substr(0, 13) != "media_player.") {
+            ESP_LOGW("media_select", "Invalid entity '%s' — must start with 'media_player.'", entity.c_str());
+            return;
+          }
+
+          id(title_received_once) = false;
+          id(last_media_position) = 0.0f;
+          id(ha_position_epoch) = 0;
+          id(last_position_timestamp) = 0;
+
+          lv_obj_add_flag(id(setup_prompt), LV_OBJ_FLAG_HIDDEN);
+          lv_label_set_text(id(media_title_label), "\xe2\x80\x94");
+          id(artist_has_content) = false;
+          lv_obj_add_flag(id(media_artist_label), LV_OBJ_FLAG_HIDDEN);
+          lv_obj_set_y(id(media_time_label), 386);
+          lv_label_set_text(id(media_time_label), "0:00 / -0:00");
+          lv_bar_set_value(id(media_progress_bar), 0, LV_ANIM_OFF);
+          lv_obj_set_style_opa(id(album_art_background_widget), LV_OPA_50, 0);
+
+          id(subscription_gen) += 1;
+          int gen = id(subscription_gen);
+          int *gen_ptr = &id(subscription_gen);
+
+          using sub_fn_t = void(esphome::api::APIServer::*)(
+              std::string, esphome::optional<std::string>,
+              std::function<void(const std::string &)>);
+          constexpr sub_fn_t subscribe = static_cast<sub_fn_t>(
+              &esphome::api::APIServer::subscribe_home_assistant_state);
+          auto *api = esphome::api::global_api_server;
+
+          auto sub_text = [&](const std::string &attr, esphome::text_sensor::TextSensor *sensor) {
+            (api->*subscribe)(entity, esphome::optional<std::string>(attr),
+                [gen, gen_ptr, sensor](const std::string &state) {
+                  if (gen != *gen_ptr) return;
+                  sensor->publish_state(state);
+                });
+          };
+
+          auto sub_num = [&](const std::string &attr, esphome::sensor::Sensor *sensor) {
+            (api->*subscribe)(entity, esphome::optional<std::string>(attr),
+                [gen, gen_ptr, sensor](const std::string &state) {
+                  if (gen != *gen_ptr) return;
+                  auto v = esphome::parse_number<float>(state);
+                  if (v.has_value()) sensor->publish_state(v.value());
+                });
+          };
+
+          sub_text("media_title", id(media_title_sensor));
+          sub_text("media_artist", id(media_artist_sensor));
+          sub_text("entity_picture", id(media_entity_picture_sensor));
+
+          (api->*subscribe)(entity, esphome::optional<std::string>(""),
+              [gen, gen_ptr](const std::string &state) {
+                if (gen != *gen_ptr) return;
+                id(media_player_state_sensor).publish_state(state);
+              });
+
+          sub_text("media_position_updated_at", id(media_position_updated_at_sensor));
+          sub_num("media_duration", id(media_duration_sensor));
+          sub_num("media_position", id(media_position_sensor));
+          sub_num("volume_level", id(media_volume_sensor));
+          sub_text("source", id(media_source_sensor));
+
+          ESP_LOGI("media_select", "Subscribed to '%s'", entity.c_str());
+
+          if (!id(actions_prompt_acked)) {
+            lv_obj_clear_flag(id(actions_prompt), LV_OBJ_FLAG_HIDDEN);
+          }
