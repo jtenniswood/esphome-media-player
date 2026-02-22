@@ -70,7 +70,7 @@ lvgl:
                   text_font: roboto_light96_font
                   text_color: 0xFFFFFF
                   text_align: left
-                  text_line_space: -20
+                  text_line_space: 0
               - label:
                   id: media_artist_label
                   text: ""
