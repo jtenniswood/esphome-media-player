@@ -210,7 +210,7 @@ touchscreen:
           // Excludes the play/pause button area.
           else if (abs(dx) < 20 && abs(dy) < 20) {
             int sx = id(touch_x_start);
-            if (sx >= 1174 && sx <= 1266 && sy >= 330 && sy <= 422) {
+            if (sx >= 1174 && sx <= 1266 && sy >= 694 && sy <= 786) {
               return;
             }
             if (id(was_screen_dimmed)) {

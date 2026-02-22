@@ -45,16 +45,16 @@ lvgl:
             text_align: center
             hidden: true
 
-        # Song title (right panel, vertically centered)
+        # Song title (right panel, top-aligned)
         - label:
             id: media_title_label
             text: "—"
             x: 824
-            y: 340
-            width: 380px
-            height: 36px
+            y: 24
+            width: 432px
+            height: 110px
             long_mode: dot
-            text_font: roboto30_font
+            text_font: roboto_light96_font
             text_color: 0xFFFFFF
             text_align: left
 
@@ -63,20 +63,20 @@ lvgl:
             id: media_artist_label
             text: ""
             x: 824
-            y: 386
-            width: 380px
-            height: 24px
+            y: 140
+            width: 432px
+            height: 48px
             long_mode: dot
-            text_font: roboto19_font
+            text_font: roboto_light40_font
             text_color: 0xFFFFFF
             text_align: left
             hidden: true
 
-        # Play/pause button (right-aligned in right panel)
+        # Play/pause button (bottom-right corner)
         - button:
             id: media_play_pause_button
             x: 1184
-            y: 340
+            y: 704
             width: 72px
             height: 72px
             styles: control_round
@@ -103,14 +103,14 @@ lvgl:
                   data_template:
                     entity_id: "{{ target }}"
 
-        # Play clock: y=386 collapsed, y=420 when artist visible
+        # Play clock: y=140 collapsed, y=194 when artist visible
         - label:
             id: media_time_label
             text: "0:00  /  0:00"
             x: 824
-            y: 386
+            y: 140
             width: 200px
-            text_font: roboto15_font
+            text_font: roboto20_font
             text_color: 0xDDDDDD
             text_align: left
 
