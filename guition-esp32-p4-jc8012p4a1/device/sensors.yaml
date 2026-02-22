@@ -105,7 +105,6 @@ text_sensor:
       - lvgl.label.update:
           id: media_title_label
           text: !lambda 'return x.empty() ? std::string("—") : x;'
-      - script.execute: reflow_track_info
       - if:
           condition:
             lambda: 'return id(title_received_once);'
@@ -138,11 +137,9 @@ text_sensor:
                 id: media_artist_label
                 text: !lambda 'return x;'
             - lvgl.widget.show: media_artist_label
-            - script.execute: reflow_track_info
           else:
             - lambda: 'id(artist_has_content) = false;'
             - lvgl.widget.hide: media_artist_label
-            - script.execute: reflow_track_info
 
   - platform: template
     id: media_entity_picture_sensor

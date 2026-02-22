@@ -74,12 +74,6 @@ script:
           id(artist_has_content) = false;
           lv_obj_add_flag(id(media_artist_label), LV_OBJ_FLAG_HIDDEN);
           lv_label_set_text(id(media_time_label), "0:00 / -0:00");
-          lv_obj_update_layout(lv_scr_act());
-          int title_h = lv_obj_get_self_height(id(media_title_label));
-          if (title_h > 576) title_h = 576;
-          int below_title = 24 + title_h + 24;
-          lv_obj_set_y(id(media_artist_label), below_title);
-          lv_obj_set_y(id(media_time_label), below_title);
           lv_bar_set_value(id(media_progress_bar), 0, LV_ANIM_OFF);
           lv_obj_set_style_opa(id(album_art_background_widget), LV_OPA_50, 0);
 

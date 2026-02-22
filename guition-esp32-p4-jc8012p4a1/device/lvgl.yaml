@@ -45,33 +45,49 @@ lvgl:
             text_align: center
             hidden: true
 
-        # Song title (right panel, top-aligned; wraps up to ~5 lines)
-        - label:
-            id: media_title_label
-            text: "—"
+        # Track info panel (flex column on right side)
+        - obj:
+            id: track_info_panel
             x: 824
             y: 24
             width: 432px
-            height: 576px
-            long_mode: wrap
-            text_font: roboto_light96_font
-            text_color: 0xFFFFFF
-            text_align: left
-
-        # Artist name (below title; hidden when no artist data; wraps up to ~2 lines)
-        - label:
-            id: media_artist_label
-            text: ""
-            x: 824
-            y: 624
-            width: 432px
-            height: 100px
-            long_mode: wrap
-            text_font: roboto_light40_font
-            text_color: 0xFFFFFF
-            text_opa: 80%
-            text_align: left
-            hidden: true
+            height: 752px
+            bg_opa: 0%
+            border_width: 0
+            pad_all: 0
+            pad_row: 24
+            scrollable: false
+            scrollbar_mode: "off"
+            layout:
+              type: flex
+              flex_flow: COLUMN
+            widgets:
+              - label:
+                  id: media_title_label
+                  text: "—"
+                  width: 100%
+                  long_mode: wrap
+                  text_font: roboto_light96_font
+                  text_color: 0xFFFFFF
+                  text_align: left
+              - label:
+                  id: media_artist_label
+                  text: ""
+                  width: 100%
+                  long_mode: wrap
+                  text_font: roboto_light40_font
+                  text_color: 0xFFFFFF
+                  text_opa: 80%
+                  text_align: left
+                  hidden: true
+              - label:
+                  id: media_time_label
+                  text: "0:00  /  0:00"
+                  width: 100%
+                  text_font: roboto20_font
+                  text_color: 0xFFFFFF
+                  text_opa: 80%
+                  text_align: left
 
         # Play/pause button (bottom-right corner)
         - button:
@@ -104,18 +120,6 @@ lvgl:
                     target: !lambda 'return id(media_player_entity).state;'
                   data_template:
                     entity_id: "{{ target }}"
-
-        # Play clock: y=624 collapsed, y=748 when artist visible
-        - label:
-            id: media_time_label
-            text: "0:00  /  0:00"
-            x: 824
-            y: 624
-            width: 200px
-            text_font: roboto20_font
-            text_color: 0xFFFFFF
-            text_opa: 80%
-            text_align: left
 
         # Progress bar at the very bottom
         - bar:
