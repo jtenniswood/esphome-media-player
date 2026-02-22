@@ -77,9 +77,10 @@ lvgl:
         - button:
             id: media_play_pause_button
             x: 1160
-            y: 704
+            y: 680
             width: 96px
             height: 96px
+            radius: 48
             styles: control_round
             widgets:
               - label:

@@ -305,6 +305,25 @@ script:
             entity_id: "{{ target }}"
             volume_level: "{{ vol_level }}"
 
+  - id: reflow_track_info
+    mode: single
+    then:
+      - lambda: |-
+          lv_obj_update_layout(lv_scr_act());
+          int margin = 24;
+          int title_y = 24;
+          int title_h = lv_obj_get_self_height(id(media_title_label));
+          if (title_h > 576) title_h = 576;
+          int artist_y = title_y + title_h + margin;
+          lv_obj_set_y(id(media_artist_label), artist_y);
+          if (id(artist_has_content)) {
+            int artist_h = lv_obj_get_self_height(id(media_artist_label));
+            if (artist_h > 100) artist_h = 100;
+            lv_obj_set_y(id(media_time_label), artist_y + artist_h + margin);
+          } else {
+            lv_obj_set_y(id(media_time_label), artist_y);
+          }
+
   - id: show_track_view
     mode: single
     then:
