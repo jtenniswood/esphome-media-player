@@ -1,0 +1,107 @@
+# =============================================================================
+# MUSIC DASHBOARD - HTTP request, album art image
+# =============================================================================
+# Required for online_image (album art from Home Assistant entity_picture).
+# Placeholder image shown until art is downloaded.
+# In TV mode, edge pixels are sampled after download to set the LVGL page
+# background behind the letterboxed image.
+# =============================================================================
+
+http_request:
+  id: http_req
+
+image:
+  - file: "https://placehold.co/800x800/2d2d2d/555555"
+    id: album_art_placeholder
+    type: rgb565
+
+online_image:
+  - url: "https://placehold.co/800x800/2d2d2d/555555"
+    id: album_art_background
+    type: rgb565
+    format: jpeg
+    placeholder: album_art_placeholder
+    resize: 800x800
+    on_download_finished:
+      - lvgl.widget.hide: artwork_error_label
+      - lambda: |-
+          auto *w = id(album_art_background_widget);
+          lv_img_set_zoom(w, 256);
+          lv_img_set_offset_x(w, 0);
+          lv_img_set_offset_y(w, 0);
+          lv_obj_set_size(w, 800, 800);
+          lv_obj_set_pos(w, 0, 0);
+      - lvgl.image.update:
+          id: album_art_background_widget
+          src: album_art_background
+      - lvgl.widget.update:
+          id: album_art_background_widget
+          opa: 100%
+    on_error:
+      - lvgl.widget.update:
+          id: album_art_background_widget
+          opa: 40%
+      - lvgl.widget.show: artwork_error_label
+
+  # TV mode — no forced resize so aspect ratio is preserved.
+  # After download, zoom is calculated to contain the image within 800x800.
+  - url: "https://placehold.co/800x450/2d2d2d/555555"
+    id: tv_art_background
+    type: rgb565
+    format: jpeg
+    placeholder: album_art_placeholder
+    on_download_finished:
+      - lvgl.widget.hide: artwork_error_label
+      - lvgl.image.update:
+          id: album_art_background_widget
+          src: tv_art_background
+      - lambda: |-
+          auto *w = id(album_art_background_widget);
+          auto *img = id(tv_art_background);
+          int img_w = img->get_width();
+          int img_h = img->get_height();
+
+          int zoom = 256;
+          if (img_w > 800 || img_h > 800) {
+            float sx = 800.0f / (float)img_w;
+            float sy = 800.0f / (float)img_h;
+            float scale = (sx < sy) ? sx : sy;
+            zoom = (int)(scale * 256.0f);
+          }
+
+          lv_img_set_zoom(w, zoom);
+          lv_img_set_offset_x(w, 0);
+          lv_img_set_offset_y(w, 0);
+          lv_obj_set_size(w, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+          lv_obj_update_layout(lv_obj_get_parent(w));
+          lv_obj_align(w, LV_ALIGN_CENTER, 0, -240);
+
+          long r_sum = 0, g_sum = 0, b_sum = 0;
+          int count = 0;
+          int step_x = img_w > 10 ? img_w / 10 : 1;
+          int step_y = img_h > 10 ? img_h / 10 : 1;
+          for (int x = 0; x < img_w; x += step_x) {
+            auto c = img->get_pixel(x, 0);
+            r_sum += c.r; g_sum += c.g; b_sum += c.b; count++;
+            c = img->get_pixel(x, img_h - 1);
+            r_sum += c.r; g_sum += c.g; b_sum += c.b; count++;
+          }
+          for (int y = 0; y < img_h; y += step_y) {
+            auto c = img->get_pixel(0, y);
+            r_sum += c.r; g_sum += c.g; b_sum += c.b; count++;
+            c = img->get_pixel(img_w - 1, y);
+            r_sum += c.r; g_sum += c.g; b_sum += c.b; count++;
+          }
+          if (count > 0) {
+            int r = r_sum / count, g = g_sum / count, b = b_sum / count;
+            ESP_LOGI("accent", "TV bg color: rgb(%d,%d,%d) from %d edge samples", r, g, b, count);
+            lv_obj_set_style_bg_color(lv_scr_act(), lv_color_make(r, g, b), 0);
+          }
+      - lvgl.widget.update:
+          id: album_art_background_widget
+          opa: 100%
+    on_error:
+      - lvgl.widget.update:
+          id: album_art_background_widget
+          opa: 40%
+      - lvgl.widget.show: artwork_error_label

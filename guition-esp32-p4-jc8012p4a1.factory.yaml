@@ -1,0 +1,20 @@
+packages:
+  core: !include guition-esp32-p4-jc8012p4a1.yaml
+
+esphome:
+  project:
+    name: jtenniswood.media-player
+    version: dev
+
+dashboard_import:
+  package_import_url: github://jtenniswood/esphome-media-player/guition-esp32-p4-jc8012p4a1/esphome.yaml@guition-esp32-p4-jc8012p4a1
+
+improv_serial:
+
+ota:
+  - platform: http_request
+
+update:
+  - platform: http_request
+    name: Firmware
+    source: https://jtenniswood.github.io/esphome-media-player/firmware/media-player-p4.manifest.json

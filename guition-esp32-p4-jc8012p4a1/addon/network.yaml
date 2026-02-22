@@ -1,0 +1,91 @@
+# =============================================================================
+# NETWORK & WIFI SETUP PROMPT
+# =============================================================================
+# WiFi diagnostics and a first-boot setup screen that tells the user to
+# connect to the device's hotspot to configure WiFi credentials.
+# =============================================================================
+
+globals:
+  - id: boot_grace_period
+    type: bool
+    initial_value: 'true'
+
+wifi:
+  on_connect:
+    - lvgl.widget.hide: wifi_setup_prompt
+    - if:
+        condition:
+          lambda: 'return !id(boot_grace_period);'
+        then:
+          - lvgl.widget.show: ha_setup_prompt
+  on_disconnect:
+    - if:
+        condition:
+          lambda: 'return !id(boot_grace_period);'
+        then:
+          - lvgl.widget.show: wifi_setup_prompt
+    - lvgl.widget.hide: ha_setup_prompt
+
+esphome:
+  on_boot:
+    priority: -100
+    then:
+      - lambda: |-
+          std::string name = App.get_name();
+          std::string wifi_text = "Connect to the WiFi hotspot\n'" + name + "'\nto configure your network";
+          lv_label_set_text(id(wifi_setup_instructions), wifi_text.c_str());
+          std::string ha_text = "Add '" + name + "' in\nSettings > Devices > ESPHome";
+          lv_label_set_text(id(ha_setup_instructions), ha_text.c_str());
+          std::string actions_text = "Look for '" + name + "'";
+          lv_label_set_text(id(actions_device_info), actions_text.c_str());
+      - delay: 10s
+      - lambda: 'id(boot_grace_period) = false;'
+      - if:
+          condition:
+            not:
+              wifi.connected:
+          then:
+            - lvgl.widget.show: wifi_setup_prompt
+      - if:
+          condition:
+            and:
+              - wifi.connected:
+              - lambda: |-
+                  return esphome::api::global_api_server == nullptr
+                      || !esphome::api::global_api_server->is_connected();
+          then:
+            - lvgl.widget.show: ha_setup_prompt
+
+# Online Status
+binary_sensor:
+  - platform: status
+    name: "Online"
+    id: ink_ha_connected
+    icon: mdi:check-network
+
+sensor:
+# Wifi Signal Strength
+  - platform: wifi_signal
+    name: "Wifi Signal dB"
+    id: wifi_signal_db
+    update_interval: 60s
+    entity_category: "diagnostic"
+    internal: true
+
+# Wifi Signal Strength
+  - platform: copy
+    source_id: wifi_signal_db
+    name: "Wifi Strength"
+    filters:
+      - lambda: return min(max(2 * (x + 100.0), 0.0), 100.0);
+    unit_of_measurement: "%"
+    icon: mdi:wifi
+    entity_category: "diagnostic"
+    device_class: ""
+
+text_sensor:
+# Ip Address
+  - platform: wifi_info
+    ip_address:
+      name: IP Address
+      icon: mdi:ip-network
