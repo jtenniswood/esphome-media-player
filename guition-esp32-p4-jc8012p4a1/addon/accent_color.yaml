@@ -5,7 +5,7 @@
 # When album art finishes downloading, the extract_accent_color script calls
 # HA's color_extractor.turn_on service, which extracts the dominant colour
 # from the artwork URL and sets this light to that colour. The on_state
-# handler then applies the RGB value to the LVGL screen background.
+# handler then applies the RGB value to the accent_bg_panel widget.
 #
 # Prerequisites:
 #   1. Enable the "Color Extractor" integration in HA
@@ -45,7 +45,7 @@ light:
           int g = (int)(values.get_green() * 255);
           int b = (int)(values.get_blue() * 255);
           ESP_LOGI("accent", "Accent color: rgb(%d,%d,%d)", r, g, b);
-          lv_obj_set_style_bg_color(lv_scr_act(), lv_color_make(r, g, b), 0);
+          lv_obj_set_style_bg_color(id(accent_bg_panel), lv_color_make(r, g, b), 0);
 
 script:
   - id: extract_accent_color

@@ -45,6 +45,20 @@ lvgl:
             text_align: center
             hidden: true
 
+        # Accent color background (right side, behind track info)
+        - obj:
+            id: accent_bg_panel
+            x: 800
+            y: 0
+            width: 480px
+            height: 800px
+            bg_color: 0x000000
+            bg_opa: 100%
+            radius: 0
+            border_width: 0
+            pad_all: 0
+            scrollable: false
+
         # Track info panel (flex column on right side)
         - obj:
             id: track_info_panel
