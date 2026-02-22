@@ -88,6 +88,7 @@ lvgl:
               - label:
                   id: media_artist_label
                   text: ""
+                  pad_top: 8
                   width: 100%
                   long_mode: wrap
                   text_font: roboto_light40_font
