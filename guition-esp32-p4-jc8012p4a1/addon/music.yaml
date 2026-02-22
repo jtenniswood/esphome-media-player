@@ -37,6 +37,7 @@ online_image:
       - lvgl.widget.update:
           id: album_art_background_widget
           opa: 100%
+      - script.execute: extract_accent_color
     on_error:
       - lvgl.widget.update:
           id: album_art_background_widget

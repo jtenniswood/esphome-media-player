@@ -1,0 +1,67 @@
+# =============================================================================
+# ACCENT COLOR - Extract dominant color from album art via HA color_extractor
+# =============================================================================
+# Exposes a virtual RGB light entity ("Accent Color") to Home Assistant.
+# When album art finishes downloading, the extract_accent_color script calls
+# HA's color_extractor.turn_on service, which extracts the dominant colour
+# from the artwork URL and sets this light to that colour. The on_state
+# handler then applies the RGB value to the LVGL screen background.
+#
+# Prerequisites:
+#   1. Enable the "Color Extractor" integration in HA
+#      (Settings > Devices > Add Integration > Color Extractor)
+#   2. Enable "Allow the device to perform Home Assistant actions"
+#      for this ESPHome device in HA
+# =============================================================================
+
+output:
+  - id: accent_r_output
+    platform: template
+    type: float
+    write_action: []
+  - id: accent_g_output
+    platform: template
+    type: float
+    write_action: []
+  - id: accent_b_output
+    platform: template
+    type: float
+    write_action: []
+
+light:
+  - platform: rgb
+    id: accent_color_light
+    name: "Accent Color"
+    red: accent_r_output
+    green: accent_g_output
+    blue: accent_b_output
+    entity_category: config
+    restore_mode: RESTORE_DEFAULT_OFF
+    on_state:
+      - lambda: |-
+          auto values = id(accent_color_light).current_values;
+          if (!values.is_on()) return;
+          int r = (int)(values.get_red() * 255);
+          int g = (int)(values.get_green() * 255);
+          int b = (int)(values.get_blue() * 255);
+          ESP_LOGI("accent", "Accent color: rgb(%d,%d,%d)", r, g, b);
+          lv_obj_set_style_bg_color(lv_scr_act(), lv_color_make(r, g, b), 0);
+
+script:
+  - id: extract_accent_color
+    mode: restart
+    then:
+      - homeassistant.service:
+          service: color_extractor.turn_on
+          data_template:
+            entity_id: "{{ entity }}"
+            color_extract_url: "{{ url }}"
+          variables:
+            entity: !lambda |-
+              std::string name = App.get_name();
+              for (auto &c : name) if (c == '-') c = '_';
+              return "light." + name + "_accent_color";
+            url: !lambda |-
+              std::string pic = id(media_entity_picture_sensor).state;
+              if (pic.substr(0, 4) == "http") return pic;
+              return id(ha_base_url) + pic;

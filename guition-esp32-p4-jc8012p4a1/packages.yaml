@@ -3,6 +3,7 @@ substitutions:
 
 packages:
   music: !include addon/music.yaml
+  accent_color: !include addon/accent_color.yaml
   backlight: !include addon/backlight.yaml
   time_sync: !include addon/time.yaml
   network: !include addon/network.yaml
