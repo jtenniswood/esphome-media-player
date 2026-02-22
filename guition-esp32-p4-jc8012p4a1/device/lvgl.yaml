@@ -1,7 +1,7 @@
 # =============================================================================
-# LVGL MUSIC DASHBOARD - 800x1280 Portrait
+# LVGL MUSIC DASHBOARD - 1280x800 Landscape
 # =============================================================================
-# Split layout: album art in top 800x800, track info below in dedicated area.
+# Split layout: album art on left 800x800, track info on right in 480px panel.
 # Data from sensors.yaml; album art from online_image (addon/music.yaml).
 # =============================================================================
 
@@ -22,7 +22,7 @@ lvgl:
       pad_right: 0
 
       widgets:
-        # Full-width artwork background (square, top of screen)
+        # Full-height artwork (square, left side of screen)
         - image:
             id: album_art_background_widget
             x: 0
@@ -36,7 +36,7 @@ lvgl:
         - label:
             id: artwork_error_label
             text: "Artwork unavailable"
-            align: top_mid
+            x: 200
             y: 380
             width: 400px
             height: 30px
@@ -45,13 +45,13 @@ lvgl:
             text_align: center
             hidden: true
 
-        # Song title (below artwork)
+        # Song title (right panel, vertically centered)
         - label:
             id: media_title_label
             text: "—"
-            x: 24
-            y: 820
-            width: 670px
+            x: 824
+            y: 340
+            width: 380px
             height: 36px
             long_mode: dot
             text_font: roboto30_font
@@ -62,9 +62,9 @@ lvgl:
         - label:
             id: media_artist_label
             text: ""
-            x: 24
-            y: 866
-            width: 670px
+            x: 824
+            y: 386
+            width: 380px
             height: 24px
             long_mode: dot
             text_font: roboto19_font
@@ -72,11 +72,11 @@ lvgl:
             text_align: left
             hidden: true
 
-        # Play/pause button (right-aligned in info area)
+        # Play/pause button (right-aligned in right panel)
         - button:
             id: media_play_pause_button
-            x: 704
-            y: 830
+            x: 1184
+            y: 340
             width: 72px
             height: 72px
             styles: control_round
@@ -98,19 +98,15 @@ lvgl:
             on_press:
               - homeassistant.service:
                   service: media_player.media_play_pause
-                  variables:
-                    target: !lambda |-
-                      if (id(is_tv_mode)) return id(tv_media_player_entity).state;
-                      return id(media_player_entity).state;
-                  data_template:
-                    entity_id: "{{ target }}"
+                  data:
+                    entity_id: "${media_player}"
 
-        # Play clock: y=866 collapsed, y=900 when artist visible
+        # Play clock: y=386 collapsed, y=420 when artist visible
         - label:
             id: media_time_label
             text: "0:00  /  0:00"
-            x: 24
-            y: 866
+            x: 824
+            y: 386
             width: 200px
             text_font: roboto15_font
             text_color: 0xDDDDDD
@@ -120,8 +116,8 @@ lvgl:
         - bar:
             id: media_progress_bar
             x: 0
-            y: 1274
-            width: 800
+            y: 794
+            width: 1280
             height: 6
             bg_color: 0x000000
             bg_opa: 50%
@@ -140,8 +136,8 @@ lvgl:
             id: setup_prompt
             x: 0
             y: 0
-            width: 800
-            height: 1280
+            width: 1280
+            height: 800
             bg_color: 0x000000
             bg_opa: 100%
             radius: 0
@@ -183,8 +179,8 @@ lvgl:
             id: actions_prompt
             x: 0
             y: 0
-            width: 800
-            height: 1280
+            width: 1280
+            height: 800
             bg_color: 0x000000
             bg_opa: 100%
             radius: 0
@@ -245,8 +241,8 @@ lvgl:
             id: settings_panel
             x: 0
             y: 0
-            width: 800
-            height: 1280
+            width: 1280
+            height: 800
             bg_color: 0x000000
             bg_opa: 100%
             radius: 0
@@ -356,8 +352,8 @@ lvgl:
 
               # Drag handle
               - obj:
-                  x: 370
-                  y: 1260
+                  x: 610
+                  y: 780
                   width: 60
                   height: 4
                   bg_color: 0x666666
@@ -374,8 +370,8 @@ lvgl:
             id: ha_setup_prompt
             x: 0
             y: 0
-            width: 800
-            height: 1280
+            width: 1280
+            height: 800
             bg_color: 0x000000
             bg_opa: 100%
             radius: 0
@@ -418,8 +414,8 @@ lvgl:
             id: wifi_setup_prompt
             x: 0
             y: 0
-            width: 800
-            height: 1280
+            width: 1280
+            height: 800
             bg_color: 0x000000
             bg_opa: 100%
             radius: 0

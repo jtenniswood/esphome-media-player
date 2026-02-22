@@ -1,7 +1,7 @@
 # =============================================================================
 # HARDWARE CONFIGURATION - Guition ESP32-P4-JC8012P4A1
 # =============================================================================
-# Hardware settings for the ESP32-P4 10.1" 800x1280 touchscreen.
+# Hardware settings for the ESP32-P4 10.1" 1280x800 landscape touchscreen.
 # Uses MIPI DSI display, GSL3680 touch controller, and ESP32-C6 coprocessor
 # for WiFi/BT connectivity.
 #
@@ -54,7 +54,6 @@ api:
         id(ha_base_url) = "http://" + client_address + ":8123";
     - lvgl.widget.hide: ha_setup_prompt
     - script.execute: subscribe_media_player
-    - script.execute: subscribe_tv_media_player
   on_client_disconnected:
     - lvgl.widget.hide: setup_prompt
     - if:
@@ -140,22 +139,6 @@ globals:
     restore_value: true
     initial_value: 'false'
 
-  # -- TV source mode --
-  - id: is_tv_mode
-    type: bool
-    initial_value: 'false'
-  - id: last_tv_media_position
-    type: float
-    initial_value: '0.0'
-  - id: last_tv_position_timestamp
-    type: int
-    initial_value: '0'
-  - id: tv_ha_position_epoch
-    type: int
-    initial_value: '0'
-  - id: tv_title_received_once
-    type: bool
-    initial_value: 'false'
 
 
 # -----------------------------------------------------------------------------
@@ -167,9 +150,9 @@ touchscreen:
     reset_pin: GPIO22
     interrupt_pin: GPIO21
     transform:
-      swap_xy: false
-      mirror_x: false
-      mirror_y: true
+      swap_xy: true
+      mirror_x: true
+      mirror_y: false
     on_touch:
       - lambda: |-
           id(was_screen_dimmed) = id(is_screen_dimmed);
@@ -227,7 +210,7 @@ touchscreen:
           // Excludes the play/pause button area.
           else if (abs(dx) < 20 && abs(dy) < 20) {
             int sx = id(touch_x_start);
-            if (sx >= 694 && sx <= 786 && sy >= 820 && sy <= 912) {
+            if (sx >= 1174 && sx <= 1266 && sy >= 330 && sy <= 422) {
               return;
             }
             if (id(was_screen_dimmed)) {
@@ -235,9 +218,7 @@ touchscreen:
             } else if (id(is_ui_hidden)) {
               id(toggle_ui).execute();
             } else {
-              bool playing = id(is_tv_mode)
-                  ? (id(tv_media_player_state_sensor).has_state() && id(tv_media_player_state_sensor).state == "playing")
-                  : (id(media_player_state_sensor).has_state() && id(media_player_state_sensor).state == "playing");
+              bool playing = id(media_player_state_sensor).has_state() && id(media_player_state_sensor).state == "playing";
               if (playing) id(toggle_ui).execute();
             }
           }
@@ -286,23 +267,15 @@ script:
     then:
       - homeassistant.service:
           service: media_player.media_next_track
-          variables:
-            target: !lambda |-
-              if (id(is_tv_mode)) return id(tv_media_player_entity).state;
-              return id(media_player_entity).state;
-          data_template:
-            entity_id: "{{ target }}"
+          data:
+            entity_id: "${media_player}"
   - id: swipe_previous_track
     mode: single
     then:
       - homeassistant.service:
           service: media_player.media_previous_track
-          variables:
-            target: !lambda |-
-              if (id(is_tv_mode)) return id(tv_media_player_entity).state;
-              return id(media_player_entity).state;
-          data_template:
-            entity_id: "{{ target }}"
+          data:
+            entity_id: "${media_player}"
 
   - id: open_settings_panel
     mode: single
@@ -322,12 +295,9 @@ script:
       - homeassistant.service:
           service: media_player.volume_set
           variables:
-            target: !lambda |-
-              if (id(is_tv_mode)) return id(tv_media_player_entity).state;
-              return id(media_player_entity).state;
             vol_level: !lambda 'return lv_arc_get_value(id(volume_arc)) / 100.0f;'
           data_template:
-            entity_id: "{{ target }}"
+            entity_id: "${media_player}"
             volume_level: "{{ vol_level }}"
 
   - id: show_track_view
@@ -357,113 +327,6 @@ script:
                 lv_obj_fade_in(id(media_play_pause_button), 200, 0);
                 lv_obj_fade_in(id(media_time_label), 200, 0);
 
-  # -- TV source mode transitions --
-  - id: enter_tv_mode
-    mode: single
-    then:
-      - lambda: 'id(is_tv_mode) = true;'
-      - lambda: |-
-          if (id(tv_media_title_sensor).has_state()) {
-            std::string title = id(tv_media_title_sensor).state;
-            if (title.substr(0, 8) == "(null): ") title = title.substr(8);
-            lv_label_set_text(id(media_title_label), title.empty() ? "—" : title.c_str());
-          } else {
-            lv_label_set_text(id(media_title_label), "TV");
-          }
-          if (id(tv_media_artist_sensor).has_state() && !id(tv_media_artist_sensor).state.empty()
-              && id(tv_media_artist_sensor).state != "—" && id(tv_media_artist_sensor).state != "\xe2\x80\x94") {
-            id(artist_has_content) = true;
-            lv_label_set_text(id(media_artist_label), id(tv_media_artist_sensor).state.c_str());
-            lv_obj_clear_flag(id(media_artist_label), LV_OBJ_FLAG_HIDDEN);
-            lv_obj_set_y(id(media_time_label), 900);
-          } else {
-            id(artist_has_content) = false;
-            lv_obj_add_flag(id(media_artist_label), LV_OBJ_FLAG_HIDDEN);
-            lv_obj_set_y(id(media_time_label), 866);
-          }
-      - if:
-          condition:
-            lambda: 'return id(tv_entity_picture_sensor).has_state() && !id(tv_entity_picture_sensor).state.empty();'
-          then:
-            - lvgl.widget.update:
-                id: album_art_background_widget
-                opa: 50%
-            - lvgl.widget.hide: artwork_error_label
-            - online_image.set_url:
-                id: tv_art_background
-                url: !lambda |-
-                  std::string path = id(tv_entity_picture_sensor).state;
-                  while (!path.empty() && (path.back() == '\n' || path.back() == '\r' || path.back() == ' ')) path.pop_back();
-                  if (path.substr(0, 7) == "http://" || path.substr(0, 8) == "https://") return path;
-                  return id(ha_base_url) + path;
-          else:
-            - lvgl.widget.update:
-                id: album_art_background_widget
-                opa: 40%
-      - if:
-          condition:
-            lambda: |-
-              return id(tv_media_player_state_sensor).has_state() &&
-                     id(tv_media_player_state_sensor).state == "playing";
-          then:
-            - lvgl.widget.hide: media_play_icon
-            - lvgl.widget.show: media_pause_icon
-          else:
-            - lvgl.widget.show: media_play_icon
-            - lvgl.widget.hide: media_pause_icon
-      - script.execute: show_track_view
-
-  - id: exit_tv_mode
-    mode: single
-    then:
-      - lambda: |-
-          id(is_tv_mode) = false;
-          lv_obj_set_style_bg_color(lv_scr_act(), lv_color_make(0, 0, 0), 0);
-      - lambda: |-
-          if (id(media_title_sensor).has_state()) {
-            auto &t = id(media_title_sensor).state;
-            lv_label_set_text(id(media_title_label), t.empty() ? "—" : t.c_str());
-          } else {
-            lv_label_set_text(id(media_title_label), "—");
-          }
-          if (id(media_artist_sensor).has_state() && !id(media_artist_sensor).state.empty()
-              && id(media_artist_sensor).state != "—" && id(media_artist_sensor).state != "\xe2\x80\x94") {
-            id(artist_has_content) = true;
-            lv_label_set_text(id(media_artist_label), id(media_artist_sensor).state.c_str());
-            lv_obj_clear_flag(id(media_artist_label), LV_OBJ_FLAG_HIDDEN);
-            lv_obj_set_y(id(media_time_label), 900);
-          } else {
-            id(artist_has_content) = false;
-            lv_obj_add_flag(id(media_artist_label), LV_OBJ_FLAG_HIDDEN);
-            lv_obj_set_y(id(media_time_label), 866);
-          }
-      - if:
-          condition:
-            lambda: 'return id(media_entity_picture_sensor).has_state() && !id(media_entity_picture_sensor).state.empty();'
-          then:
-            - lvgl.widget.update:
-                id: album_art_background_widget
-                opa: 50%
-            - lvgl.widget.hide: artwork_error_label
-            - online_image.set_url:
-                id: album_art_background
-                url: !lambda |-
-                  std::string path = id(media_entity_picture_sensor).state;
-                  while (!path.empty() && (path.back() == '\n' || path.back() == '\r' || path.back() == ' ')) path.pop_back();
-                  if (path.substr(0, 7) == "http://" || path.substr(0, 8) == "https://") return path;
-                  return id(ha_base_url) + path;
-      - if:
-          condition:
-            lambda: |-
-              return id(media_player_state_sensor).has_state() &&
-                     id(media_player_state_sensor).state == "playing";
-          then:
-            - lvgl.widget.hide: media_play_icon
-            - lvgl.widget.show: media_pause_icon
-          else:
-            - lvgl.widget.show: media_play_icon
-            - lvgl.widget.hide: media_pause_icon
-      - script.execute: show_track_view
 
 
 # -----------------------------------------------------------------------------
@@ -474,7 +337,7 @@ display:
     model: JC8012P4A1
     id: tft_display
     reset_pin: GPIO27
-    rotation: 180
+    rotation: 90
     auto_clear_enabled: false
     color_order: RGB
     dimensions:

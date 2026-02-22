@@ -2,14 +2,12 @@
 # SENSORS - Music dashboard
 # =============================================================================
 # Template sensors receive state from dynamic subscriptions managed by
-# media_player_select.yaml. Updates LVGL labels, bar, image, and play/pause
+# subscribe_media_player. Updates LVGL labels, bar, image, and play/pause
 # icon via on_value automations.
 # Album art URL is built automatically from the HA API client's IP address;
 # override home_assistant_url in substitutions for non-standard setups.
 # =============================================================================
 
-# Store last HA position and time so we can estimate elapsed time between updates
-# (HA/Sonos often only push media_position every 5–10s; we tick every 1s)
 globals:
   - id: ha_base_url
     type: std::string
@@ -29,46 +27,34 @@ globals:
   - id: artist_has_content
     type: bool
     initial_value: 'false'
+  - id: subscription_gen
+    type: int
+    initial_value: '0'
 
-# Refresh progress bar and elapsed time every second; when playing, estimate
-# position from last HA update + elapsed time so the clock moves smoothly
 interval:
   - interval: 1s
     then:
       - lambda: |-
-          bool tv = id(is_tv_mode);
-          float dur = tv
-              ? (id(tv_media_duration_sensor).has_state() ? id(tv_media_duration_sensor).state : 0.0f)
-              : (id(media_duration_sensor).has_state() ? id(media_duration_sensor).state : 0.0f);
-          bool playing = tv
-              ? (id(tv_media_player_state_sensor).has_state() && id(tv_media_player_state_sensor).state == "playing")
-              : (id(media_player_state_sensor).has_state() && id(media_player_state_sensor).state == "playing");
-
-          float &last_pos    = tv ? id(last_tv_media_position)    : id(last_media_position);
-          int   &last_ts     = tv ? id(last_tv_position_timestamp): id(last_position_timestamp);
-          int   &pos_epoch   = tv ? id(tv_ha_position_epoch)      : id(ha_position_epoch);
-          auto  *pos_sensor  = tv ? id(tv_media_position_sensor)  : id(media_position_sensor);
+          float dur = id(media_duration_sensor).has_state() ? id(media_duration_sensor).state : 0.0f;
+          bool playing = id(media_player_state_sensor).has_state() && id(media_player_state_sensor).state == "playing";
 
           float pos;
           auto t = id(ha_time).now();
-          if (playing && t.is_valid() && pos_epoch != 0 && pos_sensor->has_state()) {
-            pos = pos_sensor->state + (float)(t.timestamp - pos_epoch);
-          } else if (playing && t.is_valid() && last_ts != 0) {
-            pos = last_pos + (float)(t.timestamp - last_ts);
+          if (playing && t.is_valid() && id(ha_position_epoch) != 0 && id(media_position_sensor).has_state()) {
+            pos = id(media_position_sensor).state + (float)(t.timestamp - id(ha_position_epoch));
+          } else if (playing && t.is_valid() && id(last_position_timestamp) != 0) {
+            pos = id(last_media_position) + (float)(t.timestamp - id(last_position_timestamp));
           } else {
-            pos = pos_sensor->has_state() ? pos_sensor->state : last_pos;
+            pos = id(media_position_sensor).has_state() ? id(media_position_sensor).state : id(last_media_position);
           }
           if (pos < 0) pos = 0;
           if (dur > 0 && pos > dur) pos = dur;
-          last_pos = pos;
+          id(last_media_position) = pos;
       - lvgl.label.update:
             id: media_time_label
             text: !lambda |-
-              bool tv = id(is_tv_mode);
-              float pos = tv ? id(last_tv_media_position) : id(last_media_position);
-              float dur = tv
-                  ? (id(tv_media_duration_sensor).has_state() ? id(tv_media_duration_sensor).state : 0.0f)
-                  : (id(media_duration_sensor).has_state() ? id(media_duration_sensor).state : 0.0f);
+              float pos = id(last_media_position);
+              float dur = id(media_duration_sensor).has_state() ? id(media_duration_sensor).state : 0.0f;
               int e = (int)pos; if (e < 0) e = 0;
               int rem = (int)(dur - pos); if (rem < 0) rem = 0;
               char buf[32];
@@ -83,17 +69,12 @@ interval:
       - lvgl.bar.update:
             id: media_progress_bar
             value: !lambda |-
-              bool tv = id(is_tv_mode);
-              float pos = tv ? id(last_tv_media_position) : id(last_media_position);
-              float dur = tv
-                  ? (id(tv_media_duration_sensor).has_state() ? id(tv_media_duration_sensor).state : 0.0f)
-                  : (id(media_duration_sensor).has_state() ? id(media_duration_sensor).state : 0.0f);
+              float pos = id(last_media_position);
+              float dur = id(media_duration_sensor).has_state() ? id(media_duration_sensor).state : 0.0f;
               if (dur > 0) return (int)((pos / dur) * 100.0f);
               return 0;
 
 script:
-  # Auto-show track info on track change, then auto-hide after configured duration.
-  # mode: restart ensures each new track resets the timer.
   - id: auto_hide_track_info
     mode: restart
     then:
@@ -110,77 +91,149 @@ script:
             - if:
                 condition:
                   lambda: |-
-                    bool playing = id(is_tv_mode)
-                        ? (id(tv_media_player_state_sensor).has_state() && id(tv_media_player_state_sensor).state == "playing")
-                        : (id(media_player_state_sensor).has_state() && id(media_player_state_sensor).state == "playing");
+                    bool playing = id(media_player_state_sensor).has_state() && id(media_player_state_sensor).state == "playing";
                     return !id(is_ui_hidden) && playing;
                 then:
                   - script.execute: toggle_ui
+
+  - id: subscribe_media_player
+    mode: restart
+    then:
+      - lambda: |-
+          if (esphome::api::global_api_server == nullptr) return;
+
+          std::string entity = "${media_player}";
+
+          if (entity.empty()) {
+            lv_obj_clear_flag(id(setup_prompt), LV_OBJ_FLAG_HIDDEN);
+            return;
+          }
+
+          if (entity.substr(0, 13) != "media_player.") {
+            ESP_LOGW("media_select", "Invalid entity '%s' — must start with 'media_player.'", entity.c_str());
+            return;
+          }
+
+          id(title_received_once) = false;
+          id(last_media_position) = 0.0f;
+          id(ha_position_epoch) = 0;
+          id(last_position_timestamp) = 0;
+
+          lv_obj_add_flag(id(setup_prompt), LV_OBJ_FLAG_HIDDEN);
+          lv_label_set_text(id(media_title_label), "\xe2\x80\x94");
+          id(artist_has_content) = false;
+          lv_obj_add_flag(id(media_artist_label), LV_OBJ_FLAG_HIDDEN);
+          lv_obj_set_y(id(media_time_label), 386);
+          lv_label_set_text(id(media_time_label), "0:00 / -0:00");
+          lv_bar_set_value(id(media_progress_bar), 0, LV_ANIM_OFF);
+          lv_obj_set_style_opa(id(album_art_background_widget), LV_OPA_50, 0);
+
+          id(subscription_gen) += 1;
+          int gen = id(subscription_gen);
+          int *gen_ptr = &id(subscription_gen);
+
+          using sub_fn_t = void(esphome::api::APIServer::*)(
+              std::string, esphome::optional<std::string>,
+              std::function<void(const std::string &)>);
+          constexpr sub_fn_t subscribe = static_cast<sub_fn_t>(
+              &esphome::api::APIServer::subscribe_home_assistant_state);
+          auto *api = esphome::api::global_api_server;
+
+          auto sub_text = [&](const std::string &attr, esphome::text_sensor::TextSensor *sensor) {
+            (api->*subscribe)(entity, esphome::optional<std::string>(attr),
+                [gen, gen_ptr, sensor](const std::string &state) {
+                  if (gen != *gen_ptr) return;
+                  sensor->publish_state(state);
+                });
+          };
+
+          auto sub_num = [&](const std::string &attr, esphome::sensor::Sensor *sensor) {
+            (api->*subscribe)(entity, esphome::optional<std::string>(attr),
+                [gen, gen_ptr, sensor](const std::string &state) {
+                  if (gen != *gen_ptr) return;
+                  auto v = esphome::parse_number<float>(state);
+                  if (v.has_value()) sensor->publish_state(v.value());
+                });
+          };
+
+          sub_text("media_title", id(media_title_sensor));
+          sub_text("media_artist", id(media_artist_sensor));
+          sub_text("entity_picture", id(media_entity_picture_sensor));
+
+          (api->*subscribe)(entity, esphome::optional<std::string>(""),
+              [gen, gen_ptr](const std::string &state) {
+                if (gen != *gen_ptr) return;
+                id(media_player_state_sensor).publish_state(state);
+              });
+
+          sub_text("media_position_updated_at", id(media_position_updated_at_sensor));
+          sub_num("media_duration", id(media_duration_sensor));
+          sub_num("media_position", id(media_position_sensor));
+          sub_num("volume_level", id(media_volume_sensor));
+          sub_text("source", id(media_source_sensor));
+
+          ESP_LOGI("media_select", "Subscribed to '%s'", entity.c_str());
+
+          if (!id(actions_prompt_acked)) {
+            lv_obj_clear_flag(id(actions_prompt), LV_OBJ_FLAG_HIDDEN);
+          }
 
 text_sensor:
   - platform: template
     id: media_title_sensor
     on_value:
+      - script.execute: auto_hide_track_info
+      - lvgl.widget.update:
+          id: album_art_background_widget
+          opa: 50%
+      - lvgl.widget.hide: artwork_error_label
+      - lvgl.label.update:
+          id: media_title_label
+          text: !lambda 'return x.empty() ? std::string("—") : x;'
       - if:
           condition:
-            lambda: 'return !id(is_tv_mode);'
+            lambda: 'return id(title_received_once);'
           then:
-            - script.execute: auto_hide_track_info
-            - lvgl.widget.update:
-                id: album_art_background_widget
-                opa: 50%
-            - lvgl.widget.hide: artwork_error_label
+            - lambda: |-
+                id(last_media_position) = 0.0f;
+                id(ha_position_epoch) = 0;
+                auto t = id(ha_time).now();
+                if (t.is_valid()) {
+                  id(last_position_timestamp) = t.timestamp;
+                }
             - lvgl.label.update:
-                id: media_title_label
-                text: !lambda 'return x.empty() ? std::string("—") : x;'
-            - if:
-                condition:
-                  lambda: 'return id(title_received_once);'
-                then:
-                  - lambda: |-
-                      id(last_media_position) = 0.0f;
-                      id(ha_position_epoch) = 0;
-                      auto t = id(ha_time).now();
-                      if (t.is_valid()) {
-                        id(last_position_timestamp) = t.timestamp;
-                      }
-                  - lvgl.label.update:
-                      id: media_time_label
-                      text: "0:00 / -0:00"
-                  - lvgl.bar.update:
-                      id: media_progress_bar
-                      value: 0
-                else:
-                  - lambda: 'id(title_received_once) = true;'
+                id: media_time_label
+                text: "0:00 / -0:00"
+            - lvgl.bar.update:
+                id: media_progress_bar
+                value: 0
+          else:
+            - lambda: 'id(title_received_once) = true;'
 
   - platform: template
     id: media_artist_sensor
     on_value:
       - if:
           condition:
-            lambda: 'return !id(is_tv_mode);'
+            lambda: 'return !x.empty() && x != "—" && x != "\xe2\x80\x94";'
           then:
-            - if:
-                condition:
-                  lambda: 'return !x.empty() && x != "—" && x != "\xe2\x80\x94";'
-                then:
-                  - lambda: 'id(artist_has_content) = true;'
-                  - lvgl.label.update:
-                      id: media_artist_label
-                      text: !lambda 'return x;'
-                  - lvgl.widget.show: media_artist_label
-                  - lambda: 'lv_obj_set_y(id(media_time_label), 900);'
-                else:
-                  - lambda: 'id(artist_has_content) = false;'
-                  - lvgl.widget.hide: media_artist_label
-                  - lambda: 'lv_obj_set_y(id(media_time_label), 866);'
+            - lambda: 'id(artist_has_content) = true;'
+            - lvgl.label.update:
+                id: media_artist_label
+                text: !lambda 'return x;'
+            - lvgl.widget.show: media_artist_label
+            - lambda: 'lv_obj_set_y(id(media_time_label), 420);'
+          else:
+            - lambda: 'id(artist_has_content) = false;'
+            - lvgl.widget.hide: media_artist_label
+            - lambda: 'lv_obj_set_y(id(media_time_label), 386);'
 
   - platform: template
     id: media_entity_picture_sensor
     on_value:
       - if:
           condition:
-            lambda: 'return !id(is_tv_mode) && !x.empty();'
+            lambda: 'return !x.empty();'
           then:
             - lvgl.widget.update:
                 id: album_art_background_widget
@@ -201,74 +254,53 @@ text_sensor:
     on_value:
       - if:
           condition:
-            lambda: 'return !id(is_tv_mode);'
+            lambda: 'return x == "playing";'
           then:
+            - script.stop: backlight_wake_timeout
+            - lvgl.resume:
+            - lvgl.widget.hide:
+                id: media_play_icon
+            - lvgl.widget.show:
+                id: media_pause_icon
+            - light.turn_on:
+                id: backlight
+                brightness: 100%
             - if:
                 condition:
-                  lambda: 'return x == "playing";'
+                  lambda: 'return id(is_screen_dimmed);'
                 then:
-                  - script.stop: backlight_wake_timeout
-                  - lvgl.resume:
-                  - lvgl.widget.hide:
-                      id: media_play_icon
-                  - lvgl.widget.show:
-                      id: media_pause_icon
-                  - light.turn_on:
-                      id: backlight
-                      brightness: 100%
-                  - if:
-                      condition:
-                        lambda: 'return id(is_screen_dimmed);'
-                      then:
-                        - lambda: 'id(is_screen_dimmed) = false;'
-                        - script.execute: show_track_view
-                  - script.execute: auto_hide_track_info
-                else:
-                  - script.stop: auto_hide_track_info
+                  - lambda: 'id(is_screen_dimmed) = false;'
                   - script.execute: show_track_view
-                  - lvgl.widget.show:
-                      id: media_play_icon
-                  - lvgl.widget.hide:
-                      id: media_pause_icon
-                  - script.execute: backlight_wake_timeout
+            - script.execute: auto_hide_track_info
+          else:
+            - script.stop: auto_hide_track_info
+            - script.execute: show_track_view
+            - lvgl.widget.show:
+                id: media_play_icon
+            - lvgl.widget.hide:
+                id: media_pause_icon
+            - script.execute: backlight_wake_timeout
 
-  # HA reports media_position as of media_position_updated_at (often seconds stale).
-  # Parse the UTC timestamp so the interval timer can compensate for staleness.
   - platform: template
     id: media_position_updated_at_sensor
     on_value:
-      - if:
-          condition:
-            lambda: 'return !id(is_tv_mode);'
-          then:
-            - lambda: |-
-                int yr, mo, dy, hr, mn, sc;
-                if (sscanf(x.c_str(), "%d-%d-%dT%d:%d:%d", &yr, &mo, &dy, &hr, &mn, &sc) != 6 &&
-                    sscanf(x.c_str(), "%d-%d-%d %d:%d:%d", &yr, &mo, &dy, &hr, &mn, &sc) != 6) {
-                  return;
-                }
-                int y = yr, m = mo;
-                if (m <= 2) { y--; m += 12; }
-                long days = 365L*y + y/4 - y/100 + y/400 + (153*(m-3)+2)/5 + dy - 719469;
-                int epoch = (int)(days * 86400L + hr * 3600 + mn * 60 + sc);
-                id(ha_position_epoch) = epoch;
-                if (id(media_position_sensor).has_state()) {
-                  id(last_position_timestamp) = epoch;
-                }
+      - lambda: |-
+          int yr, mo, dy, hr, mn, sc;
+          if (sscanf(x.c_str(), "%d-%d-%dT%d:%d:%d", &yr, &mo, &dy, &hr, &mn, &sc) != 6 &&
+              sscanf(x.c_str(), "%d-%d-%d %d:%d:%d", &yr, &mo, &dy, &hr, &mn, &sc) != 6) {
+            return;
+          }
+          int y = yr, m = mo;
+          if (m <= 2) { y--; m += 12; }
+          long days = 365L*y + y/4 - y/100 + y/400 + (153*(m-3)+2)/5 + dy - 719469;
+          int epoch = (int)(days * 86400L + hr * 3600 + mn * 60 + sc);
+          id(ha_position_epoch) = epoch;
+          if (id(media_position_sensor).has_state()) {
+            id(last_position_timestamp) = epoch;
+          }
 
   - platform: template
     id: media_source_sensor
-    on_value:
-      - if:
-          condition:
-            lambda: 'return x == "TV" && !id(is_tv_mode);'
-          then:
-            - script.execute: enter_tv_mode
-      - if:
-          condition:
-            lambda: 'return x != "TV" && id(is_tv_mode);'
-          then:
-            - script.execute: exit_tv_mode
 
 sensor:
   - platform: template
@@ -277,18 +309,14 @@ sensor:
   - platform: template
     id: media_position_sensor
     on_value:
-      - if:
-          condition:
-            lambda: 'return !id(is_tv_mode);'
-          then:
-            - lambda: |-
-                id(last_media_position) = x;
-                if (id(ha_position_epoch) != 0) {
-                  id(last_position_timestamp) = id(ha_position_epoch);
-                } else {
-                  auto t = id(ha_time).now();
-                  if (t.is_valid()) id(last_position_timestamp) = t.timestamp;
-                }
+      - lambda: |-
+          id(last_media_position) = x;
+          if (id(ha_position_epoch) != 0) {
+            id(last_position_timestamp) = id(ha_position_epoch);
+          } else {
+            auto t = id(ha_time).now();
+            if (t.is_valid()) id(last_position_timestamp) = t.timestamp;
+          }
 
   - platform: template
     id: media_volume_sensor
