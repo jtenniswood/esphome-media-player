@@ -62,5 +62,8 @@ script:
             int g = (int)(g_wsum / w_total);
             int b = (int)(b_wsum / w_total);
             ESP_LOGI("accent", "Accent color: rgb(%d,%d,%d)", r, g, b);
-            lv_obj_set_style_bg_color(id(accent_bg_panel), lv_color_make(r, g, b), 0);
+
+            int dr = r / 3, dg = g / 3, db = b / 3;
+            lv_obj_set_style_bg_color(id(accent_bg_panel), lv_color_make(dr, dg, db), 0);
+            lv_obj_set_style_bg_color(id(media_play_pause_button), lv_color_make(r, g, b), 0);
           }
