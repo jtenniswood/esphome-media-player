@@ -476,7 +476,7 @@ display:
     reset_pin: GPIO27
     rotation: 180
     auto_clear_enabled: false
-    color_order: BGR
+    color_order: GBR
     dimensions:
       width: 800
       height: 1280
