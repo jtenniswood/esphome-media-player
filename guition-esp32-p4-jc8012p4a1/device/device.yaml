@@ -147,7 +147,7 @@ touchscreen:
     reset_pin: GPIO22
     interrupt_pin: GPIO21
     transform:
-      swap_xy: false
+      swap_xy: true
       mirror_x: false
       mirror_y: false
     on_touch:

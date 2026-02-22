@@ -1,10 +1,10 @@
 # =============================================================================
 # ACCENT COLOR - Extract dominant color from album art
 # =============================================================================
-# Samples edge pixels from the downloaded artwork to derive a representative
-# colour, then applies it to the accent_bg_panel widget background.
-# No Home Assistant dependencies — runs entirely on-device after each
-# successful image download.
+# Samples a grid of pixels across the downloaded artwork, weights each sample
+# by its colour saturation so vivid pixels dominate over blacks/whites/grays,
+# and applies the result to the accent_bg_panel widget background.
+# No Home Assistant dependencies — runs entirely on-device.
 # =============================================================================
 
 script:
@@ -17,26 +17,36 @@ script:
           int img_h = img->get_height();
           if (img_w <= 0 || img_h <= 0) return;
 
-          long r_sum = 0, g_sum = 0, b_sum = 0;
-          int count = 0;
-          int step_x = img_w > 10 ? img_w / 10 : 1;
-          int step_y = img_h > 10 ? img_h / 10 : 1;
+          int grid = 12;
+          int step_x = img_w / grid;
+          int step_y = img_h / grid;
+          if (step_x < 1) step_x = 1;
+          if (step_y < 1) step_y = 1;
 
-          for (int x = 0; x < img_w; x += step_x) {
-            auto c = img->get_pixel(x, 0);
-            r_sum += c.r; g_sum += c.g; b_sum += c.b; count++;
-            c = img->get_pixel(x, img_h - 1);
-            r_sum += c.r; g_sum += c.g; b_sum += c.b; count++;
-          }
-          for (int y = 0; y < img_h; y += step_y) {
-            auto c = img->get_pixel(0, y);
-            r_sum += c.r; g_sum += c.g; b_sum += c.b; count++;
-            c = img->get_pixel(img_w - 1, y);
-            r_sum += c.r; g_sum += c.g; b_sum += c.b; count++;
+          int64_t r_wsum = 0, g_wsum = 0, b_wsum = 0;
+          int64_t w_total = 0;
+
+          for (int y = step_y / 2; y < img_h; y += step_y) {
+            for (int x = step_x / 2; x < img_w; x += step_x) {
+              auto c = img->get_pixel(x, y);
+              int r = c.r, g = c.g, b = c.b;
+
+              int mx = r > g ? (r > b ? r : b) : (g > b ? g : b);
+              int mn = r < g ? (r < b ? r : b) : (g < b ? g : b);
+              int sat = mx - mn;
+
+              int weight = sat * sat + 1;
+              r_wsum += (int64_t)r * weight;
+              g_wsum += (int64_t)g * weight;
+              b_wsum += (int64_t)b * weight;
+              w_total += weight;
+            }
           }
 
-          if (count > 0) {
-            int r = r_sum / count, g = g_sum / count, b = b_sum / count;
-            ESP_LOGI("accent", "Accent color: rgb(%d,%d,%d) from %d edge samples", r, g, b, count);
+          if (w_total > 0) {
+            int r = (int)(r_wsum / w_total);
+            int g = (int)(g_wsum / w_total);
+            int b = (int)(b_wsum / w_total);
+            ESP_LOGI("accent", "Accent color: rgb(%d,%d,%d)", r, g, b);
             lv_obj_set_style_bg_color(id(accent_bg_panel), lv_color_make(r, g, b), 0);
           }
