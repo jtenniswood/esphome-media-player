@@ -151,8 +151,8 @@ touchscreen:
     interrupt_pin: GPIO21
     transform:
       swap_xy: true
-      mirror_x: true
-      mirror_y: false
+      mirror_x: false
+      mirror_y: true
     on_touch:
       - lambda: |-
           id(was_screen_dimmed) = id(is_screen_dimmed);
