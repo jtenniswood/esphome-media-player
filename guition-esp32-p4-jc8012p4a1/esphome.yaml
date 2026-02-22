@@ -1,9 +1,7 @@
 # Guition ESP32-P4-JC8012P4A1 Music Dashboard
 substitutions:
-  name: "music-dashboard"
-  friendly_name: "Music Dashboard"
-  media_player: ""
-  tv_media_player: ""
+  name: "music-dashboard-10inch"
+  friendly_name: "Music Dashboard 10inch"
 
 # Wifi Setup
 wifi:
