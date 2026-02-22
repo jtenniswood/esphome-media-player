@@ -55,12 +55,12 @@ lvgl:
             bg_opa: 0%
             border_width: 0
             pad_all: 0
-            pad_row: 24
             scrollable: false
             scrollbar_mode: "off"
             layout:
               type: flex
               flex_flow: COLUMN
+              pad_row: 24
             widgets:
               - label:
                   id: media_title_label
