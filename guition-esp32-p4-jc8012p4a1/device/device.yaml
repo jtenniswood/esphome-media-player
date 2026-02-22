@@ -115,9 +115,6 @@ globals:
     initial_value: '0'
 
   # -- UI overlay visibility --
-  - id: is_ui_hidden
-    type: bool
-    initial_value: 'false'
   - id: is_screen_dimmed
     type: bool
     initial_value: 'false'
@@ -206,50 +203,12 @@ touchscreen:
               id(swipe_next_track).execute();
             }
           }
-          // --- Tap: toggle UI visibility ---
-          // Excludes the play/pause button area.
-          else if (abs(dx) < 20 && abs(dy) < 20) {
-            int sx = id(touch_x_start);
-            if (sx >= 1174 && sx <= 1266 && sy >= 694 && sy <= 786) {
-              return;
-            }
-            if (id(was_screen_dimmed)) {
-              // Screen was dimmed — wake only, don't toggle
-            } else if (id(is_ui_hidden)) {
-              id(toggle_ui).execute();
-            } else {
-              bool playing = id(media_player_state_sensor).has_state() && id(media_player_state_sensor).state == "playing";
-              if (playing) id(toggle_ui).execute();
-            }
-          }
 
 
 # -----------------------------------------------------------------------------
 # INTERACTION SCRIPTS
 # -----------------------------------------------------------------------------
 script:
-  - id: toggle_ui
-    mode: restart
-    then:
-      - if:
-          condition:
-            lambda: 'return id(is_ui_hidden);'
-          then:
-            - lambda: 'id(is_ui_hidden) = false;'
-            - lvgl.widget.show: track_info_panel
-            - lvgl.widget.show: media_play_pause_button
-            - lambda: |-
-                lv_obj_fade_in(id(track_info_panel), 200, 0);
-                lv_obj_fade_in(id(media_play_pause_button), 200, 0);
-          else:
-            - lambda: 'id(is_ui_hidden) = true;'
-            - lambda: |-
-                lv_obj_fade_out(id(track_info_panel), 300, 0);
-                lv_obj_fade_out(id(media_play_pause_button), 300, 0);
-            - delay: 400ms
-            - lvgl.widget.hide: track_info_panel
-            - lvgl.widget.hide: media_play_pause_button
-
   - id: swipe_next_track
     mode: single
     then:
@@ -302,17 +261,6 @@ script:
           then:
             - lvgl.widget.hide: settings_panel
             - lambda: 'id(is_panel_open) = false;'
-      - if:
-          condition:
-            lambda: 'return id(is_ui_hidden);'
-          then:
-            - script.stop: toggle_ui
-            - lambda: 'id(is_ui_hidden) = false;'
-            - lvgl.widget.show: track_info_panel
-            - lvgl.widget.show: media_play_pause_button
-            - lambda: |-
-                lv_obj_fade_in(id(track_info_panel), 200, 0);
-                lv_obj_fade_in(id(media_play_pause_button), 200, 0);
 
 
 
