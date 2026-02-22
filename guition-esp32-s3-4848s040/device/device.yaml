@@ -68,7 +68,10 @@ api:
     - lvgl.widget.hide: setup_prompt
     - if:
         condition:
-          lambda: 'return !id(boot_grace_period);'
+          lambda: |-
+            return !id(boot_grace_period)
+                && (esphome::api::global_api_server == nullptr
+                    || !esphome::api::global_api_server->is_connected());
         then:
           - lvgl.widget.show: ha_setup_prompt
 

@@ -15,12 +15,23 @@
 # -----------------------------------------------------------------------------
 # BACKLIGHT LIGHT OUTPUT
 # -----------------------------------------------------------------------------
+esphome:
+  on_boot:
+    priority: -10
+    then:
+      - light.turn_on:
+          id: backlight
+          brightness: 100%
+          transition_length: 500ms
+      - script.execute: backlight_wake_timeout
+
+
 light:
   - platform: monochromatic
     name: Backlight
     id: backlight
     output: backlight_output
-    restore_mode: ALWAYS_ON
+    restore_mode: ALWAYS_OFF
     default_transition_length: 1s
     internal: true
 

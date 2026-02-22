@@ -62,10 +62,10 @@ lvgl:
         # Track info panel (flex column on right side)
         - obj:
             id: track_info_panel
-            x: 848
-            y: 48
-            width: 384px
-            height: 704px
+            x: 840
+            y: 40
+            width: 400px
+            height: 720px
             bg_opa: 0%
             border_width: 0
             pad_all: 0
@@ -109,8 +109,8 @@ lvgl:
         # Play/pause button (bottom-right corner)
         - button:
             id: media_play_pause_button
-            x: 1136
-            y: 656
+            x: 1144
+            y: 664
             width: 96px
             height: 96px
             radius: 48

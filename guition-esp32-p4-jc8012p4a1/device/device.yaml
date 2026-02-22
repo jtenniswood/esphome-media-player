@@ -46,6 +46,15 @@ psram:
 
 ota:
   - platform: esphome
+    on_begin:
+      - light.turn_off:
+          id: backlight
+          transition_length: 0s
+    on_error:
+      - light.turn_on:
+          id: backlight
+          brightness: 100%
+          transition_length: 0s
 
 
 api:
@@ -58,7 +67,10 @@ api:
     - lvgl.widget.hide: setup_prompt
     - if:
         condition:
-          lambda: 'return !id(boot_grace_period);'
+          lambda: |-
+            return !id(boot_grace_period)
+                && (esphome::api::global_api_server == nullptr
+                    || !esphome::api::global_api_server->is_connected());
         then:
           - lvgl.widget.show: ha_setup_prompt
 
