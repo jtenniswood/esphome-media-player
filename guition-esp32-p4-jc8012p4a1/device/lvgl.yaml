@@ -84,6 +84,7 @@ lvgl:
               - label:
                   id: media_time_label
                   text: "0:00  /  0:00"
+                  pad_top: 8
                   width: 100%
                   text_font: roboto20_font
                   text_color: 0xFFFFFF
