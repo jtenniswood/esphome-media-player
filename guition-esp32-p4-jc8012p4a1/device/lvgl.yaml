@@ -48,10 +48,10 @@ lvgl:
         # Track info panel (flex column on right side)
         - obj:
             id: track_info_panel
-            x: 824
-            y: 24
-            width: 432px
-            height: 752px
+            x: 832
+            y: 32
+            width: 416px
+            height: 736px
             bg_opa: 0%
             border_width: 0
             pad_all: 0
@@ -60,7 +60,7 @@ lvgl:
             layout:
               type: flex
               flex_flow: COLUMN
-              pad_row: 24
+              pad_row: 0
             widgets:
               - label:
                   id: media_title_label
@@ -70,6 +70,7 @@ lvgl:
                   text_font: roboto_light96_font
                   text_color: 0xFFFFFF
                   text_align: left
+                  text_line_space: -20
               - label:
                   id: media_artist_label
                   text: ""
@@ -92,8 +93,8 @@ lvgl:
         # Play/pause button (bottom-right corner)
         - button:
             id: media_play_pause_button
-            x: 1160
-            y: 680
+            x: 1152
+            y: 672
             width: 96px
             height: 96px
             radius: 48
@@ -101,14 +102,14 @@ lvgl:
             widgets:
               - label:
                   id: media_play_icon
-                  text_font: $icon_font
+                  text_font: icon_font_large
                   align: center
                   text: $play
                   text_color: 0xFFFFFF
                   hidden: false
               - label:
                   id: media_pause_icon
-                  text_font: $icon_font
+                  text_font: icon_font_large
                   align: center
                   text: $pause
                   text_color: 0xFFFFFF
