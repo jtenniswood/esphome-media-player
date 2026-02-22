@@ -137,11 +137,11 @@ text_sensor:
                 id: media_artist_label
                 text: !lambda 'return x;'
             - lvgl.widget.show: media_artist_label
-            - lambda: 'lv_obj_set_y(id(media_time_label), 194);'
+            - lambda: 'lv_obj_set_y(id(media_time_label), 748);'
           else:
             - lambda: 'id(artist_has_content) = false;'
             - lvgl.widget.hide: media_artist_label
-            - lambda: 'lv_obj_set_y(id(media_time_label), 140);'
+            - lambda: 'lv_obj_set_y(id(media_time_label), 624);'
 
   - platform: template
     id: media_entity_picture_sensor

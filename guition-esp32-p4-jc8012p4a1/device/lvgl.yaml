@@ -45,40 +45,41 @@ lvgl:
             text_align: center
             hidden: true
 
-        # Song title (right panel, top-aligned)
+        # Song title (right panel, top-aligned; wraps up to ~5 lines)
         - label:
             id: media_title_label
             text: "—"
             x: 824
             y: 24
             width: 432px
-            height: 110px
-            long_mode: dot
+            height: 576px
+            long_mode: wrap
             text_font: roboto_light96_font
             text_color: 0xFFFFFF
             text_align: left
 
-        # Artist name (below title; hidden when no artist data)
+        # Artist name (below title; hidden when no artist data; wraps up to ~2 lines)
         - label:
             id: media_artist_label
             text: ""
             x: 824
-            y: 140
+            y: 624
             width: 432px
-            height: 48px
-            long_mode: dot
+            height: 100px
+            long_mode: wrap
             text_font: roboto_light40_font
             text_color: 0xFFFFFF
+            text_opa: 80%
             text_align: left
             hidden: true
 
         # Play/pause button (bottom-right corner)
         - button:
             id: media_play_pause_button
-            x: 1184
+            x: 1160
             y: 704
-            width: 72px
-            height: 72px
+            width: 96px
+            height: 96px
             styles: control_round
             widgets:
               - label:
@@ -103,15 +104,16 @@ lvgl:
                   data_template:
                     entity_id: "{{ target }}"
 
-        # Play clock: y=140 collapsed, y=194 when artist visible
+        # Play clock: y=624 collapsed, y=748 when artist visible
         - label:
             id: media_time_label
             text: "0:00  /  0:00"
             x: 824
-            y: 140
+            y: 624
             width: 200px
             text_font: roboto20_font
-            text_color: 0xDDDDDD
+            text_color: 0xFFFFFF
+            text_opa: 80%
             text_align: left
 
         # Progress bar at the very bottom
