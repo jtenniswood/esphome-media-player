@@ -8,7 +8,35 @@
 # Reads the raw RGB565 buffer directly (little-endian byte order) because
 # Image::get_pixel() always decodes as big-endian, producing wrong colours
 # when byte_order is little_endian.
+#
+# The extracted colour is also exposed as an RGB light entity ("Accent Color")
+# so it can be used in Home Assistant automations (e.g. syncing room lights).
+# The light is output-only — setting it from HA has no effect on the display.
 # =============================================================================
+
+output:
+  - id: accent_r_output
+    platform: template
+    type: float
+    write_action: []
+  - id: accent_g_output
+    platform: template
+    type: float
+    write_action: []
+  - id: accent_b_output
+    platform: template
+    type: float
+    write_action: []
+
+light:
+  - platform: rgb
+    id: accent_color_light
+    name: "Accent Color"
+    red: accent_r_output
+    green: accent_g_output
+    blue: accent_b_output
+    entity_category: ""
+    restore_mode: RESTORE_DEFAULT_OFF
 
 script:
   - id: extract_accent_color
@@ -67,4 +95,9 @@ script:
             lv_obj_set_style_bg_color(id(accent_bg_panel), lv_color_make(dr, dg, db), 0);
             int br = r * 3 / 4, bg = g * 3 / 4, bb = b * 3 / 4;
             lv_obj_set_style_bg_color(id(media_play_pause_button), lv_color_make(br, bg, bb), 0);
+
+            auto call = id(accent_color_light).turn_on();
+            call.set_rgb(r / 255.0f, g / 255.0f, b / 255.0f);
+            call.set_transition_length(0);
+            call.perform();
           }
