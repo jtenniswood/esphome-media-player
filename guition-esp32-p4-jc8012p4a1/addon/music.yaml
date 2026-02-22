@@ -13,12 +13,12 @@ http_request:
 image:
   - file: "https://placehold.co/800x800/2d2d2d/555555"
     id: album_art_placeholder
-    type: RGB24
+    type: RGB
 
 online_image:
   - url: "https://placehold.co/800x800/2d2d2d/555555"
     id: album_art_background
-    type: RGB24
+    type: RGB
     format: jpeg
     placeholder: album_art_placeholder
     resize: 800x800
@@ -47,7 +47,7 @@ online_image:
   # After download, zoom is calculated to contain the image within 800x800.
   - url: "https://placehold.co/800x450/2d2d2d/555555"
     id: tv_art_background
-    type: RGB24
+    type: RGB
     format: jpeg
     placeholder: album_art_placeholder
     on_download_finished:
