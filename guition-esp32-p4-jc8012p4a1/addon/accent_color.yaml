@@ -1,10 +1,13 @@
 # =============================================================================
 # ACCENT COLOR - Extract dominant color from album art
 # =============================================================================
-# Samples a grid of pixels across the downloaded artwork, weights each sample
-# by its colour saturation so vivid pixels dominate over blacks/whites/grays,
-# and applies the result to the accent_bg_panel widget background.
-# No Home Assistant dependencies — runs entirely on-device.
+# Samples a grid of pixels from the downloaded artwork, weighted by colour
+# saturation so vivid pixels dominate over blacks/whites/grays, and applies
+# the result to the accent_bg_panel widget background.
+#
+# Reads the raw RGB565 buffer directly (little-endian byte order) because
+# Image::get_pixel() always decodes as big-endian, producing wrong colours
+# when byte_order is little_endian.
 # =============================================================================
 
 script:
@@ -17,6 +20,10 @@ script:
           int img_h = img->get_height();
           if (img_w <= 0 || img_h <= 0) return;
 
+          lv_img_dsc_t *dsc = img->get_lv_img_dsc();
+          const uint8_t *data = dsc->data;
+          if (!data) return;
+
           int grid = 12;
           int step_x = img_w / grid;
           int step_y = img_h / grid;
@@ -26,10 +33,17 @@ script:
           int64_t r_wsum = 0, g_wsum = 0, b_wsum = 0;
           int64_t w_total = 0;
 
-          for (int y = step_y / 2; y < img_h; y += step_y) {
-            for (int x = step_x / 2; x < img_w; x += step_x) {
-              auto c = img->get_pixel(x, y);
-              int r = c.r, g = c.g, b = c.b;
+          for (int sy = step_y / 2; sy < img_h; sy += step_y) {
+            for (int sx = step_x / 2; sx < img_w; sx += step_x) {
+              int pos = (sx + sy * img_w) * 2;
+              uint16_t rgb565 = data[pos] | (data[pos + 1] << 8);
+
+              int r = ((rgb565 >> 11) & 0x1F);
+              int g = ((rgb565 >> 5) & 0x3F);
+              int b = (rgb565 & 0x1F);
+              r = (r << 3) | (r >> 2);
+              g = (g << 2) | (g >> 4);
+              b = (b << 3) | (b >> 2);
 
               int mx = r > g ? (r > b ? r : b) : (g > b ? g : b);
               int mn = r < g ? (r < b ? r : b) : (g < b ? g : b);

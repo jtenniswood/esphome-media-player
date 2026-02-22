@@ -146,7 +146,7 @@ lvgl:
             width: 1280
             height: 6
             bg_color: 0x000000
-            bg_opa: 50%
+            bg_opa: 100%
             radius: 0
             min_value: 0
             max_value: 100
