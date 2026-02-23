@@ -427,6 +427,8 @@ script:
               return id(media_player_entity).state;
           data_template:
             entity_id: "{{ target }}"
+          on_error:
+            - lvgl.widget.show: actions_prompt
       - event.trigger:
           id: media_control_event
           event_type: next_track
@@ -442,6 +444,8 @@ script:
               return id(media_player_entity).state;
           data_template:
             entity_id: "{{ target }}"
+          on_error:
+            - lvgl.widget.show: actions_prompt
       - event.trigger:
           id: media_control_event
           event_type: previous_track
@@ -474,6 +478,8 @@ script:
           data_template:
             entity_id: "{{ target }}"
             volume_level: "{{ vol_level }}"
+          on_error:
+            - lvgl.widget.show: actions_prompt
       - event.trigger:
           id: media_control_event
           event_type: volume_change
