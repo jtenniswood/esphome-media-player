@@ -44,6 +44,7 @@ psram:
   speed: 200MHz
 
 
+# Hide screen during OTA to avoid flicker
 ota:
   - platform: esphome
     on_begin:
@@ -68,7 +69,8 @@ api:
     - if:
         condition:
           lambda: |-
-            return !id(boot_grace_period)
+            return !id(device_has_been_setup)
+                && !id(boot_grace_period)
                 && (esphome::api::global_api_server == nullptr
                     || !esphome::api::global_api_server->is_connected());
         then:
@@ -147,6 +149,12 @@ globals:
     type: bool
     restore_value: true
     initial_value: 'false'
+  # True after first successful setup (WiFi + HA + media entity); suppresses
+  # WiFi/HA/actions setup prompts on restart so user sees loading/main UI instead.
+  - id: device_has_been_setup
+    type: bool
+    restore_value: true
+    initial_value: 'false'
 
 
 
@@ -190,6 +198,7 @@ touchscreen:
             if (abs(dx) < 20 && abs(dy) < 20) {
               lv_obj_add_flag(id(actions_prompt), LV_OBJ_FLAG_HIDDEN);
               id(actions_prompt_acked) = true;
+              id(device_has_been_setup) = true;
             }
             return;
           }
@@ -207,19 +216,47 @@ touchscreen:
             return;
           }
 
-          // --- Horizontal swipe: track navigation ---
+          // --- Horizontal swipe: track navigation (works when playing or paused) ---
           if (abs(dx) > 100 && abs(dx) > abs(dy) * 2) {
-            if (dx > 0) {
-              id(swipe_previous_track).execute();
-            } else {
-              id(swipe_next_track).execute();
+            std::string e = id(media_player_entity).state;
+            bool can_skip = !e.empty() && id(media_player_state_sensor).has_state();
+            if (can_skip) {
+              std::string s = id(media_player_state_sensor).state;
+              can_skip = (s == "playing" || s == "paused");
+            }
+            if (can_skip) {
+              if (dx > 0) {
+                id(swipe_previous_track).execute();
+              } else {
+                id(swipe_next_track).execute();
+              }
             }
           }
 
 
 # -----------------------------------------------------------------------------
+# MEDIA CONTROL EVENTS (Home Assistant automations)
+# -----------------------------------------------------------------------------
+# Exposes play_pause, next_track, previous_track, volume_change to HA as an
+# event entity. Use in HA: Automations → Trigger → Event, select this device.
+# Requires Home Assistant 2024.5+. Subscribe to logs is NOT required.
+# -----------------------------------------------------------------------------
+event:
+  - platform: template
+    name: Media control
+    id: media_control_event
+    device_class: button
+    event_types:
+      - play_pause
+      - next_track
+      - previous_track
+      - volume_change
+
+
+# -----------------------------------------------------------------------------
 # INTERACTION SCRIPTS
 # -----------------------------------------------------------------------------
+# Track navigation: next/previous (allowed when playing or paused).
 script:
   - id: swipe_next_track
     mode: single
@@ -230,6 +267,12 @@ script:
             target: !lambda 'return id(media_player_entity).state;'
           data_template:
             entity_id: "{{ target }}"
+          on_error:
+            - lvgl.widget.show: actions_prompt
+      - event.trigger:
+          id: media_control_event
+          event_type: next_track
+      - logger.log: "Media: next_track"
   - id: swipe_previous_track
     mode: single
     then:
@@ -239,6 +282,12 @@ script:
             target: !lambda 'return id(media_player_entity).state;'
           data_template:
             entity_id: "{{ target }}"
+          on_error:
+            - lvgl.widget.show: actions_prompt
+      - event.trigger:
+          id: media_control_event
+          event_type: previous_track
+      - logger.log: "Media: previous_track"
 
   - id: open_settings_panel
     mode: single
@@ -263,6 +312,12 @@ script:
           data_template:
             entity_id: "{{ target }}"
             volume_level: "{{ vol_level }}"
+          on_error:
+            - lvgl.widget.show: actions_prompt
+      - event.trigger:
+          id: media_control_event
+          event_type: volume_change
+      - logger.log: "Media: volume_change"
 
   - id: show_track_view
     mode: single

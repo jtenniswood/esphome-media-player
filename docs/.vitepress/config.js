@@ -6,19 +6,35 @@ export default {
   themeConfig: {
     sidebar: [
       {
-        text: 'Install',
+        text: 'Getting Started',
         link: '/',
       },
       {
         text: 'Devices',
         items: [
           { text: 'ESP32-S3 4848S040 (4")', link: '/devices/esp32-s3-4848s040' },
-          { text: 'ESP32-P4 JC8012P4A1 (8")', link: '/devices/esp32-p4-jc8012p4a1' },
+          { text: 'ESP32-P4 JC8012P4A1 (10.1")', link: '/devices/esp32-p4-jc8012p4a1' },
         ],
       },
       {
-        text: 'Manual Setup',
+        text: 'Features',
+        link: '/features',
+      },
+      {
+        text: 'Configurable Settings',
+        link: '/configurable-settings',
+      },
+      {
+        text: 'Events & automations',
+        link: '/automations',
+      },
+      {
+        text: 'Manual Installation',
         link: '/manual-setup',
+      },
+      {
+        text: 'Troubleshooting',
+        link: '/troubleshooting',
       },
     ],
   },

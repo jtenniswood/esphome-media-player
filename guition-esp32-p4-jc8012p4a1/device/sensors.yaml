@@ -27,6 +27,9 @@ globals:
   - id: artist_has_content
     type: bool
     initial_value: 'false'
+  - id: last_artwork_url
+    type: std::string
+    initial_value: '""'
 
 interval:
   - interval: 1s
@@ -129,15 +132,13 @@ text_sensor:
                 id: album_art_background_widget
                 opa: 50%
             - lvgl.widget.hide: artwork_error_label
+            - lambda: |-
+                std::string path = x;
+                while (!path.empty() && (path.back() == '\n' || path.back() == '\r' || path.back() == ' ')) path.pop_back();
+                id(last_artwork_url) = (path.substr(0, 7) == "http://" || path.substr(0, 8) == "https://") ? path : (id(ha_base_url) + path);
             - online_image.set_url:
                 id: album_art_background
-                url: !lambda |-
-                  std::string path = x;
-                  while (!path.empty() && (path.back() == '\n' || path.back() == '\r' || path.back() == ' ')) path.pop_back();
-                  if (path.substr(0, 7) == "http://" || path.substr(0, 8) == "https://") {
-                    return path;
-                  }
-                  return id(ha_base_url) + path;
+                url: !lambda 'return id(last_artwork_url);'
 
   - platform: template
     id: media_player_state_sensor

@@ -137,6 +137,12 @@ lvgl:
                     target: !lambda 'return id(media_player_entity).state;'
                   data_template:
                     entity_id: "{{ target }}"
+                  on_error:
+                    - lvgl.widget.show: actions_prompt
+              - event.trigger:
+                  id: media_control_event
+                  event_type: play_pause
+              - logger.log: "Media: play_pause"
 
         # Progress bar at the very bottom
         - bar:
@@ -476,3 +482,59 @@ lvgl:
                   width: 500
                   height: 80
                   text_align: center
+
+        # ---------------------------------------------------------------
+        # LOADING SCREEN (shown at boot until WiFi/grace period)
+        # ---------------------------------------------------------------
+        # Full-screen overlay, visible by default. Hidden when connected or
+        # when grace period ends. Status and progress updated from network.yaml.
+        # ---------------------------------------------------------------
+        - obj:
+            id: loading_screen
+            x: 0
+            y: 0
+            width: 1280
+            height: 800
+            bg_color: 0x000000
+            bg_opa: 100%
+            radius: 0
+            border_width: 0
+            pad_all: 0
+            scrollable: false
+            scrollbar_mode: "off"
+            hidden: false
+            widgets:
+              - label:
+                  text: "Starting..."
+                  text_font: roboto30_font
+                  text_color: 0xFFFFFF
+                  align: center
+                  y: -60
+                  width: 500
+                  height: 36
+                  text_align: center
+              - label:
+                  id: loading_status_label
+                  text: "Initializing..."
+                  text_font: roboto19_font
+                  text_color: 0x888888
+                  align: center
+                  y: 0
+                  width: 600
+                  height: 30
+                  text_align: center
+              - bar:
+                  id: loading_progress_bar
+                  x: 340
+                  y: 60
+                  width: 600
+                  height: 6
+                  bg_color: 0x333333
+                  bg_opa: 100%
+                  radius: 3
+                  min_value: 0
+                  max_value: 100
+                  value: 0
+                  indicator:
+                    bg_color: 0xFFFFFF
+                    radius: 3

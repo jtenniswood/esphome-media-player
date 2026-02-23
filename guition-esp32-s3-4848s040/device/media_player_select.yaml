@@ -116,7 +116,6 @@ script:
           lv_label_set_text(id(media_title_label), "\xe2\x80\x94");
           id(artist_has_content) = false;
           lv_obj_add_flag(id(media_artist_label), LV_OBJ_FLAG_HIDDEN);
-          lv_obj_set_y(id(media_time_label), 406);
           lv_label_set_text(id(media_time_label), "0:00 / -0:00");
           lv_bar_set_value(id(media_progress_bar), 0, LV_ANIM_OFF);
           lv_obj_set_style_opa(id(album_art_background_widget), LV_OPA_50, 0);
@@ -173,9 +172,11 @@ script:
 
           ESP_LOGI("media_select", "Subscribed to '%s'", entity.c_str());
 
-          if (!id(actions_prompt_acked)) {
+          // Only show "enable actions" prompt on first-time setup
+          if (!id(device_has_been_setup)) {
             lv_obj_clear_flag(id(actions_prompt), LV_OBJ_FLAG_HIDDEN);
           }
+          id(device_has_been_setup) = true;
 
   - id: subscribe_tv_media_player
     mode: restart

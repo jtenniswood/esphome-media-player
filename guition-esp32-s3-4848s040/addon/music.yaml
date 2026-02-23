@@ -15,10 +15,6 @@ image:
   - file: "https://placehold.co/480x480/2d2d2d/555555"
     id: album_art_placeholder
     type: rgb565
-  - file: "https://raw.githubusercontent.com/jtenniswood/esphome-media-player/main/guition-esp32-s3-4848s040/assets/gradient.png"
-    id: bottom_gradient
-    type: RGB565
-    transparency: alpha_channel
 
 # Dynamic album art from media_player entity_picture (URL set by sensors.yaml).
 # Decoded at 480x480 to match the physical display resolution (1:1 pixel mapping).
@@ -26,6 +22,7 @@ online_image:
   - url: "https://placehold.co/480x480/2d2d2d/555555"
     id: album_art_background
     type: rgb565
+    byte_order: little_endian
     format: jpeg
     placeholder: album_art_placeholder
     resize: 480x480
@@ -44,7 +41,14 @@ online_image:
       - lvgl.widget.update:
           id: album_art_background_widget
           opa: 100%
+      - script.execute: extract_accent_color
+      - script.execute: start_hide_track_info_timer
     on_error:
+      - logger.log:
+          level: WARNING
+          tag: artwork
+          format: "Artwork download failed: %s"
+          args: [!lambda 'return id(last_artwork_url).c_str();']
       - lvgl.widget.update:
           id: album_art_background_widget
           opa: 40%
@@ -109,7 +113,13 @@ online_image:
       - lvgl.widget.update:
           id: album_art_background_widget
           opa: 100%
+      - script.execute: start_hide_track_info_timer
     on_error:
+      - logger.log:
+          level: WARNING
+          tag: artwork_tv
+          format: "TV artwork download failed: %s"
+          args: [!lambda 'return id(last_tv_artwork_url).c_str();']
       - lvgl.widget.update:
           id: album_art_background_widget
           opa: 40%

@@ -12,24 +12,38 @@ globals:
 
 wifi:
   on_connect:
+    - lambda: |-
+        lv_label_set_text(id(loading_status_label), "Connected");
+        lv_bar_set_value(id(loading_progress_bar), 100, LV_ANIM_OFF);
+    - delay: 800ms
+    - lvgl.widget.hide: loading_screen
     - lvgl.widget.hide: wifi_setup_prompt
     - if:
         condition:
-          lambda: 'return !id(boot_grace_period);'
+          lambda: 'return !id(device_has_been_setup) && !id(boot_grace_period);'
         then:
           - lvgl.widget.show: ha_setup_prompt
   on_disconnect:
     - if:
         condition:
-          lambda: 'return !id(boot_grace_period);'
+          lambda: 'return !id(device_has_been_setup) && !id(boot_grace_period);'
         then:
           - lvgl.widget.show: wifi_setup_prompt
     - lvgl.widget.hide: ha_setup_prompt
 
 esphome:
   on_boot:
+    priority: -200
+    then:
+      - lambda: |-
+          lv_label_set_text(id(loading_status_label), "Initializing...");
+          lv_bar_set_value(id(loading_progress_bar), 25, LV_ANIM_OFF);
+  on_boot:
     priority: -100
     then:
+      - lambda: |-
+          lv_label_set_text(id(loading_status_label), "Connecting to WiFi...");
+          lv_bar_set_value(id(loading_progress_bar), 50, LV_ANIM_OFF);
       - lambda: |-
           std::string name = App.get_name();
           std::string wifi_text = "Connect to the WiFi hotspot\n'" + name + "'\nto configure your network";
@@ -40,15 +54,19 @@ esphome:
           lv_label_set_text(id(actions_device_info), actions_text.c_str());
       - delay: 10s
       - lambda: 'id(boot_grace_period) = false;'
+      - lvgl.widget.hide: loading_screen
       - if:
           condition:
-            not:
-              wifi.connected:
+            and:
+              - lambda: 'return !id(device_has_been_setup);'
+              - not:
+                  wifi.connected:
           then:
             - lvgl.widget.show: wifi_setup_prompt
       - if:
           condition:
             and:
+              - lambda: 'return !id(device_has_been_setup);'
               - wifi.connected:
               - lambda: |-
                   return esphome::api::global_api_server == nullptr

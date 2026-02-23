@@ -44,48 +44,60 @@ lvgl:
             text_align: center
             hidden: true
 
-        # Gradient overlay behind the bottom controls
-        - image:
-            id: bottom_overlay
+        # Track info overlay: darkened artwork color, 50% transparent, over artwork
+        - obj:
+            id: track_info_overlay
             x: 0
-            y: 350
+            y: 180
             width: 480
-            height: 130
-            src: bottom_gradient
+            height: 294
+            bg_color: 0x1a1a1a
+            bg_opa: 50%
+            radius: 0
+            border_width: 0
+            pad_left: 24
+            pad_right: 24
+            pad_top: 16
+            pad_bottom: 16
+            scrollable: false
+            scrollbar_mode: "off"
+            layout:
+              type: flex
+              flex_flow: COLUMN
+              pad_row: 0
+            widgets:
+              - label:
+                  id: media_title_label
+                  text: "—"
+                  width: 100%
+                  height: 252px
+                  long_mode: wrap
+                  text_font: roboto_light70_font
+                  text_color: 0xFFFFFF
+                  text_align: left
+              - label:
+                  id: media_artist_label
+                  text: ""
+                  width: 100%
+                  long_mode: dot
+                  text_font: roboto_light40_font
+                  text_color: 0xFFFFFF
+                  text_align: left
+                  hidden: true
+              - label:
+                  id: media_time_label
+                  text: "0:00  /  0:00"
+                  pad_top: 8
+                  width: 100%
+                  text_font: roboto20_font
+                  text_color: 0xDDDDDD
+                  text_align: left
 
-        # Song title
-        - label:
-            id: media_title_label
-            text: "—"
-            x: 18
-            y: 366
-            width: 370px
-            height: 30px
-            long_mode: dot
-            text_font: roboto30_font
-            text_color: 0xFFFFFF
-            text_align: left
-
-        # Artist name (hidden by default; shown when artist data is available)
-        - label:
-            id: media_artist_label
-            text: ""
-            x: 18
-            y: 406
-            width: 370px
-            height: 24px
-            long_mode: dot
-            text_font: roboto19_font
-            text_color: 0xFFFFFF
-            text_align: left
-            hidden: true
-
-        # Control buttons: 72px round; play/pause + next aligned to the right
-        # Play/pause: two icon labels; visibility toggled by sensors.yaml from state
+        # Play/pause: 72px round, right side of track area
         - button:
             id: media_play_pause_button
             x: 390
-            y: 366
+            y: 186
             width: 72px
             height: 72px
             styles: control_round
@@ -113,17 +125,10 @@ lvgl:
                       return id(media_player_entity).state;
                   data_template:
                     entity_id: "{{ target }}"
-
-        # Play clock: starts at y=406 (collapsed); shifts to y=438 when artist is visible
-        - label:
-            id: media_time_label
-            text: "0:00  /  0:00"
-            x: 18
-            y: 406
-            width: 200px
-            text_font: roboto15_font
-            text_color: 0xDDDDDD
-            text_align: left
+              - event.trigger:
+                  id: media_control_event
+                  event_type: play_pause
+              - logger.log: "Media: play_pause"
 
         # Progress bar: full screen width, at the very bottom of the screen
         - bar:
@@ -484,3 +489,59 @@ lvgl:
                   width: 400
                   height: 80
                   text_align: center
+
+        # ---------------------------------------------------------------
+        # LOADING SCREEN (shown at boot until WiFi/grace period)
+        # ---------------------------------------------------------------
+        # Full-screen overlay, visible by default. Hidden when connected or
+        # when grace period ends. Status and progress updated from network.yaml.
+        # ---------------------------------------------------------------
+        - obj:
+            id: loading_screen
+            x: 0
+            y: 0
+            width: 480
+            height: 480
+            bg_color: 0x000000
+            bg_opa: 100%
+            radius: 0
+            border_width: 0
+            pad_all: 0
+            scrollable: false
+            scrollbar_mode: "off"
+            hidden: false
+            widgets:
+              - label:
+                  text: "Starting..."
+                  text_font: roboto30_font
+                  text_color: 0xFFFFFF
+                  align: center
+                  y: -60
+                  width: 400
+                  height: 36
+                  text_align: center
+              - label:
+                  id: loading_status_label
+                  text: "Initializing..."
+                  text_font: roboto19_font
+                  text_color: 0x888888
+                  align: center
+                  y: 0
+                  width: 400
+                  height: 30
+                  text_align: center
+              - bar:
+                  id: loading_progress_bar
+                  x: 40
+                  y: 50
+                  width: 400
+                  height: 6
+                  bg_color: 0x333333
+                  bg_opa: 100%
+                  radius: 3
+                  min_value: 0
+                  max_value: 100
+                  value: 0
+                  indicator:
+                    bg_color: 0xFFFFFF
+                    radius: 3

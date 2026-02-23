@@ -48,6 +48,15 @@ esphome:
 # -----------------------------------------------------------------------------
 ota:
   - platform: esphome
+    on_begin:
+      - light.turn_off:
+          id: backlight
+          transition_length: 0s
+    on_error:
+      - light.turn_on:
+          id: backlight
+          brightness: 100%
+          transition_length: 0s
 
 
 # -----------------------------------------------------------------------------
@@ -69,7 +78,8 @@ api:
     - if:
         condition:
           lambda: |-
-            return !id(boot_grace_period)
+            return !id(device_has_been_setup)
+                && !id(boot_grace_period)
                 && (esphome::api::global_api_server == nullptr
                     || !esphome::api::global_api_server->is_connected());
         then:
@@ -201,6 +211,12 @@ globals:
     type: bool
     restore_value: true
     initial_value: 'false'
+  # True after first successful setup (WiFi + HA + media entity); suppresses
+  # WiFi/HA/actions setup prompts on restart so user sees loading/main UI instead.
+  - id: device_has_been_setup
+    type: bool
+    restore_value: true
+    initial_value: 'false'
 
   # -- TV source mode --
   - id: is_tv_mode
@@ -263,6 +279,7 @@ touchscreen:
             if (abs(dx) < 20 && abs(dy) < 20) {
               lv_obj_add_flag(id(actions_prompt), LV_OBJ_FLAG_HIDDEN);
               id(actions_prompt_acked) = true;
+              id(device_has_been_setup) = true;
             }
             return;
           }
@@ -285,12 +302,31 @@ touchscreen:
             return;
           }
 
-          // --- Horizontal swipe: track navigation ---
+          // --- Horizontal swipe: track navigation (works when playing or paused) ---
           if (abs(dx) > 80 && abs(dx) > abs(dy) * 2) {
-            if (dx > 0) {
-              id(swipe_previous_track).execute();
-            } else {
-              id(swipe_next_track).execute();
+            std::string e = id(is_tv_mode) ? id(tv_media_player_entity).state : id(media_player_entity).state;
+            bool can_skip = !e.empty();
+            if (can_skip) {
+              if (id(is_tv_mode)) {
+                can_skip = id(tv_media_player_state_sensor).has_state();
+                if (can_skip) {
+                  std::string s = id(tv_media_player_state_sensor).state;
+                  can_skip = (s == "playing" || s == "paused");
+                }
+              } else {
+                can_skip = id(media_player_state_sensor).has_state();
+                if (can_skip) {
+                  std::string s = id(media_player_state_sensor).state;
+                  can_skip = (s == "playing" || s == "paused");
+                }
+              }
+            }
+            if (can_skip) {
+              if (dx > 0) {
+                id(swipe_previous_track).execute();
+              } else {
+                id(swipe_next_track).execute();
+              }
             }
           }
           // Tap: minimal movement anywhere on screen — toggle UI visibility
@@ -318,12 +354,34 @@ touchscreen:
 
 
 # -----------------------------------------------------------------------------
+# MEDIA CONTROL EVENTS (Home Assistant automations)
+# -----------------------------------------------------------------------------
+# Exposes play_pause, next_track, previous_track, volume_change, tv_mode_enter,
+# tv_mode_exit to HA as an event entity. Use in HA: Automations → Trigger →
+# Event, select this device. Requires Home Assistant 2024.5+. Subscribe to logs
+# is NOT required.
+# -----------------------------------------------------------------------------
+event:
+  - platform: template
+    name: Media control
+    id: media_control_event
+    device_class: button
+    event_types:
+      - play_pause
+      - next_track
+      - previous_track
+      - volume_change
+      - tv_mode_enter
+      - tv_mode_exit
+
+
+# -----------------------------------------------------------------------------
 # INTERACTION SCRIPTS
 # -----------------------------------------------------------------------------
 # Scripts triggered by touch gestures and UI events:
 #   toggle_ui           – Tap to show/hide the now-playing overlay (fade anim)
-#   swipe_next_track    – Swipe left to skip to the next track
-#   swipe_previous_track– Swipe right to go back to the previous track
+#   swipe_next_track    – Swipe left to skip to the next track (allowed when playing or paused)
+#   swipe_previous_track– Swipe right to go back to the previous track (allowed when playing or paused)
 #   open_settings_panel – Swipe down to reveal the settings panel
 #   close_settings_panel– Swipe up (or tap close) to hide the settings panel
 #   show_track_view     – Resets to the main now-playing view (closes panel,
@@ -342,36 +400,22 @@ script:
             lambda: 'return id(is_ui_hidden);'
           then:
             - lambda: 'id(is_ui_hidden) = false;'
-            - lvgl.widget.show: bottom_overlay
-            - lvgl.widget.show: media_title_label
+            - lvgl.widget.show: track_info_overlay
             - lvgl.widget.show: media_play_pause_button
-            - lvgl.widget.show: media_time_label
             - lambda: |-
-                lv_obj_fade_in(id(bottom_overlay), 200, 0);
-                lv_obj_fade_in(id(media_title_label), 200, 0);
-                if (id(artist_has_content)) {
-                  lv_obj_clear_flag(id(media_artist_label), LV_OBJ_FLAG_HIDDEN);
-                  lv_obj_fade_in(id(media_artist_label), 200, 0);
-                }
+                if (id(artist_has_content)) lv_obj_clear_flag(id(media_artist_label), LV_OBJ_FLAG_HIDDEN);
+                lv_obj_fade_in(id(track_info_overlay), 200, 0);
                 lv_obj_fade_in(id(media_play_pause_button), 200, 0);
-                lv_obj_fade_in(id(media_time_label), 200, 0);
           else:
             - lambda: 'id(is_ui_hidden) = true;'
             - lambda: |-
-                lv_obj_fade_out(id(bottom_overlay), 300, 0);
-                lv_obj_fade_out(id(media_title_label), 300, 0);
-                if (id(artist_has_content)) {
-                  lv_obj_fade_out(id(media_artist_label), 300, 0);
-                }
+                lv_obj_fade_out(id(track_info_overlay), 300, 0);
                 lv_obj_fade_out(id(media_play_pause_button), 300, 0);
-                lv_obj_fade_out(id(media_time_label), 300, 0);
             - delay: 400ms
-            - lvgl.widget.hide: bottom_overlay
-            - lvgl.widget.hide: media_title_label
-            - lvgl.widget.hide: media_artist_label
+            - lvgl.widget.hide: track_info_overlay
             - lvgl.widget.hide: media_play_pause_button
-            - lvgl.widget.hide: media_time_label
-  # -- Track navigation (called by horizontal swipe gestures) --
+            - lvgl.widget.hide: media_artist_label
+  # -- Track navigation (horizontal swipe; allowed when playing or paused) --
   - id: swipe_next_track
     mode: single
     then:
@@ -383,6 +427,10 @@ script:
               return id(media_player_entity).state;
           data_template:
             entity_id: "{{ target }}"
+      - event.trigger:
+          id: media_control_event
+          event_type: next_track
+      - logger.log: "Media: next_track"
   - id: swipe_previous_track
     mode: single
     then:
@@ -394,6 +442,10 @@ script:
               return id(media_player_entity).state;
           data_template:
             entity_id: "{{ target }}"
+      - event.trigger:
+          id: media_control_event
+          event_type: previous_track
+      - logger.log: "Media: previous_track"
 
   # -- Settings panel (called by vertical swipe gestures) --
   - id: open_settings_panel
@@ -422,6 +474,10 @@ script:
           data_template:
             entity_id: "{{ target }}"
             volume_level: "{{ vol_level }}"
+      - event.trigger:
+          id: media_control_event
+          event_type: volume_change
+      - logger.log: "Media: volume_change"
 
   # -- Reset to now-playing view (e.g. when a new track starts) --
   - id: show_track_view
@@ -439,19 +495,12 @@ script:
           then:
             - script.stop: toggle_ui
             - lambda: 'id(is_ui_hidden) = false;'
-            - lvgl.widget.show: bottom_overlay
-            - lvgl.widget.show: media_title_label
+            - lvgl.widget.show: track_info_overlay
             - lvgl.widget.show: media_play_pause_button
-            - lvgl.widget.show: media_time_label
             - lambda: |-
-                lv_obj_fade_in(id(bottom_overlay), 200, 0);
-                lv_obj_fade_in(id(media_title_label), 200, 0);
-                if (id(artist_has_content)) {
-                  lv_obj_clear_flag(id(media_artist_label), LV_OBJ_FLAG_HIDDEN);
-                  lv_obj_fade_in(id(media_artist_label), 200, 0);
-                }
+                if (id(artist_has_content)) lv_obj_clear_flag(id(media_artist_label), LV_OBJ_FLAG_HIDDEN);
+                lv_obj_fade_in(id(track_info_overlay), 200, 0);
                 lv_obj_fade_in(id(media_play_pause_button), 200, 0);
-                lv_obj_fade_in(id(media_time_label), 200, 0);
 
   # -- TV source mode transitions --
   - id: enter_tv_mode
@@ -462,8 +511,14 @@ script:
           // Push current TV sensor values to widgets immediately
           if (id(tv_media_title_sensor).has_state()) {
             std::string title = id(tv_media_title_sensor).state;
-            if (title.substr(0, 8) == "(null): ") title = title.substr(8);
-            lv_label_set_text(id(media_title_label), title.empty() ? "—" : title.c_str());
+            if (title.size() >= 8 && title.substr(0, 8) == "(null): ") title = title.substr(8);
+            if (title.empty()) {
+              lv_label_set_text(id(media_title_label), "—");
+            } else {
+              const size_t max_chars = 85;
+              std::string display = title.size() <= max_chars ? title : title.substr(0, max_chars) + "\xe2\x80\xa6";
+              lv_label_set_text(id(media_title_label), display.c_str());
+            }
           } else {
             lv_label_set_text(id(media_title_label), "TV");
           }
@@ -472,11 +527,9 @@ script:
             id(artist_has_content) = true;
             lv_label_set_text(id(media_artist_label), id(tv_media_artist_sensor).state.c_str());
             lv_obj_clear_flag(id(media_artist_label), LV_OBJ_FLAG_HIDDEN);
-            lv_obj_set_y(id(media_time_label), 438);
           } else {
             id(artist_has_content) = false;
             lv_obj_add_flag(id(media_artist_label), LV_OBJ_FLAG_HIDDEN);
-            lv_obj_set_y(id(media_time_label), 406);
           }
       - if:
           condition:
@@ -486,13 +539,13 @@ script:
                 id: album_art_background_widget
                 opa: 50%
             - lvgl.widget.hide: artwork_error_label
+            - lambda: |-
+                std::string path = id(tv_entity_picture_sensor).state;
+                while (!path.empty() && (path.back() == '\n' || path.back() == '\r' || path.back() == ' ')) path.pop_back();
+                id(last_tv_artwork_url) = (path.substr(0, 7) == "http://" || path.substr(0, 8) == "https://") ? path : (id(ha_base_url) + path);
             - online_image.set_url:
                 id: tv_art_background
-                url: !lambda |-
-                  std::string path = id(tv_entity_picture_sensor).state;
-                  while (!path.empty() && (path.back() == '\n' || path.back() == '\r' || path.back() == ' ')) path.pop_back();
-                  if (path.substr(0, 7) == "http://" || path.substr(0, 8) == "https://") return path;
-                  return id(ha_base_url) + path;
+                url: !lambda 'return id(last_tv_artwork_url);'
           else:
             - lvgl.widget.update:
                 id: album_art_background_widget
@@ -509,6 +562,10 @@ script:
             - lvgl.widget.show: media_play_icon
             - lvgl.widget.hide: media_pause_icon
       - script.execute: show_track_view
+      - event.trigger:
+          id: media_control_event
+          event_type: tv_mode_enter
+      - logger.log: "Media: tv_mode_enter"
 
   - id: exit_tv_mode
     mode: single
@@ -520,7 +577,13 @@ script:
           // Push current Sonos sensor values back to widgets
           if (id(media_title_sensor).has_state()) {
             auto &t = id(media_title_sensor).state;
-            lv_label_set_text(id(media_title_label), t.empty() ? "—" : t.c_str());
+            if (t.empty()) {
+              lv_label_set_text(id(media_title_label), "—");
+            } else {
+              const size_t max_chars = 85;
+              std::string display = t.size() <= max_chars ? t : t.substr(0, max_chars) + "\xe2\x80\xa6";
+              lv_label_set_text(id(media_title_label), display.c_str());
+            }
           } else {
             lv_label_set_text(id(media_title_label), "—");
           }
@@ -529,11 +592,9 @@ script:
             id(artist_has_content) = true;
             lv_label_set_text(id(media_artist_label), id(media_artist_sensor).state.c_str());
             lv_obj_clear_flag(id(media_artist_label), LV_OBJ_FLAG_HIDDEN);
-            lv_obj_set_y(id(media_time_label), 438);
           } else {
             id(artist_has_content) = false;
             lv_obj_add_flag(id(media_artist_label), LV_OBJ_FLAG_HIDDEN);
-            lv_obj_set_y(id(media_time_label), 406);
           }
       - if:
           condition:
@@ -543,13 +604,13 @@ script:
                 id: album_art_background_widget
                 opa: 50%
             - lvgl.widget.hide: artwork_error_label
+            - lambda: |-
+                std::string path = id(media_entity_picture_sensor).state;
+                while (!path.empty() && (path.back() == '\n' || path.back() == '\r' || path.back() == ' ')) path.pop_back();
+                id(last_artwork_url) = (path.substr(0, 7) == "http://" || path.substr(0, 8) == "https://") ? path : (id(ha_base_url) + path);
             - online_image.set_url:
                 id: album_art_background
-                url: !lambda |-
-                  std::string path = id(media_entity_picture_sensor).state;
-                  while (!path.empty() && (path.back() == '\n' || path.back() == '\r' || path.back() == ' ')) path.pop_back();
-                  if (path.substr(0, 7) == "http://" || path.substr(0, 8) == "https://") return path;
-                  return id(ha_base_url) + path;
+                url: !lambda 'return id(last_artwork_url);'
       - if:
           condition:
             lambda: |-
@@ -562,6 +623,10 @@ script:
             - lvgl.widget.show: media_play_icon
             - lvgl.widget.hide: media_pause_icon
       - script.execute: show_track_view
+      - event.trigger:
+          id: media_control_event
+          event_type: tv_mode_exit
+      - logger.log: "Media: tv_mode_exit"
 
 
 # -----------------------------------------------------------------------------
