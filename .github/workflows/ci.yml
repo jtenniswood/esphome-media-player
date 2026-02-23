@@ -23,13 +23,23 @@ jobs:
         esphome-version: [stable, beta, dev]
     steps:
       - uses: actions/checkout@v6
-      - name: Build regular
+      - name: Build S3 regular
         uses: esphome/build-action@v7
         with:
-          yaml-file: guition-esp32-s3-4848s040.yaml
+          yaml-file: builds/guition-esp32-s3-4848s040.yaml
           version: ${{ matrix.esphome-version }}
-      - name: Build factory
+      - name: Build S3 factory
         uses: esphome/build-action@v7
         with:
-          yaml-file: guition-esp32-s3-4848s040.factory.yaml
+          yaml-file: builds/guition-esp32-s3-4848s040.factory.yaml
+          version: ${{ matrix.esphome-version }}
+      - name: Build P4 regular
+        uses: esphome/build-action@v7
+        with:
+          yaml-file: builds/guition-esp32-p4-jc8012p4a1.yaml
+          version: ${{ matrix.esphome-version }}
+      - name: Build P4 factory
+        uses: esphome/build-action@v7
+        with:
+          yaml-file: builds/guition-esp32-p4-jc8012p4a1.factory.yaml
           version: ${{ matrix.esphome-version }}

@@ -188,6 +188,10 @@ These settings are exposed as entities under the device's **Configuration** sect
 
 If you prefer full control through the ESPHome dashboard, see the [Manual Setup Guide](docs/manual-setup.md).
 
+## Documentation site
+
+The [documentation site](https://jtenniswood.github.io/esphome-media-player/) is built with [VitePress](https://vitepress.dev/). To run it locally: `npm install` then `npm run docs:dev`.
+
 ---
 
 ## Feedback
