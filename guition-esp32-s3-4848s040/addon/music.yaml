@@ -48,7 +48,7 @@ online_image:
           level: WARN
           tag: artwork
           format: "Artwork download failed: %s"
-          args: [!lambda 'return id(last_artwork_url).c_str();']
+          args: ['id(last_artwork_url).c_str()']
       - lvgl.widget.update:
           id: album_art_background_widget
           opa: 40%
