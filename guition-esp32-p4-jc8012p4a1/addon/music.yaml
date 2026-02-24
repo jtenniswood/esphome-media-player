@@ -58,7 +58,7 @@ online_image:
       - script.execute: extract_accent_color
     on_error:
       - logger.log:
-          level: WARNING
+          level: WARN
           tag: artwork
           format: "Artwork download failed: %s"
           args: [!lambda 'return id(last_artwork_url).c_str();']
