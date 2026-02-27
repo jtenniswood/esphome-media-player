@@ -61,6 +61,7 @@ lvgl:
             pad_bottom: 16
             scrollable: false
             scrollbar_mode: "off"
+            clickable: false
             layout:
               type: flex
               flex_flow: COLUMN
