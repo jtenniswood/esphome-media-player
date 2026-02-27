@@ -88,7 +88,7 @@ lvgl:
                   text: "—"
                   width: 100%
                   max_height: 252px
-                  long_mode: wrap
+                  long_mode: dot
                   text_font: roboto_light70_font
                   text_color: 0xFFFFFF
                   text_align: left

@@ -37,7 +37,7 @@ online_image:
     id: album_art_background
     type: RGB565
     byte_order: little_endian
-    format: auto
+    format: jpeg
     placeholder: album_art_placeholder
     resize: 800x800
     on_download_finished:
