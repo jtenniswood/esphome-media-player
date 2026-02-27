@@ -2,8 +2,6 @@
 substitutions:
   name: "music-dashboard"
   friendly_name: "Music Dashboard"
-  media_player: ""
-  tv_media_player: ""
 
 # Wifi Setup
 wifi:

@@ -22,7 +22,6 @@ online_image:
   - url: "https://placehold.co/480x480/2d2d2d/555555"
     id: album_art_background
     type: rgb565
-    byte_order: little_endian
     format: jpeg
     placeholder: album_art_placeholder
     resize: 480x480
