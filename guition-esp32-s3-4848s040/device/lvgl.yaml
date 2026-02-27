@@ -95,25 +95,25 @@ lvgl:
                   on_click:
                     - switch.toggle: show_remaining_time
 
-        # Play/pause: 72px round, bottom-right corner
+        # Play/pause: 96px round, bottom-right corner
         - button:
             id: media_play_pause_button
-            x: 384
-            y: 386
-            width: 72px
-            height: 72px
+            x: 360
+            y: 362
+            width: 96px
+            height: 96px
             styles: control_round
             widgets:
               - label:
                   id: media_play_icon
-                  text_font: $icon_font
+                  text_font: icon_font_large
                   align: center
                   text: $play
                   text_color: 0xFFFFFF
                   hidden: false
               - label:
                   id: media_pause_icon
-                  text_font: $icon_font
+                  text_font: icon_font_large
                   align: center
                   text: $pause
                   text_color: 0xFFFFFF

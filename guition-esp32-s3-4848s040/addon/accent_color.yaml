@@ -53,19 +53,11 @@ script:
           auto *img = id(album_art_background);
           int img_w = img->get_width();
           int img_h = img->get_height();
-          if (img_w <= 0 || img_h <= 0) {
-            lv_obj_set_style_bg_color(id(track_info_overlay), lv_color_make(26, 26, 26), 0);
-            lv_obj_set_style_bg_opa(id(track_info_overlay), LV_OPA_50, 0);
-            return;
-          }
+          if (img_w <= 0 || img_h <= 0) return;
 
           lv_img_dsc_t *dsc = img->get_lv_img_dsc();
           const uint8_t *data = dsc->data;
-          if (!data) {
-            lv_obj_set_style_bg_color(id(track_info_overlay), lv_color_make(26, 26, 26), 0);
-            lv_obj_set_style_bg_opa(id(track_info_overlay), LV_OPA_50, 0);
-            return;
-          }
+          if (!data) return;
 
           int grid = 12;
           int step_x = img_w / grid;
@@ -109,20 +101,13 @@ script:
             id(accent_b) = b;
             ESP_LOGI("accent", "Accent color: rgb(%d,%d,%d)", r, g, b);
 
-            int dr = (int)(r * 0.34f);
-            int dg = (int)(g * 0.34f);
-            int db = (int)(b * 0.34f);
-            if (dr > 255) dr = 255;
-            if (dg > 255) dg = 255;
-            if (db > 255) db = 255;
+            int dr = r / 3, dg = g / 3, db = b / 3;
             lv_obj_set_style_bg_color(id(track_info_overlay), lv_color_make(dr, dg, db), 0);
-            lv_obj_set_style_bg_opa(id(track_info_overlay), LV_OPA_50, 0);
+            int br = r * 3 / 4, bg = g * 3 / 4, bb = b * 3 / 4;
+            lv_obj_set_style_bg_color(id(media_play_pause_button), lv_color_make(br, bg, bb), 0);
 
             auto call = id(accent_color_light).turn_on();
             call.set_rgb(r / 255.0f, g / 255.0f, b / 255.0f);
             call.set_transition_length(0);
             call.perform();
-          } else {
-            lv_obj_set_style_bg_color(id(track_info_overlay), lv_color_make(26, 26, 26), 0);
-            lv_obj_set_style_bg_opa(id(track_info_overlay), LV_OPA_50, 0);
           }

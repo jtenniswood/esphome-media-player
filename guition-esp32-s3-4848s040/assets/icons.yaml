@@ -16,6 +16,13 @@ font:
       - "\U000F07D0"  # mdi-home-assistant
       - "\U000F0118"  # mdi-cast
       - "\U000F0565"  # mdi-shield-check
+  - file: 'https://github.com/Templarian/MaterialDesign-Webfont/raw/v7.4.47/fonts/materialdesignicons-webfont.ttf'
+    id: icon_font_large
+    size: 56
+    bpp: 4
+    glyphs:
+      - "\U000F040A"  # mdi-play
+      - "\U000F03E4"  # mdi-pause
 
 substitutions:
   play:          "\U000F040A"
