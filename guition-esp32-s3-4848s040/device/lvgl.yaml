@@ -111,72 +111,55 @@ lvgl:
                   pad_all: 0
                   scrollable: false
                   clickable: false
-              - obj:
+              - label:
+                  id: media_time_label
+                  text: "0:00  /  0:00"
                   width: 100%
-                  height: 96px
-                  bg_opa: 0%
-                  border_width: 0
-                  pad_all: 0
-                  scrollable: false
-                  clickable: false
-                  layout:
-                    type: flex
-                    flex_flow: ROW
-                    flex_align_cross: center
-                    pad_column: 0
-                  widgets:
-                    - label:
-                        id: media_time_label
-                        text: "0:00  /  0:00"
-                        text_font: roboto20_font
-                        text_color: 0xFFFFFF
-                        text_opa: 80%
-                        text_align: left
-                        on_click:
-                          - switch.toggle: show_remaining_time
-                    - obj:
-                        flex_grow: 1
-                        height: 1px
-                        bg_opa: 0%
-                        border_width: 0
-                        pad_all: 0
-                        scrollable: false
-                        clickable: false
-                    - button:
-                        id: media_play_pause_button
-                        width: 96px
-                        height: 96px
-                        styles: control_round
-                        widgets:
-                          - label:
-                              id: media_play_icon
-                              text_font: icon_font_large
-                              align: center
-                              text: $play
-                              text_color: 0xFFFFFF
-                              hidden: false
-                          - label:
-                              id: media_pause_icon
-                              text_font: icon_font_large
-                              align: center
-                              text: $pause
-                              text_color: 0xFFFFFF
-                              hidden: true
-                        on_press:
-                          - homeassistant.service:
-                              service: media_player.media_play_pause
-                              variables:
-                                target: !lambda |-
-                                  if (id(is_tv_mode)) return id(tv_media_player_entity).state;
-                                  return id(media_player_entity).state;
-                              data_template:
-                                entity_id: "{{ target }}"
-                              on_error:
-                                - lvgl.widget.show: actions_prompt
-                          - event.trigger:
-                              id: media_control_event
-                              event_type: play_pause
-                          - logger.log: "Media: play_pause"
+                  text_font: roboto20_font
+                  text_color: 0xFFFFFF
+                  text_opa: 80%
+                  text_align: left
+                  on_click:
+                    - switch.toggle: show_remaining_time
+
+        # Play/pause: 96px round, bottom-right corner
+        - button:
+            id: media_play_pause_button
+            x: 360
+            y: 354
+            width: 96px
+            height: 96px
+            styles: control_round
+            widgets:
+              - label:
+                  id: media_play_icon
+                  text_font: icon_font_large
+                  align: center
+                  text: $play
+                  text_color: 0xFFFFFF
+                  hidden: false
+              - label:
+                  id: media_pause_icon
+                  text_font: icon_font_large
+                  align: center
+                  text: $pause
+                  text_color: 0xFFFFFF
+                  hidden: true
+            on_press:
+              - homeassistant.service:
+                  service: media_player.media_play_pause
+                  variables:
+                    target: !lambda |-
+                      if (id(is_tv_mode)) return id(tv_media_player_entity).state;
+                      return id(media_player_entity).state;
+                  data_template:
+                    entity_id: "{{ target }}"
+                  on_error:
+                    - lvgl.widget.show: actions_prompt
+              - event.trigger:
+                  id: media_control_event
+                  event_type: play_pause
+              - logger.log: "Media: play_pause"
 
         # Progress bar: full screen width, at the very bottom of the screen
         - bar:
