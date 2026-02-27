@@ -57,11 +57,8 @@ online_image:
           opa: 100%
       - script.execute: extract_accent_color
     on_error:
-      - logger.log:
-          level: WARN
-          tag: artwork
-          format: "Artwork download failed: %s"
-          args: ['id(last_artwork_url).c_str()']
+      - lambda: |-
+          ESP_LOGW("artwork", "Artwork download failed: %s", id(last_artwork_url).c_str());
       - lvgl.widget.update:
           id: album_art_background_widget
           opa: 40%
