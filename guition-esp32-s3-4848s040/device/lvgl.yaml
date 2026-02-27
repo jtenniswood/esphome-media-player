@@ -61,7 +61,7 @@ lvgl:
             scrollbar_mode: "off"
             clickable: false
 
-        # Track info + controls (flex column over darkening layer)
+        # Track info text (transparent background, over darkening layer)
         - obj:
             id: track_info_text
             x: 0
@@ -74,7 +74,7 @@ lvgl:
             pad_left: 24
             pad_right: 24
             pad_top: 24
-            pad_bottom: 24
+            pad_bottom: 16
             scrollable: false
             scrollbar_mode: "off"
             clickable: false
@@ -88,7 +88,7 @@ lvgl:
                   text: "—"
                   width: 100%
                   max_height: 252px
-                  long_mode: dot
+                  long_mode: wrap
                   text_font: roboto_light70_font
                   text_color: 0xFFFFFF
                   text_align: left
@@ -103,17 +103,10 @@ lvgl:
                   text_opa: 80%
                   text_align: left
                   hidden: true
-              - obj:
-                  flex_grow: 1
-                  width: 100%
-                  bg_opa: 0%
-                  border_width: 0
-                  pad_all: 0
-                  scrollable: false
-                  clickable: false
               - label:
                   id: media_time_label
                   text: "0:00  /  0:00"
+                  pad_top: 12
                   width: 100%
                   text_font: roboto20_font
                   text_color: 0xFFFFFF

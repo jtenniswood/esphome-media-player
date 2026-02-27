@@ -59,7 +59,7 @@ lvgl:
             pad_all: 0
             scrollable: false
 
-        # Track info + controls (flex column on right side)
+        # Track info panel (flex column on right side)
         - obj:
             id: track_info_panel
             x: 840
@@ -80,8 +80,7 @@ lvgl:
                   id: media_title_label
                   text: "—"
                   width: 100%
-                  max_height: 480px
-                  long_mode: dot
+                  long_mode: wrap
                   text_font: roboto_light96_font
                   text_color: 0xFFFFFF
                   text_align: left
@@ -97,17 +96,10 @@ lvgl:
                   text_opa: 80%
                   text_align: left
                   hidden: true
-              - obj:
-                  flex_grow: 1
-                  width: 100%
-                  bg_opa: 0%
-                  border_width: 0
-                  pad_all: 0
-                  scrollable: false
-                  clickable: false
               - label:
                   id: media_time_label
                   text: "0:00  /  0:00"
+                  pad_top: 12
                   width: 100%
                   text_font: roboto20_font
                   text_color: 0xFFFFFF
@@ -227,40 +219,53 @@ lvgl:
             bg_opa: 100%
             radius: 0
             border_width: 0
-            pad_left: 30
-            pad_right: 30
+            pad_all: 0
             scrollable: false
             scrollbar_mode: "off"
             hidden: true
-            layout:
-              type: flex
-              flex_flow: COLUMN
-              flex_align_main: center
-              flex_align_cross: center
-              pad_row: 12
             widgets:
               - label:
                   text_font: $icon_font
+                  align: center
+                  y: -100
                   text: $icon_shield
                   text_color: 0xFFFFFF
               - label:
                   text: "Enable Actions"
                   text_font: roboto30_font
                   text_color: 0xFFFFFF
-                  width: 520
+                  align: center
+                  y: -40
+                  width: 500
+                  height: 36
                   text_align: center
               - label:
-                  id: actions_instructions
-                  text: "In Home Assistant, go to\nSettings > Devices > ESPHome\nFind the device and enable\n'Allow the device to perform\nHome Assistant actions'"
+                  text: "In Home Assistant, go to\nSettings > Devices > ESPHome\nand enable 'Allow the device to\nperform Home Assistant actions'"
                   text_font: roboto19_font
                   text_color: 0x888888
+                  align: center
+                  y: 30
                   width: 520
+                  height: 100
+                  text_align: center
+              - label:
+                  id: actions_device_info
+                  text: ""
+                  text_font: roboto19_font
+                  text_color: 0x666666
+                  align: center
+                  y: 130
+                  width: 520
+                  height: 50
                   text_align: center
               - label:
                   text: "Tap to continue"
                   text_font: roboto19_font
                   text_color: 0x555555
+                  align: center
+                  y: 200
                   width: 200
+                  height: 24
                   text_align: center
 
         # ---------------------------------------------------------------
@@ -502,20 +507,30 @@ lvgl:
             hidden: false
             widgets:
               - label:
-                  text: "Starting up"
+                  text: "Starting..."
                   text_font: roboto30_font
                   text_color: 0xFFFFFF
                   align: center
-                  y: -20
+                  y: -60
                   width: 500
                   height: 36
                   text_align: center
+              - label:
+                  id: loading_status_label
+                  text: "Initializing..."
+                  text_font: roboto19_font
+                  text_color: 0x888888
+                  align: center
+                  y: 0
+                  width: 600
+                  height: 30
+                  text_align: center
               - bar:
                   id: loading_progress_bar
-                  align: center
-                  y: 20
-                  width: 120
-                  height: 4
+                  x: 340
+                  y: 60
+                  width: 600
+                  height: 6
                   bg_color: 0x333333
                   bg_opa: 100%
                   radius: 3
