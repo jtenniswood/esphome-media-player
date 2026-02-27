@@ -52,8 +52,8 @@ lvgl:
             width: 480
             height: 480
             bg_color: 0x000000
-            bg_opa: 60%
-            opa: 60%
+            bg_opa: 80%
+            opa: 80%
             radius: 0
             border_width: 0
             pad_all: 0
@@ -119,8 +119,8 @@ lvgl:
             id: media_play_pause_button
             x: 360
             y: 354
-            width: 80px
-            height: 80px
+            width: 96px
+            height: 96px
             styles: control_round
             widgets:
               - label:
@@ -273,7 +273,7 @@ lvgl:
                   text_align: center
               - button:
                   align: center
-                  y: 200
+                  y: 160
                   width: 180
                   height: 44
                   radius: 22
@@ -541,7 +541,7 @@ lvgl:
             hidden: false
             widgets:
               - label:
-                  text: "Loading Player"
+                  text: "Starting up"
                   text_font: roboto30_font
                   text_color: 0xFFFFFF
                   align: center
