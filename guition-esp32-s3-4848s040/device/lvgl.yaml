@@ -92,6 +92,8 @@ lvgl:
                   text_font: roboto20_font
                   text_color: 0xDDDDDD
                   text_align: left
+                  on_click:
+                    - switch.toggle: show_remaining_time
 
         # Play/pause: 72px round, bottom-right corner
         - button:

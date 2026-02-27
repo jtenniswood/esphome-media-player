@@ -76,14 +76,25 @@ interval:
                   ? (id(tv_media_duration_sensor).has_state() ? id(tv_media_duration_sensor).state : 0.0f)
                   : (id(media_duration_sensor).has_state() ? id(media_duration_sensor).state : 0.0f);
               int e = (int)pos; if (e < 0) e = 0;
-              int rem = (int)(dur - pos); if (rem < 0) rem = 0;
               char buf[32];
-              if (dur >= 3600) {
-                snprintf(buf, sizeof(buf), "%d:%02d:%02d / -%d:%02d:%02d",
-                         e / 3600, (e % 3600) / 60, e % 60,
-                         rem / 3600, (rem % 3600) / 60, rem % 60);
+              if (id(show_remaining_time).state) {
+                int rem = (int)(dur - pos); if (rem < 0) rem = 0;
+                if (dur >= 3600) {
+                  snprintf(buf, sizeof(buf), "%d:%02d:%02d / -%d:%02d:%02d",
+                           e / 3600, (e % 3600) / 60, e % 60,
+                           rem / 3600, (rem % 3600) / 60, rem % 60);
+                } else {
+                  snprintf(buf, sizeof(buf), "%d:%02d / -%d:%02d", e / 60, e % 60, rem / 60, rem % 60);
+                }
               } else {
-                snprintf(buf, sizeof(buf), "%d:%02d / -%d:%02d", e / 60, e % 60, rem / 60, rem % 60);
+                int d = (int)dur; if (d < 0) d = 0;
+                if (dur >= 3600) {
+                  snprintf(buf, sizeof(buf), "%d:%02d:%02d / %d:%02d:%02d",
+                           e / 3600, (e % 3600) / 60, e % 60,
+                           d / 3600, (d % 3600) / 60, d % 60);
+                } else {
+                  snprintf(buf, sizeof(buf), "%d:%02d / %d:%02d", e / 60, e % 60, d / 60, d % 60);
+                }
               }
               return std::string(buf);
       - lvgl.bar.update:
@@ -157,7 +168,10 @@ text_sensor:
                       }
                   - lvgl.label.update:
                       id: media_time_label
-                      text: "0:00 / -0:00"
+                      text: !lambda |-
+                        return id(show_remaining_time).state
+                            ? std::string("0:00 / -0:00")
+                            : std::string("0:00 / 0:00");
                   - lvgl.bar.update:
                       id: media_progress_bar
                       value: 0
@@ -332,3 +346,12 @@ number:
     icon: "mdi:timer-outline"
     entity_category: config
     mode: box
+
+switch:
+  - platform: template
+    name: "Show Remaining Time"
+    id: show_remaining_time
+    optimistic: true
+    restore_mode: RESTORE_DEFAULT_ON
+    icon: "mdi:timer-sand"
+    entity_category: config

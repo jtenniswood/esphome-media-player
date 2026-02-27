@@ -105,6 +105,8 @@ lvgl:
                   text_color: 0xFFFFFF
                   text_opa: 80%
                   text_align: left
+                  on_click:
+                    - switch.toggle: show_remaining_time
 
         # Play/pause button (bottom-right corner)
         - button:
