@@ -403,18 +403,22 @@ script:
           then:
             - lambda: 'id(is_ui_hidden) = false;'
             - lvgl.widget.show: track_info_overlay
+            - lvgl.widget.show: track_info_text
             - lvgl.widget.show: media_play_pause_button
             - lambda: |-
                 if (id(artist_has_content)) lv_obj_clear_flag(id(media_artist_label), LV_OBJ_FLAG_HIDDEN);
                 lv_obj_fade_in(id(track_info_overlay), 200, 0);
+                lv_obj_fade_in(id(track_info_text), 200, 0);
                 lv_obj_fade_in(id(media_play_pause_button), 200, 0);
           else:
             - lambda: 'id(is_ui_hidden) = true;'
             - lambda: |-
                 lv_obj_fade_out(id(track_info_overlay), 300, 0);
+                lv_obj_fade_out(id(track_info_text), 300, 0);
                 lv_obj_fade_out(id(media_play_pause_button), 300, 0);
             - delay: 400ms
             - lvgl.widget.hide: track_info_overlay
+            - lvgl.widget.hide: track_info_text
             - lvgl.widget.hide: media_play_pause_button
             - lvgl.widget.hide: media_artist_label
   # -- Track navigation (horizontal swipe; allowed when playing or paused) --
@@ -504,10 +508,12 @@ script:
             - script.stop: toggle_ui
             - lambda: 'id(is_ui_hidden) = false;'
             - lvgl.widget.show: track_info_overlay
+            - lvgl.widget.show: track_info_text
             - lvgl.widget.show: media_play_pause_button
             - lambda: |-
                 if (id(artist_has_content)) lv_obj_clear_flag(id(media_artist_label), LV_OBJ_FLAG_HIDDEN);
                 lv_obj_fade_in(id(track_info_overlay), 200, 0);
+                lv_obj_fade_in(id(track_info_text), 200, 0);
                 lv_obj_fade_in(id(media_play_pause_button), 200, 0);
 
   # -- TV source mode transitions --

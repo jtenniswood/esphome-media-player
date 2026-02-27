@@ -44,7 +44,7 @@ lvgl:
             text_align: center
             hidden: true
 
-        # Track info overlay: darkened artwork color, 50% transparent, over artwork
+        # Darkening layer over artwork (separate from text so transparency works)
         - obj:
             id: track_info_overlay
             x: 0
@@ -52,7 +52,23 @@ lvgl:
             width: 480
             height: 480
             bg_color: 0x000000
-            bg_opa: 100%
+            bg_opa: 60%
+            opa: 60%
+            radius: 0
+            border_width: 0
+            pad_all: 0
+            scrollable: false
+            scrollbar_mode: "off"
+            clickable: false
+
+        # Track info text (transparent background, over darkening layer)
+        - obj:
+            id: track_info_text
+            x: 0
+            y: 0
+            width: 480
+            height: 480
+            bg_opa: 0%
             radius: 0
             border_width: 0
             pad_left: 24
@@ -103,8 +119,8 @@ lvgl:
             id: media_play_pause_button
             x: 360
             y: 354
-            width: 96px
-            height: 96px
+            width: 80px
+            height: 80px
             styles: control_round
             widgets:
               - label:
@@ -255,15 +271,21 @@ lvgl:
                   width: 420
                   height: 50
                   text_align: center
-              - label:
-                  text: "Tap to continue"
-                  text_font: roboto19_font
-                  text_color: 0x555555
+              - button:
                   align: center
                   y: 200
-                  width: 200
-                  height: 24
-                  text_align: center
+                  width: 180
+                  height: 44
+                  radius: 22
+                  bg_color: 0xFFFFFF
+                  border_width: 0
+                  pad_all: 0
+                  widgets:
+                    - label:
+                        text: "Understood"
+                        text_font: roboto19_font
+                        text_color: 0x000000
+                        align: center
 
         # ---------------------------------------------------------------
         # SETTINGS PANEL (swipe-down from top)
@@ -519,29 +541,19 @@ lvgl:
             hidden: false
             widgets:
               - label:
-                  text: "Starting..."
+                  text: "Loading Player"
                   text_font: roboto30_font
                   text_color: 0xFFFFFF
                   align: center
-                  y: -60
+                  y: -20
                   width: 400
                   height: 36
                   text_align: center
-              - label:
-                  id: loading_status_label
-                  text: "Initializing..."
-                  text_font: roboto19_font
-                  text_color: 0x888888
-                  align: center
-                  y: 0
-                  width: 400
-                  height: 30
-                  text_align: center
               - bar:
                   id: loading_progress_bar
-                  x: 40
-                  y: 50
-                  width: 400
+                  align: center
+                  y: 20
+                  width: 200
                   height: 6
                   bg_color: 0x333333
                   bg_opa: 100%

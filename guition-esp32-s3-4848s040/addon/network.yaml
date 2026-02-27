@@ -13,7 +13,6 @@ globals:
 wifi:
   on_connect:
     - lambda: |-
-        lv_label_set_text(id(loading_status_label), "Connected");
         lv_bar_set_value(id(loading_progress_bar), 100, LV_ANIM_OFF);
     - delay: 800ms
     - lvgl.widget.hide: loading_screen
@@ -36,12 +35,10 @@ esphome:
     - priority: -200
       then:
         - lambda: |-
-            lv_label_set_text(id(loading_status_label), "Initializing...");
             lv_bar_set_value(id(loading_progress_bar), 25, LV_ANIM_OFF);
     - priority: -100
       then:
         - lambda: |-
-            lv_label_set_text(id(loading_status_label), "Connecting to WiFi...");
             lv_bar_set_value(id(loading_progress_bar), 50, LV_ANIM_OFF);
         - lambda: |-
             std::string name = App.get_name();
