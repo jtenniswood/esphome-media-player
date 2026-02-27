@@ -48,16 +48,16 @@ lvgl:
         - obj:
             id: track_info_overlay
             x: 0
-            y: 180
+            y: 0
             width: 480
-            height: 294
+            height: 480
             bg_color: 0x1a1a1a
             bg_opa: 50%
             radius: 0
             border_width: 0
             pad_left: 24
             pad_right: 24
-            pad_top: 16
+            pad_top: 196
             pad_bottom: 16
             scrollable: false
             scrollbar_mode: "off"
@@ -93,11 +93,11 @@ lvgl:
                   text_color: 0xDDDDDD
                   text_align: left
 
-        # Play/pause: 72px round, right side of track area
+        # Play/pause: 72px round, bottom-right corner
         - button:
             id: media_play_pause_button
-            x: 390
-            y: 186
+            x: 384
+            y: 386
             width: 72px
             height: 72px
             styles: control_round
