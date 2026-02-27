@@ -6,8 +6,8 @@
 # globals for UI/code access and applies darkened color (66% black) to
 # track_info_overlay. Also exposes an RGB light entity for Home Assistant.
 #
-# Reads the raw RGB565 buffer (little-endian: data[pos]|(data[pos+1]<<8)).
-# If colors look wrong on device, try big-endian: (data[pos+1]<<8)|data[pos].
+# Reads the raw RGB565 buffer in big-endian byte order (default for this
+# device since no byte_order is set in LVGL config).
 # =============================================================================
 
 globals:
@@ -71,7 +71,7 @@ script:
           for (int sy = step_y / 2; sy < img_h; sy += step_y) {
             for (int sx = step_x / 2; sx < img_w; sx += step_x) {
               int pos = (sx + sy * img_w) * 2;
-              uint16_t rgb565 = data[pos] | (data[pos + 1] << 8);
+              uint16_t rgb565 = (data[pos] << 8) | data[pos + 1];
 
               int r = ((rgb565 >> 11) & 0x1F);
               int g = ((rgb565 >> 5) & 0x3F);

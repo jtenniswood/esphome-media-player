@@ -46,6 +46,32 @@ text_sensor:
 # -----------------------------------------------------------------------------
 number:
   - platform: template
+    name: "Day Active Brightness"
+    id: backlight_day_active_brightness
+    min_value: 5
+    max_value: 100
+    step: 5
+    initial_value: 100
+    optimistic: true
+    restore_value: true
+    unit_of_measurement: "%"
+    icon: "mdi:brightness-7"
+    entity_category: config
+
+  - platform: template
+    name: "Night Active Brightness"
+    id: backlight_night_active_brightness
+    min_value: 5
+    max_value: 100
+    step: 5
+    initial_value: 80
+    optimistic: true
+    restore_value: true
+    unit_of_measurement: "%"
+    icon: "mdi:brightness-4"
+    entity_category: config
+
+  - platform: template
     name: "Day Dim Brightness"
     id: backlight_day_brightness
     min_value: 0
@@ -145,7 +171,13 @@ script:
           id(is_screen_dimmed) = false;
       - light.turn_on:
           id: backlight
-          brightness: 100%
+          brightness: !lambda |-
+            bool is_day = id(sun_state_sensor).has_state() &&
+                          id(sun_state_sensor).state == "above_horizon";
+            float pct = is_day
+              ? id(backlight_day_active_brightness).state
+              : id(backlight_night_active_brightness).state;
+            return pct / 100.0f;
           transition_length: 1s
       - lvgl.resume:
       - if:
