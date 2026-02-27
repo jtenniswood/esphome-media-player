@@ -48,6 +48,7 @@ psram:
 ota:
   - platform: esphome
     on_begin:
+      - lvgl.pause
       - light.turn_off:
           id: backlight
           transition_length: 0s
@@ -56,6 +57,7 @@ ota:
           id: backlight
           brightness: 100%
           transition_length: 0s
+      - lvgl.resume
 
 
 api:

@@ -68,6 +68,18 @@ number:
     unit_of_measurement: "%"
     icon: "mdi:brightness-7"
     entity_category: config
+    set_action:
+      - if:
+          condition:
+            lambda: 'return !id(is_screen_dimmed);'
+          then:
+            - light.turn_on:
+                id: backlight
+                brightness: !lambda |-
+                  bool is_day = id(sun_state_sensor).has_state() &&
+                                id(sun_state_sensor).state == "above_horizon";
+                  return (is_day ? x : id(backlight_night_active_brightness).state) / 100.0f;
+                transition_length: 500ms
 
   - platform: template
     name: "Night Active Brightness"
@@ -81,6 +93,18 @@ number:
     unit_of_measurement: "%"
     icon: "mdi:brightness-4"
     entity_category: config
+    set_action:
+      - if:
+          condition:
+            lambda: 'return !id(is_screen_dimmed);'
+          then:
+            - light.turn_on:
+                id: backlight
+                brightness: !lambda |-
+                  bool is_day = id(sun_state_sensor).has_state() &&
+                                id(sun_state_sensor).state == "above_horizon";
+                  return (is_day ? id(backlight_day_active_brightness).state : x) / 100.0f;
+                transition_length: 500ms
 
   - platform: template
     name: "Day Dim Brightness"

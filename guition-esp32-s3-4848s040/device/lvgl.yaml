@@ -51,7 +51,7 @@ lvgl:
             y: 0
             width: 480
             height: 480
-            bg_color: 0x1a1a1a
+            bg_color: 0x000000
             bg_opa: 50%
             radius: 0
             border_width: 0
@@ -99,7 +99,7 @@ lvgl:
         - button:
             id: media_play_pause_button
             x: 360
-            y: 362
+            y: 354
             width: 96px
             height: 96px
             styles: control_round
