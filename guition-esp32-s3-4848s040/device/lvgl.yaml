@@ -52,7 +52,7 @@ lvgl:
             width: 480
             height: 480
             bg_color: 0x000000
-            bg_opa: 50%
+            bg_opa: 80%
             radius: 0
             border_width: 0
             pad_left: 24
