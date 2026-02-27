@@ -52,7 +52,7 @@ lvgl:
             width: 480
             height: 480
             bg_color: 0x000000
-            bg_opa: 80%
+            bg_opa: 100%
             radius: 0
             border_width: 0
             pad_left: 24
@@ -83,6 +83,7 @@ lvgl:
                   long_mode: dot
                   text_font: roboto_light40_font
                   text_color: 0xFFFFFF
+                  text_opa: 80%
                   text_align: left
                   hidden: true
               - label:
@@ -91,7 +92,8 @@ lvgl:
                   pad_top: 8
                   width: 100%
                   text_font: roboto20_font
-                  text_color: 0xDDDDDD
+                  text_color: 0xFFFFFF
+                  text_opa: 80%
                   text_align: left
                   on_click:
                     - switch.toggle: show_remaining_time
