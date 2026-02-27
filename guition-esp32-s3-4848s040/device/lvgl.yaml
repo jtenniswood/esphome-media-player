@@ -52,8 +52,8 @@ lvgl:
             width: 480
             height: 480
             bg_color: 0x000000
-            bg_opa: 80%
-            opa: 80%
+            bg_opa: 90%
+            opa: 90%
             radius: 0
             border_width: 0
             pad_all: 0
@@ -253,23 +253,14 @@ lvgl:
                   height: 36
                   text_align: center
               - label:
-                  text: "In Home Assistant, go to\nSettings > Devices > ESPHome\nand enable 'Allow the device to\nperform Home Assistant actions'"
+                  id: actions_instructions
+                  text: "In Home Assistant, go to\nSettings > Devices > ESPHome\nFind the device and enable\n'Allow the device to perform\nHome Assistant actions'"
                   text_font: roboto19_font
                   text_color: 0x888888
                   align: center
                   y: 30
                   width: 420
-                  height: 100
-                  text_align: center
-              - label:
-                  id: actions_device_info
-                  text: ""
-                  text_font: roboto19_font
-                  text_color: 0x666666
-                  align: center
-                  y: 130
-                  width: 420
-                  height: 50
+                  height: 120
                   text_align: center
               - button:
                   align: center
@@ -553,8 +544,8 @@ lvgl:
                   id: loading_progress_bar
                   align: center
                   y: 20
-                  width: 200
-                  height: 6
+                  width: 120
+                  height: 4
                   bg_color: 0x333333
                   bg_opa: 100%
                   radius: 3
