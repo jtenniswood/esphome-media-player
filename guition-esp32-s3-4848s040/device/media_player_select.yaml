@@ -95,7 +95,7 @@ script:
           // Select the const-string-ref overload (avoids ambiguity with StringRef overload)
           using sub_fn_t = void(esphome::api::APIServer::*)(
               std::string, esphome::optional<std::string>,
-              std::function<void(const std::string &)>);
+              std::function<void(const std::string &)>&&);
           constexpr sub_fn_t subscribe = static_cast<sub_fn_t>(
               &esphome::api::APIServer::subscribe_home_assistant_state);
           auto *api = esphome::api::global_api_server;
