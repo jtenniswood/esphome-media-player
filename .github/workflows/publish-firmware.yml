@@ -42,7 +42,7 @@ jobs:
       - name: Collect firmware files
         run: |
           mkdir -p output
-          BUILD_DIR=".esphome/build/media-player/.pioenvs/media-player"
+          BUILD_DIR="builds/.esphome/build/media-player/.pioenvs/media-player"
           sudo cp "${BUILD_DIR}/firmware.factory.bin" output/media-player-esp32p4.factory.bin
           sudo cp "${BUILD_DIR}/firmware.ota.bin" output/media-player-esp32p4.ota.bin
       - name: Upload P4 firmware to release
