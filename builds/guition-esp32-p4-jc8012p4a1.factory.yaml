@@ -9,8 +9,6 @@ esphome:
 dashboard_import:
   package_import_url: github://jtenniswood/esphome-media-player/guition-esp32-p4-jc8012p4a1/esphome.yaml@guition-esp32-p4-jc8012p4a1
 
-improv_serial:
-
 ota:
   - platform: http_request
 
