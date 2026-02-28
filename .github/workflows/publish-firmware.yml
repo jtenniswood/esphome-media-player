@@ -9,12 +9,10 @@ permissions:
 
 jobs:
   build-firmware:
-    name: Build Firmware
+    name: Build S3 Firmware
     uses: esphome/workflows/.github/workflows/build.yml@2025.10.0
     with:
-      files: |
-        builds/guition-esp32-s3-4848s040.factory.yaml
-        builds/guition-esp32-p4-jc8012p4a1.factory.yaml
+      files: builds/guition-esp32-s3-4848s040.factory.yaml
       esphome-version: 2026.2.2
       combined-name: media-player
       release-summary: ${{ github.event.release.body }}
@@ -22,8 +20,36 @@ jobs:
       release-version: ${{ github.event.release.tag_name }}
 
   upload-to-release:
-    name: Upload to Release
+    name: Upload S3 to Release
     uses: esphome/workflows/.github/workflows/upload-to-gh-release.yml@2025.10.0
     needs: build-firmware
     with:
       version: ${{ github.event.release.tag_name }}
+
+  # ESP32-P4 build handled separately because esphome/build-action and
+  # esp-web-tools do not yet support the ESP32-P4 chip family.
+  build-p4:
+    name: Build P4 Firmware
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Compile P4 firmware
+        run: >-
+          docker run --rm
+          -v "${PWD}:/config"
+          ghcr.io/esphome/esphome:2026.2.2
+          compile /config/builds/guition-esp32-p4-jc8012p4a1.factory.yaml
+      - name: Collect firmware files
+        run: |
+          mkdir -p output
+          BUILD_DIR=".esphome/build/media-player/.pioenvs/media-player"
+          sudo cp "${BUILD_DIR}/firmware.factory.bin" output/media-player-esp32p4.factory.bin
+          sudo cp "${BUILD_DIR}/firmware.ota.bin" output/media-player-esp32p4.ota.bin
+      - name: Upload P4 firmware to release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >-
+          gh release upload "${{ github.event.release.tag_name }}"
+          output/media-player-esp32p4.factory.bin
+          output/media-player-esp32p4.ota.bin
+          --clobber
