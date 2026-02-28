@@ -223,55 +223,48 @@ lvgl:
             bg_opa: 100%
             radius: 0
             border_width: 0
-            pad_all: 0
+            pad_left: 30
+            pad_right: 30
             scrollable: false
             scrollbar_mode: "off"
             hidden: true
+            layout:
+              type: flex
+              flex_flow: COLUMN
+              flex_align_main: center
+              flex_align_cross: center
+              pad_row: 12
             widgets:
               - label:
                   text_font: $icon_font
-                  align: center
-                  y: -100
                   text: $icon_shield
                   text_color: 0xFFFFFF
               - label:
                   text: "Enable Actions"
                   text_font: roboto30_font
                   text_color: 0xFFFFFF
-                  align: center
-                  y: -40
-                  width: 500
-                  height: 36
+                  width: 520
                   text_align: center
               - label:
                   id: actions_instructions
-                  text: "In Home Assistant, go to\nSettings > Devices > ESPHome\nand enable 'Allow the device to\nperform Home Assistant actions'"
+                  text: "In Home Assistant, go to\nSettings > Devices > ESPHome\nFind the device and enable\n'Allow the device to perform\nHome Assistant actions'"
                   text_font: roboto19_font
                   text_color: 0x888888
-                  align: center
-                  y: 30
                   width: 520
-                  height: 100
                   text_align: center
-              - label:
-                  id: actions_device_info
-                  text: ""
-                  text_font: roboto19_font
-                  text_color: 0x666666
-                  align: center
-                  y: 130
-                  width: 520
-                  height: 50
-                  text_align: center
-              - label:
-                  text: "Tap to continue"
-                  text_font: roboto19_font
-                  text_color: 0x555555
-                  align: center
-                  y: 200
-                  width: 200
-                  height: 24
-                  text_align: center
+              - button:
+                  width: 180
+                  height: 44
+                  radius: 22
+                  bg_color: 0xFFFFFF
+                  border_width: 0
+                  pad_all: 0
+                  widgets:
+                    - label:
+                        text: "Understood"
+                        text_font: roboto19_font
+                        text_color: 0x000000
+                        align: center
 
         # ---------------------------------------------------------------
         # SETTINGS PANEL (swipe-down from top)
