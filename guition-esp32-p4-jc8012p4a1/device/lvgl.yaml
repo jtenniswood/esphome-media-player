@@ -509,30 +509,20 @@ lvgl:
             hidden: false
             widgets:
               - label:
-                  text: "Starting..."
+                  text: "Starting up"
                   text_font: roboto30_font
                   text_color: 0xFFFFFF
                   align: center
-                  y: -60
-                  width: 500
-                  height: 36
-                  text_align: center
-              - label:
-                  id: loading_status_label
-                  text: "Initializing..."
-                  text_font: roboto19_font
-                  text_color: 0x888888
-                  align: center
-                  y: 0
+                  y: -20
                   width: 600
-                  height: 30
+                  height: 36
                   text_align: center
               - bar:
                   id: loading_progress_bar
-                  x: 340
-                  y: 60
-                  width: 600
-                  height: 6
+                  align: center
+                  y: 20
+                  width: 180
+                  height: 4
                   bg_color: 0x333333
                   bg_opa: 100%
                   radius: 3
