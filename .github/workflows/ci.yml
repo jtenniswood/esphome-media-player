@@ -9,42 +9,28 @@ on:
     - cron: "0 0 * * *"
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 
 jobs:
-  ci:
-    name: Building ${{ matrix.esphome-version }}
+  build-s3:
+    name: Build S3
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      max-parallel: 3
-      matrix:
-        esphome-version: [stable, beta, dev]
     steps:
       - uses: actions/checkout@v6
-      - name: Build S3 regular
-        uses: esphome/build-action@v7
-        with:
-          yaml-file: builds/guition-esp32-s3-4848s040.yaml
-          version: ${{ matrix.esphome-version }}
-      - name: Build S3 factory
-        uses: esphome/build-action@v7
-        with:
-          yaml-file: builds/guition-esp32-s3-4848s040.factory.yaml
-          version: ${{ matrix.esphome-version }}
-      # continue-on-error: build-action manifest generation doesn't support
-      # ESP32-P4 yet (https://github.com/esphome/build-action/issues).
-      # Compilation succeeds; only the post-build manifest step fails.
-      - name: Build P4 regular
-        uses: esphome/build-action@v7
-        continue-on-error: true
-        with:
-          yaml-file: builds/guition-esp32-p4-jc8012p4a1.yaml
-          version: ${{ matrix.esphome-version }}
-      - name: Build P4 factory
-        uses: esphome/build-action@v7
-        continue-on-error: true
-        with:
-          yaml-file: builds/guition-esp32-p4-jc8012p4a1.factory.yaml
-          version: ${{ matrix.esphome-version }}
+      - name: Compile
+        run: >-
+          docker run --rm -v "${PWD}:/config"
+          ghcr.io/esphome/esphome:stable
+          compile /config/builds/guition-esp32-s3-4848s040.factory.yaml
+
+  build-p4:
+    name: Build P4
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Compile
+        run: >-
+          docker run --rm -v "${PWD}:/config"
+          ghcr.io/esphome/esphome:stable
+          compile /config/builds/guition-esp32-p4-jc8012p4a1.factory.yaml
