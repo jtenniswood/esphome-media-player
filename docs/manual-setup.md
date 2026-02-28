@@ -42,7 +42,7 @@ packages:
 
 **Guition ESP32-P4 JC8012P4A1 (8"):** use the equivalent package from the repository (e.g. `guition-esp32-p4-jc8012p4a1`) and the correct `files:` path from the [builds](https://github.com/jtenniswood/esphome-media-player/tree/main/builds) in the repo.
 
-Adjust `name` and `friendly_name`. Optionally set `media_player` and `tv_media_player` entity IDs in substitutions, or leave them empty and set the media player later in Home Assistant.
+Adjust `name` and `friendly_name`. Optionally set `media_player` entity ID in substitutions, or leave it empty and set the media player later in Home Assistant.
 
 ## Step 3: Set WiFi secrets
 
@@ -77,9 +77,8 @@ When the device is on your WiFi:
 
 1. Go to **Settings → Devices & Services → ESPHome** and open your device.
 2. Under **Configuration**, set the **Media Player** entity ID (e.g. `media_player.living_room`).
-3. Optionally set **TV Media Player** for a secondary player when the main source is “TV”.
-4. Adjust brightness, timeouts, and other options as in [Configurable settings](/configurable-settings).
+3. Adjust brightness, timeouts, and other options as in [Configurable settings](/configurable-settings).
 
-To view device logs (including artwork load errors) in Home Assistant, enable **Subscribe to logs from the device** in the device’s **Configure** screen. Logs then appear in **Settings → System → Logs** or **Developer Tools → Logs**.
+To view device logs (including artwork load errors) in Home Assistant, enable **Subscribe to logs from the device** in the device's **Configure** screen. Logs then appear in **Settings → System → Logs** or **Developer Tools → Logs**.
 
 For other problems, see [Troubleshooting](/troubleshooting).

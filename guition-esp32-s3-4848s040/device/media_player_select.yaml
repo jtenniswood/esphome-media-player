@@ -13,9 +13,6 @@ globals:
   - id: subscription_gen
     type: int
     initial_value: '0'
-  - id: tv_subscription_gen
-    type: int
-    initial_value: '0'
 
 text:
   - platform: template
@@ -50,36 +47,6 @@ text:
                 level: INFO
                 tag: media_select
                 format: "Rebooting to apply new media player subscription"
-            - delay: 200ms
-            - lambda: 'App.safe_reboot();'
-
-  - platform: template
-    name: "Media Player: TV"
-    id: tv_media_player_entity
-    entity_category: config
-    icon: "mdi:television"
-    mode: text
-    optimistic: true
-    restore_value: true
-    initial_value: "${tv_media_player}"
-    min_length: 0
-    max_length: 100
-    on_value:
-      - script.execute: subscribe_tv_media_player
-      - delay: 500ms
-      - if:
-          condition:
-            lambda: |-
-              std::string entity = id(tv_media_player_entity).state;
-              return !entity.empty()
-                  && entity.substr(0, 13) == "media_player."
-                  && esphome::api::global_api_server != nullptr
-                  && esphome::api::global_api_server->is_connected();
-          then:
-            - logger.log:
-                level: INFO
-                tag: tv_media_select
-                format: "Rebooting to apply new TV media player subscription"
             - delay: 200ms
             - lambda: 'App.safe_reboot();'
 
@@ -177,74 +144,3 @@ script:
             lv_obj_clear_flag(id(actions_prompt), LV_OBJ_FLAG_HIDDEN);
           }
           id(device_has_been_setup) = true;
-
-  - id: subscribe_tv_media_player
-    mode: restart
-    then:
-      - lambda: |-
-          if (esphome::api::global_api_server == nullptr) return;
-
-          std::string entity = id(tv_media_player_entity).state;
-
-          if (entity.empty()) return;
-
-          if (entity.substr(0, 13) != "media_player.") {
-            ESP_LOGW("tv_media_select", "Invalid entity '%s' — must start with 'media_player.'", entity.c_str());
-            return;
-          }
-
-          // --- Reset tracking state for new entity ---
-          id(tv_title_received_once) = false;
-          id(last_tv_media_position) = 0.0f;
-          id(tv_ha_position_epoch) = 0;
-          id(last_tv_position_timestamp) = 0;
-
-          // --- Bump generation (stale callbacks from old entity are discarded) ---
-          id(tv_subscription_gen) += 1;
-          int gen = id(tv_subscription_gen);
-          int *gen_ptr = &id(tv_subscription_gen);
-
-          // Select the const-string-ref overload (avoids ambiguity with StringRef overload)
-          using sub_fn_t = void(esphome::api::APIServer::*)(
-              std::string, esphome::optional<std::string>,
-              std::function<void(const std::string &)>);
-          constexpr sub_fn_t subscribe = static_cast<sub_fn_t>(
-              &esphome::api::APIServer::subscribe_home_assistant_state);
-          auto *api = esphome::api::global_api_server;
-
-          // --- Helper: subscribe to a text attribute ---
-          auto sub_text = [&](const std::string &attr, esphome::text_sensor::TextSensor *sensor) {
-            (api->*subscribe)(entity, esphome::optional<std::string>(attr),
-                [gen, gen_ptr, sensor](const std::string &state) {
-                  if (gen != *gen_ptr) return;
-                  sensor->publish_state(state);
-                });
-          };
-
-          // --- Helper: subscribe to a numeric attribute ---
-          auto sub_num = [&](const std::string &attr, esphome::sensor::Sensor *sensor) {
-            (api->*subscribe)(entity, esphome::optional<std::string>(attr),
-                [gen, gen_ptr, sensor](const std::string &state) {
-                  if (gen != *gen_ptr) return;
-                  auto v = esphome::parse_number<float>(state);
-                  if (v.has_value()) sensor->publish_state(v.value());
-                });
-          };
-
-          // --- Subscribe to all TV media player attributes ---
-          sub_text("media_title", id(tv_media_title_sensor));
-          sub_text("media_artist", id(tv_media_artist_sensor));
-          sub_text("entity_picture", id(tv_entity_picture_sensor));
-
-          // TV state (playing/paused/idle) — empty attribute = entity state
-          (api->*subscribe)(entity, esphome::optional<std::string>(""),
-              [gen, gen_ptr](const std::string &state) {
-                if (gen != *gen_ptr) return;
-                id(tv_media_player_state_sensor).publish_state(state);
-              });
-
-          sub_text("media_position_updated_at", id(tv_media_position_updated_at_sensor));
-          sub_num("media_duration", id(tv_media_duration_sensor));
-          sub_num("media_position", id(tv_media_position_sensor));
-
-          ESP_LOGI("tv_media_select", "Subscribed to TV entity '%s'", entity.c_str());

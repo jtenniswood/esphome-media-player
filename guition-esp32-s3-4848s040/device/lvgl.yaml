@@ -142,9 +142,7 @@ lvgl:
               - homeassistant.service:
                   service: media_player.media_play_pause
                   variables:
-                    target: !lambda |-
-                      if (id(is_tv_mode)) return id(tv_media_player_entity).state;
-                      return id(media_player_entity).state;
+                    target: !lambda 'return id(media_player_entity).state;'
                   data_template:
                     entity_id: "{{ target }}"
                   on_error:
