@@ -8,6 +8,8 @@ A touchscreen media controller for Home Assistant: album art, track info, and to
 
 ![Guition ESP32-S3 4848S040](./images/guition-esp32-s3-4848s040-example1.jpg)
 
+![Guition ESP32-S3 4848S040](./images/guition-esp32-s3-4848s040-example2.jpg)
+
 [Guition ESP32-S3 4848S040 (4")](/devices/esp32-s3-4848s040)
 
 ## What you need
