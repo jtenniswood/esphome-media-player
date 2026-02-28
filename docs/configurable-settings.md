@@ -1,4 +1,4 @@
-# Configurable settings
+# Settings
 
 All of these are available from the device page in Home Assistant (**Settings → Devices & Services → ESPHome** → your device). No YAML or reflashing needed.
 

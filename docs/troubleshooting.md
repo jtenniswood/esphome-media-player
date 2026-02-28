@@ -9,7 +9,7 @@ Common issues and what to try.
 3. On the ESPHome device: **Settings → Devices & Services → ESPHome** → your device.
 4. Under **Configuration**, find the **Media Player** field and enter that entity ID.
 
-The display will start showing that player’s now-playing info. You can change it later without reflashing. See [Configurable settings](/configurable-settings) for more detail.
+The display will start showing that player’s now-playing info. You can change it later without reflashing. See [Settings](/configurable-settings) for more detail.
 
 ## The artwork isn’t loading
 

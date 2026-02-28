@@ -94,7 +94,7 @@ When the device is on your WiFi:
 
 1. Go to **Settings → Devices & Services → ESPHome** and open your device.
 2. Under **Configuration**, set the **Media Player** entity ID (e.g. `media_player.living_room`).
-3. Adjust brightness, timeouts, and other options as in [Configurable settings](/configurable-settings).
+3. Adjust brightness, timeouts, and other options as in [Settings](/configurable-settings).
 
 To view device logs (including artwork load errors) in Home Assistant, enable **Subscribe to logs from the device** in the device's **Configure** screen. Logs then appear in **Settings → System → Logs** or **Developer Tools → Logs**.
 

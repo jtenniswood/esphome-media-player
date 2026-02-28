@@ -79,6 +79,6 @@ Artwork load errors (e.g. when album art fails to download) are logged by the de
 ## Next steps
 
 - [Features](/features) — album art, touch controls, screensaver
-- [Configurable settings](/configurable-settings) — brightness, timeouts, track info
+- [Settings](/configurable-settings) — brightness, timeouts, track info
 - [Manual installation](/manual-setup) — flash via ESPHome dashboard instead of the web installer
 - [Troubleshooting](/troubleshooting) — common issues and fixes

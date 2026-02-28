@@ -24,7 +24,7 @@ export default {
         link: '/features',
       },
       {
-        text: 'Configurable Settings',
+        text: 'Settings',
         link: '/configurable-settings',
       },
       {

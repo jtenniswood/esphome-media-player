@@ -1,6 +1,6 @@
 # Features
 
-Overview of what the media controller does. Many features are user-configurable from the device page in Home Assistant (**Settings → Devices & Services → ESPHome** → your device) — no YAML or reflashing needed. See [Configurable settings](/configurable-settings) for the full reference.
+Overview of what the media controller does. Many features are user-configurable from the device page in Home Assistant (**Settings → Devices & Services → ESPHome** → your device) — no YAML or reflashing needed. See [Settings](/configurable-settings) for the full reference.
 
 ## Album art display
 
@@ -12,11 +12,11 @@ The dominant color is extracted from the album art and applied to the UI backgro
 
 ## Now playing info
 
-The screen shows song title, artist, elapsed and remaining time, and a progress bar. The bar updates every second with smooth interpolation between position updates from Home Assistant. Tap the time label to toggle between elapsed/remaining and elapsed/total duration display. The default mode is set by the **Playback: Show Remaining Time** switch in [Configurable settings](/configurable-settings).
+The screen shows song title, artist, elapsed and remaining time, and a progress bar. The bar updates every second with smooth interpolation between position updates from Home Assistant. Tap the time label to toggle between elapsed/remaining and elapsed/total duration display. The default mode is set by the **Playback: Show Remaining Time** switch in [Settings](/configurable-settings).
 
 ## Auto-hide track info (4" only)
 
-On the 4" panel, when a new track is requested, the overlay (title, artist, time, play/pause) appears automatically if the duration is greater than 0. The hide timer starts when artwork has finished loading (or when playback starts); the default is 5 seconds. Set **Playback: Track Info Duration** to **0** in [Configurable settings](/configurable-settings) to never show track info when a new track is requested. After the overlay auto-hides, tap the screen to show it again; it then hides only when you tap again or when a new track is requested. When playback is paused, track info is shown by default; the hide timer starts when playback resumes.
+On the 4" panel, when a new track is requested, the overlay (title, artist, time, play/pause) appears automatically if the duration is greater than 0. The hide timer starts when artwork has finished loading (or when playback starts); the default is 5 seconds. Set **Playback: Track Info Duration** to **0** in [Settings](/configurable-settings) to never show track info when a new track is requested. After the overlay auto-hides, tap the screen to show it again; it then hides only when you tap again or when a new track is requested. When playback is paused, track info is shown by default; the hide timer starts when playback resumes.
 
 The 10.1" panel uses a side-panel layout where the track info is always visible alongside the album art, so this setting does not apply.
 
@@ -34,4 +34,4 @@ When playback is paused, the device uses a two-stage screensaver:
 1. After **Timeout: Dimming** elapses, the screen dims to **Day/Night: Dim Brightness**.
 2. After **Timeout: Screen Off** elapses, the screen turns off (unless disabled by the **Day/Night: Screen Saver** switch, in which case it stays dimmed).
 
-Active brightness (**Day/Night: Active Brightness**) adjusts automatically between day and night based on the `sun.sun` entity in Home Assistant. All of these settings are configurable from the device page in Home Assistant (see [Configurable settings](/configurable-settings)).
+Active brightness (**Day/Night: Active Brightness**) adjusts automatically between day and night based on the `sun.sun` entity in Home Assistant. All of these settings are configurable from the device page in Home Assistant (see [Settings](/configurable-settings)).
