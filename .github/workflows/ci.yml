@@ -37,6 +37,10 @@ jobs:
           -v "$HOME/.platformio:/root/.platformio"
           ghcr.io/esphome/esphome:stable
           compile /config/builds/guition-esp32-s3-4848s040.factory.yaml
+      - name: Fix cache permissions
+        run: |
+          sudo chown -R $(id -u):$(id -g) .esphome
+          sudo chown -R $(id -u):$(id -g) ~/.platformio
 
   build-p4:
     name: Build P4
@@ -62,3 +66,7 @@ jobs:
           -v "$HOME/.platformio:/root/.platformio"
           ghcr.io/esphome/esphome:stable
           compile /config/builds/guition-esp32-p4-jc8012p4a1.factory.yaml
+      - name: Fix cache permissions
+        run: |
+          sudo chown -R $(id -u):$(id -g) .esphome
+          sudo chown -R $(id -u):$(id -g) ~/.platformio
