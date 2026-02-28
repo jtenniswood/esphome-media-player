@@ -10,8 +10,8 @@ font:
     glyphs: " 0123456789%"
 
   - file: "gfonts://Roboto@Light"
-    id: roboto_light96_font
-    size: 96
+    id: roboto_light88_font
+    size: 88
     bpp: 4
     glyphs: >-
       !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~
