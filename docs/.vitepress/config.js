@@ -4,6 +4,9 @@ export default {
   description: 'A media controller for Home Assistant',
   ignoreDeadLinks: true,
   themeConfig: {
+    socialLinks: [
+      { icon: 'github', link: 'https://github.com/jtenniswood/esphome-media-player' },
+    ],
     sidebar: [
       {
         text: 'Getting Started',
