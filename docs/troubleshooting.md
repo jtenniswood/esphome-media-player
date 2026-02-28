@@ -2,8 +2,6 @@
 
 Common issues and what to try.
 
----
-
 ## How do I configure a media player?
 
 1. Add your speaker (or other player) to Home Assistant so it has a `media_player` entity (e.g. Sonos, Google Cast, or any integration that provides a media player).
@@ -12,8 +10,6 @@ Common issues and what to try.
 4. Under **Configuration**, find the **Media Player** field and enter that entity ID.
 
 The display will start showing that player’s now-playing info. You can change it later without reflashing. See [Configurable settings](/configurable-settings) for more detail.
-
----
 
 ## The artwork isn’t loading
 
@@ -27,8 +23,6 @@ Artwork is fetched from Home Assistant. If cover art never appears or stays brok
 
 That helps add or fix support for your setup.
 
----
-
 ## Controls don’t respond
 
 Play, pause, skip, and volume are sent from the panel to Home Assistant. If taps or swipes don’t do anything:
@@ -38,8 +32,6 @@ Play, pause, skip, and volume are sent from the panel to Home Assistant. If taps
 3. Enable **“Allow the device to perform Home Assistant actions”** and save.
 
 Until this is enabled, the device cannot control your media player. See [Step 5: Enable device controls](/#step-5-enable-device-controls) in Getting Started.
-
----
 
 ## Flashing doesn’t work
 
