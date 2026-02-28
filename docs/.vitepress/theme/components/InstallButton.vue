@@ -16,6 +16,10 @@ onMounted(() => {
       ? 'https://jtenniswood.github.io/esphome-media-player/firmware/media-player.manifest.json'
       : './firmware/media-player.manifest.json'
   btn.setAttribute('manifest', manifestUrl)
+  const unsupported = document.createElement('span')
+  unsupported.slot = 'unsupported'
+  unsupported.innerHTML = '<strong>Your browser does not support installing things on ESP devices. Use Google Chrome or Microsoft Edge.</strong>'
+  btn.appendChild(unsupported)
   container.value.appendChild(btn)
 })
 </script>
