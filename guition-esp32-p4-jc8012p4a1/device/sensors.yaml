@@ -202,9 +202,6 @@ text_sensor:
             id(last_position_timestamp) = epoch;
           }
 
-  - platform: template
-    id: media_source_sensor
-
 sensor:
   - platform: template
     id: media_duration_sensor
@@ -236,7 +233,7 @@ sensor:
 
 switch:
   - platform: template
-    name: "Show Remaining Time"
+    name: "Playback: Show Remaining Time"
     id: show_remaining_time
     optimistic: true
     restore_mode: RESTORE_DEFAULT_ON

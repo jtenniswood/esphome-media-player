@@ -334,7 +334,7 @@ sensor:
 # -----------------------------------------------------------------------------
 number:
   - platform: template
-    name: "Track Info Duration"
+    name: "Playback: Track Info Duration"
     id: track_info_duration
     min_value: 0
     max_value: 60
@@ -349,7 +349,7 @@ number:
 
 switch:
   - platform: template
-    name: "Show Remaining Time"
+    name: "Playback: Show Remaining Time"
     id: show_remaining_time
     optimistic: true
     restore_mode: RESTORE_DEFAULT_ON

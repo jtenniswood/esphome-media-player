@@ -57,7 +57,7 @@ text_sensor:
 # -----------------------------------------------------------------------------
 number:
   - platform: template
-    name: "Day Active Brightness"
+    name: "Day: Active Brightness"
     id: backlight_day_active_brightness
     min_value: 5
     max_value: 100
@@ -82,7 +82,7 @@ number:
                 transition_length: 500ms
 
   - platform: template
-    name: "Night Active Brightness"
+    name: "Night: Active Brightness"
     id: backlight_night_active_brightness
     min_value: 5
     max_value: 100
@@ -107,7 +107,7 @@ number:
                 transition_length: 500ms
 
   - platform: template
-    name: "Day Dim Brightness"
+    name: "Day: Dim Brightness"
     id: backlight_day_brightness
     min_value: 0
     max_value: 100
@@ -120,7 +120,7 @@ number:
     entity_category: config
 
   - platform: template
-    name: "Night Dim Brightness"
+    name: "Night: Dim Brightness"
     id: backlight_night_brightness
     min_value: 0
     max_value: 100
@@ -133,7 +133,7 @@ number:
     entity_category: config
 
   - platform: template
-    name: "Dim Timeout"
+    name: "Timeout: Dimming"
     id: backlight_dim_timeout
     min_value: 1
     max_value: 300
@@ -146,7 +146,7 @@ number:
     entity_category: config
 
   - platform: template
-    name: "Screen Off Timeout"
+    name: "Timeout: Screen Off"
     id: backlight_off_timeout
     min_value: 1
     max_value: 600
@@ -168,7 +168,7 @@ number:
 # -----------------------------------------------------------------------------
 switch:
   - platform: template
-    name: "Daytime Screen Saver"
+    name: "Day: Screen Saver"
     id: backlight_day_screen_off
     optimistic: true
     restore_mode: RESTORE_DEFAULT_ON
@@ -176,7 +176,7 @@ switch:
     entity_category: config
 
   - platform: template
-    name: "Nighttime Screen Saver"
+    name: "Night: Screen Saver"
     id: backlight_night_screen_off
     optimistic: true
     restore_mode: RESTORE_DEFAULT_ON

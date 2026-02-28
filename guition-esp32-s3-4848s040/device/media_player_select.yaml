@@ -54,7 +54,7 @@ text:
             - lambda: 'App.safe_reboot();'
 
   - platform: template
-    name: "TV Media Player"
+    name: "Media Player: TV"
     id: tv_media_player_entity
     entity_category: config
     icon: "mdi:television"
