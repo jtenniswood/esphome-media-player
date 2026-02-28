@@ -33,17 +33,12 @@ Install guide, web installer, and device setup are on the documentation site:
 
 The [documentation site](https://jtenniswood.github.io/esphome-media-player/) has the install guide, configurable settings, manual setup (ESPHome dashboard), and troubleshooting.
 
-**Supported panels and where to buy:** [Devices](https://jtenniswood.github.io/esphome-media-player/devices/esp32-s3-4848s040) (4" and 10.1" options with links).
+**Supported panels:**
 
----
-
-## Viewing device logs
-
-Artwork load errors (e.g. when album art fails to download) are logged by the device. To see these messages in Home Assistant for remote debugging:
-
-1. Open **Settings → Devices & Services → ESPHome** and select your device.
-2. Click **Configure** and enable **Subscribe to logs from the device**.
-3. When enabled, the device sends logs to Home Assistant; view them in **Settings → System → Logs** (or **Developer Tools → Logs**). Filter by your device name or search for the `artwork` tag to find artwork-related errors.
+| Device | Size | Buy |
+|--------|------|-----|
+| [Guition ESP32-S3 4848S040](https://jtenniswood.github.io/esphome-media-player/devices/esp32-s3-4848s040) | 4" (480×480) | [AliExpress](https://s.click.aliexpress.com/e/_c3sIhvBv) |
+| [Guition ESP32-P4 JC8012P4A1](https://jtenniswood.github.io/esphome-media-player/devices/esp32-p4-jc8012p4a1) | 10.1" (1280×800) | [AliExpress](https://s.click.aliexpress.com/e/_c3wsnU43) |
 
 ---
 
