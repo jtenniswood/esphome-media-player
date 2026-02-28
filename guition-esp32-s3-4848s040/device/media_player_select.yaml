@@ -140,7 +140,7 @@ script:
           ESP_LOGI("media_select", "Subscribed to '%s'", entity.c_str());
 
           // Only show "enable actions" prompt on first-time setup
-          if (!id(actions_prompt_acked)) {
+          if (!id(actions_prompt_acked) && !id(device_has_been_setup)) {
             lv_obj_clear_flag(id(actions_prompt), LV_OBJ_FLAG_HIDDEN);
           }
           id(device_has_been_setup) = true;

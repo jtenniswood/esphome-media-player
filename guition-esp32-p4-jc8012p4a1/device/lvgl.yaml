@@ -142,7 +142,7 @@ lvgl:
                     entity_id: "{{ target }}"
                   on_error:
                     - lambda: |-
-                        if (!id(actions_prompt_acked)) {
+                        if (!id(actions_prompt_acked) && !id(device_has_been_setup)) {
                           lv_obj_clear_flag(id(actions_prompt), LV_OBJ_FLAG_HIDDEN);
                         }
               - event.trigger:
@@ -223,48 +223,56 @@ lvgl:
             bg_opa: 100%
             radius: 0
             border_width: 0
-            pad_left: 30
-            pad_right: 30
+            pad_all: 0
             scrollable: false
             scrollbar_mode: "off"
             hidden: true
-            layout:
-              type: flex
-              flex_flow: COLUMN
-              flex_align_main: center
-              flex_align_cross: center
-              pad_row: 12
             widgets:
-              - label:
-                  text_font: $icon_font
-                  text: $icon_shield
-                  text_color: 0xFFFFFF
-              - label:
-                  text: "Enable Actions"
-                  text_font: roboto30_font
-                  text_color: 0xFFFFFF
+              - obj:
+                  align: center
                   width: 520
-                  text_align: center
-              - label:
-                  id: actions_instructions
-                  text: "In Home Assistant, go to\nSettings > Devices > ESPHome\nFind the device and enable\n'Allow the device to perform\nHome Assistant actions'"
-                  text_font: roboto19_font
-                  text_color: 0x888888
-                  width: 520
-                  text_align: center
-              - button:
-                  width: 180
-                  height: 44
-                  radius: 22
-                  bg_color: 0xFFFFFF
+                  height: SIZE_CONTENT
+                  bg_opa: 0%
                   border_width: 0
                   pad_all: 0
+                  scrollable: false
+                  layout:
+                    type: flex
+                    flex_flow: COLUMN
+                    flex_align_main: center
+                    flex_align_cross: center
+                    pad_row: 12
                   widgets:
                     - label:
-                        text: "Understood"
+                        text_font: $icon_font
+                        text: $icon_shield
+                        text_color: 0xFFFFFF
+                    - label:
+                        text: "Enable Actions"
+                        text_font: roboto30_font
+                        text_color: 0xFFFFFF
+                        width: 520
+                        text_align: center
+                    - label:
+                        id: actions_instructions
+                        text: "In Home Assistant, go to\nSettings > Devices > ESPHome\nFind the device and enable\n'Allow the device to perform\nHome Assistant actions'"
                         text_font: roboto19_font
-                        text_color: 0x000000
-                        align: center
+                        text_color: 0x888888
+                        width: 520
+                        text_align: center
+                    - button:
+                        width: 180
+                        height: 44
+                        radius: 22
+                        bg_color: 0xFFFFFF
+                        border_width: 0
+                        pad_all: 0
+                        widgets:
+                          - label:
+                              text: "Understood"
+                              text_font: roboto19_font
+                              text_color: 0x000000
+                              align: center
 
         # ---------------------------------------------------------------
         # SETTINGS PANEL (swipe-down from top)

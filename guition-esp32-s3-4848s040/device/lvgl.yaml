@@ -147,7 +147,7 @@ lvgl:
                     entity_id: "{{ target }}"
                   on_error:
                     - lambda: |-
-                        if (!id(actions_prompt_acked)) {
+                        if (!id(actions_prompt_acked) && !id(device_has_been_setup)) {
                           lv_obj_clear_flag(id(actions_prompt), LV_OBJ_FLAG_HIDDEN);
                         }
               - event.trigger:
