@@ -12,7 +12,9 @@ jobs:
     name: Build Firmware
     uses: esphome/workflows/.github/workflows/build.yml@2025.10.0
     with:
-      files: guition-esp32-s3-4848s040.factory.yaml
+      files: |
+        builds/guition-esp32-s3-4848s040.factory.yaml
+        builds/guition-esp32-p4-jc8012p4a1.factory.yaml
       esphome-version: 2025.11.3
       combined-name: media-player
       release-summary: ${{ github.event.release.body }}

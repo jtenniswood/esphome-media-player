@@ -48,6 +48,17 @@ esphome:
 # -----------------------------------------------------------------------------
 ota:
   - platform: esphome
+    on_begin:
+      - lvgl.pause
+      - light.turn_off:
+          id: backlight
+          transition_length: 0s
+    on_error:
+      - light.turn_on:
+          id: backlight
+          brightness: 100%
+          transition_length: 0s
+      - lvgl.resume
 
 
 # -----------------------------------------------------------------------------
@@ -65,7 +76,15 @@ api:
     - script.execute: subscribe_media_player
   on_client_disconnected:
     - lvgl.widget.hide: setup_prompt
-    - lvgl.widget.show: ha_setup_prompt
+    - if:
+        condition:
+          lambda: |-
+            return !id(device_has_been_setup)
+                && !id(boot_grace_period)
+                && (esphome::api::global_api_server == nullptr
+                    || !esphome::api::global_api_server->is_connected());
+        then:
+          - lvgl.widget.show: ha_setup_prompt
 
 
 # -----------------------------------------------------------------------------
@@ -189,10 +208,17 @@ globals:
     initial_value: 'false'
 
   # -- Setup flow --
-  - id: actions_prompt_acked     # True after user has acknowledged the HA actions prompt
+  - id: actions_prompt_acked
     type: bool
     restore_value: true
     initial_value: 'false'
+  # True after first successful setup (WiFi + HA + media entity); suppresses
+  # WiFi/HA/actions setup prompts on restart so user sees loading/main UI instead.
+  - id: device_has_been_setup
+    type: bool
+    restore_value: true
+    initial_value: 'false'
+
 
 
 # -----------------------------------------------------------------------------
@@ -238,6 +264,8 @@ touchscreen:
             if (abs(dx) < 20 && abs(dy) < 20) {
               lv_obj_add_flag(id(actions_prompt), LV_OBJ_FLAG_HIDDEN);
               id(actions_prompt_acked) = true;
+              id(device_has_been_setup) = true;
+              global_preferences->sync();
             }
             return;
           }
@@ -260,12 +288,23 @@ touchscreen:
             return;
           }
 
-          // --- Horizontal swipe: track navigation ---
+          // --- Horizontal swipe: track navigation (works when playing or paused) ---
           if (abs(dx) > 80 && abs(dx) > abs(dy) * 2) {
-            if (dx > 0) {
-              id(swipe_previous_track).execute();
-            } else {
-              id(swipe_next_track).execute();
+            std::string e = id(media_player_entity).state;
+            bool can_skip = !e.empty();
+            if (can_skip) {
+              can_skip = id(media_player_state_sensor).has_state();
+              if (can_skip) {
+                std::string s = id(media_player_state_sensor).state;
+                can_skip = (s == "playing" || s == "paused");
+              }
+            }
+            if (can_skip) {
+              if (dx > 0) {
+                id(swipe_previous_track).execute();
+              } else {
+                id(swipe_next_track).execute();
+              }
             }
           }
           // Tap: minimal movement anywhere on screen — toggle UI visibility
@@ -283,12 +322,31 @@ touchscreen:
             } else if (id(is_ui_hidden)) {
               // UI is hidden — always allow showing it
               id(toggle_ui).execute();
-            } else if (id(media_player_state_sensor).has_state() &&
-                       id(media_player_state_sensor).state == "playing") {
-              // UI is visible and media is playing — allow hiding
-              id(toggle_ui).execute();
+            } else {
+              bool playing = id(media_player_state_sensor).has_state() && id(media_player_state_sensor).state == "playing";
+              if (playing) id(toggle_ui).execute();
             }
           }
+
+
+# -----------------------------------------------------------------------------
+# MEDIA CONTROL EVENTS (Home Assistant automations)
+# -----------------------------------------------------------------------------
+# Exposes play_pause, next_track, previous_track, volume_change to HA as an
+# event entity. Use in HA: Automations → Trigger →
+# Event, select this device. Requires Home Assistant 2024.5+. Subscribe to logs
+# is NOT required.
+# -----------------------------------------------------------------------------
+event:
+  - platform: template
+    name: Media control
+    id: media_control_event
+    device_class: button
+    event_types:
+      - play_pause
+      - next_track
+      - previous_track
+      - volume_change
 
 
 # -----------------------------------------------------------------------------
@@ -296,8 +354,8 @@ touchscreen:
 # -----------------------------------------------------------------------------
 # Scripts triggered by touch gestures and UI events:
 #   toggle_ui           – Tap to show/hide the now-playing overlay (fade anim)
-#   swipe_next_track    – Swipe left to skip to the next track
-#   swipe_previous_track– Swipe right to go back to the previous track
+#   swipe_next_track    – Swipe left to skip to the next track (allowed when playing or paused)
+#   swipe_previous_track– Swipe right to go back to the previous track (allowed when playing or paused)
 #   open_settings_panel – Swipe down to reveal the settings panel
 #   close_settings_panel– Swipe up (or tap close) to hide the settings panel
 #   show_track_view     – Resets to the main now-playing view (closes panel,
@@ -316,50 +374,62 @@ script:
             lambda: 'return id(is_ui_hidden);'
           then:
             - lambda: 'id(is_ui_hidden) = false;'
-            - lvgl.widget.show: bottom_overlay
-            - lvgl.widget.show: media_title_label
-            - lvgl.widget.show: media_artist_label
+            - lvgl.widget.show: track_info_overlay
+            - lvgl.widget.show: track_info_text
             - lvgl.widget.show: media_play_pause_button
-            - lvgl.widget.show: media_time_label
             - lambda: |-
-                lv_obj_fade_in(id(bottom_overlay), 200, 0);
-                lv_obj_fade_in(id(media_title_label), 200, 0);
-                lv_obj_fade_in(id(media_artist_label), 200, 0);
+                if (id(artist_has_content)) lv_obj_clear_flag(id(media_artist_label), LV_OBJ_FLAG_HIDDEN);
+                lv_obj_fade_in(id(track_info_overlay), 200, 0);
+                lv_obj_fade_in(id(track_info_text), 200, 0);
                 lv_obj_fade_in(id(media_play_pause_button), 200, 0);
-                lv_obj_fade_in(id(media_time_label), 200, 0);
           else:
             - lambda: 'id(is_ui_hidden) = true;'
             - lambda: |-
-                lv_obj_fade_out(id(bottom_overlay), 300, 0);
-                lv_obj_fade_out(id(media_title_label), 300, 0);
-                lv_obj_fade_out(id(media_artist_label), 300, 0);
+                lv_obj_fade_out(id(track_info_overlay), 300, 0);
+                lv_obj_fade_out(id(track_info_text), 300, 0);
                 lv_obj_fade_out(id(media_play_pause_button), 300, 0);
-                lv_obj_fade_out(id(media_time_label), 300, 0);
             - delay: 400ms
-            - lvgl.widget.hide: bottom_overlay
-            - lvgl.widget.hide: media_title_label
-            - lvgl.widget.hide: media_artist_label
+            - lvgl.widget.hide: track_info_overlay
+            - lvgl.widget.hide: track_info_text
             - lvgl.widget.hide: media_play_pause_button
-            - lvgl.widget.hide: media_time_label
-  # -- Track navigation (called by horizontal swipe gestures) --
+            - lvgl.widget.hide: media_artist_label
+  # -- Track navigation (horizontal swipe; allowed when playing or paused) --
   - id: swipe_next_track
     mode: single
     then:
       - homeassistant.service:
           service: media_player.media_next_track
           variables:
-            my_entity: !lambda 'return id(media_player_entity).state;'
+            target: !lambda 'return id(media_player_entity).state;'
           data_template:
-            entity_id: "{{ my_entity }}"
+            entity_id: "{{ target }}"
+          on_error:
+            - lambda: |-
+                if (!id(actions_prompt_acked) && !id(device_has_been_setup)) {
+                  lv_obj_clear_flag(id(actions_prompt), LV_OBJ_FLAG_HIDDEN);
+                }
+      - event.trigger:
+          id: media_control_event
+          event_type: next_track
+      - logger.log: "Media: next_track"
   - id: swipe_previous_track
     mode: single
     then:
       - homeassistant.service:
           service: media_player.media_previous_track
           variables:
-            my_entity: !lambda 'return id(media_player_entity).state;'
+            target: !lambda 'return id(media_player_entity).state;'
           data_template:
-            entity_id: "{{ my_entity }}"
+            entity_id: "{{ target }}"
+          on_error:
+            - lambda: |-
+                if (!id(actions_prompt_acked) && !id(device_has_been_setup)) {
+                  lv_obj_clear_flag(id(actions_prompt), LV_OBJ_FLAG_HIDDEN);
+                }
+      - event.trigger:
+          id: media_control_event
+          event_type: previous_track
+      - logger.log: "Media: previous_track"
 
   # -- Settings panel (called by vertical swipe gestures) --
   - id: open_settings_panel
@@ -381,11 +451,20 @@ script:
       - homeassistant.service:
           service: media_player.volume_set
           variables:
-            my_entity: !lambda 'return id(media_player_entity).state;'
+            target: !lambda 'return id(media_player_entity).state;'
             vol_level: !lambda 'return lv_arc_get_value(id(volume_arc)) / 100.0f;'
           data_template:
-            entity_id: "{{ my_entity }}"
+            entity_id: "{{ target }}"
             volume_level: "{{ vol_level }}"
+          on_error:
+            - lambda: |-
+                if (!id(actions_prompt_acked) && !id(device_has_been_setup)) {
+                  lv_obj_clear_flag(id(actions_prompt), LV_OBJ_FLAG_HIDDEN);
+                }
+      - event.trigger:
+          id: media_control_event
+          event_type: volume_change
+      - logger.log: "Media: volume_change"
 
   # -- Reset to now-playing view (e.g. when a new track starts) --
   - id: show_track_view
@@ -403,17 +482,15 @@ script:
           then:
             - script.stop: toggle_ui
             - lambda: 'id(is_ui_hidden) = false;'
-            - lvgl.widget.show: bottom_overlay
-            - lvgl.widget.show: media_title_label
-            - lvgl.widget.show: media_artist_label
+            - lvgl.widget.show: track_info_overlay
+            - lvgl.widget.show: track_info_text
             - lvgl.widget.show: media_play_pause_button
-            - lvgl.widget.show: media_time_label
             - lambda: |-
-                lv_obj_fade_in(id(bottom_overlay), 200, 0);
-                lv_obj_fade_in(id(media_title_label), 200, 0);
-                lv_obj_fade_in(id(media_artist_label), 200, 0);
+                if (id(artist_has_content)) lv_obj_clear_flag(id(media_artist_label), LV_OBJ_FLAG_HIDDEN);
+                lv_obj_fade_in(id(track_info_overlay), 200, 0);
+                lv_obj_fade_in(id(track_info_text), 200, 0);
                 lv_obj_fade_in(id(media_play_pause_button), 200, 0);
-                lv_obj_fade_in(id(media_time_label), 200, 0);
+
 
 
 # -----------------------------------------------------------------------------

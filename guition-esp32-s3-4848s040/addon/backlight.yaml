@@ -46,7 +46,57 @@ text_sensor:
 # -----------------------------------------------------------------------------
 number:
   - platform: template
-    name: "Day Dim Brightness"
+    name: "Day: Active Brightness"
+    id: backlight_day_active_brightness
+    min_value: 5
+    max_value: 100
+    step: 5
+    initial_value: 100
+    optimistic: true
+    restore_value: true
+    unit_of_measurement: "%"
+    icon: "mdi:brightness-7"
+    entity_category: config
+    set_action:
+      - if:
+          condition:
+            lambda: 'return !id(is_screen_dimmed);'
+          then:
+            - light.turn_on:
+                id: backlight
+                brightness: !lambda |-
+                  bool is_day = id(sun_state_sensor).has_state() &&
+                                id(sun_state_sensor).state == "above_horizon";
+                  return (is_day ? x : id(backlight_night_active_brightness).state) / 100.0f;
+                transition_length: 500ms
+
+  - platform: template
+    name: "Night: Active Brightness"
+    id: backlight_night_active_brightness
+    min_value: 5
+    max_value: 100
+    step: 5
+    initial_value: 80
+    optimistic: true
+    restore_value: true
+    unit_of_measurement: "%"
+    icon: "mdi:brightness-4"
+    entity_category: config
+    set_action:
+      - if:
+          condition:
+            lambda: 'return !id(is_screen_dimmed);'
+          then:
+            - light.turn_on:
+                id: backlight
+                brightness: !lambda |-
+                  bool is_day = id(sun_state_sensor).has_state() &&
+                                id(sun_state_sensor).state == "above_horizon";
+                  return (is_day ? id(backlight_day_active_brightness).state : x) / 100.0f;
+                transition_length: 500ms
+
+  - platform: template
+    name: "Day: Dim Brightness"
     id: backlight_day_brightness
     min_value: 0
     max_value: 100
@@ -59,7 +109,7 @@ number:
     entity_category: config
 
   - platform: template
-    name: "Night Dim Brightness"
+    name: "Night: Dim Brightness"
     id: backlight_night_brightness
     min_value: 0
     max_value: 100
@@ -72,7 +122,7 @@ number:
     entity_category: config
 
   - platform: template
-    name: "Dim Timeout"
+    name: "Timeout: Dimming"
     id: backlight_dim_timeout
     min_value: 1
     max_value: 300
@@ -85,7 +135,7 @@ number:
     entity_category: config
 
   - platform: template
-    name: "Screen Off Timeout"
+    name: "Timeout: Screen Off"
     id: backlight_off_timeout
     min_value: 1
     max_value: 600
@@ -107,7 +157,7 @@ number:
 # -----------------------------------------------------------------------------
 switch:
   - platform: template
-    name: "Daytime Screen Saver"
+    name: "Day: Screen Saver"
     id: backlight_day_screen_off
     optimistic: true
     restore_mode: RESTORE_DEFAULT_ON
@@ -115,7 +165,7 @@ switch:
     entity_category: config
 
   - platform: template
-    name: "Nighttime Screen Saver"
+    name: "Night: Screen Saver"
     id: backlight_night_screen_off
     optimistic: true
     restore_mode: RESTORE_DEFAULT_ON
@@ -145,7 +195,13 @@ script:
           id(is_screen_dimmed) = false;
       - light.turn_on:
           id: backlight
-          brightness: 100%
+          brightness: !lambda |-
+            bool is_day = id(sun_state_sensor).has_state() &&
+                          id(sun_state_sensor).state == "above_horizon";
+            float pct = is_day
+              ? id(backlight_day_active_brightness).state
+              : id(backlight_night_active_brightness).state;
+            return pct / 100.0f;
           transition_length: 1s
       - lvgl.resume:
       - if:

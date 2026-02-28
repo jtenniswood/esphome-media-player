@@ -9,27 +9,64 @@ on:
     - cron: "0 0 * * *"
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
   cancel-in-progress: true
 
 jobs:
-  ci:
-    name: Building ${{ matrix.esphome-version }}
+  build-s3:
+    name: Build S3
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      max-parallel: 3
-      matrix:
-        esphome-version: [stable, beta, dev]
     steps:
       - uses: actions/checkout@v6
-      - name: Build regular
-        uses: esphome/build-action@v7
+      - name: Cache PlatformIO
+        uses: actions/cache@v4
         with:
-          yaml-file: guition-esp32-s3-4848s040.yaml
-          version: ${{ matrix.esphome-version }}
-      - name: Build factory
-        uses: esphome/build-action@v7
+          path: ~/.platformio
+          key: pio-s3-${{ hashFiles('builds/guition-esp32-s3-4848s040.factory.yaml', 'guition-esp32-s3-4848s040/**/*.yaml') }}
+          restore-keys: pio-s3-
+      - name: Cache ESPHome build
+        uses: actions/cache@v4
         with:
-          yaml-file: guition-esp32-s3-4848s040.factory.yaml
-          version: ${{ matrix.esphome-version }}
+          path: .esphome
+          key: esphome-s3-${{ hashFiles('builds/guition-esp32-s3-4848s040.factory.yaml', 'guition-esp32-s3-4848s040/**/*.yaml') }}
+          restore-keys: esphome-s3-
+      - name: Compile
+        run: >-
+          docker run --rm
+          -v "${PWD}:/config"
+          -v "$HOME/.platformio:/root/.platformio"
+          ghcr.io/esphome/esphome:stable
+          compile /config/builds/guition-esp32-s3-4848s040.factory.yaml
+      - name: Fix cache permissions
+        run: |
+          sudo chown -R $(id -u):$(id -g) .esphome
+          sudo chown -R $(id -u):$(id -g) ~/.platformio
+
+  build-p4:
+    name: Build P4
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Cache PlatformIO
+        uses: actions/cache@v4
+        with:
+          path: ~/.platformio
+          key: pio-p4-${{ hashFiles('builds/guition-esp32-p4-jc8012p4a1.factory.yaml', 'guition-esp32-p4-jc8012p4a1/**/*.yaml') }}
+          restore-keys: pio-p4-
+      - name: Cache ESPHome build
+        uses: actions/cache@v4
+        with:
+          path: .esphome
+          key: esphome-p4-${{ hashFiles('builds/guition-esp32-p4-jc8012p4a1.factory.yaml', 'guition-esp32-p4-jc8012p4a1/**/*.yaml') }}
+          restore-keys: esphome-p4-
+      - name: Compile
+        run: >-
+          docker run --rm
+          -v "${PWD}:/config"
+          -v "$HOME/.platformio:/root/.platformio"
+          ghcr.io/esphome/esphome:stable
+          compile /config/builds/guition-esp32-p4-jc8012p4a1.factory.yaml
+      - name: Fix cache permissions
+        run: |
+          sudo chown -R $(id -u):$(id -g) .esphome
+          sudo chown -R $(id -u):$(id -g) ~/.platformio

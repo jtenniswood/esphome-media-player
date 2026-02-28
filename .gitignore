@@ -8,3 +8,7 @@ secrets.yaml
 # IDE
 .vscode/
 .idea/
+
+# Docs (VitePress)
+node_modules/
+docs/.vitepress/dist/

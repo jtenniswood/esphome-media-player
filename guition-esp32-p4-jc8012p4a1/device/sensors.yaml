@@ -1,0 +1,241 @@
+# =============================================================================
+# SENSORS - Music dashboard
+# =============================================================================
+# Template sensors receive state from dynamic subscriptions managed by
+# subscribe_media_player. Updates LVGL labels, bar, image, and play/pause
+# icon via on_value automations.
+# Album art URL is built automatically from the HA API client's IP address;
+# override home_assistant_url in substitutions for non-standard setups.
+# =============================================================================
+
+globals:
+  - id: ha_base_url
+    type: std::string
+    initial_value: '"http://homeassistant.local:8123"'
+  - id: last_media_position
+    type: float
+    initial_value: '0.0'
+  - id: last_position_timestamp
+    type: int
+    initial_value: '0'
+  - id: title_received_once
+    type: bool
+    initial_value: 'false'
+  - id: ha_position_epoch
+    type: int
+    initial_value: '0'
+  - id: artist_has_content
+    type: bool
+    initial_value: 'false'
+  - id: last_artwork_url
+    type: std::string
+    initial_value: '""'
+
+interval:
+  - interval: 1s
+    then:
+      - lambda: |-
+          float dur = id(media_duration_sensor).has_state() ? id(media_duration_sensor).state : 0.0f;
+          bool playing = id(media_player_state_sensor).has_state() && id(media_player_state_sensor).state == "playing";
+
+          float pos;
+          auto t = id(ha_time).now();
+          if (playing && t.is_valid() && id(ha_position_epoch) != 0 && id(media_position_sensor).has_state()) {
+            pos = id(media_position_sensor).state + (float)(t.timestamp - id(ha_position_epoch));
+          } else if (playing && t.is_valid() && id(last_position_timestamp) != 0) {
+            pos = id(last_media_position) + (float)(t.timestamp - id(last_position_timestamp));
+          } else {
+            pos = id(media_position_sensor).has_state() ? id(media_position_sensor).state : id(last_media_position);
+          }
+          if (pos < 0) pos = 0;
+          if (dur > 0 && pos > dur) pos = dur;
+          id(last_media_position) = pos;
+      - lvgl.label.update:
+            id: media_time_label
+            text: !lambda |-
+              float pos = id(last_media_position);
+              float dur = id(media_duration_sensor).has_state() ? id(media_duration_sensor).state : 0.0f;
+              int e = (int)pos; if (e < 0) e = 0;
+              char buf[32];
+              if (id(show_remaining_time).state) {
+                int rem = (int)(dur - pos); if (rem < 0) rem = 0;
+                if (dur >= 3600) {
+                  snprintf(buf, sizeof(buf), "%d:%02d:%02d / -%d:%02d:%02d",
+                           e / 3600, (e % 3600) / 60, e % 60,
+                           rem / 3600, (rem % 3600) / 60, rem % 60);
+                } else {
+                  snprintf(buf, sizeof(buf), "%d:%02d / -%d:%02d", e / 60, e % 60, rem / 60, rem % 60);
+                }
+              } else {
+                int d = (int)dur; if (d < 0) d = 0;
+                if (dur >= 3600) {
+                  snprintf(buf, sizeof(buf), "%d:%02d:%02d / %d:%02d:%02d",
+                           e / 3600, (e % 3600) / 60, e % 60,
+                           d / 3600, (d % 3600) / 60, d % 60);
+                } else {
+                  snprintf(buf, sizeof(buf), "%d:%02d / %d:%02d", e / 60, e % 60, d / 60, d % 60);
+                }
+              }
+              return std::string(buf);
+      - lvgl.bar.update:
+            id: media_progress_bar
+            value: !lambda |-
+              float pos = id(last_media_position);
+              float dur = id(media_duration_sensor).has_state() ? id(media_duration_sensor).state : 0.0f;
+              if (dur > 0) return (int)((pos / dur) * 100.0f);
+              return 0;
+
+text_sensor:
+  - platform: template
+    id: media_title_sensor
+    on_value:
+      - lvgl.widget.update:
+          id: album_art_background_widget
+          opa: 50%
+      - lvgl.widget.hide: artwork_error_label
+      - lvgl.label.update:
+          id: media_title_label
+          text: !lambda 'return x.empty() ? std::string("—") : x;'
+      - if:
+          condition:
+            lambda: 'return id(title_received_once);'
+          then:
+            - lambda: |-
+                id(last_media_position) = 0.0f;
+                id(ha_position_epoch) = 0;
+                auto t = id(ha_time).now();
+                if (t.is_valid()) {
+                  id(last_position_timestamp) = t.timestamp;
+                }
+            - lvgl.label.update:
+                id: media_time_label
+                text: !lambda |-
+                  return id(show_remaining_time).state
+                      ? std::string("0:00 / -0:00")
+                      : std::string("0:00 / 0:00");
+            - lvgl.bar.update:
+                id: media_progress_bar
+                value: 0
+          else:
+            - lambda: 'id(title_received_once) = true;'
+
+  - platform: template
+    id: media_artist_sensor
+    on_value:
+      - if:
+          condition:
+            lambda: 'return !x.empty() && x != "—" && x != "\xe2\x80\x94";'
+          then:
+            - lambda: 'id(artist_has_content) = true;'
+            - lvgl.label.update:
+                id: media_artist_label
+                text: !lambda 'return x;'
+            - lvgl.widget.show: media_artist_label
+          else:
+            - lambda: 'id(artist_has_content) = false;'
+            - lvgl.widget.hide: media_artist_label
+
+  - platform: template
+    id: media_entity_picture_sensor
+    on_value:
+      - if:
+          condition:
+            lambda: 'return !x.empty();'
+          then:
+            - lvgl.widget.update:
+                id: album_art_background_widget
+                opa: 50%
+            - lvgl.widget.hide: artwork_error_label
+            - lambda: |-
+                std::string path = x;
+                while (!path.empty() && (path.back() == '\n' || path.back() == '\r' || path.back() == ' ')) path.pop_back();
+                id(last_artwork_url) = (path.substr(0, 7) == "http://" || path.substr(0, 8) == "https://") ? path : (id(ha_base_url) + path);
+            - online_image.set_url:
+                id: album_art_background
+                url: !lambda 'return id(last_artwork_url);'
+
+  - platform: template
+    id: media_player_state_sensor
+    on_value:
+      - if:
+          condition:
+            lambda: 'return x == "playing";'
+          then:
+            - script.stop: backlight_wake_timeout
+            - lvgl.resume:
+            - lvgl.widget.hide:
+                id: media_play_icon
+            - lvgl.widget.show:
+                id: media_pause_icon
+            - light.turn_on:
+                id: backlight
+                brightness: 100%
+            - if:
+                condition:
+                  lambda: 'return id(is_screen_dimmed);'
+                then:
+                  - lambda: 'id(is_screen_dimmed) = false;'
+                  - script.execute: show_track_view
+          else:
+            - script.execute: show_track_view
+            - lvgl.widget.show:
+                id: media_play_icon
+            - lvgl.widget.hide:
+                id: media_pause_icon
+            - script.execute: backlight_wake_timeout
+
+  - platform: template
+    id: media_position_updated_at_sensor
+    on_value:
+      - lambda: |-
+          int yr, mo, dy, hr, mn, sc;
+          if (sscanf(x.c_str(), "%d-%d-%dT%d:%d:%d", &yr, &mo, &dy, &hr, &mn, &sc) != 6 &&
+              sscanf(x.c_str(), "%d-%d-%d %d:%d:%d", &yr, &mo, &dy, &hr, &mn, &sc) != 6) {
+            return;
+          }
+          int y = yr, m = mo;
+          if (m <= 2) { y--; m += 12; }
+          long days = 365L*y + y/4 - y/100 + y/400 + (153*(m-3)+2)/5 + dy - 719469;
+          int epoch = (int)(days * 86400L + hr * 3600 + mn * 60 + sc);
+          id(ha_position_epoch) = epoch;
+          if (id(media_position_sensor).has_state()) {
+            id(last_position_timestamp) = epoch;
+          }
+
+sensor:
+  - platform: template
+    id: media_duration_sensor
+
+  - platform: template
+    id: media_position_sensor
+    on_value:
+      - lambda: |-
+          id(last_media_position) = x;
+          if (id(ha_position_epoch) != 0) {
+            id(last_position_timestamp) = id(ha_position_epoch);
+          } else {
+            auto t = id(ha_time).now();
+            if (t.is_valid()) id(last_position_timestamp) = t.timestamp;
+          }
+
+  - platform: template
+    id: media_volume_sensor
+    on_value:
+      - lvgl.arc.update:
+          id: volume_arc
+          value: !lambda 'return (int)(x * 100.0f);'
+      - lvgl.label.update:
+          id: volume_pct_label
+          text: !lambda |-
+            char buf[8];
+            snprintf(buf, sizeof(buf), "%d%%", (int)(x * 100.0f));
+            return std::string(buf);
+
+switch:
+  - platform: template
+    name: "Playback: Show Remaining Time"
+    id: show_remaining_time
+    optimistic: true
+    restore_mode: RESTORE_DEFAULT_ON
+    icon: "mdi:timer-sand"
+    entity_category: config

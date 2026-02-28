@@ -11,7 +11,7 @@ lvgl:
   style_definitions:
     - id: control_round
       bg_color: $button_control_color
-      radius: 36px
+      radius: 48px
 
   theme:
     button:

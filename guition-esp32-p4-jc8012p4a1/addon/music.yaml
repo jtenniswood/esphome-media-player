@@ -1,0 +1,65 @@
+# =============================================================================
+# MUSIC DASHBOARD - HTTP request, album art image
+# =============================================================================
+# Required for online_image (album art from Home Assistant entity_picture).
+# Placeholder image shown until art is downloaded.
+#
+# BYTE ORDER WARNING:
+# Images use byte_order: little_endian to match the display's native format.
+# However, ESPHome's Image::get_pixel() always decodes RGB565 as big-endian
+# (via encode_uint16), so calling get_pixel() on these images returns
+# scrambled colour channels. Any code that needs to read pixel data must
+# access the raw buffer directly and reconstruct the uint16 in little-endian
+# order:
+#
+#   lv_img_dsc_t *dsc = img->get_lv_img_dsc();
+#   const uint8_t *data = dsc->data;
+#   int pos = (x + y * width) * 2;
+#   uint16_t rgb565 = data[pos] | (data[pos + 1] << 8);  // LE read
+#   int r = ((rgb565 >> 11) & 0x1F); r = (r << 3) | (r >> 2);
+#   int g = ((rgb565 >> 5)  & 0x3F); g = (g << 2) | (g >> 4);
+#   int b = ( rgb565         & 0x1F); b = (b << 3) | (b >> 2);
+#
+# See addon/accent_color.yaml for a working example.
+# =============================================================================
+
+http_request:
+  id: http_req
+
+image:
+  - file: "https://placehold.co/800x800/2d2d2d/555555"
+    id: album_art_placeholder
+    type: RGB565
+    byte_order: little_endian
+
+online_image:
+  - url: "https://placehold.co/800x800/2d2d2d/555555"
+    id: album_art_background
+    type: RGB565
+    byte_order: little_endian
+    format: jpeg
+    placeholder: album_art_placeholder
+    resize: 800x800
+    on_download_finished:
+      - lvgl.widget.hide: artwork_error_label
+      - lambda: |-
+          auto *w = id(album_art_background_widget);
+          lv_img_set_zoom(w, 256);
+          lv_img_set_offset_x(w, 0);
+          lv_img_set_offset_y(w, 0);
+          lv_obj_set_size(w, 800, 800);
+          lv_obj_set_pos(w, 0, 0);
+      - lvgl.image.update:
+          id: album_art_background_widget
+          src: album_art_background
+      - lvgl.widget.update:
+          id: album_art_background_widget
+          opa: 100%
+      - script.execute: extract_accent_color
+    on_error:
+      - lambda: |-
+          ESP_LOGW("artwork", "Artwork download failed: %s", id(last_artwork_url).c_str());
+      - lvgl.widget.update:
+          id: album_art_background_widget
+          opa: 40%
+      - lvgl.widget.show: artwork_error_label

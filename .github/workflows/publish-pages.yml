@@ -4,7 +4,9 @@ on:
   push:
     branches: [main]
     paths:
-      - "static/**"
+      - "docs/**"
+      - "package.json"
+      - "package-lock.json"
       - ".github/workflows/publish-pages.yml"
   workflow_run:
     workflows: [Publish Firmware]
@@ -23,20 +25,22 @@ jobs:
       (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
     steps:
       - uses: actions/checkout@v6
-      - run: mkdir -p output/firmware
-      - uses: actions/jekyll-build-pages@v1
+      - uses: actions/setup-node@v4
         with:
-          source: ./static
-          destination: ./output
+          node-version: "20"
+          cache: "npm"
+      - run: npm ci
+      - run: npm run docs:build
+      - run: mkdir -p docs/.vitepress/dist/firmware
       - uses: robinraju/release-downloader@v1
         with:
           latest: true
           fileName: "*"
-          out-file-path: output/firmware
+          out-file-path: docs/.vitepress/dist/firmware
         continue-on-error: true
       - uses: actions/upload-pages-artifact@v4
         with:
-          path: output
+          path: docs/.vitepress/dist
           retention-days: 1
 
   publish:

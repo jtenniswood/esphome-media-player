@@ -1,0 +1,17 @@
+# Guition ESP32-P4-JC8012P4A1 Music Dashboard
+substitutions:
+  name: "music-dashboard-10inch"
+  friendly_name: "Music Dashboard 10inch"
+
+# Wifi Setup
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+# Packages
+packages:
+  music_dashboard:
+    url: https://github.com/jtenniswood/esphome-media-player
+    files: [guition-esp32-p4-jc8012p4a1/packages.yaml]
+    ref: guition-esp32-p4-jc8012p4a1
+    refresh: 1s

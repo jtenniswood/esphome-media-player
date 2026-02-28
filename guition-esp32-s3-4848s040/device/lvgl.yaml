@@ -44,61 +44,96 @@ lvgl:
             text_align: center
             hidden: true
 
-        # Gradient overlay behind the bottom controls
-        - image:
-            id: bottom_overlay
+        # Darkening layer over artwork (separate from text so transparency works)
+        - obj:
+            id: track_info_overlay
             x: 0
-            y: 350
+            y: 0
             width: 480
-            height: 130
-            src: bottom_gradient
+            height: 480
+            bg_color: 0x000000
+            bg_opa: 80%
+            opa: 80%
+            radius: 0
+            border_width: 0
+            pad_all: 0
+            scrollable: false
+            scrollbar_mode: "off"
+            clickable: false
 
-        # Song title
-        - label:
-            id: media_title_label
-            text: "—"
-            x: 18
-            y: 366
-            width: 370px
-            height: 30px
-            long_mode: dot
-            text_font: roboto30_font
-            text_color: 0xFFFFFF
-            text_align: left
+        # Track info text (transparent background, over darkening layer)
+        - obj:
+            id: track_info_text
+            x: 0
+            y: 0
+            width: 480
+            height: 480
+            bg_opa: 0%
+            radius: 0
+            border_width: 0
+            pad_left: 24
+            pad_right: 24
+            pad_top: 24
+            pad_bottom: 16
+            scrollable: false
+            scrollbar_mode: "off"
+            clickable: false
+            layout:
+              type: flex
+              flex_flow: COLUMN
+              pad_row: 0
+            widgets:
+              - label:
+                  id: media_title_label
+                  text: "—"
+                  width: 100%
+                  max_height: 252px
+                  long_mode: wrap
+                  text_font: roboto_light70_font
+                  text_color: 0xFFFFFF
+                  text_align: left
+              - label:
+                  id: media_artist_label
+                  text: ""
+                  pad_top: 6
+                  width: 100%
+                  long_mode: dot
+                  text_font: roboto_light40_font
+                  text_color: 0xFFFFFF
+                  text_opa: 80%
+                  text_align: left
+                  hidden: true
+              - label:
+                  id: media_time_label
+                  text: "0:00  /  0:00"
+                  pad_top: 12
+                  width: 100%
+                  text_font: roboto20_font
+                  text_color: 0xFFFFFF
+                  text_opa: 80%
+                  text_align: left
+                  on_click:
+                    - switch.toggle: show_remaining_time
 
-        # Artist name
-        - label:
-            id: media_artist_label
-            text: "—"
-            x: 18
-            y: 406
-            width: 370px
-            height: 24px
-            long_mode: dot
-            text_font: roboto19_font
-            text_color: 0xFFFFFF
-            text_align: left
-
-        # Control buttons: 72px round; play/pause + next aligned to the right
-        # Play/pause: two icon labels; visibility toggled by sensors.yaml from state
+        # Play/pause: 96px round, bottom-right corner
         - button:
             id: media_play_pause_button
-            x: 390
-            y: 366
-            width: 72px
-            height: 72px
+            x: 360
+            y: 354
+            width: 96px
+            height: 96px
             styles: control_round
             widgets:
               - label:
                   id: media_play_icon
-                  text_font: $icon_font
+                  text_font: icon_font_large
                   align: center
                   text: $play
                   text_color: 0xFFFFFF
                   hidden: false
               - label:
                   id: media_pause_icon
-                  text_font: $icon_font
+                  text_font: icon_font_large
                   align: center
                   text: $pause
                   text_color: 0xFFFFFF
@@ -107,20 +142,18 @@ lvgl:
               - homeassistant.service:
                   service: media_player.media_play_pause
                   variables:
-                    my_entity: !lambda 'return id(media_player_entity).state;'
+                    target: !lambda 'return id(media_player_entity).state;'
                   data_template:
-                    entity_id: "{{ my_entity }}"
-
-        # Play clock: elapsed / duration, below artist name
-        - label:
-            id: media_time_label
-            text: "0:00  /  0:00"
-            x: 18
-            y: 438
-            width: 150px
-            text_font: roboto15_font
-            text_color: 0xDDDDDD
-            text_align: left
+                    entity_id: "{{ target }}"
+                  on_error:
+                    - lambda: |-
+                        if (!id(actions_prompt_acked) && !id(device_has_been_setup)) {
+                          lv_obj_clear_flag(id(actions_prompt), LV_OBJ_FLAG_HIDDEN);
+                        }
+              - event.trigger:
+                  id: media_control_event
+                  event_type: play_pause
+              - logger.log: "Media: play_pause"
 
         # Progress bar: full screen width, at the very bottom of the screen
         - bar:
@@ -201,54 +234,48 @@ lvgl:
             bg_opa: 100%
             radius: 0
             border_width: 0
-            pad_all: 0
+            pad_left: 30
+            pad_right: 30
             scrollable: false
             scrollbar_mode: "off"
             hidden: true
+            layout:
+              type: flex
+              flex_flow: COLUMN
+              flex_align_main: center
+              flex_align_cross: center
+              pad_row: 12
             widgets:
               - label:
                   text_font: $icon_font
-                  align: center
-                  y: -100
                   text: $icon_shield
                   text_color: 0xFFFFFF
               - label:
                   text: "Enable Actions"
                   text_font: roboto30_font
                   text_color: 0xFFFFFF
-                  align: center
-                  y: -40
-                  width: 400
-                  height: 36
+                  width: 420
                   text_align: center
               - label:
-                  text: "In Home Assistant, go to\nSettings > Devices > ESPHome\nand enable 'Allow the device to\nperform Home Assistant actions'"
+                  id: actions_instructions
+                  text: "In Home Assistant, go to\nSettings > Devices > ESPHome\nFind the device and enable\n'Allow the device to perform\nHome Assistant actions'"
                   text_font: roboto19_font
                   text_color: 0x888888
-                  align: center
-                  y: 30
                   width: 420
-                  height: 100
                   text_align: center
-              - label:
-                  id: actions_device_info
-                  text: ""
-                  text_font: roboto19_font
-                  text_color: 0x666666
-                  align: center
-                  y: 130
-                  width: 420
-                  height: 50
-                  text_align: center
-              - label:
-                  text: "Tap to continue"
-                  text_font: roboto19_font
-                  text_color: 0x555555
-                  align: center
-                  y: 200
-                  width: 200
-                  height: 24
-                  text_align: center
+              - button:
+                  width: 180
+                  height: 44
+                  radius: 22
+                  bg_color: 0xFFFFFF
+                  border_width: 0
+                  pad_all: 0
+                  widgets:
+                    - label:
+                        text: "Understood"
+                        text_font: roboto19_font
+                        text_color: 0x000000
+                        align: center
 
         # ---------------------------------------------------------------
         # SETTINGS PANEL (swipe-down from top)
@@ -454,6 +481,7 @@ lvgl:
             pad_all: 0
             scrollable: false
             scrollbar_mode: "off"
+            hidden: true
             widgets:
               - label:
                   text_font: $icon_font
@@ -480,3 +508,49 @@ lvgl:
                   width: 400
                   height: 80
                   text_align: center
+
+        # ---------------------------------------------------------------
+        # LOADING SCREEN (shown at boot until WiFi/grace period)
+        # ---------------------------------------------------------------
+        # Full-screen overlay, visible by default. Hidden when connected or
+        # when grace period ends. Status and progress updated from network.yaml.
+        # ---------------------------------------------------------------
+        - obj:
+            id: loading_screen
+            x: 0
+            y: 0
+            width: 480
+            height: 480
+            bg_color: 0x000000
+            bg_opa: 100%
+            radius: 0
+            border_width: 0
+            pad_all: 0
+            scrollable: false
+            scrollbar_mode: "off"
+            hidden: false
+            widgets:
+              - label:
+                  text: "Starting up"
+                  text_font: roboto30_font
+                  text_color: 0xFFFFFF
+                  align: center
+                  y: -20
+                  width: 400
+                  height: 36
+                  text_align: center
+              - bar:
+                  id: loading_progress_bar
+                  align: center
+                  y: 20
+                  width: 120
+                  height: 4
+                  bg_color: 0x333333
+                  bg_opa: 100%
+                  radius: 3
+                  min_value: 0
+                  max_value: 100
+                  value: 0
+                  indicator:
+                    bg_color: 0xFFFFFF
+                    radius: 3

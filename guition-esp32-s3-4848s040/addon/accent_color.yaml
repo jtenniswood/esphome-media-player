@@ -1,0 +1,113 @@
+# =============================================================================
+# ACCENT COLOR - Extract dominant color from album art (S3)
+# =============================================================================
+# Samples a grid of pixels from the downloaded artwork, weighted by colour
+# saturation so vivid pixels dominate over blacks/whites/grays. Stores RGB in
+# globals for UI/code access and applies darkened color (66% black) to
+# track_info_overlay. Also exposes an RGB light entity for Home Assistant.
+#
+# Reads the raw RGB565 buffer in big-endian byte order (default for this
+# device since no byte_order is set in LVGL config).
+# =============================================================================
+
+globals:
+  - id: accent_r
+    type: int
+    initial_value: '26'
+  - id: accent_g
+    type: int
+    initial_value: '26'
+  - id: accent_b
+    type: int
+    initial_value: '26'
+
+output:
+  - id: accent_r_output
+    platform: template
+    type: float
+    write_action: []
+  - id: accent_g_output
+    platform: template
+    type: float
+    write_action: []
+  - id: accent_b_output
+    platform: template
+    type: float
+    write_action: []
+
+light:
+  - platform: rgb
+    id: accent_color_light
+    name: "Accent Color"
+    red: accent_r_output
+    green: accent_g_output
+    blue: accent_b_output
+    entity_category: ""
+    restore_mode: RESTORE_DEFAULT_OFF
+
+script:
+  - id: extract_accent_color
+    mode: restart
+    then:
+      - lambda: |-
+          auto *img = id(album_art_background);
+          int img_w = img->get_width();
+          int img_h = img->get_height();
+          if (img_w <= 0 || img_h <= 0) return;
+
+          lv_img_dsc_t *dsc = img->get_lv_img_dsc();
+          const uint8_t *data = dsc->data;
+          if (!data) return;
+
+          int grid = 12;
+          int step_x = img_w / grid;
+          int step_y = img_h / grid;
+          if (step_x < 1) step_x = 1;
+          if (step_y < 1) step_y = 1;
+
+          int64_t r_wsum = 0, g_wsum = 0, b_wsum = 0;
+          int64_t w_total = 0;
+
+          for (int sy = step_y / 2; sy < img_h; sy += step_y) {
+            for (int sx = step_x / 2; sx < img_w; sx += step_x) {
+              int pos = (sx + sy * img_w) * 2;
+              uint16_t rgb565 = (data[pos] << 8) | data[pos + 1];
+
+              int r = ((rgb565 >> 11) & 0x1F);
+              int g = ((rgb565 >> 5) & 0x3F);
+              int b = (rgb565 & 0x1F);
+              r = (r << 3) | (r >> 2);
+              g = (g << 2) | (g >> 4);
+              b = (b << 3) | (b >> 2);
+
+              int mx = r > g ? (r > b ? r : b) : (g > b ? g : b);
+              int mn = r < g ? (r < b ? r : b) : (g < b ? g : b);
+              int sat = mx - mn;
+
+              int weight = sat * sat + 1;
+              r_wsum += (int64_t)r * weight;
+              g_wsum += (int64_t)g * weight;
+              b_wsum += (int64_t)b * weight;
+              w_total += weight;
+            }
+          }
+
+          if (w_total > 0) {
+            int r = (int)(r_wsum / w_total);
+            int g = (int)(g_wsum / w_total);
+            int b = (int)(b_wsum / w_total);
+            id(accent_r) = r;
+            id(accent_g) = g;
+            id(accent_b) = b;
+            ESP_LOGI("accent", "Accent color: rgb(%d,%d,%d)", r, g, b);
+
+            int dr = r / 3, dg = g / 3, db = b / 3;
+            lv_obj_set_style_bg_color(id(track_info_overlay), lv_color_make(dr, dg, db), 0);
+            int br = r * 3 / 4, bg = g * 3 / 4, bb = b * 3 / 4;
+            lv_obj_set_style_bg_color(id(media_play_pause_button), lv_color_make(br, bg, bb), 0);
+
+            auto call = id(accent_color_light).turn_on();
+            call.set_rgb(r / 255.0f, g / 255.0f, b / 255.0f);
+            call.set_transition_length(0);
+            call.perform();
+          }

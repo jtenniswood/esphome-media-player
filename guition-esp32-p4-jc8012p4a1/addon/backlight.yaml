@@ -1,0 +1,254 @@
+# =============================================================================
+# BACKLIGHT & SCREENSAVER
+# =============================================================================
+# Two-stage screensaver with day/night awareness:
+#   1. After dim_timeout seconds of inactivity → dim to day or night brightness
+#   2. After a further off_timeout seconds → turn backlight off completely
+#   Any touch or media-stop event restarts the cycle at 100%.
+#
+# All settings (brightness levels, timeouts) are exposed to Home Assistant
+# as configurable number entities under the device's "Configuration" section.
+# Sun state (above/below horizon) is read from HA's built-in sun.sun entity.
+# =============================================================================
+
+
+# -----------------------------------------------------------------------------
+# BACKLIGHT LIGHT OUTPUT
+# -----------------------------------------------------------------------------
+esphome:
+  on_boot:
+    priority: -10
+    then:
+      - light.turn_on:
+          id: backlight
+          brightness: 100%
+          transition_length: 500ms
+      - script.execute: backlight_wake_timeout
+
+
+light:
+  - platform: monochromatic
+    name: Backlight
+    id: backlight
+    output: backlight_output
+    restore_mode: ALWAYS_ON
+    default_transition_length: 1s
+    internal: true
+
+
+# -----------------------------------------------------------------------------
+# SUN STATE SENSOR (from Home Assistant)
+# -----------------------------------------------------------------------------
+# Every HA instance has sun.sun by default. Its state is either
+# "above_horizon" (daytime) or "below_horizon" (nighttime).
+# -----------------------------------------------------------------------------
+text_sensor:
+  - platform: homeassistant
+    entity_id: sun.sun
+    id: sun_state_sensor
+    internal: true
+
+
+# -----------------------------------------------------------------------------
+# USER-CONFIGURABLE SETTINGS (exposed to Home Assistant)
+# -----------------------------------------------------------------------------
+# These appear as number entities under the device's Configuration section.
+# Values persist across reboots via restore_value + restore_from_flash.
+# -----------------------------------------------------------------------------
+number:
+  - platform: template
+    name: "Day: Active Brightness"
+    id: backlight_day_active_brightness
+    min_value: 5
+    max_value: 100
+    step: 5
+    initial_value: 100
+    optimistic: true
+    restore_value: true
+    unit_of_measurement: "%"
+    icon: "mdi:brightness-7"
+    entity_category: config
+    set_action:
+      - if:
+          condition:
+            lambda: 'return !id(is_screen_dimmed);'
+          then:
+            - light.turn_on:
+                id: backlight
+                brightness: !lambda |-
+                  bool is_day = id(sun_state_sensor).has_state() &&
+                                id(sun_state_sensor).state == "above_horizon";
+                  return (is_day ? x : id(backlight_night_active_brightness).state) / 100.0f;
+                transition_length: 500ms
+
+  - platform: template
+    name: "Night: Active Brightness"
+    id: backlight_night_active_brightness
+    min_value: 5
+    max_value: 100
+    step: 5
+    initial_value: 80
+    optimistic: true
+    restore_value: true
+    unit_of_measurement: "%"
+    icon: "mdi:brightness-4"
+    entity_category: config
+    set_action:
+      - if:
+          condition:
+            lambda: 'return !id(is_screen_dimmed);'
+          then:
+            - light.turn_on:
+                id: backlight
+                brightness: !lambda |-
+                  bool is_day = id(sun_state_sensor).has_state() &&
+                                id(sun_state_sensor).state == "above_horizon";
+                  return (is_day ? id(backlight_day_active_brightness).state : x) / 100.0f;
+                transition_length: 500ms
+
+  - platform: template
+    name: "Day: Dim Brightness"
+    id: backlight_day_brightness
+    min_value: 0
+    max_value: 100
+    step: 5
+    initial_value: 35
+    optimistic: true
+    restore_value: true
+    unit_of_measurement: "%"
+    icon: "mdi:brightness-5"
+    entity_category: config
+
+  - platform: template
+    name: "Night: Dim Brightness"
+    id: backlight_night_brightness
+    min_value: 0
+    max_value: 100
+    step: 5
+    initial_value: 25
+    optimistic: true
+    restore_value: true
+    unit_of_measurement: "%"
+    icon: "mdi:brightness-3"
+    entity_category: config
+
+  - platform: template
+    name: "Timeout: Dimming"
+    id: backlight_dim_timeout
+    min_value: 1
+    max_value: 300
+    step: 1
+    initial_value: 60
+    optimistic: true
+    restore_value: true
+    unit_of_measurement: "s"
+    icon: "mdi:timer-outline"
+    entity_category: config
+
+  - platform: template
+    name: "Timeout: Screen Off"
+    id: backlight_off_timeout
+    min_value: 1
+    max_value: 600
+    step: 1
+    initial_value: 300
+    optimistic: true
+    restore_value: true
+    unit_of_measurement: "s"
+    icon: "mdi:timer-off-outline"
+    entity_category: config
+
+
+# -----------------------------------------------------------------------------
+# SCREENSAVER ENABLE/DISABLE (exposed to Home Assistant)
+# -----------------------------------------------------------------------------
+# Toggle switches to enable or disable the screen-off stage independently
+# for daytime and nighttime. When disabled, the screen stays dimmed but
+# never turns off completely. Both default to ON (screensaver enabled).
+# -----------------------------------------------------------------------------
+switch:
+  - platform: template
+    name: "Day: Screen Saver"
+    id: backlight_day_screen_off
+    optimistic: true
+    restore_mode: RESTORE_DEFAULT_ON
+    icon: "mdi:monitor-off"
+    entity_category: config
+
+  - platform: template
+    name: "Night: Screen Saver"
+    id: backlight_night_screen_off
+    optimistic: true
+    restore_mode: RESTORE_DEFAULT_ON
+    icon: "mdi:monitor-off"
+    entity_category: config
+
+
+# -----------------------------------------------------------------------------
+# BACKLIGHT WAKE / DIM / OFF SCRIPT
+# -----------------------------------------------------------------------------
+# mode: restart — any touch re-executes from the top, cancelling pending
+# delays. This gives instant wake-up from any state (dimmed or off).
+#
+# Flow:
+#   1. Wake to 100%
+#   2. Wait dim_timeout seconds
+#   3. If media is NOT playing → dim to day/night brightness
+#   4. Wait off_timeout seconds
+#   5. Turn backlight off and pause LVGL to save power
+# -----------------------------------------------------------------------------
+script:
+  - id: backlight_wake_timeout
+    mode: restart
+    then:
+      - lambda: |-
+          id(was_screen_dimmed) = id(is_screen_dimmed);
+          id(is_screen_dimmed) = false;
+      - light.turn_on:
+          id: backlight
+          brightness: !lambda |-
+            bool is_day = id(sun_state_sensor).has_state() &&
+                          id(sun_state_sensor).state == "above_horizon";
+            float pct = is_day
+              ? id(backlight_day_active_brightness).state
+              : id(backlight_night_active_brightness).state;
+            return pct / 100.0f;
+          transition_length: 1s
+      - lvgl.resume:
+      - if:
+          condition:
+            lambda: 'return id(was_screen_dimmed);'
+          then:
+            - script.execute: show_track_view
+      - delay: !lambda 'return (uint32_t)(id(backlight_dim_timeout).state * 1000);'
+      - if:
+          condition:
+            lambda: >-
+              return !id(media_player_state_sensor).has_state() ||
+                     id(media_player_state_sensor).state != "playing";
+          then:
+            - lambda: 'id(is_screen_dimmed) = true;'
+            - light.turn_on:
+                id: backlight
+                brightness: !lambda |-
+                  bool is_day = id(sun_state_sensor).has_state() &&
+                                id(sun_state_sensor).state == "above_horizon";
+                  float pct = is_day
+                    ? id(backlight_day_brightness).state
+                    : id(backlight_night_brightness).state;
+                  return pct / 100.0f;
+                transition_length: 3s
+            - if:
+                condition:
+                  lambda: |-
+                    bool is_day = id(sun_state_sensor).has_state() &&
+                                  id(sun_state_sensor).state == "above_horizon";
+                    return is_day
+                      ? id(backlight_day_screen_off).state
+                      : id(backlight_night_screen_off).state;
+                then:
+                  - delay: !lambda 'return (uint32_t)(id(backlight_off_timeout).state * 1000);'
+                  - light.turn_off:
+                      id: backlight
+                      transition_length: 3s
+                  - lvgl.pause:

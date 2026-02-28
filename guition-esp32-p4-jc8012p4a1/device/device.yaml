@@ -1,0 +1,359 @@
+# =============================================================================
+# HARDWARE CONFIGURATION - Guition ESP32-P4-JC8012P4A1
+# =============================================================================
+# Hardware settings for the ESP32-P4 10.1" 1280x800 landscape touchscreen.
+# Uses MIPI DSI display, GSL3680 touch controller, and ESP32-C6 coprocessor
+# for WiFi/BT connectivity.
+#
+# WARNING: These settings are specific to the Guition ESP32-P4-JC8012P4A1.
+#          Using this config with a different device may cause issues.
+# =============================================================================
+
+
+esp32:
+  variant: ESP32P4
+  flash_size: 16MB
+  framework:
+    type: esp-idf
+    advanced:
+      enable_idf_experimental_features: true
+
+
+esphome:
+  name: ${name}
+  friendly_name: ${friendly_name}
+  platformio_options:
+    board_build.flash_mode: dio
+
+
+# ESP32-C6 coprocessor for WiFi and Bluetooth via SDIO
+esp32_hosted:
+  variant: esp32c6
+  reset_pin: GPIO54
+  cmd_pin: GPIO19
+  clk_pin: GPIO18
+  d0_pin: GPIO14
+  d1_pin: GPIO15
+  d2_pin: GPIO16
+  d3_pin: GPIO17
+  active_high: true
+
+
+psram:
+  mode: hex
+  speed: 200MHz
+
+
+# Hide screen during OTA to avoid flicker
+ota:
+  - platform: esphome
+    on_begin:
+      - lvgl.pause
+      - light.turn_off:
+          id: backlight
+          transition_length: 0s
+    on_error:
+      - light.turn_on:
+          id: backlight
+          brightness: 100%
+          transition_length: 0s
+      - lvgl.resume
+
+
+api:
+  on_client_connected:
+    - lambda: |-
+        id(ha_base_url) = "http://" + client_address + ":8123";
+    - lvgl.widget.hide: ha_setup_prompt
+    - script.execute: subscribe_media_player
+  on_client_disconnected:
+    - lvgl.widget.hide: setup_prompt
+    - if:
+        condition:
+          lambda: |-
+            return !id(device_has_been_setup)
+                && !id(boot_grace_period)
+                && (esphome::api::global_api_server == nullptr
+                    || !esphome::api::global_api_server->is_connected());
+        then:
+          - lvgl.widget.show: ha_setup_prompt
+
+
+logger:
+  level: DEBUG
+
+
+external_components:
+  - source: github://kvj/esphome@jd9365_gsl3680
+    components: [gsl3680]
+
+
+# DSI PHY power rail
+esp_ldo:
+  - channel: 3
+    id: dsi_phy_enable
+    voltage: 2.5V
+    adjustable: True
+
+
+output:
+  - platform: ledc
+    id: backlight_output
+    pin: GPIO23
+
+
+i2c:
+  - id: i2c_bus_a
+    sda: GPIO7
+    scl: GPIO8
+    scan: true
+    frequency: 400kHz
+    sda_pullup_enabled: False
+    scl_pullup_enabled: False
+
+
+# -----------------------------------------------------------------------------
+# GLOBAL STATE VARIABLES
+# -----------------------------------------------------------------------------
+globals:
+  # -- Touch tracking (swipe gesture detection) --
+  - id: touch_x_start
+    type: int
+    initial_value: '0'
+  - id: touch_y_start
+    type: int
+    initial_value: '0'
+  - id: touch_x_end
+    type: int
+    initial_value: '0'
+  - id: touch_y_end
+    type: int
+    initial_value: '0'
+
+  # -- UI overlay visibility --
+  - id: is_screen_dimmed
+    type: bool
+    initial_value: 'false'
+  - id: was_screen_dimmed
+    type: bool
+    initial_value: 'false'
+
+  # -- Settings panel state --
+  - id: is_panel_open
+    type: bool
+    initial_value: 'false'
+  - id: was_panel_open
+    type: bool
+    initial_value: 'false'
+
+  # -- Setup flow --
+  - id: actions_prompt_acked
+    type: bool
+    restore_value: true
+    initial_value: 'false'
+  # True after first successful setup (WiFi + HA + media entity); suppresses
+  # WiFi/HA/actions setup prompts on restart so user sees loading/main UI instead.
+  - id: device_has_been_setup
+    type: bool
+    restore_value: true
+    initial_value: 'false'
+
+
+
+# -----------------------------------------------------------------------------
+# TOUCHSCREEN (GSL3680)
+# -----------------------------------------------------------------------------
+touchscreen:
+  - platform: gsl3680
+    id: tft_touch
+    reset_pin: GPIO22
+    interrupt_pin: GPIO21
+    transform:
+      swap_xy: true
+      mirror_x: false
+      mirror_y: false
+    on_touch:
+      - lambda: |-
+          id(was_screen_dimmed) = id(is_screen_dimmed);
+          id(was_panel_open) = id(is_panel_open);
+          id(touch_x_start) = touch.x;
+          id(touch_y_start) = touch.y;
+          id(touch_x_end) = touch.x;
+          id(touch_y_end) = touch.y;
+      - script.execute: backlight_wake_timeout
+    on_update:
+      - lambda: |-
+          for (auto touch: touches) {
+            if (touch.state <= 2) {
+              id(touch_x_end) = touch.x;
+              id(touch_y_end) = touch.y;
+            }
+          }
+    on_release:
+      - lambda: |-
+          int dx = id(touch_x_end) - id(touch_x_start);
+          int dy = id(touch_y_end) - id(touch_y_start);
+          int sy = id(touch_y_start);
+
+          // --- Dismiss actions prompt on tap ---
+          if (!lv_obj_has_flag(id(actions_prompt), LV_OBJ_FLAG_HIDDEN)) {
+            if (abs(dx) < 20 && abs(dy) < 20) {
+              lv_obj_add_flag(id(actions_prompt), LV_OBJ_FLAG_HIDDEN);
+              id(actions_prompt_acked) = true;
+              id(device_has_been_setup) = true;
+              global_preferences->sync();
+            }
+            return;
+          }
+
+          // --- Vertical swipe: settings panel open/close ---
+          if (dy > 30 && abs(dy) > abs(dx) * 2 && !id(is_panel_open)) {
+            id(open_settings_panel).execute();
+            return;
+          }
+          if (dy < -80 && abs(dy) > abs(dx) * 2 && id(is_panel_open)) {
+            id(close_settings_panel).execute();
+            return;
+          }
+          if (id(is_panel_open) || id(was_panel_open)) {
+            return;
+          }
+
+          // --- Horizontal swipe: track navigation (works when playing or paused) ---
+          if (abs(dx) > 100 && abs(dx) > abs(dy) * 2) {
+            std::string e = id(media_player_entity).state;
+            bool can_skip = !e.empty() && id(media_player_state_sensor).has_state();
+            if (can_skip) {
+              std::string s = id(media_player_state_sensor).state;
+              can_skip = (s == "playing" || s == "paused");
+            }
+            if (can_skip) {
+              if (dx > 0) {
+                id(swipe_previous_track).execute();
+              } else {
+                id(swipe_next_track).execute();
+              }
+            }
+          }
+
+
+# -----------------------------------------------------------------------------
+# MEDIA CONTROL EVENTS (Home Assistant automations)
+# -----------------------------------------------------------------------------
+# Exposes play_pause, next_track, previous_track, volume_change to HA as an
+# event entity. Use in HA: Automations → Trigger → Event, select this device.
+# Requires Home Assistant 2024.5+. Subscribe to logs is NOT required.
+# -----------------------------------------------------------------------------
+event:
+  - platform: template
+    name: Media control
+    id: media_control_event
+    device_class: button
+    event_types:
+      - play_pause
+      - next_track
+      - previous_track
+      - volume_change
+
+
+# -----------------------------------------------------------------------------
+# INTERACTION SCRIPTS
+# -----------------------------------------------------------------------------
+# Track navigation: next/previous (allowed when playing or paused).
+script:
+  - id: swipe_next_track
+    mode: single
+    then:
+      - homeassistant.service:
+          service: media_player.media_next_track
+          variables:
+            target: !lambda 'return id(media_player_entity).state;'
+          data_template:
+            entity_id: "{{ target }}"
+          on_error:
+            - lambda: |-
+                if (!id(actions_prompt_acked) && !id(device_has_been_setup)) {
+                  lv_obj_clear_flag(id(actions_prompt), LV_OBJ_FLAG_HIDDEN);
+                }
+      - event.trigger:
+          id: media_control_event
+          event_type: next_track
+      - logger.log: "Media: next_track"
+  - id: swipe_previous_track
+    mode: single
+    then:
+      - homeassistant.service:
+          service: media_player.media_previous_track
+          variables:
+            target: !lambda 'return id(media_player_entity).state;'
+          data_template:
+            entity_id: "{{ target }}"
+          on_error:
+            - lambda: |-
+                if (!id(actions_prompt_acked) && !id(device_has_been_setup)) {
+                  lv_obj_clear_flag(id(actions_prompt), LV_OBJ_FLAG_HIDDEN);
+                }
+      - event.trigger:
+          id: media_control_event
+          event_type: previous_track
+      - logger.log: "Media: previous_track"
+
+  - id: open_settings_panel
+    mode: single
+    then:
+      - lambda: 'id(is_panel_open) = true;'
+      - lvgl.widget.show: settings_panel
+  - id: close_settings_panel
+    mode: single
+    then:
+      - lvgl.widget.hide: settings_panel
+      - lambda: 'id(is_panel_open) = false;'
+
+  - id: debounce_volume
+    mode: restart
+    then:
+      - delay: 250ms
+      - homeassistant.service:
+          service: media_player.volume_set
+          variables:
+            target: !lambda 'return id(media_player_entity).state;'
+            vol_level: !lambda 'return lv_arc_get_value(id(volume_arc)) / 100.0f;'
+          data_template:
+            entity_id: "{{ target }}"
+            volume_level: "{{ vol_level }}"
+          on_error:
+            - lambda: |-
+                if (!id(actions_prompt_acked) && !id(device_has_been_setup)) {
+                  lv_obj_clear_flag(id(actions_prompt), LV_OBJ_FLAG_HIDDEN);
+                }
+      - event.trigger:
+          id: media_control_event
+          event_type: volume_change
+      - logger.log: "Media: volume_change"
+
+  - id: show_track_view
+    mode: single
+    then:
+      - if:
+          condition:
+            lambda: 'return id(is_panel_open);'
+          then:
+            - lvgl.widget.hide: settings_panel
+            - lambda: 'id(is_panel_open) = false;'
+
+
+
+# -----------------------------------------------------------------------------
+# DISPLAY (MIPI DSI - JC8012P4A1)
+# -----------------------------------------------------------------------------
+display:
+  - platform: mipi_dsi
+    model: JC8012P4A1
+    id: tft_display
+    reset_pin: GPIO27
+    rotation: 90
+    auto_clear_enabled: false
+    color_order: RGB
+    dimensions:
+      width: 800
+      height: 1280

@@ -81,7 +81,8 @@ script:
           // --- Reset UI ---
           lv_obj_add_flag(id(setup_prompt), LV_OBJ_FLAG_HIDDEN);
           lv_label_set_text(id(media_title_label), "\xe2\x80\x94");
-          lv_label_set_text(id(media_artist_label), "\xe2\x80\x94");
+          id(artist_has_content) = false;
+          lv_obj_add_flag(id(media_artist_label), LV_OBJ_FLAG_HIDDEN);
           lv_label_set_text(id(media_time_label), "0:00 / -0:00");
           lv_bar_set_value(id(media_progress_bar), 0, LV_ANIM_OFF);
           lv_obj_set_style_opa(id(album_art_background_widget), LV_OPA_50, 0);
@@ -91,47 +92,54 @@ script:
           int gen = id(subscription_gen);
           int *gen_ptr = &id(subscription_gen);
 
+          auto *api = esphome::api::global_api_server;
+          using str_cb = std::function<void(const std::string &)>;
+
           // --- Helper: subscribe to a text attribute ---
           auto sub_text = [&](const std::string &attr, esphome::text_sensor::TextSensor *sensor) {
-            esphome::api::global_api_server->subscribe_home_assistant_state(
-                entity, attr,
-                [gen, gen_ptr, sensor](const std::string &state) {
+            api->subscribe_home_assistant_state(entity, esphome::optional<std::string>(attr),
+                str_cb([gen, gen_ptr, sensor](const std::string &state) {
                   if (gen != *gen_ptr) return;
                   sensor->publish_state(state);
-                });
+                }));
           };
 
           // --- Helper: subscribe to a numeric attribute ---
           auto sub_num = [&](const std::string &attr, esphome::sensor::Sensor *sensor) {
-            esphome::api::global_api_server->subscribe_home_assistant_state(
-                entity, attr,
-                [gen, gen_ptr, sensor](const std::string &state) {
+            api->subscribe_home_assistant_state(entity, esphome::optional<std::string>(attr),
+                str_cb([gen, gen_ptr, sensor](const std::string &state) {
                   if (gen != *gen_ptr) return;
                   auto v = esphome::parse_number<float>(state);
                   if (v.has_value()) sensor->publish_state(v.value());
-                });
+                }));
           };
 
-          // --- Subscribe to all 8 media player attributes ---
+          // --- Subscribe to all media player attributes ---
           sub_text("media_title", id(media_title_sensor));
           sub_text("media_artist", id(media_artist_sensor));
           sub_text("entity_picture", id(media_entity_picture_sensor));
 
           // Main state (playing/paused/idle) — empty attribute = entity state
-          esphome::api::global_api_server->subscribe_home_assistant_state(
-              entity, std::string(""),
-              [gen, gen_ptr](const std::string &state) {
+          api->subscribe_home_assistant_state(entity, esphome::optional<std::string>(""),
+              str_cb([gen, gen_ptr](const std::string &state) {
                 if (gen != *gen_ptr) return;
                 id(media_player_state_sensor).publish_state(state);
-              });
+              }));
 
           sub_text("media_position_updated_at", id(media_position_updated_at_sensor));
           sub_num("media_duration", id(media_duration_sensor));
           sub_num("media_position", id(media_position_sensor));
           sub_num("volume_level", id(media_volume_sensor));
+          sub_text("source", id(media_source_sensor));
 
           ESP_LOGI("media_select", "Subscribed to '%s'", entity.c_str());
 
-          if (!id(actions_prompt_acked)) {
-            lv_obj_clear_flag(id(actions_prompt), LV_OBJ_FLAG_HIDDEN);
+          // Only show "enable actions" prompt on first-time setup.
+          // Gate on is_connected() so this only fires from on_client_connected
+          // (not from on_value during early boot when globals may not be restored yet).
+          if (esphome::api::global_api_server->is_connected()) {
+            if (!id(actions_prompt_acked) && !id(device_has_been_setup)) {
+              lv_obj_clear_flag(id(actions_prompt), LV_OBJ_FLAG_HIDDEN);
+            }
+            id(device_has_been_setup) = true;
           }

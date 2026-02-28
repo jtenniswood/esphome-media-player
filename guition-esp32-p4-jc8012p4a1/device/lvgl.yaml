@@ -1,0 +1,538 @@
+# =============================================================================
+# LVGL MUSIC DASHBOARD - 1280x800 Landscape
+# =============================================================================
+# Split layout: album art on left 800x800, track info on right in 480px panel.
+# Data from sensors.yaml; album art from online_image (addon/music.yaml).
+# =============================================================================
+
+lvgl:
+  buffer_size: 25%
+  byte_order: little_endian
+
+  pages:
+    - id: main_page
+      scrollbar_mode: "off"
+      scrollable: false
+      width: 100%
+      height: 100%
+      bg_color: 0x000000
+      pad_top: 0
+      pad_bottom: 0
+      pad_left: 0
+      pad_right: 0
+
+      widgets:
+        # Full-height artwork (square, left side of screen)
+        - image:
+            id: album_art_background_widget
+            x: 0
+            y: 0
+            width: 800px
+            height: 800px
+            src: album_art_background
+            opa: 100%
+
+        # Error label: shown when album art download fails
+        - label:
+            id: artwork_error_label
+            text: "Artwork unavailable"
+            x: 200
+            y: 380
+            width: 400px
+            height: 30px
+            text_font: roboto19_font
+            text_color: 0x888888
+            text_align: center
+            hidden: true
+
+        # Accent color background (right side, behind track info)
+        - obj:
+            id: accent_bg_panel
+            x: 800
+            y: 0
+            width: 480px
+            height: 800px
+            bg_color: 0x000000
+            bg_opa: 100%
+            radius: 0
+            border_width: 0
+            pad_all: 0
+            scrollable: false
+
+        # Track info panel (flex column on right side)
+        - obj:
+            id: track_info_panel
+            x: 840
+            y: 40
+            width: 400px
+            height: 720px
+            bg_opa: 0%
+            border_width: 0
+            pad_all: 0
+            scrollable: false
+            scrollbar_mode: "off"
+            layout:
+              type: flex
+              flex_flow: COLUMN
+              pad_row: 0
+            widgets:
+              - label:
+                  id: media_title_label
+                  text: "—"
+                  width: 100%
+                  max_height: 565px
+                  long_mode: wrap
+                  text_font: roboto_light88_font
+                  text_color: 0xFFFFFF
+                  text_align: left
+                  text_line_space: 0
+              - label:
+                  id: media_artist_label
+                  text: ""
+                  pad_top: 4
+                  width: 100%
+                  long_mode: wrap
+                  text_font: roboto_light40_font
+                  text_color: 0xFFFFFF
+                  text_opa: 80%
+                  text_align: left
+                  hidden: true
+              - label:
+                  id: media_time_label
+                  text: "0:00  /  0:00"
+                  pad_top: 12
+                  width: 100%
+                  text_font: roboto20_font
+                  text_color: 0xFFFFFF
+                  text_opa: 80%
+                  text_align: left
+                  on_click:
+                    - switch.toggle: show_remaining_time
+
+        # Play/pause button (bottom-right corner)
+        - button:
+            id: media_play_pause_button
+            x: 1144
+            y: 664
+            width: 96px
+            height: 96px
+            radius: 48
+            styles: control_round
+            widgets:
+              - label:
+                  id: media_play_icon
+                  text_font: icon_font_large
+                  align: center
+                  text: $play
+                  text_color: 0xFFFFFF
+                  hidden: false
+              - label:
+                  id: media_pause_icon
+                  text_font: icon_font_large
+                  align: center
+                  text: $pause
+                  text_color: 0xFFFFFF
+                  hidden: true
+            on_press:
+              - homeassistant.service:
+                  service: media_player.media_play_pause
+                  variables:
+                    target: !lambda 'return id(media_player_entity).state;'
+                  data_template:
+                    entity_id: "{{ target }}"
+                  on_error:
+                    - lambda: |-
+                        if (!id(actions_prompt_acked) && !id(device_has_been_setup)) {
+                          lv_obj_clear_flag(id(actions_prompt), LV_OBJ_FLAG_HIDDEN);
+                        }
+              - event.trigger:
+                  id: media_control_event
+                  event_type: play_pause
+              - logger.log: "Media: play_pause"
+
+        # Progress bar at the very bottom
+        - bar:
+            id: media_progress_bar
+            x: 0
+            y: 794
+            width: 1280
+            height: 6
+            bg_color: 0x000000
+            bg_opa: 100%
+            radius: 0
+            min_value: 0
+            max_value: 100
+            value: 0
+            indicator:
+              bg_color: 0xFFFFFF
+              radius: 0
+
+        # ---------------------------------------------------------------
+        # SETUP PROMPT (no media player entity configured)
+        # ---------------------------------------------------------------
+        - obj:
+            id: setup_prompt
+            x: 0
+            y: 0
+            width: 1280
+            height: 800
+            bg_color: 0x000000
+            bg_opa: 100%
+            radius: 0
+            border_width: 0
+            pad_all: 0
+            scrollable: false
+            scrollbar_mode: "off"
+            hidden: true
+            widgets:
+              - label:
+                  text_font: $icon_font
+                  align: center
+                  y: -80
+                  text: $icon_cast
+                  text_color: 0xFFFFFF
+              - label:
+                  text: "Media Player"
+                  text_font: roboto30_font
+                  text_color: 0xFFFFFF
+                  align: center
+                  y: -20
+                  width: 500
+                  height: 36
+                  text_align: center
+              - label:
+                  text: "Set the media player entity\nyou want to control in\ndevice settings"
+                  text_font: roboto19_font
+                  text_color: 0x888888
+                  align: center
+                  y: 40
+                  width: 500
+                  height: 80
+                  text_align: center
+
+        # ---------------------------------------------------------------
+        # ACTIONS PROMPT (enable HA actions toggle)
+        # ---------------------------------------------------------------
+        - obj:
+            id: actions_prompt
+            x: 0
+            y: 0
+            width: 1280
+            height: 800
+            bg_color: 0x000000
+            bg_opa: 100%
+            radius: 0
+            border_width: 0
+            pad_all: 0
+            scrollable: false
+            scrollbar_mode: "off"
+            hidden: true
+            widgets:
+              - obj:
+                  align: center
+                  width: 520
+                  height: SIZE_CONTENT
+                  bg_opa: 0%
+                  border_width: 0
+                  pad_all: 0
+                  scrollable: false
+                  layout:
+                    type: flex
+                    flex_flow: COLUMN
+                    flex_align_main: center
+                    flex_align_cross: center
+                    pad_row: 12
+                  widgets:
+                    - label:
+                        text_font: $icon_font
+                        text: $icon_shield
+                        text_color: 0xFFFFFF
+                    - label:
+                        text: "Enable Actions"
+                        text_font: roboto30_font
+                        text_color: 0xFFFFFF
+                        width: 520
+                        text_align: center
+                    - label:
+                        id: actions_instructions
+                        text: "In Home Assistant, go to\nSettings > Devices > ESPHome\nFind the device and enable\n'Allow the device to perform\nHome Assistant actions'"
+                        text_font: roboto19_font
+                        text_color: 0x888888
+                        width: 520
+                        text_align: center
+                    - button:
+                        width: 180
+                        height: 44
+                        radius: 22
+                        bg_color: 0xFFFFFF
+                        border_width: 0
+                        pad_all: 0
+                        widgets:
+                          - label:
+                              text: "Understood"
+                              text_font: roboto19_font
+                              text_color: 0x000000
+                              align: center
+
+        # ---------------------------------------------------------------
+        # SETTINGS PANEL (swipe-down from top)
+        # ---------------------------------------------------------------
+        - obj:
+            id: settings_panel
+            x: 0
+            y: 0
+            width: 1280
+            height: 800
+            bg_color: 0x000000
+            bg_opa: 100%
+            radius: 0
+            border_width: 0
+            pad_all: 0
+            scrollable: false
+            scrollbar_mode: "off"
+            hidden: true
+            widgets:
+              - arc:
+                  id: volume_arc
+                  align: center
+                  y: -40
+                  width: 500
+                  height: 500
+                  min_value: 0
+                  max_value: 100
+                  value: 30
+                  adjustable: true
+                  arc_color: 0x333333
+                  arc_width: 14
+                  arc_rounded: true
+                  indicator:
+                    arc_color: 0x999999
+                    arc_width: 14
+                    arc_rounded: true
+                  knob:
+                    bg_color: 0xFFFFFF
+                    radius: 16
+                    width: 32
+                    height: 32
+                    border_width: 0
+                  on_value:
+                    - lvgl.label.update:
+                        id: volume_pct_label
+                        text: !lambda |-
+                          char buf[8];
+                          snprintf(buf, sizeof(buf), "%d%%", (int)x);
+                          return std::string(buf);
+                    - script.execute: debounce_volume
+
+              - label:
+                  id: volume_title_label
+                  text: "Volume"
+                  text_font: roboto19_font
+                  text_color: 0x888888
+                  align: center
+                  y: -100
+                  width: 140
+                  height: 24
+                  text_align: center
+
+              - label:
+                  id: volume_pct_label
+                  text: "30%"
+                  text_font: roboto56_font
+                  text_color: 0xFFFFFF
+                  align: center
+                  y: -40
+                  width: 200
+                  height: 60
+                  text_align: center
+
+              - button:
+                  id: volume_down_button
+                  align: center
+                  x: -56
+                  y: 200
+                  width: 80px
+                  height: 80px
+                  styles: control_round
+                  widgets:
+                    - label:
+                        text_font: $icon_font
+                        align: center
+                        text: $icon_minus
+                        text_color: 0xFFFFFF
+                  on_press:
+                    - lvgl.arc.update:
+                        id: volume_arc
+                        value: !lambda |-
+                          int v = lv_arc_get_value(id(volume_arc)) - 1;
+                          if (v < 0) v = 0;
+                          return v;
+
+              - button:
+                  id: volume_up_button
+                  align: center
+                  x: 56
+                  y: 200
+                  width: 80px
+                  height: 80px
+                  styles: control_round
+                  widgets:
+                    - label:
+                        text_font: $icon_font
+                        align: center
+                        text: $icon_plus
+                        text_color: 0xFFFFFF
+                  on_press:
+                    - lvgl.arc.update:
+                        id: volume_arc
+                        value: !lambda |-
+                          int v = lv_arc_get_value(id(volume_arc)) + 1;
+                          if (v > 100) v = 100;
+                          return v;
+
+              # Drag handle
+              - obj:
+                  x: 610
+                  y: 780
+                  width: 60
+                  height: 4
+                  bg_color: 0x666666
+                  bg_opa: 100%
+                  radius: 2
+                  border_width: 0
+                  pad_all: 0
+                  scrollable: false
+
+        # ---------------------------------------------------------------
+        # HOME ASSISTANT SETUP PROMPT
+        # ---------------------------------------------------------------
+        - obj:
+            id: ha_setup_prompt
+            x: 0
+            y: 0
+            width: 1280
+            height: 800
+            bg_color: 0x000000
+            bg_opa: 100%
+            radius: 0
+            border_width: 0
+            pad_all: 0
+            scrollable: false
+            scrollbar_mode: "off"
+            hidden: true
+            widgets:
+              - label:
+                  text_font: $icon_font
+                  align: center
+                  y: -80
+                  text: $icon_ha
+                  text_color: 0xFFFFFF
+              - label:
+                  text: "Home Assistant"
+                  text_font: roboto30_font
+                  text_color: 0xFFFFFF
+                  align: center
+                  y: -20
+                  width: 500
+                  height: 36
+                  text_align: center
+              - label:
+                  id: ha_setup_instructions
+                  text: "Add this device in\nSettings > Devices > ESPHome"
+                  text_font: roboto19_font
+                  text_color: 0x888888
+                  align: center
+                  y: 40
+                  width: 500
+                  height: 80
+                  text_align: center
+
+        # ---------------------------------------------------------------
+        # WIFI SETUP PROMPT
+        # ---------------------------------------------------------------
+        - obj:
+            id: wifi_setup_prompt
+            x: 0
+            y: 0
+            width: 1280
+            height: 800
+            bg_color: 0x000000
+            bg_opa: 100%
+            radius: 0
+            border_width: 0
+            pad_all: 0
+            scrollable: false
+            scrollbar_mode: "off"
+            hidden: true
+            widgets:
+              - label:
+                  text_font: $icon_font
+                  align: center
+                  y: -80
+                  text: $icon_wifi
+                  text_color: 0xFFFFFF
+              - label:
+                  text: "WiFi Setup"
+                  text_font: roboto30_font
+                  text_color: 0xFFFFFF
+                  align: center
+                  y: -20
+                  width: 400
+                  height: 36
+                  text_align: center
+              - label:
+                  id: wifi_setup_instructions
+                  text: "Connect to the WiFi hotspot\nto configure your network"
+                  text_font: roboto19_font
+                  text_color: 0x888888
+                  align: center
+                  y: 40
+                  width: 500
+                  height: 80
+                  text_align: center
+
+        # ---------------------------------------------------------------
+        # LOADING SCREEN (shown at boot until WiFi/grace period)
+        # ---------------------------------------------------------------
+        # Full-screen overlay, visible by default. Hidden when connected or
+        # when grace period ends. Status and progress updated from network.yaml.
+        # ---------------------------------------------------------------
+        - obj:
+            id: loading_screen
+            x: 0
+            y: 0
+            width: 1280
+            height: 800
+            bg_color: 0x000000
+            bg_opa: 100%
+            radius: 0
+            border_width: 0
+            pad_all: 0
+            scrollable: false
+            scrollbar_mode: "off"
+            hidden: false
+            widgets:
+              - label:
+                  text: "Starting up"
+                  text_font: roboto30_font
+                  text_color: 0xFFFFFF
+                  align: center
+                  y: -20
+                  width: 600
+                  height: 36
+                  text_align: center
+              - bar:
+                  id: loading_progress_bar
+                  align: center
+                  y: 20
+                  width: 180
+                  height: 4
+                  bg_color: 0x333333
+                  bg_opa: 100%
+                  radius: 3
+                  min_value: 0
+                  max_value: 100
+                  value: 0
+                  indicator:
+                    bg_color: 0xFFFFFF
+                    radius: 3
