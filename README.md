@@ -9,9 +9,10 @@ A touchscreen media controller that shows album art and track info and lets you 
 ## Features
 
 - **Album art** — Full-screen cover art from Home Assistant, with smooth transitions between tracks
+- **Accent color** — Dominant color extracted from album art, applied to the UI and exposed as an HA light entity
 - **Now playing** — Title, artist, elapsed/remaining time, and progress bar
 - **Touch controls** — Play/pause, swipe for next/previous, volume arc dial (swipe down)
-- **Screensaver** — Configurable dim and screen-off when paused
+- **Screensaver** — Day/night aware dimming and screen-off when paused
 - **Configurable from Home Assistant** — Media player, brightness, timeouts, track info duration; no reflashing
 
 *Full details: [Features](https://jtenniswood.github.io/esphome-media-player/features)*

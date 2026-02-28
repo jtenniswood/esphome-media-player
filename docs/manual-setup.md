@@ -40,7 +40,24 @@ packages:
     refresh: 1s
 ```
 
-**Guition ESP32-P4 JC8012P4A1 (8"):** use the equivalent package from the repository (e.g. `guition-esp32-p4-jc8012p4a1`) and the correct `files:` path from the [builds](https://github.com/jtenniswood/esphome-media-player/tree/main/builds) in the repo.
+**Guition ESP32-P4 JC8012P4A1 (10.1"):**
+
+```yaml
+substitutions:
+  name: "your-device-name"
+  friendly_name: "Your Room Music"
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+packages:
+  music_dashboard:
+    url: https://github.com/jtenniswood/esphome-media-player
+    files: [guition-esp32-p4-jc8012p4a1/packages.yaml]
+    ref: main
+    refresh: 1s
+```
 
 Adjust `name` and `friendly_name`. Optionally set `media_player` entity ID in substitutions, or leave it empty and set the media player later in Home Assistant.
 
