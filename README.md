@@ -2,7 +2,7 @@
 
 A touchscreen media controller that shows album art and track info and lets you control play, pause, skip, and volume from any Home Assistant media player. Supports **4"** and **10.1"** panels. Built with [ESPHome](https://esphome.io/) and [LVGL](https://lvgl.io/); tested with Google and Sonos speakers.
 
-![ESPHome Media Controller](images/guition-esp32-s3-4848s040-example1.jpg)
+![guition-esp32-s3-4848s040](images/guition-esp32-s3-4848s040-example1.jpg)
 
 ---
 
@@ -16,14 +16,6 @@ A touchscreen media controller that shows album art and track info and lets you 
 - **Configurable from Home Assistant** — Media player, brightness, timeouts, track info duration; no reflashing
 
 *Full details: [Features](https://jtenniswood.github.io/esphome-media-player/features)*
-
----
-
-## Demo
-
-[![ESPHome Media Player Demo Video](https://img.youtube.com/vi/aShTf0Q-5A0/maxresdefault.jpg)](https://youtu.be/aShTf0Q-5A0)
-
-[**Watch on YouTube**](https://youtu.be/aShTf0Q-5A0)
 
 ---
 
@@ -63,6 +55,17 @@ If you have any feedback or suggestions, please open an [issue](https://github.c
 
 ## Gallery
 
-![Volume controls](images/guition-esp32-s3-4848s040-volume.jpg)
+### Guition ESP32-P4 (10.1")
+
+![Guition ESP32-P4 example 1](images/guition-esp32-p4-jc8012p4a1-example1.jpg)
+![Guition ESP32-P4 example 2](images/guition-esp32-p4-jc8012p4a1-example2.jpg)
+
+### Guition ESP32-S3 4848S040 (4")
+
+![Guition ESP32-S3 example 1](images/guition-esp32-s3-4848s040-example1.jpg)
+![Guition ESP32-S3 example 2](images/guition-esp32-s3-4848s040-example2.jpg)
+![Guition ESP32-S3 example 3](images/guition-esp32-s3-4848s040-example3.jpg)
+![Guition ESP32-S3 example 4](images/guition-esp32-s3-4848s040-example4.jpg)
+![Guition ESP32-S3 volume controls](images/guition-esp32-s3-4848s040-volume.jpg)
 
 More screenshots in the [documentation](https://jtenniswood.github.io/esphome-media-player/).
