@@ -141,7 +141,10 @@ lvgl:
                   data_template:
                     entity_id: "{{ target }}"
                   on_error:
-                    - lvgl.widget.show: actions_prompt
+                    - lambda: |-
+                        if (!id(actions_prompt_acked)) {
+                          lv_obj_clear_flag(id(actions_prompt), LV_OBJ_FLAG_HIDDEN);
+                        }
               - event.trigger:
                   id: media_control_event
                   event_type: play_pause
