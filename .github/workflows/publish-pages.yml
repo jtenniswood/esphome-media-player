@@ -38,6 +38,50 @@ jobs:
           fileName: "*"
           out-file-path: docs/.vitepress/dist/firmware
         continue-on-error: true
+      - name: Add ESP32-P4 build to manifest
+        run: |
+          FW="docs/.vitepress/dist/firmware"
+          MANIFEST="${FW}/media-player.manifest.json"
+          FACTORY="${FW}/media-player-esp32p4.factory.bin"
+          OTA="${FW}/media-player-esp32p4.ota.bin"
+
+          if [ ! -f "$MANIFEST" ] || [ ! -f "$FACTORY" ]; then
+            echo "Manifest or P4 factory binary not found; skipping."
+            exit 0
+          fi
+
+          FACTORY_MD5=$(md5sum "$FACTORY" | awk '{print $1}')
+          FACTORY_SHA256=$(sha256sum "$FACTORY" | awk '{print $1}')
+
+          P4_BUILD=$(jq -n \
+            --arg fm "$FACTORY_MD5" \
+            --arg fs "$FACTORY_SHA256" \
+            '{
+              chipFamily: "ESP32-P4",
+              parts: [{
+                path: "media-player-esp32p4.factory.bin",
+                offset: 0,
+                md5: $fm,
+                sha256: $fs
+              }]
+            }')
+
+          if [ -f "$OTA" ]; then
+            OTA_MD5=$(md5sum "$OTA" | awk '{print $1}')
+            OTA_SHA256=$(sha256sum "$OTA" | awk '{print $1}')
+            SUMMARY=$(jq -r '.builds[0].ota.summary // empty' "$MANIFEST")
+            RELEASE_URL=$(jq -r '.builds[0].ota.release_url // empty' "$MANIFEST")
+            P4_BUILD=$(echo "$P4_BUILD" | jq \
+              --arg om "$OTA_MD5" \
+              --arg os "$OTA_SHA256" \
+              --arg summary "$SUMMARY" \
+              --arg url "$RELEASE_URL" \
+              '. + {ota: {path: "media-player-esp32p4.ota.bin", md5: $om, sha256: $os, summary: $summary, release_url: $url}}')
+          fi
+
+          jq --argjson p4 "$P4_BUILD" '.builds += [$p4]' "$MANIFEST" > "${MANIFEST}.tmp"
+          mv "${MANIFEST}.tmp" "$MANIFEST"
+          echo "ESP32-P4 build added to manifest."
       - uses: actions/upload-pages-artifact@v4
         with:
           path: docs/.vitepress/dist

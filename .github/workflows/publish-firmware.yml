@@ -26,8 +26,8 @@ jobs:
     with:
       version: ${{ github.event.release.tag_name }}
 
-  # ESP32-P4 build handled separately because esphome/build-action and
-  # esp-web-tools do not yet support the ESP32-P4 chip family.
+  # ESP32-P4 build handled separately because esphome/build-action does not
+  # yet support ESP32-P4. The manifest is patched in the publish-pages workflow.
   build-p4:
     name: Build P4 Firmware
     runs-on: ubuntu-latest
