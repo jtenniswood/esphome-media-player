@@ -19,13 +19,13 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - name: Cache PlatformIO
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.platformio
           key: pio-s3-${{ hashFiles('builds/guition-esp32-s3-4848s040.factory.yaml', 'guition-esp32-s3-4848s040/**/*.yaml') }}
           restore-keys: pio-s3-
       - name: Cache ESPHome build
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: .esphome
           key: esphome-s3-${{ hashFiles('builds/guition-esp32-s3-4848s040.factory.yaml', 'guition-esp32-s3-4848s040/**/*.yaml') }}
@@ -48,13 +48,13 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - name: Cache PlatformIO
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.platformio
           key: pio-p4-${{ hashFiles('builds/guition-esp32-p4-jc8012p4a1.factory.yaml', 'guition-esp32-p4-jc8012p4a1/**/*.yaml') }}
           restore-keys: pio-p4-
       - name: Cache ESPHome build
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: .esphome
           key: esphome-p4-${{ hashFiles('builds/guition-esp32-p4-jc8012p4a1.factory.yaml', 'guition-esp32-p4-jc8012p4a1/**/*.yaml') }}
