@@ -44,7 +44,9 @@ jobs:
           for suffix in factory.bin ota.bin; do
             OLD="${FW}/media-player-esp32s3.${suffix}"
             NEW="${FW}/media-player-4848s040.${suffix}"
-            [ -f "$OLD" ] && mv "$OLD" "$NEW" && echo "Renamed $(basename "$OLD") -> $(basename "$NEW")"
+            if [ -f "$OLD" ]; then
+              mv "$OLD" "$NEW" && echo "Renamed $(basename "$OLD") -> $(basename "$NEW")"
+            fi
           done
       - name: Add ESP32-P4 build to manifest
         run: |
