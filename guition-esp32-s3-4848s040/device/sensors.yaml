@@ -84,6 +84,11 @@ interval:
       - lvgl.bar.update:
             id: media_progress_bar
             value: !lambda |-
+              if (!id(show_progress_bar).state) {
+                lv_obj_add_flag(id(media_progress_bar), LV_OBJ_FLAG_HIDDEN);
+                return 0;
+              }
+              lv_obj_clear_flag(id(media_progress_bar), LV_OBJ_FLAG_HIDDEN);
               float pos = id(last_media_position);
               float dur = id(media_duration_sensor).has_state() ? id(media_duration_sensor).state : 0.0f;
               if (dur > 0) return (int)((pos / dur) * 100.0f);
@@ -302,4 +307,12 @@ switch:
     optimistic: true
     restore_mode: RESTORE_DEFAULT_ON
     icon: "mdi:timer-sand"
+    entity_category: config
+
+  - platform: template
+    name: "Playback: Show Progress Bar"
+    id: show_progress_bar
+    optimistic: true
+    restore_mode: RESTORE_DEFAULT_ON
+    icon: "mdi:progress-clock"
     entity_category: config
