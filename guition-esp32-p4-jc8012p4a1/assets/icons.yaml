@@ -23,6 +23,15 @@ font:
     glyphs:
       - "\U000F040A"  # mdi-play
       - "\U000F03E4"  # mdi-pause
+  - file: 'https://github.com/Templarian/MaterialDesign-Webfont/raw/v7.4.47/fonts/materialdesignicons-webfont.ttf'
+    id: icon_font_setup
+    size: 64
+    bpp: 4
+    glyphs:
+      - "\U000F05A9"  # mdi-wifi
+      - "\U000F07D0"  # mdi-home-assistant
+      - "\U000F0118"  # mdi-cast
+      - "\U000F0565"  # mdi-shield-check
 
 substitutions:
   play:          "\U000F040A"

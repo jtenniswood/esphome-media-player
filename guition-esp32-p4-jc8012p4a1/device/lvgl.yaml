@@ -186,28 +186,28 @@ lvgl:
             hidden: true
             widgets:
               - label:
-                  text_font: $icon_font
+                  text_font: icon_font_setup
                   align: center
-                  y: -80
+                  y: -120
                   text: $icon_cast
                   text_color: 0xFFFFFF
               - label:
                   text: "Media Player"
-                  text_font: roboto30_font
+                  text_font: roboto_light40_font
                   text_color: 0xFFFFFF
                   align: center
-                  y: -20
-                  width: 500
-                  height: 36
+                  y: -40
+                  width: 700
+                  height: 48
                   text_align: center
               - label:
                   text: "Set the media player entity\nyou want to control in\ndevice settings"
-                  text_font: roboto19_font
+                  text_font: roboto30_font
                   text_color: 0x888888
                   align: center
-                  y: 40
-                  width: 500
-                  height: 80
+                  y: 30
+                  width: 700
+                  height: 120
                   text_align: center
 
         # ---------------------------------------------------------------
@@ -230,7 +230,7 @@ lvgl:
             widgets:
               - obj:
                   align: center
-                  width: 520
+                  width: 700
                   height: SIZE_CONTENT
                   bg_opa: 0%
                   border_width: 0
@@ -241,36 +241,36 @@ lvgl:
                     flex_flow: COLUMN
                     flex_align_main: center
                     flex_align_cross: center
-                    pad_row: 12
+                    pad_row: 16
                   widgets:
                     - label:
-                        text_font: $icon_font
+                        text_font: icon_font_setup
                         text: $icon_shield
                         text_color: 0xFFFFFF
                     - label:
                         text: "Enable Actions"
-                        text_font: roboto30_font
+                        text_font: roboto_light40_font
                         text_color: 0xFFFFFF
-                        width: 520
+                        width: 700
                         text_align: center
                     - label:
                         id: actions_instructions
                         text: "In Home Assistant, go to\nSettings > Devices > ESPHome\nFind the device and enable\n'Allow the device to perform\nHome Assistant actions'"
-                        text_font: roboto19_font
+                        text_font: roboto30_font
                         text_color: 0x888888
-                        width: 520
+                        width: 700
                         text_align: center
                     - button:
-                        width: 180
-                        height: 44
-                        radius: 22
+                        width: 220
+                        height: 52
+                        radius: 26
                         bg_color: 0xFFFFFF
                         border_width: 0
                         pad_all: 0
                         widgets:
                           - label:
                               text: "Understood"
-                              text_font: roboto19_font
+                              text_font: roboto30_font
                               text_color: 0x000000
                               align: center
 
@@ -422,29 +422,29 @@ lvgl:
             hidden: true
             widgets:
               - label:
-                  text_font: $icon_font
+                  text_font: icon_font_setup
                   align: center
-                  y: -80
+                  y: -120
                   text: $icon_ha
                   text_color: 0xFFFFFF
               - label:
                   text: "Home Assistant"
-                  text_font: roboto30_font
+                  text_font: roboto_light40_font
                   text_color: 0xFFFFFF
                   align: center
-                  y: -20
-                  width: 500
-                  height: 36
+                  y: -40
+                  width: 700
+                  height: 48
                   text_align: center
               - label:
                   id: ha_setup_instructions
                   text: "Add this device in\nSettings > Devices > ESPHome"
-                  text_font: roboto19_font
+                  text_font: roboto30_font
                   text_color: 0x888888
                   align: center
-                  y: 40
-                  width: 500
-                  height: 80
+                  y: 30
+                  width: 700
+                  height: 100
                   text_align: center
 
         # ---------------------------------------------------------------
@@ -466,29 +466,29 @@ lvgl:
             hidden: true
             widgets:
               - label:
-                  text_font: $icon_font
+                  text_font: icon_font_setup
                   align: center
-                  y: -80
+                  y: -120
                   text: $icon_wifi
                   text_color: 0xFFFFFF
               - label:
                   text: "WiFi Setup"
-                  text_font: roboto30_font
+                  text_font: roboto_light40_font
                   text_color: 0xFFFFFF
                   align: center
-                  y: -20
-                  width: 400
-                  height: 36
+                  y: -40
+                  width: 700
+                  height: 48
                   text_align: center
               - label:
                   id: wifi_setup_instructions
                   text: "Connect to the WiFi hotspot\nto configure your network"
-                  text_font: roboto19_font
+                  text_font: roboto30_font
                   text_color: 0x888888
                   align: center
-                  y: 40
-                  width: 500
-                  height: 80
+                  y: 30
+                  width: 700
+                  height: 100
                   text_align: center
 
         # ---------------------------------------------------------------
@@ -514,18 +514,18 @@ lvgl:
             widgets:
               - label:
                   text: "Starting up"
-                  text_font: roboto30_font
+                  text_font: roboto_light40_font
                   text_color: 0xFFFFFF
                   align: center
                   y: -20
-                  width: 600
-                  height: 36
+                  width: 700
+                  height: 48
                   text_align: center
               - bar:
                   id: loading_progress_bar
                   align: center
-                  y: 20
-                  width: 180
+                  y: 30
+                  width: 240
                   height: 4
                   bg_color: 0x333333
                   bg_opa: 100%

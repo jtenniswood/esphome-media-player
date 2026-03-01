@@ -19,7 +19,7 @@ wifi:
     - lvgl.widget.hide: wifi_setup_prompt
     - if:
         condition:
-          lambda: 'return !id(device_has_been_setup) && !id(boot_grace_period);'
+          lambda: 'return !id(device_has_been_setup);'
         then:
           - lvgl.widget.show: ha_setup_prompt
   on_disconnect:
