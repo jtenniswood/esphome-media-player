@@ -27,7 +27,7 @@ jobs:
       version: ${{ github.event.release.tag_name }}
 
   cleanup-release-assets:
-    name: Remove Extra Assets
+    name: Clean Up and Rename S3 Assets
     needs: upload-to-release
     runs-on: ubuntu-latest
     env:
@@ -40,6 +40,18 @@ jobs:
             case "$asset" in
               *.elf|*.md5|*.sha256) gh release delete-asset "$TAG" "$asset" --repo "${{ github.repository }}" --yes ;;
             esac
+          done
+      - name: Rename S3 assets to device-specific names
+        run: |
+          TAG="${{ github.event.release.tag_name }}"
+          REPO="${{ github.repository }}"
+          mkdir -p tmp
+          for suffix in factory.bin ota.bin; do
+            OLD="media-player-esp32s3.${suffix}"
+            NEW="media-player-4848s040.${suffix}"
+            gh release download "$TAG" --repo "$REPO" --pattern "$OLD" --dir tmp || continue
+            gh release delete-asset "$TAG" "$OLD" --repo "$REPO" --yes
+            gh release upload "$TAG" "tmp/${OLD}#${NEW}" --repo "$REPO" --clobber
           done
 
   # ESP32-P4 build handled separately because esphome/build-action does not
@@ -64,13 +76,13 @@ jobs:
         run: |
           mkdir -p output
           BUILD_DIR="builds/.esphome/build/media-player/.pioenvs/media-player"
-          sudo cp "${BUILD_DIR}/firmware.factory.bin" output/media-player-esp32p4.factory.bin
-          sudo cp "${BUILD_DIR}/firmware.ota.bin" output/media-player-esp32p4.ota.bin
+          sudo cp "${BUILD_DIR}/firmware.factory.bin" output/media-player-jc8012p4a1.factory.bin
+          sudo cp "${BUILD_DIR}/firmware.ota.bin" output/media-player-jc8012p4a1.ota.bin
       - name: Upload P4 firmware to release
         env:
           GH_TOKEN: ${{ github.token }}
         run: >-
           gh release upload "${{ github.event.release.tag_name }}"
-          output/media-player-esp32p4.factory.bin
-          output/media-player-esp32p4.ota.bin
+          output/media-player-jc8012p4a1.factory.bin
+          output/media-player-jc8012p4a1.ota.bin
           --clobber

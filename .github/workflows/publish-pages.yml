@@ -42,8 +42,8 @@ jobs:
         run: |
           FW="docs/.vitepress/dist/firmware"
           MANIFEST="${FW}/media-player.manifest.json"
-          FACTORY="${FW}/media-player-esp32p4.factory.bin"
-          OTA="${FW}/media-player-esp32p4.ota.bin"
+          FACTORY="${FW}/media-player-jc8012p4a1.factory.bin"
+          OTA="${FW}/media-player-jc8012p4a1.ota.bin"
 
           if [ ! -f "$MANIFEST" ] || [ ! -f "$FACTORY" ]; then
             echo "Manifest or P4 factory binary not found; skipping."
@@ -59,7 +59,7 @@ jobs:
             '{
               chipFamily: "ESP32-P4",
               parts: [{
-                path: "media-player-esp32p4.factory.bin",
+                path: "media-player-jc8012p4a1.factory.bin",
                 offset: 0,
                 md5: $fm,
                 sha256: $fs
@@ -76,12 +76,27 @@ jobs:
               --arg os "$OTA_SHA256" \
               --arg summary "$SUMMARY" \
               --arg url "$RELEASE_URL" \
-              '. + {ota: {path: "media-player-esp32p4.ota.bin", md5: $om, sha256: $os, summary: $summary, release_url: $url}}')
+              '. + {ota: {path: "media-player-jc8012p4a1.ota.bin", md5: $om, sha256: $os, summary: $summary, release_url: $url}}')
           fi
 
           jq --argjson p4 "$P4_BUILD" '.builds += [$p4]' "$MANIFEST" > "${MANIFEST}.tmp"
           mv "${MANIFEST}.tmp" "$MANIFEST"
           echo "ESP32-P4 build added to manifest."
+      - name: Rename S3 paths in combined manifest
+        run: |
+          FW="docs/.vitepress/dist/firmware"
+          MANIFEST="${FW}/media-player.manifest.json"
+
+          if [ ! -f "$MANIFEST" ]; then
+            echo "Combined manifest not found; skipping S3 path rename."
+            exit 0
+          fi
+
+          jq '(.builds[] | select(.chipFamily == "ESP32-S3") | .parts[].path) |= gsub("media-player-esp32s3"; "media-player-4848s040")
+            | (.builds[] | select(.chipFamily == "ESP32-S3") | .ota.path) |= if . then gsub("media-player-esp32s3"; "media-player-4848s040") else . end' \
+            "$MANIFEST" > "${MANIFEST}.tmp"
+          mv "${MANIFEST}.tmp" "$MANIFEST"
+          echo "S3 paths renamed to device-specific names in combined manifest."
       - name: Generate per-device manifests
         run: |
           FW="docs/.vitepress/dist/firmware"
