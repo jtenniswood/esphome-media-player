@@ -5,18 +5,6 @@ esphome:
   project:
     name: jtenniswood.media-player
     version: dev
-  on_boot:
-    priority: -50
-    then:
-      - delay: 3s
-      - if:
-          condition:
-            update.is_available: c6_firmware_update
-          then:
-            - logger.log: "Updating ESP32-C6 co-processor firmware..."
-            - update.perform: c6_firmware_update
-            - delay: 5s
-            - lambda: 'App.safe_reboot();'
 
 dashboard_import:
   package_import_url: github://jtenniswood/esphome-media-player/guition-esp32-p4-jc8012p4a1/esphome.yaml@guition-esp32-p4-jc8012p4a1
@@ -33,3 +21,25 @@ update:
     type: embedded
     path: network_adapter_esp32c6.bin
     sha256: "3ccfbc4feb0be29c7f5dbe50b0c5a7f0862f0b0c30fb28e5f5a4e1c2891c53f4"
+
+globals:
+  - id: c6_boot_checked
+    type: bool
+    initial_value: 'false'
+
+interval:
+  - interval: 10s
+    then:
+      - if:
+          condition:
+            lambda: 'return !id(c6_boot_checked);'
+          then:
+            - lambda: 'id(c6_boot_checked) = true;'
+            - if:
+                condition:
+                  update.is_available: c6_firmware_update
+                then:
+                  - logger.log: "Updating ESP32-C6 co-processor firmware..."
+                  - update.perform: c6_firmware_update
+                  - delay: 5s
+                  - lambda: 'App.safe_reboot();'
