@@ -21,7 +21,7 @@ A touchscreen media controller for Home Assistant: album art, track info, and to
 
 ## Step 1: Flash the firmware
 
-Connect your panel to your computer via USB-C, then use the installer below. It will offer the correct firmware for your device.
+Connect your panel to your computer via USB-C, select your device from the dropdown below, then click Install.
 
 <ClientOnly>
   <InstallButton />

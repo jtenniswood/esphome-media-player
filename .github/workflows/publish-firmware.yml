@@ -26,6 +26,22 @@ jobs:
     with:
       version: ${{ github.event.release.tag_name }}
 
+  cleanup-release-assets:
+    name: Remove Extra Assets
+    needs: upload-to-release
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Delete ELF and checksum files
+        run: |
+          TAG="${{ github.event.release.tag_name }}"
+          for asset in $(gh release view "$TAG" --repo "${{ github.repository }}" --json assets -q '.assets[].name'); do
+            case "$asset" in
+              *.elf|*.md5|*.sha256) gh release delete-asset "$TAG" "$asset" --repo "${{ github.repository }}" --yes ;;
+            esac
+          done
+
   # ESP32-P4 build handled separately because esphome/build-action does not
   # yet support ESP32-P4. The manifest is patched in the publish-pages workflow.
   build-p4:

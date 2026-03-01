@@ -15,7 +15,7 @@ ota:
 update:
   - platform: http_request
     name: Firmware
-    source: https://jtenniswood.github.io/esphome-media-player/firmware/media-player.manifest.json
+    source: https://jtenniswood.github.io/esphome-media-player/firmware/media-player-jc8012p4a1.manifest.json
   - platform: esp32_hosted
     id: c6_firmware_update
     type: embedded

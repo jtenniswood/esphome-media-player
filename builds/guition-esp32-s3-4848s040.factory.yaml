@@ -17,4 +17,4 @@ ota:
 update:
   - platform: http_request
     name: Firmware
-    source: https://jtenniswood.github.io/esphome-media-player/firmware/media-player.manifest.json
+    source: https://jtenniswood.github.io/esphome-media-player/firmware/media-player-4848s040.manifest.json

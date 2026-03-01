@@ -82,6 +82,25 @@ jobs:
           jq --argjson p4 "$P4_BUILD" '.builds += [$p4]' "$MANIFEST" > "${MANIFEST}.tmp"
           mv "${MANIFEST}.tmp" "$MANIFEST"
           echo "ESP32-P4 build added to manifest."
+      - name: Generate per-device manifests
+        run: |
+          FW="docs/.vitepress/dist/firmware"
+          MANIFEST="${FW}/media-player.manifest.json"
+
+          if [ ! -f "$MANIFEST" ]; then
+            echo "Combined manifest not found; skipping per-device manifests."
+            exit 0
+          fi
+
+          # S3 device manifest (4848S040) — extract the ESP32-S3 build entry
+          jq '{name: .name, version: .version, home_assistant_domain: .home_assistant_domain, new_install_prompt_erase: .new_install_prompt_erase, builds: [.builds[] | select(.chipFamily == "ESP32-S3")]}' \
+            "$MANIFEST" > "${FW}/media-player-4848s040.manifest.json"
+          echo "Created media-player-4848s040.manifest.json"
+
+          # P4 device manifest (JC8012P4A1) — extract the ESP32-P4 build entry
+          jq '{name: .name, version: .version, home_assistant_domain: .home_assistant_domain, new_install_prompt_erase: .new_install_prompt_erase, builds: [.builds[] | select(.chipFamily == "ESP32-P4")]}' \
+            "$MANIFEST" > "${FW}/media-player-jc8012p4a1.manifest.json"
+          echo "Created media-player-jc8012p4a1.manifest.json"
       - uses: actions/upload-pages-artifact@v4
         with:
           path: docs/.vitepress/dist
