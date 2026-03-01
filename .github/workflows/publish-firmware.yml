@@ -49,9 +49,14 @@ jobs:
           for suffix in factory.bin ota.bin; do
             OLD="media-player-esp32s3.${suffix}"
             NEW="media-player-4848s040.${suffix}"
-            gh release download "$TAG" --repo "$REPO" --pattern "$OLD" --dir tmp || continue
-            gh release delete-asset "$TAG" "$OLD" --repo "$REPO" --yes
-            gh release upload "$TAG" "tmp/${OLD}#${NEW}" --repo "$REPO" --clobber
+            if gh release download "$TAG" --repo "$REPO" --pattern "$OLD" --dir tmp; then
+              mv "tmp/${OLD}" "tmp/${NEW}"
+              gh release delete-asset "$TAG" "$OLD" --repo "$REPO" --yes
+              gh release upload "$TAG" "tmp/${NEW}" --repo "$REPO"
+              echo "Renamed ${OLD} -> ${NEW}"
+            else
+              echo "Asset ${OLD} not found; skipping."
+            fi
           done
 
   # ESP32-P4 build handled separately because esphome/build-action does not

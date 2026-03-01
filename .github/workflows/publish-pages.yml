@@ -38,6 +38,14 @@ jobs:
           fileName: "*"
           out-file-path: docs/.vitepress/dist/firmware
         continue-on-error: true
+      - name: Rename firmware files to device-specific names
+        run: |
+          FW="docs/.vitepress/dist/firmware"
+          for suffix in factory.bin ota.bin; do
+            OLD="${FW}/media-player-esp32s3.${suffix}"
+            NEW="${FW}/media-player-4848s040.${suffix}"
+            [ -f "$OLD" ] && mv "$OLD" "$NEW" && echo "Renamed $(basename "$OLD") -> $(basename "$NEW")"
+          done
       - name: Add ESP32-P4 build to manifest
         run: |
           FW="docs/.vitepress/dist/firmware"
