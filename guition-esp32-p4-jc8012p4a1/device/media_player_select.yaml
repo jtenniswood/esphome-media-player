@@ -36,7 +36,8 @@ text:
               return !entity.empty()
                   && entity.substr(0, 13) == "media_player."
                   && esphome::api::global_api_server != nullptr
-                  && esphome::api::global_api_server->is_connected();
+                  && esphome::api::global_api_server->is_connected()
+                  && id(actions_prompt_acked);
           then:
             - logger.log:
                 level: INFO
@@ -122,7 +123,7 @@ script:
           // Gate on is_connected() so this only fires from on_client_connected
           // (not from on_value during early boot when globals may not be restored yet).
           if (esphome::api::global_api_server->is_connected()) {
-            if (!id(actions_prompt_acked) && !id(device_has_been_setup)) {
+            if (!id(actions_prompt_acked)) {
               lv_obj_clear_flag(id(actions_prompt), LV_OBJ_FLAG_HIDDEN);
             }
             id(device_has_been_setup) = true;

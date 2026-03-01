@@ -142,7 +142,7 @@ lvgl:
                     entity_id: "{{ target }}"
                   on_error:
                     - lambda: |-
-                        if (!id(actions_prompt_acked) && !id(device_has_been_setup)) {
+                        if (!id(actions_prompt_acked)) {
                           lv_obj_clear_flag(id(actions_prompt), LV_OBJ_FLAG_HIDDEN);
                         }
               - event.trigger:
@@ -185,30 +185,37 @@ lvgl:
             scrollbar_mode: "off"
             hidden: true
             widgets:
-              - label:
-                  text_font: icon_font_setup
+              - obj:
                   align: center
-                  y: -120
-                  text: $icon_cast
-                  text_color: 0xFFFFFF
-              - label:
-                  text: "Media Player"
-                  text_font: roboto_light40_font
-                  text_color: 0xFFFFFF
-                  align: center
-                  y: -40
                   width: 700
-                  height: 48
-                  text_align: center
-              - label:
-                  text: "Set the media player entity\nyou want to control in\ndevice settings"
-                  text_font: roboto30_font
-                  text_color: 0x888888
-                  align: center
-                  y: 30
-                  width: 700
-                  height: 120
-                  text_align: center
+                  height: SIZE_CONTENT
+                  bg_opa: 0%
+                  border_width: 0
+                  pad_all: 0
+                  scrollable: false
+                  layout:
+                    type: flex
+                    flex_flow: COLUMN
+                    flex_align_main: center
+                    flex_align_cross: center
+                    pad_row: 20
+                  widgets:
+                    - label:
+                        text_font: icon_font_setup
+                        text: $icon_cast
+                        text_color: 0xFFFFFF
+                    - label:
+                        text: "Media Player"
+                        text_font: roboto_light40_font
+                        text_color: 0xFFFFFF
+                        width: 700
+                        text_align: center
+                    - label:
+                        text: "Set the media player entity\nyou want to control in\ndevice settings"
+                        text_font: roboto30_font
+                        text_color: 0x888888
+                        width: 700
+                        text_align: center
 
         # ---------------------------------------------------------------
         # ACTIONS PROMPT (enable HA actions toggle)
@@ -241,7 +248,7 @@ lvgl:
                     flex_flow: COLUMN
                     flex_align_main: center
                     flex_align_cross: center
-                    pad_row: 16
+                    pad_row: 20
                   widgets:
                     - label:
                         text_font: icon_font_setup
@@ -421,31 +428,38 @@ lvgl:
             scrollbar_mode: "off"
             hidden: true
             widgets:
-              - label:
-                  text_font: icon_font_setup
+              - obj:
                   align: center
-                  y: -120
-                  text: $icon_ha
-                  text_color: 0xFFFFFF
-              - label:
-                  text: "Home Assistant"
-                  text_font: roboto_light40_font
-                  text_color: 0xFFFFFF
-                  align: center
-                  y: -40
                   width: 700
-                  height: 48
-                  text_align: center
-              - label:
-                  id: ha_setup_instructions
-                  text: "Add this device in\nSettings > Devices > ESPHome"
-                  text_font: roboto30_font
-                  text_color: 0x888888
-                  align: center
-                  y: 30
-                  width: 700
-                  height: 100
-                  text_align: center
+                  height: SIZE_CONTENT
+                  bg_opa: 0%
+                  border_width: 0
+                  pad_all: 0
+                  scrollable: false
+                  layout:
+                    type: flex
+                    flex_flow: COLUMN
+                    flex_align_main: center
+                    flex_align_cross: center
+                    pad_row: 20
+                  widgets:
+                    - label:
+                        text_font: icon_font_setup
+                        text: $icon_ha
+                        text_color: 0xFFFFFF
+                    - label:
+                        text: "Home Assistant"
+                        text_font: roboto_light40_font
+                        text_color: 0xFFFFFF
+                        width: 700
+                        text_align: center
+                    - label:
+                        id: ha_setup_instructions
+                        text: "Add this device in\nSettings > Devices > ESPHome"
+                        text_font: roboto30_font
+                        text_color: 0x888888
+                        width: 700
+                        text_align: center
 
         # ---------------------------------------------------------------
         # WIFI SETUP PROMPT
@@ -465,31 +479,38 @@ lvgl:
             scrollbar_mode: "off"
             hidden: true
             widgets:
-              - label:
-                  text_font: icon_font_setup
+              - obj:
                   align: center
-                  y: -120
-                  text: $icon_wifi
-                  text_color: 0xFFFFFF
-              - label:
-                  text: "WiFi Setup"
-                  text_font: roboto_light40_font
-                  text_color: 0xFFFFFF
-                  align: center
-                  y: -40
                   width: 700
-                  height: 48
-                  text_align: center
-              - label:
-                  id: wifi_setup_instructions
-                  text: "Connect to the WiFi hotspot\nto configure your network"
-                  text_font: roboto30_font
-                  text_color: 0x888888
-                  align: center
-                  y: 30
-                  width: 700
-                  height: 100
-                  text_align: center
+                  height: SIZE_CONTENT
+                  bg_opa: 0%
+                  border_width: 0
+                  pad_all: 0
+                  scrollable: false
+                  layout:
+                    type: flex
+                    flex_flow: COLUMN
+                    flex_align_main: center
+                    flex_align_cross: center
+                    pad_row: 20
+                  widgets:
+                    - label:
+                        text_font: icon_font_setup
+                        text: $icon_wifi
+                        text_color: 0xFFFFFF
+                    - label:
+                        text: "WiFi Setup"
+                        text_font: roboto_light40_font
+                        text_color: 0xFFFFFF
+                        width: 700
+                        text_align: center
+                    - label:
+                        id: wifi_setup_instructions
+                        text: "Connect to the WiFi hotspot\nto configure your network"
+                        text_font: roboto30_font
+                        text_color: 0x888888
+                        width: 700
+                        text_align: center
 
         # ---------------------------------------------------------------
         # LOADING SCREEN (shown at boot until WiFi/grace period)
@@ -512,27 +533,37 @@ lvgl:
             scrollbar_mode: "off"
             hidden: false
             widgets:
-              - label:
-                  text: "Starting up"
-                  text_font: roboto_light40_font
-                  text_color: 0xFFFFFF
+              - obj:
                   align: center
-                  y: -20
                   width: 700
-                  height: 48
-                  text_align: center
-              - bar:
-                  id: loading_progress_bar
-                  align: center
-                  y: 30
-                  width: 240
-                  height: 4
-                  bg_color: 0x333333
-                  bg_opa: 100%
-                  radius: 3
-                  min_value: 0
-                  max_value: 100
-                  value: 0
-                  indicator:
-                    bg_color: 0xFFFFFF
-                    radius: 3
+                  height: SIZE_CONTENT
+                  bg_opa: 0%
+                  border_width: 0
+                  pad_all: 0
+                  scrollable: false
+                  layout:
+                    type: flex
+                    flex_flow: COLUMN
+                    flex_align_main: center
+                    flex_align_cross: center
+                    pad_row: 20
+                  widgets:
+                    - label:
+                        text: "Starting up"
+                        text_font: roboto_light40_font
+                        text_color: 0xFFFFFF
+                        width: 700
+                        text_align: center
+                    - bar:
+                        id: loading_progress_bar
+                        width: 240
+                        height: 4
+                        bg_color: 0x333333
+                        bg_opa: 100%
+                        radius: 3
+                        min_value: 0
+                        max_value: 100
+                        value: 0
+                        indicator:
+                          bg_color: 0xFFFFFF
+                          radius: 3

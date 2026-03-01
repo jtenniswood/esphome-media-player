@@ -202,6 +202,7 @@ touchscreen:
               id(actions_prompt_acked) = true;
               id(device_has_been_setup) = true;
               global_preferences->sync();
+              App.safe_reboot();
             }
             return;
           }
@@ -272,7 +273,7 @@ script:
             entity_id: "{{ target }}"
           on_error:
             - lambda: |-
-                if (!id(actions_prompt_acked) && !id(device_has_been_setup)) {
+                if (!id(actions_prompt_acked)) {
                   lv_obj_clear_flag(id(actions_prompt), LV_OBJ_FLAG_HIDDEN);
                 }
       - event.trigger:
@@ -290,7 +291,7 @@ script:
             entity_id: "{{ target }}"
           on_error:
             - lambda: |-
-                if (!id(actions_prompt_acked) && !id(device_has_been_setup)) {
+                if (!id(actions_prompt_acked)) {
                   lv_obj_clear_flag(id(actions_prompt), LV_OBJ_FLAG_HIDDEN);
                 }
       - event.trigger:
@@ -323,7 +324,7 @@ script:
             volume_level: "{{ vol_level }}"
           on_error:
             - lambda: |-
-                if (!id(actions_prompt_acked) && !id(device_has_been_setup)) {
+                if (!id(actions_prompt_acked)) {
                   lv_obj_clear_flag(id(actions_prompt), LV_OBJ_FLAG_HIDDEN);
                 }
       - event.trigger:
