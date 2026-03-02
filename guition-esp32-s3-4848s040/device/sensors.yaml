@@ -130,11 +130,7 @@ text_sensor:
       - lvgl.widget.hide: artwork_error_label
       - lvgl.label.update:
           id: media_title_label
-          text: !lambda |-
-            if (x.empty()) return std::string("—");
-            const size_t max_chars = 70;
-            if (x.size() <= max_chars) return x;
-            return x.substr(0, max_chars) + "\xe2\x80\xa6";
+          text: !lambda 'return x.empty() ? std::string("—") : x;'
       - if:
           condition:
             lambda: 'return id(title_received_once);'

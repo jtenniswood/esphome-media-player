@@ -87,7 +87,7 @@ lvgl:
                   id: media_title_label
                   text: "—"
                   width: 100%
-                  max_height: 310px
+                  max_height: 330px
                   long_mode: wrap
                   text_font: roboto_light70_font
                   text_color: 0xFFFFFF
@@ -151,9 +151,6 @@ lvgl:
                         if (!id(actions_prompt_acked) && !id(device_has_been_setup)) {
                           lv_obj_clear_flag(id(actions_prompt), LV_OBJ_FLAG_HIDDEN);
                         }
-              - event.trigger:
-                  id: media_control_event
-                  event_type: play_pause
               - logger.log: "Media: play_pause"
 
         # Progress bar: full screen width, at the very bottom of the screen

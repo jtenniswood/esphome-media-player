@@ -145,9 +145,6 @@ lvgl:
                         if (!id(actions_prompt_acked)) {
                           lv_obj_clear_flag(id(actions_prompt), LV_OBJ_FLAG_HIDDEN);
                         }
-              - event.trigger:
-                  id: media_control_event
-                  event_type: play_pause
               - logger.log: "Media: play_pause"
 
         # Progress bar at the very bottom
