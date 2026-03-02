@@ -80,7 +80,7 @@ lvgl:
                   id: media_title_label
                   text: "—"
                   width: 100%
-                  max_height: 510x
+                  max_height: 510px
                   long_mode: wrap
                   text_font: roboto_light88_font
                   text_color: 0xFFFFFF
