@@ -13,5 +13,5 @@ packages:
   music_dashboard:
     url: https://github.com/jtenniswood/esphome-media-player
     files: [guition-esp32-p4-jc8012p4a1/packages.yaml]
-    ref: guition-esp32-p4-jc8012p4a1
+    ref: main
     refresh: 1s

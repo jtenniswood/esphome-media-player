@@ -7,9 +7,7 @@
 
 # Override built-in online_image with local copy that fixes greyscale JPEG decoding.
 external_components:
-  - source:
-      type: local
-      path: ../../esphome/components
+  - source: github://jtenniswood/esphome-media-player@main
     components: [online_image]
 
 http_request:
