@@ -59,6 +59,11 @@ jobs:
           path: .esphome
           key: esphome-p4-${{ hashFiles('builds/guition-esp32-p4-jc8012p4a1.factory.yaml', 'guition-esp32-p4-jc8012p4a1/**/*.yaml') }}
           restore-keys: esphome-p4-
+      - name: Download C6 co-processor firmware
+        run: |
+          curl -sSL -o builds/network_adapter_esp32c6.bin \
+            "https://esphome.github.io/esp-hosted-firmware/v2.11.5/network_adapter_esp32c6.bin"
+          echo "3ccfbc4feb0be29c7f5dbe50b0c5a7f0862f0b0c30fb28e5f5a4e1c2891c53f4  builds/network_adapter_esp32c6.bin" | sha256sum --check
       - name: Compile
         run: >-
           docker run --rm
