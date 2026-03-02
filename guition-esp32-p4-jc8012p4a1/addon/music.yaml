@@ -23,6 +23,10 @@
 # See addon/accent_color.yaml for a working example.
 # =============================================================================
 
+external_components:
+  - source: github://jtenniswood/esphome-onlineimage-grayscale-fix@main
+    components: [online_image]
+
 http_request:
   id: http_req
 

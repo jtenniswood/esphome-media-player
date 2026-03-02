@@ -5,9 +5,8 @@
 # Placeholder image shown until art is downloaded.
 # =============================================================================
 
-# Override built-in online_image with local copy that fixes greyscale JPEG decoding.
 external_components:
-  - source: github://jtenniswood/esphome-media-player@image-fix-cleanup
+  - source: github://jtenniswood/esphome-onlineimage-grayscale-fix@main
     components: [online_image]
 
 http_request:

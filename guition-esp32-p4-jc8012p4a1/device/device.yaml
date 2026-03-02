@@ -86,8 +86,6 @@ logger:
 external_components:
   - source: github://kvj/esphome@jd9365_gsl3680
     components: [gsl3680]
-  - source: github://jtenniswood/esphome-media-player@image-fix-cleanup
-    components: [online_image]
 
 
 # DSI PHY power rail
