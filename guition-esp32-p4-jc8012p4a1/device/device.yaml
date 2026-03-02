@@ -86,6 +86,10 @@ logger:
 external_components:
   - source: github://kvj/esphome@jd9365_gsl3680
     components: [gsl3680]
+  - source:
+      type: local
+      path: ../../esphome/components
+    components: [online_image]
 
 
 # DSI PHY power rail

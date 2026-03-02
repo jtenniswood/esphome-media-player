@@ -5,6 +5,13 @@
 # Placeholder image shown until art is downloaded.
 # =============================================================================
 
+# Override built-in online_image with local copy that fixes greyscale JPEG decoding.
+external_components:
+  - source:
+      type: local
+      path: ../../esphome/components
+    components: [online_image]
+
 http_request:
   id: http_req
 
