@@ -342,14 +342,18 @@ lvgl:
                           char buf[8];
                           snprintf(buf, sizeof(buf), "%d%%", (int)x);
                           return std::string(buf);
-                    - homeassistant.service:
-                        service: media_player.volume_set
-                        variables:
-                          target: !lambda 'return id(media_player_entity).state;'
-                          vol_level: !lambda 'return x / 100.0f;'
-                        data_template:
-                          entity_id: "{{ target }}"
-                          volume_level: "{{ vol_level }}"
+                    - if:
+                        condition:
+                          lambda: 'return !id(volume_updating_from_ha);'
+                        then:
+                          - homeassistant.service:
+                              service: media_player.volume_set
+                              variables:
+                                target: !lambda 'return id(media_player_entity).state;'
+                                vol_level: !lambda 'return x / 100.0f;'
+                              data_template:
+                                entity_id: "{{ target }}"
+                                volume_level: "{{ vol_level }}"
 
               # "Volume" label above the percentage
               - label:
