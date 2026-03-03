@@ -597,6 +597,19 @@ script:
           id: album_art_background_widget
           opa: 100%
       - lvgl.widget.hide: artwork_error_label
+      - if:
+          condition:
+            lambda: |-
+              return id(media_entity_picture_sensor).has_state()
+                  && !id(media_entity_picture_sensor).state.empty();
+          then:
+            - lambda: |-
+                std::string path = id(media_entity_picture_sensor).state;
+                while (!path.empty() && (path.back() == '\n' || path.back() == '\r' || path.back() == ' ')) path.pop_back();
+                id(last_artwork_url) = (path.substr(0, 7) == "http://" || path.substr(0, 8) == "https://") ? path : (id(ha_base_url) + path);
+            - online_image.set_url:
+                id: album_art_background
+                url: !lambda 'return id(last_artwork_url);'
       - script.execute: show_track_view
       - logger.log: "TV: exited TV mode"
 
