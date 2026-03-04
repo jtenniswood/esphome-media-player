@@ -132,6 +132,12 @@ int HOT HwJpegDecoder::decode(uint8_t *buffer, size_t size) {
     return this->software_decode_fallback_(buffer, size);
   }
 
+  if (info.sample_method == JPEG_DOWN_SAMPLING_GRAY) {
+    ESP_LOGW(TAG, "Grayscale JPEG not supported by HW codec, using software fallback");
+    free(tx_buf);
+    return this->software_decode_fallback_(buffer, size);
+  }
+
   int src_w = info.width;
   int src_h = info.height;
   ESP_LOGD(TAG, "Image size: %d x %d", src_w, src_h);
