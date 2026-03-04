@@ -16,6 +16,72 @@ static const char *const TAG = "online_image.jpeg_hw";
 namespace esphome {
 namespace online_image {
 
+// The ESP-IDF HW JPEG decoder on P4 can't parse COM (0xFE) markers reliably.
+// Strip them in-place before passing data to the hardware codec.
+static size_t strip_com_markers(uint8_t *buf, size_t size) {
+  if (size < 4 || buf[0] != 0xFF || buf[1] != 0xD8)
+    return size;
+
+  size_t rp = 2, wp = 2;
+
+  while (rp + 1 < size) {
+    if (buf[rp] != 0xFF) {
+      buf[wp++] = buf[rp++];
+      continue;
+    }
+
+    while (rp + 1 < size && buf[rp + 1] == 0xFF) {
+      buf[wp++] = buf[rp++];
+    }
+    if (rp + 1 >= size)
+      break;
+
+    uint8_t marker = buf[rp + 1];
+
+    if (marker == 0x00 || marker == 0xD9 || (marker >= 0xD0 && marker <= 0xD7) || marker == 0x01) {
+      buf[wp++] = buf[rp++];
+      buf[wp++] = buf[rp++];
+      if (marker == 0xD9)
+        break;
+      continue;
+    }
+
+    // SOS — copy everything from here to the end (entropy-coded data follows)
+    if (marker == 0xDA) {
+      size_t remaining = size - rp;
+      if (wp != rp)
+        memmove(buf + wp, buf + rp, remaining);
+      return wp + remaining;
+    }
+
+    if (rp + 3 >= size)
+      break;
+
+    uint16_t seg_len = (buf[rp + 2] << 8) | buf[rp + 3];
+    size_t total = 2 + seg_len;
+
+    if (rp + total > size) {
+      size_t remaining = size - rp;
+      if (wp != rp)
+        memmove(buf + wp, buf + rp, remaining);
+      return wp + remaining;
+    }
+
+    if (marker == 0xFE) {
+      ESP_LOGD(TAG, "Stripping COM marker (%u bytes)", seg_len);
+      rp += total;
+      continue;
+    }
+
+    if (wp != rp)
+      memmove(buf + wp, buf + rp, total);
+    wp += total;
+    rp += total;
+  }
+
+  return wp;
+}
+
 static int sw_fallback_draw_callback_(JPEGDRAW *jpeg) {
   ImageDecoder *decoder = (ImageDecoder *) jpeg->pUser;
   App.feed_wdt();
@@ -53,9 +119,13 @@ int HOT HwJpegDecoder::decode(uint8_t *buffer, size_t size) {
     return DECODE_ERROR_OUT_OF_MEMORY;
   }
   memcpy(tx_buf, buffer, size);
+  size_t hw_size = strip_com_markers(tx_buf, size);
+  if (hw_size != size) {
+    ESP_LOGD(TAG, "Stripped %zu bytes of COM markers", size - hw_size);
+  }
 
   jpeg_decode_picture_info_t info;
-  esp_err_t err = jpeg_decoder_get_info(tx_buf, size, &info);
+  esp_err_t err = jpeg_decoder_get_info(tx_buf, hw_size, &info);
   if (err != ESP_OK) {
     ESP_LOGW(TAG, "HW codec rejected image (get_info): %s", esp_err_to_name(err));
     free(tx_buf);
@@ -107,7 +177,7 @@ int HOT HwJpegDecoder::decode(uint8_t *buffer, size_t size) {
   };
 
   uint32_t decoded_size = 0;
-  err = jpeg_decoder_process(decoder_engine, &decode_cfg, tx_buf, size, rx_buf, rx_allocated, &decoded_size);
+  err = jpeg_decoder_process(decoder_engine, &decode_cfg, tx_buf, hw_size, rx_buf, rx_allocated, &decoded_size);
 
   jpeg_del_decoder_engine(decoder_engine);
   free(tx_buf);
