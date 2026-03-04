@@ -41,24 +41,6 @@ globals:
   - id: speaker_slider_updating
     type: bool
     initial_value: 'false'
-  - id: accent_slider_bg_r
-    type: int
-    initial_value: '0x1A'
-  - id: accent_slider_bg_g
-    type: int
-    initial_value: '0x3A'
-  - id: accent_slider_bg_b
-    type: int
-    initial_value: '0x30'
-  - id: accent_slider_ind_r
-    type: int
-    initial_value: '0x2D'
-  - id: accent_slider_ind_g
-    type: int
-    initial_value: '0x5A'
-  - id: accent_slider_ind_b
-    type: int
-    initial_value: '0x4E'
 
 text_sensor:
   - platform: homeassistant
@@ -301,12 +283,6 @@ script:
 
           id(speaker_slider_updating) = true;
 
-          lv_color_t sl_bg = lv_color_make(id(accent_slider_bg_r), id(accent_slider_bg_g), id(accent_slider_bg_b));
-          lv_color_t sl_ind = lv_color_make(id(accent_slider_ind_r), id(accent_slider_ind_g), id(accent_slider_ind_b));
-
-          // Apply accent colors to group volume slider
-          lv_obj_set_style_bg_color(id(group_volume_slider), sl_bg, 0);
-          lv_obj_set_style_bg_color(id(group_volume_slider), sl_ind, LV_PART_INDICATOR);
 
           for (int i = 0; i < 8; i++) {
             if (i < id(speaker_count)) {
@@ -318,8 +294,6 @@ script:
                 lv_obj_set_height(rows[i], 140);
                 lv_obj_clear_flag(sliders[i], LV_OBJ_FLAG_HIDDEN);
                 lv_slider_set_value(sliders[i], (int)(id(speaker_volumes)[i] * 100.0f), LV_ANIM_OFF);
-                lv_obj_set_style_bg_color(sliders[i], sl_bg, 0);
-                lv_obj_set_style_bg_color(sliders[i], sl_ind, LV_PART_INDICATOR);
               } else {
                 if (btn_labels[i]) lv_label_set_text(btn_labels[i], "Add");
                 lv_obj_set_height(rows[i], 64);

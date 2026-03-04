@@ -95,19 +95,10 @@ script:
             lv_color_t dark_accent = lv_color_make(dr, dg, db);
             lv_obj_set_style_bg_color(id(accent_bg_panel), dark_accent, 0);
             lv_obj_set_style_bg_color(id(artwork_bg_panel), dark_accent, 0);
-            lv_obj_set_style_bg_color(id(settings_panel), dark_accent, 0);
 
             int br = r * 3 / 4, bg = g * 3 / 4, bb = b * 3 / 4;
             lv_color_t bright_accent = lv_color_make(br, bg, bb);
             lv_obj_set_style_bg_color(id(media_play_pause_button), bright_accent, 0);
-
-            // Store slider accent colors for lazy application in update_grouping_panel
-            id(accent_slider_bg_r) = r / 5;
-            id(accent_slider_bg_g) = g / 5;
-            id(accent_slider_bg_b) = b / 5;
-            id(accent_slider_ind_r) = br;
-            id(accent_slider_ind_g) = bg;
-            id(accent_slider_ind_b) = bb;
 
             auto call = id(accent_color_light).turn_on();
             call.set_rgb(r / 255.0f, g / 255.0f, b / 255.0f);
