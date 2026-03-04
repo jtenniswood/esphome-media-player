@@ -38,9 +38,6 @@ globals:
   - id: prev_arc_value
     type: int
     initial_value: '-1'
-  - id: speaker_slider_updating
-    type: bool
-    initial_value: 'false'
 
 text_sensor:
   - platform: homeassistant
@@ -267,23 +264,19 @@ script:
             id(speaker_name_0), id(speaker_name_1), id(speaker_name_2), id(speaker_name_3),
             id(speaker_name_4), id(speaker_name_5), id(speaker_name_6), id(speaker_name_7)
           };
-          // Row 0 has no button (leader); btn_labels[0] is unused
+          // Row 0 has no button (leader)
           lv_obj_t *btn_labels[] = {
             nullptr, id(speaker_btn_label_1), id(speaker_btn_label_2), id(speaker_btn_label_3),
             id(speaker_btn_label_4), id(speaker_btn_label_5), id(speaker_btn_label_6), id(speaker_btn_label_7)
+          };
+          lv_obj_t *btns[] = {
+            nullptr, id(speaker_btn_1), id(speaker_btn_2), id(speaker_btn_3),
+            id(speaker_btn_4), id(speaker_btn_5), id(speaker_btn_6), id(speaker_btn_7)
           };
           lv_obj_t *rows[] = {
             id(speaker_row_0), id(speaker_row_1), id(speaker_row_2), id(speaker_row_3),
             id(speaker_row_4), id(speaker_row_5), id(speaker_row_6), id(speaker_row_7)
           };
-          lv_obj_t *sliders[] = {
-            id(speaker_slider_0), id(speaker_slider_1), id(speaker_slider_2), id(speaker_slider_3),
-            id(speaker_slider_4), id(speaker_slider_5), id(speaker_slider_6), id(speaker_slider_7)
-          };
-
-          id(speaker_slider_updating) = true;
-
-
           for (int i = 0; i < 8; i++) {
             if (i < id(speaker_count)) {
               lv_obj_clear_flag(rows[i], LV_OBJ_FLAG_HIDDEN);
@@ -291,20 +284,21 @@ script:
 
               if (id(speaker_grouped)[i]) {
                 if (btn_labels[i]) lv_label_set_text(btn_labels[i], "Remove");
-                lv_obj_set_height(rows[i], 150);
-                lv_obj_clear_flag(sliders[i], LV_OBJ_FLAG_HIDDEN);
-                lv_slider_set_value(sliders[i], (int)(id(speaker_volumes)[i] * 100.0f), LV_ANIM_OFF);
+                if (btns[i]) {
+                  lv_obj_set_style_bg_opa(btns[i], LV_OPA_0, 0);
+                  lv_obj_set_style_border_opa(btns[i], LV_OPA_COVER * 80 / 100, 0);
+                }
               } else {
                 if (btn_labels[i]) lv_label_set_text(btn_labels[i], "Add");
-                lv_obj_set_height(rows[i], 80);
-                lv_obj_add_flag(sliders[i], LV_OBJ_FLAG_HIDDEN);
+                if (btns[i]) {
+                  lv_obj_set_style_bg_opa(btns[i], LV_OPA_30, 0);
+                  lv_obj_set_style_border_opa(btns[i], LV_OPA_0, 0);
+                }
               }
             } else {
               lv_obj_add_flag(rows[i], LV_OBJ_FLAG_HIDDEN);
             }
           }
-
-          id(speaker_slider_updating) = false;
 
   # ---------------------------------------------------------------------------
   # Join / unjoin a speaker by slot index (stored in a global before calling).
@@ -368,25 +362,6 @@ script:
 
   # ---------------------------------------------------------------------------
   # Per-speaker slider volume: debounced absolute volume set from slider drag.
-  # ---------------------------------------------------------------------------
-  - id: debounce_speaker_volume
-    mode: restart
-    then:
-      - delay: 150ms
-      - homeassistant.service:
-          service: media_player.volume_set
-          variables:
-            target: !lambda 'return id(speaker_vol_target);'
-            vol_level: !lambda |-
-              for (int i = 0; i < id(speaker_count); i++) {
-                if (id(speaker_entity_ids)[i] == id(speaker_vol_target))
-                  return id(speaker_volumes)[i];
-              }
-              return 0.5f;
-          data_template:
-            entity_id: "{{ target }}"
-            volume_level: "{{ vol_level }}"
-
   # ---------------------------------------------------------------------------
   # Group volume: adjusts all grouped speakers relative to their current level.
   # Computes the delta from the previous arc position and applies it to each

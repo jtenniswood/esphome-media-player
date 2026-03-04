@@ -367,14 +367,14 @@ lvgl:
               # Speaker list container
               - obj:
                   id: speakers_container
-                  x: 0
+                  x: 60
                   y: 130
-                  width: 1280
+                  width: 440
                   height: 670
                   bg_opa: 0%
                   border_width: 0
-                  pad_left: 60
-                  pad_right: 60
+                  pad_left: 0
+                  pad_right: 0
                   pad_top: 0
                   pad_bottom: 0
                   scrollable: true
@@ -388,8 +388,8 @@ lvgl:
                     # --- Group Volume row (always first) ---
                     - obj:
                         id: group_volume_row
-                        width: 1160
-                        height: 100
+                        width: 440
+                        height: 96
                         bg_opa: 0%
                         border_width: 1
                         border_color: 0xFFFFFF
@@ -397,8 +397,8 @@ lvgl:
                         border_side: bottom
                         pad_left: 0
                         pad_right: 0
-                        pad_top: 8
-                        pad_bottom: 12
+                        pad_top: 6
+                        pad_bottom: 10
                         scrollable: false
                         widgets:
                           - label:
@@ -420,18 +420,18 @@ lvgl:
                           - slider:
                               id: group_volume_slider
                               x: 0
-                              y: 46
-                              width: 1140
-                              height: 46
+                              y: 42
+                              width: 420
+                              height: 40
                               min_value: 0
                               max_value: 100
                               value: 30
-                              bg_color: 0x222222
+                              bg_color: 0x333333
                               bg_opa: 100%
-                              radius: 23
+                              radius: 20
                               indicator:
-                                bg_color: 0x666666
-                                radius: 23
+                                bg_color: 0x888888
+                                radius: 20
                               knob:
                                 bg_opa: 0%
                                 radius: 0
@@ -455,8 +455,8 @@ lvgl:
                     # --- Row 0 (selected speaker / leader) ---
                     - obj:
                         id: speaker_row_0
-                        width: 1160
-                        height: 150
+                        width: 440
+                        height: 72
                         bg_opa: 0%
                         border_width: 1
                         border_color: 0xFFFFFF
@@ -464,8 +464,8 @@ lvgl:
                         border_side: bottom
                         pad_left: 0
                         pad_right: 0
-                        pad_top: 20
-                        pad_bottom: 20
+                        pad_top: 12
+                        pad_bottom: 14
                         scrollable: false
                         hidden: true
                         widgets:
@@ -477,40 +477,12 @@ lvgl:
                               x: 0
                               y: 0
                               width: 500
-                          - slider:
-                              id: speaker_slider_0
-                              x: 0
-                              y: 60
-                              width: 1140
-                              height: 46
-                              min_value: 0
-                              max_value: 100
-                              value: 0
-                              bg_color: 0x222222
-                              bg_opa: 100%
-                              radius: 23
-                              indicator:
-                                bg_color: 0x666666
-                                radius: 23
-                              knob:
-                                bg_opa: 0%
-                                radius: 0
-                                width: 0
-                                height: 0
-                                border_width: 0
-                              hidden: true
-                              on_value:
-                                - lambda: |-
-                                    if (id(speaker_slider_updating)) return;
-                                    id(speaker_volumes)[0] = x / 100.0f;
-                                    id(speaker_vol_target) = id(speaker_entity_ids)[0];
-                                    id(debounce_speaker_volume).execute();
 
                     # --- Row 1 ---
                     - obj:
                         id: speaker_row_1
-                        width: 1160
-                        height: 150
+                        width: 440
+                        height: 72
                         bg_opa: 0%
                         border_width: 1
                         border_color: 0xFFFFFF
@@ -518,8 +490,8 @@ lvgl:
                         border_side: bottom
                         pad_left: 0
                         pad_right: 0
-                        pad_top: 20
-                        pad_bottom: 20
+                        pad_top: 12
+                        pad_bottom: 14
                         scrollable: false
                         hidden: true
                         widgets:
@@ -534,17 +506,17 @@ lvgl:
                           - button:
                               id: speaker_btn_1
                               align: top_right
-                              y: 0
+                              y: 2
                               width: SIZE_CONTENT
-                              height: 40px
-                              radius: 20
+                              height: 34px
+                              radius: 17
                               bg_opa: 0%
                               border_width: 1
                               border_color: 0xFFFFFF
                               border_opa: 80%
                               shadow_width: 0
-                              pad_left: 20
-                              pad_right: 20
+                              pad_left: 16
+                              pad_right: 16
                               pad_top: 0
                               pad_bottom: 0
                               on_click:
@@ -558,40 +530,12 @@ lvgl:
                                     text_font: roboto19_font
                                     text_color: 0xFFFFFF
                                     align: center
-                          - slider:
-                              id: speaker_slider_1
-                              x: 0
-                              y: 60
-                              width: 1140
-                              height: 46
-                              min_value: 0
-                              max_value: 100
-                              value: 0
-                              bg_color: 0x222222
-                              bg_opa: 100%
-                              radius: 23
-                              indicator:
-                                bg_color: 0x666666
-                                radius: 23
-                              knob:
-                                bg_opa: 0%
-                                radius: 0
-                                width: 0
-                                height: 0
-                                border_width: 0
-                              hidden: true
-                              on_value:
-                                - lambda: |-
-                                    if (id(speaker_slider_updating)) return;
-                                    id(speaker_volumes)[1] = x / 100.0f;
-                                    id(speaker_vol_target) = id(speaker_entity_ids)[1];
-                                    id(debounce_speaker_volume).execute();
 
                     # --- Row 2 ---
                     - obj:
                         id: speaker_row_2
-                        width: 1160
-                        height: 150
+                        width: 440
+                        height: 72
                         bg_opa: 0%
                         border_width: 1
                         border_color: 0xFFFFFF
@@ -599,8 +543,8 @@ lvgl:
                         border_side: bottom
                         pad_left: 0
                         pad_right: 0
-                        pad_top: 20
-                        pad_bottom: 20
+                        pad_top: 12
+                        pad_bottom: 14
                         scrollable: false
                         hidden: true
                         widgets:
@@ -615,17 +559,17 @@ lvgl:
                           - button:
                               id: speaker_btn_2
                               align: top_right
-                              y: 0
+                              y: 2
                               width: SIZE_CONTENT
-                              height: 40px
-                              radius: 20
+                              height: 34px
+                              radius: 17
                               bg_opa: 0%
                               border_width: 1
                               border_color: 0xFFFFFF
                               border_opa: 80%
                               shadow_width: 0
-                              pad_left: 20
-                              pad_right: 20
+                              pad_left: 16
+                              pad_right: 16
                               pad_top: 0
                               pad_bottom: 0
                               on_click:
@@ -639,40 +583,12 @@ lvgl:
                                     text_font: roboto19_font
                                     text_color: 0xFFFFFF
                                     align: center
-                          - slider:
-                              id: speaker_slider_2
-                              x: 0
-                              y: 60
-                              width: 1140
-                              height: 46
-                              min_value: 0
-                              max_value: 100
-                              value: 0
-                              bg_color: 0x222222
-                              bg_opa: 100%
-                              radius: 23
-                              indicator:
-                                bg_color: 0x666666
-                                radius: 23
-                              knob:
-                                bg_opa: 0%
-                                radius: 0
-                                width: 0
-                                height: 0
-                                border_width: 0
-                              hidden: true
-                              on_value:
-                                - lambda: |-
-                                    if (id(speaker_slider_updating)) return;
-                                    id(speaker_volumes)[2] = x / 100.0f;
-                                    id(speaker_vol_target) = id(speaker_entity_ids)[2];
-                                    id(debounce_speaker_volume).execute();
 
                     # --- Row 3 ---
                     - obj:
                         id: speaker_row_3
-                        width: 1160
-                        height: 150
+                        width: 440
+                        height: 72
                         bg_opa: 0%
                         border_width: 1
                         border_color: 0xFFFFFF
@@ -680,8 +596,8 @@ lvgl:
                         border_side: bottom
                         pad_left: 0
                         pad_right: 0
-                        pad_top: 20
-                        pad_bottom: 20
+                        pad_top: 12
+                        pad_bottom: 14
                         scrollable: false
                         hidden: true
                         widgets:
@@ -696,17 +612,17 @@ lvgl:
                           - button:
                               id: speaker_btn_3
                               align: top_right
-                              y: 0
+                              y: 2
                               width: SIZE_CONTENT
-                              height: 40px
-                              radius: 20
+                              height: 34px
+                              radius: 17
                               bg_opa: 0%
                               border_width: 1
                               border_color: 0xFFFFFF
                               border_opa: 80%
                               shadow_width: 0
-                              pad_left: 20
-                              pad_right: 20
+                              pad_left: 16
+                              pad_right: 16
                               pad_top: 0
                               pad_bottom: 0
                               on_click:
@@ -720,40 +636,12 @@ lvgl:
                                     text_font: roboto19_font
                                     text_color: 0xFFFFFF
                                     align: center
-                          - slider:
-                              id: speaker_slider_3
-                              x: 0
-                              y: 60
-                              width: 1140
-                              height: 46
-                              min_value: 0
-                              max_value: 100
-                              value: 0
-                              bg_color: 0x222222
-                              bg_opa: 100%
-                              radius: 23
-                              indicator:
-                                bg_color: 0x666666
-                                radius: 23
-                              knob:
-                                bg_opa: 0%
-                                radius: 0
-                                width: 0
-                                height: 0
-                                border_width: 0
-                              hidden: true
-                              on_value:
-                                - lambda: |-
-                                    if (id(speaker_slider_updating)) return;
-                                    id(speaker_volumes)[3] = x / 100.0f;
-                                    id(speaker_vol_target) = id(speaker_entity_ids)[3];
-                                    id(debounce_speaker_volume).execute();
 
                     # --- Row 4 ---
                     - obj:
                         id: speaker_row_4
-                        width: 1160
-                        height: 150
+                        width: 440
+                        height: 72
                         bg_opa: 0%
                         border_width: 1
                         border_color: 0xFFFFFF
@@ -761,8 +649,8 @@ lvgl:
                         border_side: bottom
                         pad_left: 0
                         pad_right: 0
-                        pad_top: 20
-                        pad_bottom: 20
+                        pad_top: 12
+                        pad_bottom: 14
                         scrollable: false
                         hidden: true
                         widgets:
@@ -777,17 +665,17 @@ lvgl:
                           - button:
                               id: speaker_btn_4
                               align: top_right
-                              y: 0
+                              y: 2
                               width: SIZE_CONTENT
-                              height: 40px
-                              radius: 20
+                              height: 34px
+                              radius: 17
                               bg_opa: 0%
                               border_width: 1
                               border_color: 0xFFFFFF
                               border_opa: 80%
                               shadow_width: 0
-                              pad_left: 20
-                              pad_right: 20
+                              pad_left: 16
+                              pad_right: 16
                               pad_top: 0
                               pad_bottom: 0
                               on_click:
@@ -801,40 +689,12 @@ lvgl:
                                     text_font: roboto19_font
                                     text_color: 0xFFFFFF
                                     align: center
-                          - slider:
-                              id: speaker_slider_4
-                              x: 0
-                              y: 60
-                              width: 1140
-                              height: 46
-                              min_value: 0
-                              max_value: 100
-                              value: 0
-                              bg_color: 0x222222
-                              bg_opa: 100%
-                              radius: 23
-                              indicator:
-                                bg_color: 0x666666
-                                radius: 23
-                              knob:
-                                bg_opa: 0%
-                                radius: 0
-                                width: 0
-                                height: 0
-                                border_width: 0
-                              hidden: true
-                              on_value:
-                                - lambda: |-
-                                    if (id(speaker_slider_updating)) return;
-                                    id(speaker_volumes)[4] = x / 100.0f;
-                                    id(speaker_vol_target) = id(speaker_entity_ids)[4];
-                                    id(debounce_speaker_volume).execute();
 
                     # --- Row 5 ---
                     - obj:
                         id: speaker_row_5
-                        width: 1160
-                        height: 150
+                        width: 440
+                        height: 72
                         bg_opa: 0%
                         border_width: 1
                         border_color: 0xFFFFFF
@@ -842,8 +702,8 @@ lvgl:
                         border_side: bottom
                         pad_left: 0
                         pad_right: 0
-                        pad_top: 20
-                        pad_bottom: 20
+                        pad_top: 12
+                        pad_bottom: 14
                         scrollable: false
                         hidden: true
                         widgets:
@@ -858,17 +718,17 @@ lvgl:
                           - button:
                               id: speaker_btn_5
                               align: top_right
-                              y: 0
+                              y: 2
                               width: SIZE_CONTENT
-                              height: 40px
-                              radius: 20
+                              height: 34px
+                              radius: 17
                               bg_opa: 0%
                               border_width: 1
                               border_color: 0xFFFFFF
                               border_opa: 80%
                               shadow_width: 0
-                              pad_left: 20
-                              pad_right: 20
+                              pad_left: 16
+                              pad_right: 16
                               pad_top: 0
                               pad_bottom: 0
                               on_click:
@@ -882,40 +742,12 @@ lvgl:
                                     text_font: roboto19_font
                                     text_color: 0xFFFFFF
                                     align: center
-                          - slider:
-                              id: speaker_slider_5
-                              x: 0
-                              y: 60
-                              width: 1140
-                              height: 46
-                              min_value: 0
-                              max_value: 100
-                              value: 0
-                              bg_color: 0x222222
-                              bg_opa: 100%
-                              radius: 23
-                              indicator:
-                                bg_color: 0x666666
-                                radius: 23
-                              knob:
-                                bg_opa: 0%
-                                radius: 0
-                                width: 0
-                                height: 0
-                                border_width: 0
-                              hidden: true
-                              on_value:
-                                - lambda: |-
-                                    if (id(speaker_slider_updating)) return;
-                                    id(speaker_volumes)[5] = x / 100.0f;
-                                    id(speaker_vol_target) = id(speaker_entity_ids)[5];
-                                    id(debounce_speaker_volume).execute();
 
                     # --- Row 6 ---
                     - obj:
                         id: speaker_row_6
-                        width: 1160
-                        height: 150
+                        width: 440
+                        height: 72
                         bg_opa: 0%
                         border_width: 1
                         border_color: 0xFFFFFF
@@ -923,8 +755,8 @@ lvgl:
                         border_side: bottom
                         pad_left: 0
                         pad_right: 0
-                        pad_top: 20
-                        pad_bottom: 20
+                        pad_top: 12
+                        pad_bottom: 14
                         scrollable: false
                         hidden: true
                         widgets:
@@ -939,17 +771,17 @@ lvgl:
                           - button:
                               id: speaker_btn_6
                               align: top_right
-                              y: 0
+                              y: 2
                               width: SIZE_CONTENT
-                              height: 40px
-                              radius: 20
+                              height: 34px
+                              radius: 17
                               bg_opa: 0%
                               border_width: 1
                               border_color: 0xFFFFFF
                               border_opa: 80%
                               shadow_width: 0
-                              pad_left: 20
-                              pad_right: 20
+                              pad_left: 16
+                              pad_right: 16
                               pad_top: 0
                               pad_bottom: 0
                               on_click:
@@ -963,40 +795,12 @@ lvgl:
                                     text_font: roboto19_font
                                     text_color: 0xFFFFFF
                                     align: center
-                          - slider:
-                              id: speaker_slider_6
-                              x: 0
-                              y: 60
-                              width: 1140
-                              height: 46
-                              min_value: 0
-                              max_value: 100
-                              value: 0
-                              bg_color: 0x222222
-                              bg_opa: 100%
-                              radius: 23
-                              indicator:
-                                bg_color: 0x666666
-                                radius: 23
-                              knob:
-                                bg_opa: 0%
-                                radius: 0
-                                width: 0
-                                height: 0
-                                border_width: 0
-                              hidden: true
-                              on_value:
-                                - lambda: |-
-                                    if (id(speaker_slider_updating)) return;
-                                    id(speaker_volumes)[6] = x / 100.0f;
-                                    id(speaker_vol_target) = id(speaker_entity_ids)[6];
-                                    id(debounce_speaker_volume).execute();
 
                     # --- Row 7 ---
                     - obj:
                         id: speaker_row_7
-                        width: 1160
-                        height: 150
+                        width: 440
+                        height: 72
                         bg_opa: 0%
                         border_width: 1
                         border_color: 0xFFFFFF
@@ -1004,8 +808,8 @@ lvgl:
                         border_side: bottom
                         pad_left: 0
                         pad_right: 0
-                        pad_top: 20
-                        pad_bottom: 20
+                        pad_top: 12
+                        pad_bottom: 14
                         scrollable: false
                         hidden: true
                         widgets:
@@ -1020,17 +824,17 @@ lvgl:
                           - button:
                               id: speaker_btn_7
                               align: top_right
-                              y: 0
+                              y: 2
                               width: SIZE_CONTENT
-                              height: 40px
-                              radius: 20
+                              height: 34px
+                              radius: 17
                               bg_opa: 0%
                               border_width: 1
                               border_color: 0xFFFFFF
                               border_opa: 80%
                               shadow_width: 0
-                              pad_left: 20
-                              pad_right: 20
+                              pad_left: 16
+                              pad_right: 16
                               pad_top: 0
                               pad_bottom: 0
                               on_click:
@@ -1044,34 +848,6 @@ lvgl:
                                     text_font: roboto19_font
                                     text_color: 0xFFFFFF
                                     align: center
-                          - slider:
-                              id: speaker_slider_7
-                              x: 0
-                              y: 60
-                              width: 1140
-                              height: 46
-                              min_value: 0
-                              max_value: 100
-                              value: 0
-                              bg_color: 0x222222
-                              bg_opa: 100%
-                              radius: 23
-                              indicator:
-                                bg_color: 0x666666
-                                radius: 23
-                              knob:
-                                bg_opa: 0%
-                                radius: 0
-                                width: 0
-                                height: 0
-                                border_width: 0
-                              hidden: true
-                              on_value:
-                                - lambda: |-
-                                    if (id(speaker_slider_updating)) return;
-                                    id(speaker_volumes)[7] = x / 100.0f;
-                                    id(speaker_vol_target) = id(speaker_entity_ids)[7];
-                                    id(debounce_speaker_volume).execute();
 
         # ---------------------------------------------------------------
         # HOME ASSISTANT SETUP PROMPT
