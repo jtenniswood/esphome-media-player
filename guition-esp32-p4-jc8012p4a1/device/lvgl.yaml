@@ -8,6 +8,7 @@
 lvgl:
   buffer_size: 25%
   byte_order: little_endian
+  disp_bg_color: 0x000000
 
   pages:
     - id: main_page
