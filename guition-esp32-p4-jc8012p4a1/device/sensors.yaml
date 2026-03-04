@@ -311,14 +311,10 @@ sensor:
           id(volume_updating_from_ha) = true;
           int pct = (int)(x * 100.0f);
           lv_arc_set_value(id(volume_arc), pct);
-          lv_slider_set_value(id(group_volume_slider), pct, LV_ANIM_OFF);
           id(volume_updating_from_ha) = false;
-      - lvgl.label.update:
-          id: volume_pct_label
-          text: !lambda |-
-            char buf[8];
-            snprintf(buf, sizeof(buf), "%d%%", (int)(x * 100.0f));
-            return std::string(buf);
+          char buf[8];
+          snprintf(buf, sizeof(buf), "%d%%", pct);
+          lv_label_set_text(id(volume_pct_label), buf);
 
 switch:
   - platform: template

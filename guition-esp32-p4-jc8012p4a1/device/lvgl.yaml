@@ -389,7 +389,7 @@ lvgl:
                     - obj:
                         id: group_volume_row
                         width: 440
-                        height: 96
+                        height: 72
                         bg_opa: 0%
                         border_width: 1
                         border_color: 0xFFFFFF
@@ -397,61 +397,60 @@ lvgl:
                         border_side: bottom
                         pad_left: 0
                         pad_right: 0
-                        pad_top: 6
-                        pad_bottom: 10
+                        pad_top: 12
+                        pad_bottom: 14
                         scrollable: false
                         widgets:
                           - label:
                               text: "Group Volume"
                               text_font: roboto_light40_font
                               text_color: 0xCCCCCC
-                              x: 0
-                              y: 0
-                              width: 400
+                              align: left_mid
+                              width: 280
+                          - button:
+                              align: right_mid
+                              x: -100
+                              width: 40px
+                              height: 40px
+                              radius: 20
+                              bg_color: 0x333333
+                              border_width: 0
+                              shadow_width: 0
+                              pad_all: 0
+                              widgets:
+                                - label:
+                                    text_font: roboto19_font
+                                    align: center
+                                    text: "-"
+                                    text_color: 0xFFFFFF
+                              on_press:
+                                - script.execute: group_volume_down
                           - label:
                               id: volume_pct_label
                               text: "30%"
-                              text_font: roboto_light40_font
-                              text_color: 0x999999
-                              align: top_right
-                              y: 0
-                              width: 100
-                              text_align: right
-                          - slider:
-                              id: group_volume_slider
-                              x: 0
-                              y: 42
-                              width: 420
-                              height: 40
-                              min_value: 0
-                              max_value: 100
-                              value: 30
-                              bg_color: 0x333333
-                              bg_opa: 100%
+                              text_font: roboto19_font
+                              text_color: 0xCCCCCC
+                              align: right_mid
+                              x: -48
+                              width: 48
+                              text_align: center
+                          - button:
+                              align: right_mid
+                              width: 40px
+                              height: 40px
                               radius: 20
-                              indicator:
-                                bg_color: 0x888888
-                                radius: 20
-                              knob:
-                                bg_opa: 0%
-                                radius: 0
-                                width: 0
-                                height: 0
-                                border_width: 0
-                              on_value:
-                                - lvgl.label.update:
-                                    id: volume_pct_label
-                                    text: !lambda |-
-                                      char buf[8];
-                                      snprintf(buf, sizeof(buf), "%d%%", (int)x);
-                                      return std::string(buf);
-                                - if:
-                                    condition:
-                                      lambda: 'return !id(volume_updating_from_ha);'
-                                    then:
-                                      - lambda: |-
-                                          lv_arc_set_value(id(volume_arc), (int)x);
-                                      - script.execute: debounce_group_volume
+                              bg_color: 0x333333
+                              border_width: 0
+                              shadow_width: 0
+                              pad_all: 0
+                              widgets:
+                                - label:
+                                    text_font: roboto19_font
+                                    align: center
+                                    text: "+"
+                                    text_color: 0xFFFFFF
+                              on_press:
+                                - script.execute: group_volume_up
                     # --- Row 0 (selected speaker / leader) ---
                     - obj:
                         id: speaker_row_0
@@ -472,14 +471,68 @@ lvgl:
                           - label:
                               id: speaker_name_0
                               text: ""
-                              text_font: roboto_light40_font
+                              text_font: roboto30_font
                               text_color: 0xFFFFFF
-                              x: 0
-                              y: 0
-                              width: 500
+                              align: left_mid
+                              width: 280
+                          - button:
+                              id: speaker_vol_down_0
+                              align: right_mid
+                              x: -100
+                              width: 40px
+                              height: 40px
+                              radius: 20
+                              bg_color: 0x333333
+                              border_width: 0
+                              shadow_width: 0
+                              pad_all: 0
+                              hidden: true
+                              widgets:
+                                - label:
+                                    text_font: roboto19_font
+                                    align: center
+                                    text: "-"
+                                    text_color: 0xFFFFFF
+                              on_press:
+                                - script.execute:
+                                    id: speaker_volume_change
+                                    slot: 0
+                                    direction: -1
+                          - label:
+                              id: speaker_vol_pct_0
+                              text: ""
+                              text_font: roboto19_font
+                              text_color: 0xCCCCCC
+                              align: right_mid
+                              x: -48
+                              width: 48
+                              text_align: center
+                              hidden: true
+                          - button:
+                              id: speaker_vol_up_0
+                              align: right_mid
+                              width: 40px
+                              height: 40px
+                              radius: 20
+                              bg_color: 0x333333
+                              border_width: 0
+                              shadow_width: 0
+                              pad_all: 0
+                              hidden: true
+                              widgets:
+                                - label:
+                                    text_font: roboto19_font
+                                    align: center
+                                    text: "+"
+                                    text_color: 0xFFFFFF
+                              on_press:
+                                - script.execute:
+                                    id: speaker_volume_change
+                                    slot: 0
+                                    direction: 1
 
-                    # --- Row 1 ---
-                    - obj:
+                    # --- Rows 1-7 (other speakers) ---
+                    - obj: &speaker_row_template
                         id: speaker_row_1
                         width: 440
                         height: 72
@@ -498,15 +551,69 @@ lvgl:
                           - label:
                               id: speaker_name_1
                               text: ""
-                              text_font: roboto_light40_font
+                              text_font: roboto30_font
                               text_color: 0xFFFFFF
-                              x: 0
-                              y: 0
-                              width: 420
+                              align: left_mid
+                              width: 200
+                          - button:
+                              id: speaker_vol_down_1
+                              align: right_mid
+                              x: -168
+                              width: 36px
+                              height: 36px
+                              radius: 18
+                              bg_color: 0x333333
+                              border_width: 0
+                              shadow_width: 0
+                              pad_all: 0
+                              hidden: true
+                              widgets:
+                                - label:
+                                    text_font: roboto19_font
+                                    align: center
+                                    text: "-"
+                                    text_color: 0xFFFFFF
+                              on_press:
+                                - script.execute:
+                                    id: speaker_volume_change
+                                    slot: 1
+                                    direction: -1
+                          - label:
+                              id: speaker_vol_pct_1
+                              text: ""
+                              text_font: roboto19_font
+                              text_color: 0xCCCCCC
+                              align: right_mid
+                              x: -120
+                              width: 44
+                              text_align: center
+                              hidden: true
+                          - button:
+                              id: speaker_vol_up_1
+                              align: right_mid
+                              x: -76
+                              width: 36px
+                              height: 36px
+                              radius: 18
+                              bg_color: 0x333333
+                              border_width: 0
+                              shadow_width: 0
+                              pad_all: 0
+                              hidden: true
+                              widgets:
+                                - label:
+                                    text_font: roboto19_font
+                                    align: center
+                                    text: "+"
+                                    text_color: 0xFFFFFF
+                              on_press:
+                                - script.execute:
+                                    id: speaker_volume_change
+                                    slot: 1
+                                    direction: 1
                           - button:
                               id: speaker_btn_1
-                              align: top_right
-                              y: 2
+                              align: right_mid
                               width: SIZE_CONTENT
                               height: 34px
                               radius: 17
@@ -531,7 +638,6 @@ lvgl:
                                     text_color: 0xFFFFFF
                                     align: center
 
-                    # --- Row 2 ---
                     - obj:
                         id: speaker_row_2
                         width: 440
@@ -551,15 +657,69 @@ lvgl:
                           - label:
                               id: speaker_name_2
                               text: ""
-                              text_font: roboto_light40_font
+                              text_font: roboto30_font
                               text_color: 0xFFFFFF
-                              x: 0
-                              y: 0
-                              width: 420
+                              align: left_mid
+                              width: 200
+                          - button:
+                              id: speaker_vol_down_2
+                              align: right_mid
+                              x: -168
+                              width: 36px
+                              height: 36px
+                              radius: 18
+                              bg_color: 0x333333
+                              border_width: 0
+                              shadow_width: 0
+                              pad_all: 0
+                              hidden: true
+                              widgets:
+                                - label:
+                                    text_font: roboto19_font
+                                    align: center
+                                    text: "-"
+                                    text_color: 0xFFFFFF
+                              on_press:
+                                - script.execute:
+                                    id: speaker_volume_change
+                                    slot: 2
+                                    direction: -1
+                          - label:
+                              id: speaker_vol_pct_2
+                              text: ""
+                              text_font: roboto19_font
+                              text_color: 0xCCCCCC
+                              align: right_mid
+                              x: -120
+                              width: 44
+                              text_align: center
+                              hidden: true
+                          - button:
+                              id: speaker_vol_up_2
+                              align: right_mid
+                              x: -76
+                              width: 36px
+                              height: 36px
+                              radius: 18
+                              bg_color: 0x333333
+                              border_width: 0
+                              shadow_width: 0
+                              pad_all: 0
+                              hidden: true
+                              widgets:
+                                - label:
+                                    text_font: roboto19_font
+                                    align: center
+                                    text: "+"
+                                    text_color: 0xFFFFFF
+                              on_press:
+                                - script.execute:
+                                    id: speaker_volume_change
+                                    slot: 2
+                                    direction: 1
                           - button:
                               id: speaker_btn_2
-                              align: top_right
-                              y: 2
+                              align: right_mid
                               width: SIZE_CONTENT
                               height: 34px
                               radius: 17
@@ -584,7 +744,6 @@ lvgl:
                                     text_color: 0xFFFFFF
                                     align: center
 
-                    # --- Row 3 ---
                     - obj:
                         id: speaker_row_3
                         width: 440
@@ -604,15 +763,69 @@ lvgl:
                           - label:
                               id: speaker_name_3
                               text: ""
-                              text_font: roboto_light40_font
+                              text_font: roboto30_font
                               text_color: 0xFFFFFF
-                              x: 0
-                              y: 0
-                              width: 420
+                              align: left_mid
+                              width: 200
+                          - button:
+                              id: speaker_vol_down_3
+                              align: right_mid
+                              x: -168
+                              width: 36px
+                              height: 36px
+                              radius: 18
+                              bg_color: 0x333333
+                              border_width: 0
+                              shadow_width: 0
+                              pad_all: 0
+                              hidden: true
+                              on_press:
+                                - script.execute:
+                                    id: speaker_volume_change
+                                    slot: 3
+                                    direction: -1
+                              widgets:
+                                - label:
+                                    text_font: roboto19_font
+                                    align: center
+                                    text: "-"
+                                    text_color: 0xFFFFFF
+                          - label:
+                              id: speaker_vol_pct_3
+                              text: ""
+                              text_font: roboto19_font
+                              text_color: 0xCCCCCC
+                              align: right_mid
+                              x: -120
+                              width: 44
+                              text_align: center
+                              hidden: true
+                          - button:
+                              id: speaker_vol_up_3
+                              align: right_mid
+                              x: -76
+                              width: 36px
+                              height: 36px
+                              radius: 18
+                              bg_color: 0x333333
+                              border_width: 0
+                              shadow_width: 0
+                              pad_all: 0
+                              hidden: true
+                              on_press:
+                                - script.execute:
+                                    id: speaker_volume_change
+                                    slot: 3
+                                    direction: 1
+                              widgets:
+                                - label:
+                                    text_font: roboto19_font
+                                    align: center
+                                    text: "+"
+                                    text_color: 0xFFFFFF
                           - button:
                               id: speaker_btn_3
-                              align: top_right
-                              y: 2
+                              align: right_mid
                               width: SIZE_CONTENT
                               height: 34px
                               radius: 17
@@ -637,7 +850,6 @@ lvgl:
                                     text_color: 0xFFFFFF
                                     align: center
 
-                    # --- Row 4 ---
                     - obj:
                         id: speaker_row_4
                         width: 440
@@ -657,15 +869,69 @@ lvgl:
                           - label:
                               id: speaker_name_4
                               text: ""
-                              text_font: roboto_light40_font
+                              text_font: roboto30_font
                               text_color: 0xFFFFFF
-                              x: 0
-                              y: 0
-                              width: 420
+                              align: left_mid
+                              width: 200
+                          - button:
+                              id: speaker_vol_down_4
+                              align: right_mid
+                              x: -168
+                              width: 36px
+                              height: 36px
+                              radius: 18
+                              bg_color: 0x333333
+                              border_width: 0
+                              shadow_width: 0
+                              pad_all: 0
+                              hidden: true
+                              on_press:
+                                - script.execute:
+                                    id: speaker_volume_change
+                                    slot: 4
+                                    direction: -1
+                              widgets:
+                                - label:
+                                    text_font: roboto19_font
+                                    align: center
+                                    text: "-"
+                                    text_color: 0xFFFFFF
+                          - label:
+                              id: speaker_vol_pct_4
+                              text: ""
+                              text_font: roboto19_font
+                              text_color: 0xCCCCCC
+                              align: right_mid
+                              x: -120
+                              width: 44
+                              text_align: center
+                              hidden: true
+                          - button:
+                              id: speaker_vol_up_4
+                              align: right_mid
+                              x: -76
+                              width: 36px
+                              height: 36px
+                              radius: 18
+                              bg_color: 0x333333
+                              border_width: 0
+                              shadow_width: 0
+                              pad_all: 0
+                              hidden: true
+                              on_press:
+                                - script.execute:
+                                    id: speaker_volume_change
+                                    slot: 4
+                                    direction: 1
+                              widgets:
+                                - label:
+                                    text_font: roboto19_font
+                                    align: center
+                                    text: "+"
+                                    text_color: 0xFFFFFF
                           - button:
                               id: speaker_btn_4
-                              align: top_right
-                              y: 2
+                              align: right_mid
                               width: SIZE_CONTENT
                               height: 34px
                               radius: 17
@@ -690,7 +956,6 @@ lvgl:
                                     text_color: 0xFFFFFF
                                     align: center
 
-                    # --- Row 5 ---
                     - obj:
                         id: speaker_row_5
                         width: 440
@@ -710,15 +975,69 @@ lvgl:
                           - label:
                               id: speaker_name_5
                               text: ""
-                              text_font: roboto_light40_font
+                              text_font: roboto30_font
                               text_color: 0xFFFFFF
-                              x: 0
-                              y: 0
-                              width: 420
+                              align: left_mid
+                              width: 200
+                          - button:
+                              id: speaker_vol_down_5
+                              align: right_mid
+                              x: -168
+                              width: 36px
+                              height: 36px
+                              radius: 18
+                              bg_color: 0x333333
+                              border_width: 0
+                              shadow_width: 0
+                              pad_all: 0
+                              hidden: true
+                              on_press:
+                                - script.execute:
+                                    id: speaker_volume_change
+                                    slot: 5
+                                    direction: -1
+                              widgets:
+                                - label:
+                                    text_font: roboto19_font
+                                    align: center
+                                    text: "-"
+                                    text_color: 0xFFFFFF
+                          - label:
+                              id: speaker_vol_pct_5
+                              text: ""
+                              text_font: roboto19_font
+                              text_color: 0xCCCCCC
+                              align: right_mid
+                              x: -120
+                              width: 44
+                              text_align: center
+                              hidden: true
+                          - button:
+                              id: speaker_vol_up_5
+                              align: right_mid
+                              x: -76
+                              width: 36px
+                              height: 36px
+                              radius: 18
+                              bg_color: 0x333333
+                              border_width: 0
+                              shadow_width: 0
+                              pad_all: 0
+                              hidden: true
+                              on_press:
+                                - script.execute:
+                                    id: speaker_volume_change
+                                    slot: 5
+                                    direction: 1
+                              widgets:
+                                - label:
+                                    text_font: roboto19_font
+                                    align: center
+                                    text: "+"
+                                    text_color: 0xFFFFFF
                           - button:
                               id: speaker_btn_5
-                              align: top_right
-                              y: 2
+                              align: right_mid
                               width: SIZE_CONTENT
                               height: 34px
                               radius: 17
@@ -743,7 +1062,6 @@ lvgl:
                                     text_color: 0xFFFFFF
                                     align: center
 
-                    # --- Row 6 ---
                     - obj:
                         id: speaker_row_6
                         width: 440
@@ -763,15 +1081,69 @@ lvgl:
                           - label:
                               id: speaker_name_6
                               text: ""
-                              text_font: roboto_light40_font
+                              text_font: roboto30_font
                               text_color: 0xFFFFFF
-                              x: 0
-                              y: 0
-                              width: 420
+                              align: left_mid
+                              width: 200
+                          - button:
+                              id: speaker_vol_down_6
+                              align: right_mid
+                              x: -168
+                              width: 36px
+                              height: 36px
+                              radius: 18
+                              bg_color: 0x333333
+                              border_width: 0
+                              shadow_width: 0
+                              pad_all: 0
+                              hidden: true
+                              on_press:
+                                - script.execute:
+                                    id: speaker_volume_change
+                                    slot: 6
+                                    direction: -1
+                              widgets:
+                                - label:
+                                    text_font: roboto19_font
+                                    align: center
+                                    text: "-"
+                                    text_color: 0xFFFFFF
+                          - label:
+                              id: speaker_vol_pct_6
+                              text: ""
+                              text_font: roboto19_font
+                              text_color: 0xCCCCCC
+                              align: right_mid
+                              x: -120
+                              width: 44
+                              text_align: center
+                              hidden: true
+                          - button:
+                              id: speaker_vol_up_6
+                              align: right_mid
+                              x: -76
+                              width: 36px
+                              height: 36px
+                              radius: 18
+                              bg_color: 0x333333
+                              border_width: 0
+                              shadow_width: 0
+                              pad_all: 0
+                              hidden: true
+                              on_press:
+                                - script.execute:
+                                    id: speaker_volume_change
+                                    slot: 6
+                                    direction: 1
+                              widgets:
+                                - label:
+                                    text_font: roboto19_font
+                                    align: center
+                                    text: "+"
+                                    text_color: 0xFFFFFF
                           - button:
                               id: speaker_btn_6
-                              align: top_right
-                              y: 2
+                              align: right_mid
                               width: SIZE_CONTENT
                               height: 34px
                               radius: 17
@@ -796,7 +1168,6 @@ lvgl:
                                     text_color: 0xFFFFFF
                                     align: center
 
-                    # --- Row 7 ---
                     - obj:
                         id: speaker_row_7
                         width: 440
@@ -816,15 +1187,69 @@ lvgl:
                           - label:
                               id: speaker_name_7
                               text: ""
-                              text_font: roboto_light40_font
+                              text_font: roboto30_font
                               text_color: 0xFFFFFF
-                              x: 0
-                              y: 0
-                              width: 420
+                              align: left_mid
+                              width: 200
+                          - button:
+                              id: speaker_vol_down_7
+                              align: right_mid
+                              x: -168
+                              width: 36px
+                              height: 36px
+                              radius: 18
+                              bg_color: 0x333333
+                              border_width: 0
+                              shadow_width: 0
+                              pad_all: 0
+                              hidden: true
+                              on_press:
+                                - script.execute:
+                                    id: speaker_volume_change
+                                    slot: 7
+                                    direction: -1
+                              widgets:
+                                - label:
+                                    text_font: roboto19_font
+                                    align: center
+                                    text: "-"
+                                    text_color: 0xFFFFFF
+                          - label:
+                              id: speaker_vol_pct_7
+                              text: ""
+                              text_font: roboto19_font
+                              text_color: 0xCCCCCC
+                              align: right_mid
+                              x: -120
+                              width: 44
+                              text_align: center
+                              hidden: true
+                          - button:
+                              id: speaker_vol_up_7
+                              align: right_mid
+                              x: -76
+                              width: 36px
+                              height: 36px
+                              radius: 18
+                              bg_color: 0x333333
+                              border_width: 0
+                              shadow_width: 0
+                              pad_all: 0
+                              hidden: true
+                              on_press:
+                                - script.execute:
+                                    id: speaker_volume_change
+                                    slot: 7
+                                    direction: 1
+                              widgets:
+                                - label:
+                                    text_font: roboto19_font
+                                    align: center
+                                    text: "+"
+                                    text_color: 0xFFFFFF
                           - button:
                               id: speaker_btn_7
-                              align: top_right
-                              y: 2
+                              align: right_mid
                               width: SIZE_CONTENT
                               height: 34px
                               radius: 17

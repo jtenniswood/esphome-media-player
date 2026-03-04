@@ -264,7 +264,6 @@ script:
             id(speaker_name_0), id(speaker_name_1), id(speaker_name_2), id(speaker_name_3),
             id(speaker_name_4), id(speaker_name_5), id(speaker_name_6), id(speaker_name_7)
           };
-          // Row 0 has no button (leader)
           lv_obj_t *btn_labels[] = {
             nullptr, id(speaker_btn_label_1), id(speaker_btn_label_2), id(speaker_btn_label_3),
             id(speaker_btn_label_4), id(speaker_btn_label_5), id(speaker_btn_label_6), id(speaker_btn_label_7)
@@ -277,6 +276,19 @@ script:
             id(speaker_row_0), id(speaker_row_1), id(speaker_row_2), id(speaker_row_3),
             id(speaker_row_4), id(speaker_row_5), id(speaker_row_6), id(speaker_row_7)
           };
+          lv_obj_t *vol_down[] = {
+            id(speaker_vol_down_0), id(speaker_vol_down_1), id(speaker_vol_down_2), id(speaker_vol_down_3),
+            id(speaker_vol_down_4), id(speaker_vol_down_5), id(speaker_vol_down_6), id(speaker_vol_down_7)
+          };
+          lv_obj_t *vol_up[] = {
+            id(speaker_vol_up_0), id(speaker_vol_up_1), id(speaker_vol_up_2), id(speaker_vol_up_3),
+            id(speaker_vol_up_4), id(speaker_vol_up_5), id(speaker_vol_up_6), id(speaker_vol_up_7)
+          };
+          lv_obj_t *vol_pcts[] = {
+            id(speaker_vol_pct_0), id(speaker_vol_pct_1), id(speaker_vol_pct_2), id(speaker_vol_pct_3),
+            id(speaker_vol_pct_4), id(speaker_vol_pct_5), id(speaker_vol_pct_6), id(speaker_vol_pct_7)
+          };
+
           for (int i = 0; i < 8; i++) {
             if (i < id(speaker_count)) {
               lv_obj_clear_flag(rows[i], LV_OBJ_FLAG_HIDDEN);
@@ -288,12 +300,21 @@ script:
                   lv_obj_set_style_bg_opa(btns[i], LV_OPA_0, 0);
                   lv_obj_set_style_border_opa(btns[i], LV_OPA_COVER * 80 / 100, 0);
                 }
+                lv_obj_clear_flag(vol_down[i], LV_OBJ_FLAG_HIDDEN);
+                lv_obj_clear_flag(vol_up[i], LV_OBJ_FLAG_HIDDEN);
+                lv_obj_clear_flag(vol_pcts[i], LV_OBJ_FLAG_HIDDEN);
+                char buf[8];
+                snprintf(buf, sizeof(buf), "%d%%", (int)(id(speaker_volumes)[i] * 100.0f));
+                lv_label_set_text(vol_pcts[i], buf);
               } else {
                 if (btn_labels[i]) lv_label_set_text(btn_labels[i], "Add");
                 if (btns[i]) {
                   lv_obj_set_style_bg_opa(btns[i], LV_OPA_30, 0);
                   lv_obj_set_style_border_opa(btns[i], LV_OPA_0, 0);
                 }
+                lv_obj_add_flag(vol_down[i], LV_OBJ_FLAG_HIDDEN);
+                lv_obj_add_flag(vol_up[i], LV_OBJ_FLAG_HIDDEN);
+                lv_obj_add_flag(vol_pcts[i], LV_OBJ_FLAG_HIDDEN);
               }
             } else {
               lv_obj_add_flag(rows[i], LV_OBJ_FLAG_HIDDEN);
@@ -361,62 +382,49 @@ script:
           format: "Removed speaker from group"
 
   # ---------------------------------------------------------------------------
-  # Per-speaker slider volume: debounced absolute volume set from slider drag.
+  # Per-speaker volume +/- buttons
   # ---------------------------------------------------------------------------
-  # Group volume: adjusts all grouped speakers relative to their current level.
-  # Computes the delta from the previous arc position and applies it to each
-  # speaker's tracked volume, keeping their relative balance intact.
-  # Debounced so rapid arc dragging doesn't flood HA with requests.
-  # ---------------------------------------------------------------------------
-  - id: debounce_group_volume
-    mode: restart
+  - id: speaker_volume_change
+    mode: single
+    parameters:
+      slot: int
+      direction: int
     then:
-      - delay: 150ms
       - lambda: |-
-          int new_val = lv_slider_get_value(id(group_volume_slider));
-          int prev = id(prev_arc_value);
-          int count = id(speaker_count);
+          if (slot < 0 || slot >= id(speaker_count)) return;
+          id(speaker_vol_target) = id(speaker_entity_ids)[slot];
+      - homeassistant.service:
+          service: !lambda 'return direction > 0 ? "media_player.volume_up" : "media_player.volume_down";'
+          variables:
+            target: !lambda 'return id(speaker_vol_target);'
+          data_template:
+            entity_id: "{{ target }}"
 
-          // Initialize prev on first use
-          if (prev < 0) prev = new_val;
+  # ---------------------------------------------------------------------------
+  # Group volume +/- (adjusts all grouped speakers)
+  # ---------------------------------------------------------------------------
+  - id: group_volume_up
+    mode: single
+    then:
+      - lambda: |-
+          id(group_vol_index) = 0;
+      - script.execute:
+          id: group_volume_step
+          direction: 1
 
-          float delta = (new_val - prev) / 100.0f;
-          id(prev_arc_value) = new_val;
+  - id: group_volume_down
+    mode: single
+    then:
+      - lambda: |-
+          id(group_vol_index) = 0;
+      - script.execute:
+          id: group_volume_step
+          direction: -1
 
-          // No grouped speakers — just set the primary
-          if (count < 2) {
-            id(speaker_volumes)[0] = new_val / 100.0f;
-            id(speaker_vol_target) = id(media_player_entity).state;
-            id(do_group_volume_set).execute();
-            return;
-          }
-
-          // Apply delta to each grouped speaker's tracked volume
-          // and queue service calls for each one
-          bool first = true;
-          for (int i = 0; i < count; i++) {
-            if (!id(speaker_grouped)[i]) continue;
-
-            float v = id(speaker_volumes)[i] + delta;
-            if (v < 0.0f) v = 0.0f;
-            if (v > 1.0f) v = 1.0f;
-            id(speaker_volumes)[i] = v;
-
-            // Queue volume set for this speaker
-            if (first) {
-              id(speaker_vol_target) = id(speaker_entity_ids)[i];
-              id(group_vol_index) = i + 1;
-              first = false;
-            }
-          }
-
-          if (!first) {
-            id(do_group_volume_set).execute();
-          }
-
-  - id: group_volume_next
-    mode: queued
-    max_runs: 8
+  - id: group_volume_step
+    mode: single
+    parameters:
+      direction: int
     then:
       - lambda: |-
           int i = id(group_vol_index);
@@ -430,24 +438,12 @@ script:
 
           id(speaker_vol_target) = id(speaker_entity_ids)[i];
           id(group_vol_index) = i + 1;
-          id(do_group_volume_set).execute();
-
-  - id: do_group_volume_set
-    mode: queued
-    max_runs: 8
-    then:
       - homeassistant.service:
-          service: media_player.volume_set
+          service: !lambda 'return direction > 0 ? "media_player.volume_up" : "media_player.volume_down";'
           variables:
             target: !lambda 'return id(speaker_vol_target);'
-            vol_level: !lambda |-
-              for (int i = 0; i < id(speaker_count); i++) {
-                if (id(speaker_entity_ids)[i] == id(speaker_vol_target)) {
-                  return id(speaker_volumes)[i];
-                }
-              }
-              return lv_slider_get_value(id(group_volume_slider)) / 100.0f;
           data_template:
             entity_id: "{{ target }}"
-            volume_level: "{{ vol_level }}"
-      - script.execute: group_volume_next
+      - script.execute:
+          id: group_volume_step
+          direction: !lambda 'return direction;'
