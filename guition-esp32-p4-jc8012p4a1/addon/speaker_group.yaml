@@ -20,13 +20,13 @@ globals:
   - id: speaker_grouped
     type: bool[8]
     initial_value: '{false}'
-  - id: grouping_panel_open
-    type: bool
-    initial_value: 'false'
   - id: speaker_join_member
     type: std::string
     initial_value: '""'
   - id: speaker_unjoin_target
+    type: std::string
+    initial_value: '""'
+  - id: speaker_vol_target
     type: std::string
     initial_value: '""'
 
@@ -40,6 +40,8 @@ text_sensor:
   - platform: homeassistant
     id: sonos_names_sensor
     entity_id: sensor.sonos_speaker_names
+    on_value:
+      - script.execute: parse_speakers
 
   - platform: template
     id: group_members_sensor
@@ -69,7 +71,8 @@ script:
 
           if (ids_raw.empty() || ids_raw == "None" || ids_raw == "unknown") {
             ESP_LOGW("speaker_group", "No Sonos speakers found");
-            lv_obj_add_flag(id(speaker_group_button), LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(id(speakers_title_label), LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(id(speakers_container), LV_OBJ_FLAG_HIDDEN);
             return;
           }
 
@@ -127,7 +130,8 @@ script:
 
           if (!found_selected) {
             ESP_LOGD("speaker_group", "Selected player '%s' is not a Sonos device", selected.c_str());
-            lv_obj_add_flag(id(speaker_group_button), LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(id(speakers_title_label), LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(id(speakers_container), LV_OBJ_FLAG_HIDDEN);
             return;
           }
 
@@ -144,9 +148,11 @@ script:
           ESP_LOGI("speaker_group", "Discovered %d Sonos speakers", count);
 
           if (count > 1) {
-            lv_obj_clear_flag(id(speaker_group_button), LV_OBJ_FLAG_HIDDEN);
+            lv_obj_clear_flag(id(speakers_title_label), LV_OBJ_FLAG_HIDDEN);
+            lv_obj_clear_flag(id(speakers_container), LV_OBJ_FLAG_HIDDEN);
           } else {
-            lv_obj_add_flag(id(speaker_group_button), LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(id(speakers_title_label), LV_OBJ_FLAG_HIDDEN);
+            lv_obj_add_flag(id(speakers_container), LV_OBJ_FLAG_HIDDEN);
           }
 
       - script.execute: update_group_state
@@ -195,7 +201,8 @@ script:
           id(speaker_grouped)[0] = true;
 
           // For slots 1..7, check membership
-          for (int i = 1; i < id(speaker_count); i++) {
+          int count = id(speaker_count);
+          for (int i = 1; i < count; i++) {
             bool found = false;
             for (auto &m : members) {
               if (m == id(speaker_entity_ids)[i]) {
@@ -204,6 +211,17 @@ script:
               }
             }
             id(speaker_grouped)[i] = found;
+          }
+
+          // Sort slots 1..N so grouped speakers appear first
+          for (int i = 1; i < count - 1; i++) {
+            for (int j = i + 1; j < count; j++) {
+              if (!id(speaker_grouped)[i] && id(speaker_grouped)[j]) {
+                std::swap(id(speaker_entity_ids)[i], id(speaker_entity_ids)[j]);
+                std::swap(id(speaker_names)[i], id(speaker_names)[j]);
+                std::swap(id(speaker_grouped)[i], id(speaker_grouped)[j]);
+              }
+            }
           }
 
       - script.execute: update_grouping_panel
@@ -227,6 +245,14 @@ script:
             id(speaker_row_0), id(speaker_row_1), id(speaker_row_2), id(speaker_row_3),
             id(speaker_row_4), id(speaker_row_5), id(speaker_row_6), id(speaker_row_7)
           };
+          lv_obj_t *vol_down[] = {
+            id(speaker_vol_down_0), id(speaker_vol_down_1), id(speaker_vol_down_2), id(speaker_vol_down_3),
+            id(speaker_vol_down_4), id(speaker_vol_down_5), id(speaker_vol_down_6), id(speaker_vol_down_7)
+          };
+          lv_obj_t *vol_up[] = {
+            id(speaker_vol_up_0), id(speaker_vol_up_1), id(speaker_vol_up_2), id(speaker_vol_up_3),
+            id(speaker_vol_up_4), id(speaker_vol_up_5), id(speaker_vol_up_6), id(speaker_vol_up_7)
+          };
 
           for (int i = 0; i < 8; i++) {
             if (i < id(speaker_count)) {
@@ -235,11 +261,14 @@ script:
 
               if (id(speaker_grouped)[i]) {
                 lv_obj_add_state(switches[i], LV_STATE_CHECKED);
+                lv_obj_clear_flag(vol_down[i], LV_OBJ_FLAG_HIDDEN);
+                lv_obj_clear_flag(vol_up[i], LV_OBJ_FLAG_HIDDEN);
               } else {
                 lv_obj_clear_state(switches[i], LV_STATE_CHECKED);
+                lv_obj_add_flag(vol_down[i], LV_OBJ_FLAG_HIDDEN);
+                lv_obj_add_flag(vol_up[i], LV_OBJ_FLAG_HIDDEN);
               }
 
-              // Slot 0 is the leader — disable its switch
               if (i == 0) {
                 lv_obj_add_state(switches[i], LV_STATE_DISABLED);
               } else {
@@ -249,22 +278,6 @@ script:
               lv_obj_add_flag(rows[i], LV_OBJ_FLAG_HIDDEN);
             }
           }
-
-  # ---------------------------------------------------------------------------
-  # Open / close the grouping panel overlay
-  # ---------------------------------------------------------------------------
-  - id: open_grouping_panel
-    mode: single
-    then:
-      - lambda: 'id(grouping_panel_open) = true;'
-      - script.execute: update_grouping_panel
-      - lvgl.widget.show: speaker_group_panel
-
-  - id: close_grouping_panel
-    mode: single
-    then:
-      - lvgl.widget.hide: speaker_group_panel
-      - lambda: 'id(grouping_panel_open) = false;'
 
   # ---------------------------------------------------------------------------
   # Join / unjoin a speaker by slot index (stored in a global before calling).
@@ -325,3 +338,46 @@ script:
       - logger.log:
           tag: speaker_group
           format: "Removed speaker from group"
+
+  # ---------------------------------------------------------------------------
+  # Per-speaker volume control
+  # ---------------------------------------------------------------------------
+  - id: speaker_volume_down
+    mode: single
+    parameters:
+      slot: int
+    then:
+      - lambda: |-
+          if (slot < 0 || slot >= id(speaker_count)) return;
+          id(speaker_vol_target) = id(speaker_entity_ids)[slot];
+          id(do_speaker_volume_down).execute();
+
+  - id: speaker_volume_up
+    mode: single
+    parameters:
+      slot: int
+    then:
+      - lambda: |-
+          if (slot < 0 || slot >= id(speaker_count)) return;
+          id(speaker_vol_target) = id(speaker_entity_ids)[slot];
+          id(do_speaker_volume_up).execute();
+
+  - id: do_speaker_volume_down
+    mode: single
+    then:
+      - homeassistant.service:
+          service: media_player.volume_down
+          variables:
+            target: !lambda 'return id(speaker_vol_target);'
+          data_template:
+            entity_id: "{{ target }}"
+
+  - id: do_speaker_volume_up
+    mode: single
+    then:
+      - homeassistant.service:
+          service: media_player.volume_up
+          variables:
+            target: !lambda 'return id(speaker_vol_target);'
+          data_template:
+            entity_id: "{{ target }}"

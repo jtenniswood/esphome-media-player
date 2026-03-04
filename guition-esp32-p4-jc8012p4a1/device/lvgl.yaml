@@ -163,26 +163,6 @@ lvgl:
                         }
               - logger.log: "Media: play_pause"
 
-        # Speaker group button (bottom-right, left of play/pause)
-        - button:
-            id: speaker_group_button
-            align: bottom_right
-            x: -152
-            y: -52
-            width: 64px
-            height: 64px
-            radius: 32
-            styles: control_round
-            hidden: true
-            widgets:
-              - label:
-                  text_font: $icon_font
-                  align: center
-                  text: $icon_speakers
-                  text_color: 0xFFFFFF
-            on_press:
-              - script.execute: open_grouping_panel
-
         # Progress bar at the very bottom
         - bar:
             id: media_progress_bar
@@ -315,314 +295,8 @@ lvgl:
                               align: center
 
         # ---------------------------------------------------------------
-        # SPEAKER GROUP PANEL (opened via speaker button)
-        # ---------------------------------------------------------------
-        - obj:
-            id: speaker_group_panel
-            x: 0
-            y: 0
-            width: 1280
-            height: 800
-            bg_color: 0x111111
-            bg_opa: 100%
-            radius: 0
-            border_width: 0
-            pad_all: 0
-            scrollable: false
-            scrollbar_mode: "off"
-            hidden: true
-            widgets:
-              # Close button (top-left)
-              - button:
-                  x: 24
-                  y: 24
-                  width: 56px
-                  height: 56px
-                  radius: 28
-                  bg_opa: 0%
-                  border_width: 0
-                  shadow_width: 0
-                  pad_all: 0
-                  widgets:
-                    - label:
-                        text_font: $icon_font
-                        align: center
-                        text: $icon_close
-                        text_color: 0xFFFFFF
-                  on_press:
-                    - script.execute: close_grouping_panel
-
-              # Title
-              - label:
-                  text: "Speakers"
-                  text_font: roboto_light40_font
-                  text_color: 0xFFFFFF
-                  align: top_mid
-                  y: 32
-                  width: 400
-                  text_align: center
-
-              # Speaker rows container (centered)
-              - obj:
-                  align: center
-                  y: 20
-                  width: 500
-                  height: 600
-                  bg_opa: 0%
-                  border_width: 0
-                  pad_all: 0
-                  scrollable: false
-                  layout:
-                    type: flex
-                    flex_flow: COLUMN
-                    pad_row: 4
-                  widgets:
-                    # --- Row 0 (selected speaker / leader) ---
-                    - obj:
-                        id: speaker_row_0
-                        width: 500
-                        height: 64
-                        bg_opa: 0%
-                        border_width: 0
-                        pad_left: 8
-                        pad_right: 8
-                        pad_top: 0
-                        pad_bottom: 0
-                        scrollable: false
-                        hidden: true
-                        widgets:
-                          - label:
-                              id: speaker_name_0
-                              text: ""
-                              text_font: roboto30_font
-                              text_color: 0xFFFFFF
-                              align: left_mid
-                              width: 380
-                          - switch:
-                              id: speaker_sw_0
-                              align: right_mid
-                              width: 56
-                              height: 32
-
-                    # --- Row 1 ---
-                    - obj:
-                        id: speaker_row_1
-                        width: 500
-                        height: 64
-                        bg_opa: 0%
-                        border_width: 0
-                        pad_left: 8
-                        pad_right: 8
-                        pad_top: 0
-                        pad_bottom: 0
-                        scrollable: false
-                        hidden: true
-                        widgets:
-                          - label:
-                              id: speaker_name_1
-                              text: ""
-                              text_font: roboto30_font
-                              text_color: 0xFFFFFF
-                              align: left_mid
-                              width: 380
-                          - switch:
-                              id: speaker_sw_1
-                              align: right_mid
-                              width: 56
-                              height: 32
-                              on_click:
-                                - script.execute:
-                                    id: speaker_toggle
-                                    slot: 1
-
-                    # --- Row 2 ---
-                    - obj:
-                        id: speaker_row_2
-                        width: 500
-                        height: 64
-                        bg_opa: 0%
-                        border_width: 0
-                        pad_left: 8
-                        pad_right: 8
-                        pad_top: 0
-                        pad_bottom: 0
-                        scrollable: false
-                        hidden: true
-                        widgets:
-                          - label:
-                              id: speaker_name_2
-                              text: ""
-                              text_font: roboto30_font
-                              text_color: 0xFFFFFF
-                              align: left_mid
-                              width: 380
-                          - switch:
-                              id: speaker_sw_2
-                              align: right_mid
-                              width: 56
-                              height: 32
-                              on_click:
-                                - script.execute:
-                                    id: speaker_toggle
-                                    slot: 2
-
-                    # --- Row 3 ---
-                    - obj:
-                        id: speaker_row_3
-                        width: 500
-                        height: 64
-                        bg_opa: 0%
-                        border_width: 0
-                        pad_left: 8
-                        pad_right: 8
-                        pad_top: 0
-                        pad_bottom: 0
-                        scrollable: false
-                        hidden: true
-                        widgets:
-                          - label:
-                              id: speaker_name_3
-                              text: ""
-                              text_font: roboto30_font
-                              text_color: 0xFFFFFF
-                              align: left_mid
-                              width: 380
-                          - switch:
-                              id: speaker_sw_3
-                              align: right_mid
-                              width: 56
-                              height: 32
-                              on_click:
-                                - script.execute:
-                                    id: speaker_toggle
-                                    slot: 3
-
-                    # --- Row 4 ---
-                    - obj:
-                        id: speaker_row_4
-                        width: 500
-                        height: 64
-                        bg_opa: 0%
-                        border_width: 0
-                        pad_left: 8
-                        pad_right: 8
-                        pad_top: 0
-                        pad_bottom: 0
-                        scrollable: false
-                        hidden: true
-                        widgets:
-                          - label:
-                              id: speaker_name_4
-                              text: ""
-                              text_font: roboto30_font
-                              text_color: 0xFFFFFF
-                              align: left_mid
-                              width: 380
-                          - switch:
-                              id: speaker_sw_4
-                              align: right_mid
-                              width: 56
-                              height: 32
-                              on_click:
-                                - script.execute:
-                                    id: speaker_toggle
-                                    slot: 4
-
-                    # --- Row 5 ---
-                    - obj:
-                        id: speaker_row_5
-                        width: 500
-                        height: 64
-                        bg_opa: 0%
-                        border_width: 0
-                        pad_left: 8
-                        pad_right: 8
-                        pad_top: 0
-                        pad_bottom: 0
-                        scrollable: false
-                        hidden: true
-                        widgets:
-                          - label:
-                              id: speaker_name_5
-                              text: ""
-                              text_font: roboto30_font
-                              text_color: 0xFFFFFF
-                              align: left_mid
-                              width: 380
-                          - switch:
-                              id: speaker_sw_5
-                              align: right_mid
-                              width: 56
-                              height: 32
-                              on_click:
-                                - script.execute:
-                                    id: speaker_toggle
-                                    slot: 5
-
-                    # --- Row 6 ---
-                    - obj:
-                        id: speaker_row_6
-                        width: 500
-                        height: 64
-                        bg_opa: 0%
-                        border_width: 0
-                        pad_left: 8
-                        pad_right: 8
-                        pad_top: 0
-                        pad_bottom: 0
-                        scrollable: false
-                        hidden: true
-                        widgets:
-                          - label:
-                              id: speaker_name_6
-                              text: ""
-                              text_font: roboto30_font
-                              text_color: 0xFFFFFF
-                              align: left_mid
-                              width: 380
-                          - switch:
-                              id: speaker_sw_6
-                              align: right_mid
-                              width: 56
-                              height: 32
-                              on_click:
-                                - script.execute:
-                                    id: speaker_toggle
-                                    slot: 6
-
-                    # --- Row 7 ---
-                    - obj:
-                        id: speaker_row_7
-                        width: 500
-                        height: 64
-                        bg_opa: 0%
-                        border_width: 0
-                        pad_left: 8
-                        pad_right: 8
-                        pad_top: 0
-                        pad_bottom: 0
-                        scrollable: false
-                        hidden: true
-                        widgets:
-                          - label:
-                              id: speaker_name_7
-                              text: ""
-                              text_font: roboto30_font
-                              text_color: 0xFFFFFF
-                              align: left_mid
-                              width: 380
-                          - switch:
-                              id: speaker_sw_7
-                              align: right_mid
-                              width: 56
-                              height: 32
-                              on_click:
-                                - script.execute:
-                                    id: speaker_toggle
-                                    slot: 7
-
-        # ---------------------------------------------------------------
         # SETTINGS PANEL (swipe-down from top)
+        # Volume controls on left, speaker grouping on right
         # ---------------------------------------------------------------
         - obj:
             id: settings_panel
@@ -639,12 +313,34 @@ lvgl:
             scrollbar_mode: "off"
             hidden: true
             widgets:
+              # Close button (top-right)
+              - button:
+                  align: top_right
+                  x: -24
+                  y: 24
+                  width: 56px
+                  height: 56px
+                  radius: 28
+                  bg_opa: 0%
+                  border_width: 0
+                  shadow_width: 0
+                  pad_all: 0
+                  widgets:
+                    - label:
+                        text_font: $icon_font
+                        align: center
+                        text: $icon_close
+                        text_color: 0xFFFFFF
+                  on_press:
+                    - script.execute: close_settings_panel
+
+              # ---- LEFT SIDE: Volume controls ----
               - arc:
                   id: volume_arc
-                  align: center
-                  y: -40
-                  width: 500
-                  height: 500
+                  x: 80
+                  y: 120
+                  width: 440
+                  height: 440
                   min_value: 0
                   max_value: 100
                   value: 30
@@ -687,8 +383,8 @@ lvgl:
                   text: "Volume"
                   text_font: roboto19_font
                   text_color: 0x888888
-                  align: center
-                  y: -100
+                  x: 230
+                  y: 270
                   width: 140
                   height: 24
                   text_align: center
@@ -698,17 +394,16 @@ lvgl:
                   text: "30%"
                   text_font: roboto56_font
                   text_color: 0xFFFFFF
-                  align: center
-                  y: -40
+                  x: 200
+                  y: 310
                   width: 200
                   height: 60
                   text_align: center
 
               - button:
                   id: volume_down_button
-                  align: center
-                  x: -56
-                  y: 200
+                  x: 244
+                  y: 600
                   width: 80px
                   height: 80px
                   styles: control_round
@@ -728,9 +423,8 @@ lvgl:
 
               - button:
                   id: volume_up_button
-                  align: center
-                  x: 56
-                  y: 200
+                  x: 356
+                  y: 600
                   width: 80px
                   height: 80px
                   styles: control_round
@@ -748,18 +442,581 @@ lvgl:
                           if (v > 100) v = 100;
                           return v;
 
-              # Drag handle
+              # ---- RIGHT SIDE: Speaker grouping ----
+              - label:
+                  id: speakers_title_label
+                  text: "Speakers"
+                  text_font: roboto_light40_font
+                  text_color: 0xFFFFFF
+                  x: 700
+                  y: 32
+                  width: 500
+                  text_align: center
+                  hidden: true
+
               - obj:
-                  x: 610
-                  y: 780
-                  width: 60
-                  height: 4
-                  bg_color: 0x666666
-                  bg_opa: 100%
-                  radius: 2
+                  id: speakers_container
+                  x: 700
+                  y: 100
+                  width: 500
+                  height: 620
+                  bg_opa: 0%
                   border_width: 0
                   pad_all: 0
                   scrollable: false
+                  hidden: true
+                  layout:
+                    type: flex
+                    flex_flow: COLUMN
+                    pad_row: 4
+                  widgets:
+                    # --- Row 0 (selected speaker / leader) ---
+                    - obj:
+                        id: speaker_row_0
+                        width: 500
+                        height: 64
+                        bg_opa: 0%
+                        border_width: 0
+                        pad_left: 8
+                        pad_right: 8
+                        pad_top: 0
+                        pad_bottom: 0
+                        scrollable: false
+                        hidden: true
+                        widgets:
+                          - label:
+                              id: speaker_name_0
+                              text: ""
+                              text_font: roboto30_font
+                              text_color: 0xFFFFFF
+                              align: left_mid
+                              width: 260
+                          - button:
+                              id: speaker_vol_down_0
+                              align: left_mid
+                              x: 272
+                              width: 40px
+                              height: 40px
+                              radius: 20
+                              styles: control_round
+                              hidden: true
+                              widgets:
+                                - label:
+                                    text_font: roboto19_font
+                                    align: center
+                                    text: "−"
+                                    text_color: 0xFFFFFF
+                              on_press:
+                                - script.execute:
+                                    id: speaker_volume_down
+                                    slot: 0
+                          - button:
+                              id: speaker_vol_up_0
+                              align: left_mid
+                              x: 320
+                              width: 40px
+                              height: 40px
+                              radius: 20
+                              styles: control_round
+                              hidden: true
+                              widgets:
+                                - label:
+                                    text_font: roboto19_font
+                                    align: center
+                                    text: "+"
+                                    text_color: 0xFFFFFF
+                              on_press:
+                                - script.execute:
+                                    id: speaker_volume_up
+                                    slot: 0
+                          - switch:
+                              id: speaker_sw_0
+                              align: right_mid
+                              width: 56
+                              height: 32
+
+                    # --- Row 1 ---
+                    - obj:
+                        id: speaker_row_1
+                        width: 500
+                        height: 64
+                        bg_opa: 0%
+                        border_width: 0
+                        pad_left: 8
+                        pad_right: 8
+                        pad_top: 0
+                        pad_bottom: 0
+                        scrollable: false
+                        hidden: true
+                        widgets:
+                          - label:
+                              id: speaker_name_1
+                              text: ""
+                              text_font: roboto30_font
+                              text_color: 0xFFFFFF
+                              align: left_mid
+                              width: 260
+                          - button:
+                              id: speaker_vol_down_1
+                              align: left_mid
+                              x: 272
+                              width: 40px
+                              height: 40px
+                              radius: 20
+                              styles: control_round
+                              hidden: true
+                              widgets:
+                                - label:
+                                    text_font: roboto19_font
+                                    align: center
+                                    text: "−"
+                                    text_color: 0xFFFFFF
+                              on_press:
+                                - script.execute:
+                                    id: speaker_volume_down
+                                    slot: 1
+                          - button:
+                              id: speaker_vol_up_1
+                              align: left_mid
+                              x: 320
+                              width: 40px
+                              height: 40px
+                              radius: 20
+                              styles: control_round
+                              hidden: true
+                              widgets:
+                                - label:
+                                    text_font: roboto19_font
+                                    align: center
+                                    text: "+"
+                                    text_color: 0xFFFFFF
+                              on_press:
+                                - script.execute:
+                                    id: speaker_volume_up
+                                    slot: 1
+                          - switch:
+                              id: speaker_sw_1
+                              align: right_mid
+                              width: 56
+                              height: 32
+                              on_click:
+                                - script.execute:
+                                    id: speaker_toggle
+                                    slot: 1
+
+                    # --- Row 2 ---
+                    - obj:
+                        id: speaker_row_2
+                        width: 500
+                        height: 64
+                        bg_opa: 0%
+                        border_width: 0
+                        pad_left: 8
+                        pad_right: 8
+                        pad_top: 0
+                        pad_bottom: 0
+                        scrollable: false
+                        hidden: true
+                        widgets:
+                          - label:
+                              id: speaker_name_2
+                              text: ""
+                              text_font: roboto30_font
+                              text_color: 0xFFFFFF
+                              align: left_mid
+                              width: 260
+                          - button:
+                              id: speaker_vol_down_2
+                              align: left_mid
+                              x: 272
+                              width: 40px
+                              height: 40px
+                              radius: 20
+                              styles: control_round
+                              hidden: true
+                              widgets:
+                                - label:
+                                    text_font: roboto19_font
+                                    align: center
+                                    text: "−"
+                                    text_color: 0xFFFFFF
+                              on_press:
+                                - script.execute:
+                                    id: speaker_volume_down
+                                    slot: 2
+                          - button:
+                              id: speaker_vol_up_2
+                              align: left_mid
+                              x: 320
+                              width: 40px
+                              height: 40px
+                              radius: 20
+                              styles: control_round
+                              hidden: true
+                              widgets:
+                                - label:
+                                    text_font: roboto19_font
+                                    align: center
+                                    text: "+"
+                                    text_color: 0xFFFFFF
+                              on_press:
+                                - script.execute:
+                                    id: speaker_volume_up
+                                    slot: 2
+                          - switch:
+                              id: speaker_sw_2
+                              align: right_mid
+                              width: 56
+                              height: 32
+                              on_click:
+                                - script.execute:
+                                    id: speaker_toggle
+                                    slot: 2
+
+                    # --- Row 3 ---
+                    - obj:
+                        id: speaker_row_3
+                        width: 500
+                        height: 64
+                        bg_opa: 0%
+                        border_width: 0
+                        pad_left: 8
+                        pad_right: 8
+                        pad_top: 0
+                        pad_bottom: 0
+                        scrollable: false
+                        hidden: true
+                        widgets:
+                          - label:
+                              id: speaker_name_3
+                              text: ""
+                              text_font: roboto30_font
+                              text_color: 0xFFFFFF
+                              align: left_mid
+                              width: 260
+                          - button:
+                              id: speaker_vol_down_3
+                              align: left_mid
+                              x: 272
+                              width: 40px
+                              height: 40px
+                              radius: 20
+                              styles: control_round
+                              hidden: true
+                              widgets:
+                                - label:
+                                    text_font: roboto19_font
+                                    align: center
+                                    text: "−"
+                                    text_color: 0xFFFFFF
+                              on_press:
+                                - script.execute:
+                                    id: speaker_volume_down
+                                    slot: 3
+                          - button:
+                              id: speaker_vol_up_3
+                              align: left_mid
+                              x: 320
+                              width: 40px
+                              height: 40px
+                              radius: 20
+                              styles: control_round
+                              hidden: true
+                              widgets:
+                                - label:
+                                    text_font: roboto19_font
+                                    align: center
+                                    text: "+"
+                                    text_color: 0xFFFFFF
+                              on_press:
+                                - script.execute:
+                                    id: speaker_volume_up
+                                    slot: 3
+                          - switch:
+                              id: speaker_sw_3
+                              align: right_mid
+                              width: 56
+                              height: 32
+                              on_click:
+                                - script.execute:
+                                    id: speaker_toggle
+                                    slot: 3
+
+                    # --- Row 4 ---
+                    - obj:
+                        id: speaker_row_4
+                        width: 500
+                        height: 64
+                        bg_opa: 0%
+                        border_width: 0
+                        pad_left: 8
+                        pad_right: 8
+                        pad_top: 0
+                        pad_bottom: 0
+                        scrollable: false
+                        hidden: true
+                        widgets:
+                          - label:
+                              id: speaker_name_4
+                              text: ""
+                              text_font: roboto30_font
+                              text_color: 0xFFFFFF
+                              align: left_mid
+                              width: 260
+                          - button:
+                              id: speaker_vol_down_4
+                              align: left_mid
+                              x: 272
+                              width: 40px
+                              height: 40px
+                              radius: 20
+                              styles: control_round
+                              hidden: true
+                              widgets:
+                                - label:
+                                    text_font: roboto19_font
+                                    align: center
+                                    text: "−"
+                                    text_color: 0xFFFFFF
+                              on_press:
+                                - script.execute:
+                                    id: speaker_volume_down
+                                    slot: 4
+                          - button:
+                              id: speaker_vol_up_4
+                              align: left_mid
+                              x: 320
+                              width: 40px
+                              height: 40px
+                              radius: 20
+                              styles: control_round
+                              hidden: true
+                              widgets:
+                                - label:
+                                    text_font: roboto19_font
+                                    align: center
+                                    text: "+"
+                                    text_color: 0xFFFFFF
+                              on_press:
+                                - script.execute:
+                                    id: speaker_volume_up
+                                    slot: 4
+                          - switch:
+                              id: speaker_sw_4
+                              align: right_mid
+                              width: 56
+                              height: 32
+                              on_click:
+                                - script.execute:
+                                    id: speaker_toggle
+                                    slot: 4
+
+                    # --- Row 5 ---
+                    - obj:
+                        id: speaker_row_5
+                        width: 500
+                        height: 64
+                        bg_opa: 0%
+                        border_width: 0
+                        pad_left: 8
+                        pad_right: 8
+                        pad_top: 0
+                        pad_bottom: 0
+                        scrollable: false
+                        hidden: true
+                        widgets:
+                          - label:
+                              id: speaker_name_5
+                              text: ""
+                              text_font: roboto30_font
+                              text_color: 0xFFFFFF
+                              align: left_mid
+                              width: 260
+                          - button:
+                              id: speaker_vol_down_5
+                              align: left_mid
+                              x: 272
+                              width: 40px
+                              height: 40px
+                              radius: 20
+                              styles: control_round
+                              hidden: true
+                              widgets:
+                                - label:
+                                    text_font: roboto19_font
+                                    align: center
+                                    text: "−"
+                                    text_color: 0xFFFFFF
+                              on_press:
+                                - script.execute:
+                                    id: speaker_volume_down
+                                    slot: 5
+                          - button:
+                              id: speaker_vol_up_5
+                              align: left_mid
+                              x: 320
+                              width: 40px
+                              height: 40px
+                              radius: 20
+                              styles: control_round
+                              hidden: true
+                              widgets:
+                                - label:
+                                    text_font: roboto19_font
+                                    align: center
+                                    text: "+"
+                                    text_color: 0xFFFFFF
+                              on_press:
+                                - script.execute:
+                                    id: speaker_volume_up
+                                    slot: 5
+                          - switch:
+                              id: speaker_sw_5
+                              align: right_mid
+                              width: 56
+                              height: 32
+                              on_click:
+                                - script.execute:
+                                    id: speaker_toggle
+                                    slot: 5
+
+                    # --- Row 6 ---
+                    - obj:
+                        id: speaker_row_6
+                        width: 500
+                        height: 64
+                        bg_opa: 0%
+                        border_width: 0
+                        pad_left: 8
+                        pad_right: 8
+                        pad_top: 0
+                        pad_bottom: 0
+                        scrollable: false
+                        hidden: true
+                        widgets:
+                          - label:
+                              id: speaker_name_6
+                              text: ""
+                              text_font: roboto30_font
+                              text_color: 0xFFFFFF
+                              align: left_mid
+                              width: 260
+                          - button:
+                              id: speaker_vol_down_6
+                              align: left_mid
+                              x: 272
+                              width: 40px
+                              height: 40px
+                              radius: 20
+                              styles: control_round
+                              hidden: true
+                              widgets:
+                                - label:
+                                    text_font: roboto19_font
+                                    align: center
+                                    text: "−"
+                                    text_color: 0xFFFFFF
+                              on_press:
+                                - script.execute:
+                                    id: speaker_volume_down
+                                    slot: 6
+                          - button:
+                              id: speaker_vol_up_6
+                              align: left_mid
+                              x: 320
+                              width: 40px
+                              height: 40px
+                              radius: 20
+                              styles: control_round
+                              hidden: true
+                              widgets:
+                                - label:
+                                    text_font: roboto19_font
+                                    align: center
+                                    text: "+"
+                                    text_color: 0xFFFFFF
+                              on_press:
+                                - script.execute:
+                                    id: speaker_volume_up
+                                    slot: 6
+                          - switch:
+                              id: speaker_sw_6
+                              align: right_mid
+                              width: 56
+                              height: 32
+                              on_click:
+                                - script.execute:
+                                    id: speaker_toggle
+                                    slot: 6
+
+                    # --- Row 7 ---
+                    - obj:
+                        id: speaker_row_7
+                        width: 500
+                        height: 64
+                        bg_opa: 0%
+                        border_width: 0
+                        pad_left: 8
+                        pad_right: 8
+                        pad_top: 0
+                        pad_bottom: 0
+                        scrollable: false
+                        hidden: true
+                        widgets:
+                          - label:
+                              id: speaker_name_7
+                              text: ""
+                              text_font: roboto30_font
+                              text_color: 0xFFFFFF
+                              align: left_mid
+                              width: 260
+                          - button:
+                              id: speaker_vol_down_7
+                              align: left_mid
+                              x: 272
+                              width: 40px
+                              height: 40px
+                              radius: 20
+                              styles: control_round
+                              hidden: true
+                              widgets:
+                                - label:
+                                    text_font: roboto19_font
+                                    align: center
+                                    text: "−"
+                                    text_color: 0xFFFFFF
+                              on_press:
+                                - script.execute:
+                                    id: speaker_volume_down
+                                    slot: 7
+                          - button:
+                              id: speaker_vol_up_7
+                              align: left_mid
+                              x: 320
+                              width: 40px
+                              height: 40px
+                              radius: 20
+                              styles: control_round
+                              hidden: true
+                              widgets:
+                                - label:
+                                    text_font: roboto19_font
+                                    align: center
+                                    text: "+"
+                                    text_color: 0xFFFFFF
+                              on_press:
+                                - script.execute:
+                                    id: speaker_volume_up
+                                    slot: 7
+                          - switch:
+                              id: speaker_sw_7
+                              align: right_mid
+                              width: 56
+                              height: 32
+                              on_click:
+                                - script.execute:
+                                    id: speaker_toggle
+                                    slot: 7
 
         # ---------------------------------------------------------------
         # HOME ASSISTANT SETUP PROMPT
