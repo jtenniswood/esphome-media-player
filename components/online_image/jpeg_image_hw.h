@@ -14,6 +14,7 @@ namespace online_image {
  * @brief JPEG decoder using the ESP32-P4 hardware JPEG codec.
  * Decodes directly to RGB565, bypassing the software JPEGDEC library entirely.
  * Only used when the target image type is RGB565.
+ * Falls back to software JPEGDEC when the hardware codec rejects an image.
  */
 class HwJpegDecoder : public ImageDecoder {
  public:
@@ -22,6 +23,9 @@ class HwJpegDecoder : public ImageDecoder {
 
   int prepare(size_t download_size) override;
   int HOT decode(uint8_t *buffer, size_t size) override;
+
+ protected:
+  int software_decode_fallback_(uint8_t *buffer, size_t size);
 };
 
 }  // namespace online_image
