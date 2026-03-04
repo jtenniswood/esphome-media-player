@@ -41,6 +41,24 @@ globals:
   - id: speaker_slider_updating
     type: bool
     initial_value: 'false'
+  - id: accent_slider_bg_r
+    type: int
+    initial_value: '0x1A'
+  - id: accent_slider_bg_g
+    type: int
+    initial_value: '0x3A'
+  - id: accent_slider_bg_b
+    type: int
+    initial_value: '0x30'
+  - id: accent_slider_ind_r
+    type: int
+    initial_value: '0x2D'
+  - id: accent_slider_ind_g
+    type: int
+    initial_value: '0x5A'
+  - id: accent_slider_ind_b
+    type: int
+    initial_value: '0x4E'
 
 text_sensor:
   - platform: homeassistant
