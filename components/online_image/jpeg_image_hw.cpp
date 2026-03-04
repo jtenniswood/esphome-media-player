@@ -82,6 +82,33 @@ static size_t strip_com_markers(uint8_t *buf, size_t size) {
   return wp;
 }
 
+// Walk JPEG marker segments and inspect the SOF header to count color components.
+// Returns true when Nf == 1 (grayscale), which the P4 HW codec cannot decode to RGB565.
+static bool is_grayscale_jpeg(const uint8_t *data, size_t size) {
+  if (size < 4 || data[0] != 0xFF || data[1] != 0xD8)
+    return false;
+  size_t pos = 2;
+  while (pos + 3 < size) {
+    if (data[pos] != 0xFF)
+      return false;
+    uint8_t marker = data[pos + 1];
+    if (marker >= 0xC0 && marker <= 0xC2) {
+      if (pos + 9 >= size)
+        return false;
+      return data[pos + 9] == 1;
+    }
+    if (marker == 0xD9 || marker == 0xDA)
+      return false;
+    if (marker == 0x01 || (marker >= 0xD0 && marker <= 0xD8)) {
+      pos += 2;
+      continue;
+    }
+    uint16_t seg_len = (data[pos + 2] << 8) | data[pos + 3];
+    pos += 2 + seg_len;
+  }
+  return false;
+}
+
 static int sw_fallback_draw_callback_(JPEGDRAW *jpeg) {
   ImageDecoder *decoder = (ImageDecoder *) jpeg->pUser;
   App.feed_wdt();
@@ -132,7 +159,7 @@ int HOT HwJpegDecoder::decode(uint8_t *buffer, size_t size) {
     return this->software_decode_fallback_(buffer, size);
   }
 
-  if (info.sample_method == JPEG_DOWN_SAMPLING_GRAY) {
+  if (info.sample_method == JPEG_DOWN_SAMPLING_GRAY || is_grayscale_jpeg(tx_buf, hw_size)) {
     ESP_LOGW(TAG, "Grayscale JPEG not supported by HW codec, using software fallback");
     free(tx_buf);
     return this->software_decode_fallback_(buffer, size);
