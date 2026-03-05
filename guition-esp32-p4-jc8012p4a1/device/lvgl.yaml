@@ -433,7 +433,7 @@ lvgl:
                               width: 122
                               height: 48
                               radius: 24
-                              bg_color: 0x535353
+                              bg_color: 0x373737
                               bg_opa: 100%
                               border_width: 0
                               pad_all: 0
@@ -539,7 +539,7 @@ lvgl:
                               width: 122
                               height: 48
                               radius: 24
-                              bg_color: 0x535353
+                              bg_color: 0x373737
                               bg_opa: 100%
                               border_width: 0
                               pad_all: 0
@@ -655,7 +655,7 @@ lvgl:
                               width: 122
                               height: 48
                               radius: 24
-                              bg_color: 0x535353
+                              bg_color: 0x373737
                               bg_opa: 100%
                               border_width: 0
                               pad_all: 0
@@ -771,7 +771,7 @@ lvgl:
                               width: 122
                               height: 48
                               radius: 24
-                              bg_color: 0x535353
+                              bg_color: 0x373737
                               bg_opa: 100%
                               border_width: 0
                               pad_all: 0
@@ -887,7 +887,7 @@ lvgl:
                               width: 122
                               height: 48
                               radius: 24
-                              bg_color: 0x535353
+                              bg_color: 0x373737
                               bg_opa: 100%
                               border_width: 0
                               pad_all: 0
@@ -1003,7 +1003,7 @@ lvgl:
                               width: 122
                               height: 48
                               radius: 24
-                              bg_color: 0x535353
+                              bg_color: 0x373737
                               bg_opa: 100%
                               border_width: 0
                               pad_all: 0
@@ -1119,7 +1119,7 @@ lvgl:
                               width: 122
                               height: 48
                               radius: 24
-                              bg_color: 0x535353
+                              bg_color: 0x373737
                               bg_opa: 100%
                               border_width: 0
                               pad_all: 0
@@ -1235,7 +1235,7 @@ lvgl:
                               width: 122
                               height: 48
                               radius: 24
-                              bg_color: 0x535353
+                              bg_color: 0x373737
                               bg_opa: 100%
                               border_width: 0
                               pad_all: 0
@@ -1351,7 +1351,7 @@ lvgl:
                               width: 122
                               height: 48
                               radius: 24
-                              bg_color: 0x535353
+                              bg_color: 0x373737
                               bg_opa: 100%
                               border_width: 0
                               pad_all: 0
