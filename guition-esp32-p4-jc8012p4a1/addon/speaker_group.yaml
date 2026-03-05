@@ -301,6 +301,15 @@ script:
                 lv_obj_clear_flag(sliders[i], LV_OBJ_FLAG_HIDDEN);
                 lv_slider_set_value(sliders[i], pct, LV_ANIM_OFF);
                 lv_obj_set_ext_click_area(sliders[i], 25);
+                lv_obj_set_style_pad_top(sliders[i], 9, LV_PART_KNOB);
+                lv_obj_set_style_pad_bottom(sliders[i], 9, LV_PART_KNOB);
+                lv_obj_set_style_pad_left(sliders[i], 16, LV_PART_KNOB);
+                lv_obj_set_style_pad_right(sliders[i], 16, LV_PART_KNOB);
+                lv_obj_set_style_radius(sliders[i], 8, LV_PART_KNOB);
+                lv_obj_set_style_shadow_width(sliders[i], 13, LV_PART_KNOB);
+                lv_obj_set_style_shadow_ofs_y(sliders[i], 6, LV_PART_KNOB);
+                lv_obj_set_style_shadow_opa(sliders[i], LV_OPA_30, LV_PART_KNOB);
+                lv_obj_set_style_shadow_color(sliders[i], lv_color_hex(0x000000), LV_PART_KNOB);
               } else {
                 lv_obj_set_style_bg_opa(cards[i], LV_OPA_COVER, 0);
                 lv_obj_set_style_bg_color(cards[i], lv_color_hex(0x1E1E1E), 0);
@@ -316,6 +325,17 @@ script:
           int group_pct = (int)(id(speaker_volumes)[0] * 100.0f);
           lv_slider_set_value(id(group_vol_slider), group_pct, LV_ANIM_OFF);
           lv_obj_add_flag(id(group_vol_label), LV_OBJ_FLAG_HIDDEN);
+
+          // Style group volume slider knob
+          lv_obj_set_style_pad_top(id(group_vol_slider), 9, LV_PART_KNOB);
+          lv_obj_set_style_pad_bottom(id(group_vol_slider), 9, LV_PART_KNOB);
+          lv_obj_set_style_pad_left(id(group_vol_slider), 16, LV_PART_KNOB);
+          lv_obj_set_style_pad_right(id(group_vol_slider), 16, LV_PART_KNOB);
+          lv_obj_set_style_radius(id(group_vol_slider), 8, LV_PART_KNOB);
+          lv_obj_set_style_shadow_width(id(group_vol_slider), 13, LV_PART_KNOB);
+          lv_obj_set_style_shadow_ofs_y(id(group_vol_slider), 6, LV_PART_KNOB);
+          lv_obj_set_style_shadow_opa(id(group_vol_slider), LV_OPA_30, LV_PART_KNOB);
+          lv_obj_set_style_shadow_color(id(group_vol_slider), lv_color_hex(0x000000), LV_PART_KNOB);
 
   # ---------------------------------------------------------------------------
   # Join / unjoin a speaker by slot index (stored in a global before calling).
