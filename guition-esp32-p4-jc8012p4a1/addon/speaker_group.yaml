@@ -38,12 +38,6 @@ globals:
   - id: prev_arc_value
     type: int
     initial_value: '-1'
-  - id: speaker_vol_set_level
-    type: float
-    initial_value: '0.0f'
-  - id: group_vol_baseline
-    type: int
-    initial_value: '0'
 
 text_sensor:
   - platform: homeassistant
@@ -137,16 +131,22 @@ script:
             return;
           }
 
+          // Selected player goes in slot 0 — if it's not in the Sonos list,
+          // this device isn't controlling a Sonos speaker so hide grouping.
           std::string selected = id(media_player_entity).state;
           int count = 0;
           bool found_selected = false;
 
-          for (size_t i = 0; i < ids.size() && count < 8; i++) {
-            id(speaker_entity_ids)[count] = ids[i];
-            id(speaker_names)[count] = (i < names.size()) ? names[i] : ids[i];
-            id(speaker_volumes)[count] = (i < vols.size()) ? vols[i] : 0.0f;
-            if (ids[i] == selected) found_selected = true;
-            count++;
+          for (size_t i = 0; i < ids.size(); i++) {
+            if (ids[i] == selected) {
+              id(speaker_entity_ids)[0] = ids[i];
+              id(speaker_names)[0] = (i < names.size()) ? names[i] : ids[i];
+              id(speaker_volumes)[0] = (i < vols.size()) ? vols[i] : 0.0f;
+              id(speaker_grouped)[0] = true;
+              count = 1;
+              found_selected = true;
+              break;
+            }
           }
 
           if (!found_selected) {
@@ -154,6 +154,16 @@ script:
             lv_obj_add_flag(id(speakers_title_label), LV_OBJ_FLAG_HIDDEN);
             lv_obj_add_flag(id(speakers_container), LV_OBJ_FLAG_HIDDEN);
             return;
+          }
+
+          // Remaining speakers fill slots 1..7
+          for (size_t i = 0; i < ids.size() && count < 8; i++) {
+            if (ids[i] != selected) {
+              id(speaker_entity_ids)[count] = ids[i];
+              id(speaker_names)[count] = (i < names.size()) ? names[i] : ids[i];
+              id(speaker_volumes)[count] = (i < vols.size()) ? vols[i] : 0.0f;
+              count++;
+            }
           }
 
           id(speaker_count) = count;
@@ -167,13 +177,9 @@ script:
             lv_obj_add_flag(id(speakers_container), LV_OBJ_FLAG_HIDDEN);
           }
 
-          // Sync the arc to the selected speaker's volume
-          for (int i = 0; i < count; i++) {
-            if (id(speaker_entity_ids)[i] == selected) {
-              id(prev_arc_value) = (int)(id(speaker_volumes)[i] * 100.0f);
-              break;
-            }
-          }
+          // Sync the arc to the primary speaker's volume
+          int primary_pct = (int)(id(speaker_volumes)[0] * 100.0f);
+          id(prev_arc_value) = primary_pct;
 
       - script.execute: update_group_state
 
@@ -217,34 +223,26 @@ script:
             if (!token.empty()) members.push_back(token);
           }
 
-          std::string selected = id(media_player_entity).state;
+          // Slot 0 (selected player) is always grouped
+          id(speaker_grouped)[0] = true;
+
+          // For slots 1..7, check membership
           int count = id(speaker_count);
-          for (int i = 0; i < count; i++) {
-            if (id(speaker_entity_ids)[i] == selected) {
-              id(speaker_grouped)[i] = true;
-            } else {
-              bool found = false;
-              for (auto &m : members) {
-                if (m == id(speaker_entity_ids)[i]) {
-                  found = true;
-                  break;
-                }
+          for (int i = 1; i < count; i++) {
+            bool found = false;
+            for (auto &m : members) {
+              if (m == id(speaker_entity_ids)[i]) {
+                found = true;
+                break;
               }
-              id(speaker_grouped)[i] = found;
             }
+            id(speaker_grouped)[i] = found;
           }
 
-          // Sort ALL slots: grouped first, then alphabetical within each partition
-          for (int i = 0; i < count - 1; i++) {
+          // Sort slots 1..N so grouped speakers appear first
+          for (int i = 1; i < count - 1; i++) {
             for (int j = i + 1; j < count; j++) {
-              bool do_swap = false;
               if (!id(speaker_grouped)[i] && id(speaker_grouped)[j]) {
-                do_swap = true;
-              } else if (id(speaker_grouped)[i] == id(speaker_grouped)[j] &&
-                         id(speaker_names)[i] > id(speaker_names)[j]) {
-                do_swap = true;
-              }
-              if (do_swap) {
                 std::swap(id(speaker_entity_ids)[i], id(speaker_entity_ids)[j]);
                 std::swap(id(speaker_names)[i], id(speaker_names)[j]);
                 std::swap(id(speaker_grouped)[i], id(speaker_grouped)[j]);
@@ -256,7 +254,7 @@ script:
       - script.execute: update_grouping_panel
 
   # ---------------------------------------------------------------------------
-  # Refresh LVGL panel: set card labels, slider values, and visibility.
+  # Refresh LVGL panel: set card labels, toggle states, and visibility.
   # ---------------------------------------------------------------------------
   - id: update_grouping_panel
     mode: restart
@@ -274,9 +272,13 @@ script:
             id(speaker_vol_label_0), id(speaker_vol_label_1), id(speaker_vol_label_2), id(speaker_vol_label_3),
             id(speaker_vol_label_4), id(speaker_vol_label_5), id(speaker_vol_label_6), id(speaker_vol_label_7)
           };
-          lv_obj_t *sliders[] = {
-            id(speaker_slider_0), id(speaker_slider_1), id(speaker_slider_2), id(speaker_slider_3),
-            id(speaker_slider_4), id(speaker_slider_5), id(speaker_slider_6), id(speaker_slider_7)
+          lv_obj_t *toggles[] = {
+            id(speaker_toggle_0), id(speaker_toggle_1), id(speaker_toggle_2), id(speaker_toggle_3),
+            id(speaker_toggle_4), id(speaker_toggle_5), id(speaker_toggle_6), id(speaker_toggle_7)
+          };
+          lv_obj_t *knobs[] = {
+            id(speaker_toggle_knob_0), id(speaker_toggle_knob_1), id(speaker_toggle_knob_2), id(speaker_toggle_knob_3),
+            id(speaker_toggle_knob_4), id(speaker_toggle_knob_5), id(speaker_toggle_knob_6), id(speaker_toggle_knob_7)
           };
           for (int i = 0; i < 8; i++) {
             if (i < id(speaker_count)) {
@@ -284,40 +286,28 @@ script:
               lv_label_set_text(name_labels[i], id(speaker_names)[i].c_str());
 
               if (id(speaker_grouped)[i]) {
+                // Grouped: solid card, show volume, toggle ON
                 lv_obj_set_style_bg_opa(cards[i], LV_OPA_COVER, 0);
                 lv_obj_set_style_bg_color(cards[i], lv_color_hex(0x474747), 0);
                 lv_obj_set_style_border_width(cards[i], 0, 0);
-                int pct = (int)(id(speaker_volumes)[i] * 100.0f);
                 char vol_buf[8];
-                snprintf(vol_buf, sizeof(vol_buf), "%d%%", pct);
+                snprintf(vol_buf, sizeof(vol_buf), "%d%%", (int)(id(speaker_volumes)[i] * 100.0f));
                 lv_label_set_text(vol_labels[i], vol_buf);
                 lv_obj_clear_flag(vol_labels[i], LV_OBJ_FLAG_HIDDEN);
-                lv_obj_clear_flag(sliders[i], LV_OBJ_FLAG_HIDDEN);
-                lv_slider_set_value(sliders[i], pct, LV_ANIM_OFF);
+                lv_obj_set_style_bg_color(toggles[i], lv_color_hex(0x787878), 0);
+                lv_obj_set_align(knobs[i], LV_ALIGN_RIGHT_MID);
               } else {
+                // Ungrouped: border card, hide volume, toggle OFF
                 lv_obj_set_style_bg_opa(cards[i], LV_OPA_TRANSP, 0);
                 lv_obj_set_style_border_width(cards[i], 1, 0);
                 lv_obj_set_style_border_color(cards[i], lv_color_hex(0x7D7D7D), 0);
                 lv_obj_set_style_border_opa(cards[i], LV_OPA_COVER, 0);
                 lv_obj_add_flag(vol_labels[i], LV_OBJ_FLAG_HIDDEN);
-                lv_obj_add_flag(sliders[i], LV_OBJ_FLAG_HIDDEN);
+                lv_obj_set_style_bg_color(toggles[i], lv_color_hex(0x4A4A4A), 0);
+                lv_obj_set_align(knobs[i], LV_ALIGN_LEFT_MID);
               }
             } else {
               lv_obj_add_flag(cards[i], LV_OBJ_FLAG_HIDDEN);
-            }
-          }
-
-          // Update group volume card with selected speaker's volume
-          std::string selected = id(media_player_entity).state;
-          for (int i = 0; i < id(speaker_count); i++) {
-            if (id(speaker_entity_ids)[i] == selected) {
-              int group_pct = (int)(id(speaker_volumes)[i] * 100.0f);
-              lv_slider_set_value(id(group_vol_slider), group_pct, LV_ANIM_OFF);
-              id(group_vol_baseline) = group_pct;
-              char gv_buf[8];
-              snprintf(gv_buf, sizeof(gv_buf), "%d%%", group_pct);
-              lv_label_set_text(id(group_vol_label), gv_buf);
-              break;
             }
           }
 
@@ -330,8 +320,7 @@ script:
       slot: int
     then:
       - lambda: |-
-          if (slot < 0 || slot >= id(speaker_count)) return;
-          if (id(speaker_entity_ids)[slot] == id(media_player_entity).state) return;
+          if (slot < 0 || slot >= id(speaker_count) || slot == 0) return;
           bool currently_grouped = id(speaker_grouped)[slot];
 
           if (currently_grouped) {
@@ -402,28 +391,6 @@ script:
             entity_id: "{{ target }}"
 
   # ---------------------------------------------------------------------------
-  # Set a specific volume level on one speaker (called from slider on_release)
-  # ---------------------------------------------------------------------------
-  - id: speaker_volume_set
-    mode: single
-    parameters:
-      slot: int
-      volume: float
-    then:
-      - lambda: |-
-          if (slot < 0 || slot >= id(speaker_count)) return;
-          id(speaker_vol_target) = id(speaker_entity_ids)[slot];
-          id(speaker_vol_set_level) = volume;
-      - homeassistant.service:
-          service: media_player.volume_set
-          variables:
-            target: !lambda 'return id(speaker_vol_target);'
-            vol: !lambda 'return id(speaker_vol_set_level);'
-          data_template:
-            entity_id: "{{ target }}"
-            volume_level: "{{ vol }}"
-
-  # ---------------------------------------------------------------------------
   # Group volume +/- (adjusts all grouped speakers)
   # ---------------------------------------------------------------------------
   - id: group_volume_up
@@ -468,39 +435,3 @@ script:
                   target: !lambda 'return id(speaker_vol_target);'
                 data_template:
                   entity_id: "{{ target }}"
-
-  # ---------------------------------------------------------------------------
-  # Adjust all grouped speakers by the delta between the slider and its baseline.
-  # Each speaker's volume is offset individually, preserving relative differences.
-  # ---------------------------------------------------------------------------
-  - id: group_volume_set
-    mode: single
-    parameters:
-      volume: float
-    then:
-      - lambda: |-
-          float delta = volume - (id(group_vol_baseline) / 100.0f);
-          id(group_vol_index) = 0;
-      - while:
-          condition:
-            lambda: |-
-              int i = id(group_vol_index);
-              int count = id(speaker_count);
-              while (i < count && !id(speaker_grouped)[i]) { i++; }
-              if (i >= count) return false;
-              float new_vol = id(speaker_volumes)[i] + (volume - (id(group_vol_baseline) / 100.0f));
-              if (new_vol < 0.0f) new_vol = 0.0f;
-              if (new_vol > 1.0f) new_vol = 1.0f;
-              id(speaker_vol_set_level) = new_vol;
-              id(speaker_vol_target) = id(speaker_entity_ids)[i];
-              id(group_vol_index) = i + 1;
-              return true;
-          then:
-            - homeassistant.service:
-                service: media_player.volume_set
-                variables:
-                  target: !lambda 'return id(speaker_vol_target);'
-                  vol: !lambda 'return id(speaker_vol_set_level);'
-                data_template:
-                  entity_id: "{{ target }}"
-                  volume_level: "{{ vol }}"
