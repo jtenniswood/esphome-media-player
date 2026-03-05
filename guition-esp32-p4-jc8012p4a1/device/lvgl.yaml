@@ -430,9 +430,11 @@ lvgl:
                                     text_opa: 80%
                           - obj:
                               id: group_vol_btns
-                              width: 100%
-                              height: SIZE_CONTENT
-                              bg_opa: 0%
+                              width: 130
+                              height: 44
+                              radius: 22
+                              bg_color: 0xFFFFFF
+                              bg_opa: 100%
                               border_width: 0
                               pad_all: 0
                               scrollable: false
@@ -440,14 +442,15 @@ lvgl:
                               layout:
                                 type: flex
                                 flex_flow: ROW
-                                pad_column: 12
+                                pad_column: 0
                               widgets:
                                 - button:
-                                    width: 50
-                                    height: 50
-                                    radius: 25
-                                    bg_color: 0xFFFFFF
+                                    width: 65
+                                    height: 44
+                                    radius: 0
+                                    bg_opa: 0%
                                     border_width: 0
+                                    shadow_width: 0
                                     pad_all: 0
                                     on_click:
                                       - script.execute: group_volume_down
@@ -458,11 +461,12 @@ lvgl:
                                           text_color: 0x000000
                                           align: center
                                 - button:
-                                    width: 50
-                                    height: 50
-                                    radius: 25
-                                    bg_color: 0xFFFFFF
+                                    width: 65
+                                    height: 44
+                                    radius: 0
+                                    bg_opa: 0%
                                     border_width: 0
+                                    shadow_width: 0
                                     pad_all: 0
                                     on_click:
                                       - script.execute: group_volume_up
@@ -522,9 +526,11 @@ lvgl:
                                     text_opa: 80%
                           - obj:
                               id: speaker_btns_0
-                              width: 100%
-                              height: SIZE_CONTENT
-                              bg_opa: 0%
+                              width: 130
+                              height: 44
+                              radius: 22
+                              bg_color: 0xFFFFFF
+                              bg_opa: 100%
                               border_width: 0
                               pad_all: 0
                               scrollable: false
@@ -532,14 +538,15 @@ lvgl:
                               layout:
                                 type: flex
                                 flex_flow: ROW
-                                pad_column: 12
+                                pad_column: 0
                               widgets:
                                 - button:
-                                    width: 50
-                                    height: 50
-                                    radius: 25
-                                    bg_color: 0xFFFFFF
+                                    width: 65
+                                    height: 44
+                                    radius: 0
+                                    bg_opa: 0%
                                     border_width: 0
+                                    shadow_width: 0
                                     pad_all: 0
                                     on_click:
                                       - script.execute:
@@ -553,11 +560,12 @@ lvgl:
                                           text_color: 0x000000
                                           align: center
                                 - button:
-                                    width: 50
-                                    height: 50
-                                    radius: 25
-                                    bg_color: 0xFFFFFF
+                                    width: 65
+                                    height: 44
+                                    radius: 0
+                                    bg_opa: 0%
                                     border_width: 0
+                                    shadow_width: 0
                                     pad_all: 0
                                     on_click:
                                       - script.execute:
@@ -624,9 +632,11 @@ lvgl:
                                     text_opa: 80%
                           - obj:
                               id: speaker_btns_1
-                              width: 100%
-                              height: SIZE_CONTENT
-                              bg_opa: 0%
+                              width: 130
+                              height: 44
+                              radius: 22
+                              bg_color: 0xFFFFFF
+                              bg_opa: 100%
                               border_width: 0
                               pad_all: 0
                               scrollable: false
@@ -634,14 +644,15 @@ lvgl:
                               layout:
                                 type: flex
                                 flex_flow: ROW
-                                pad_column: 12
+                                pad_column: 0
                               widgets:
                                 - button:
-                                    width: 50
-                                    height: 50
-                                    radius: 25
-                                    bg_color: 0xFFFFFF
+                                    width: 65
+                                    height: 44
+                                    radius: 0
+                                    bg_opa: 0%
                                     border_width: 0
+                                    shadow_width: 0
                                     pad_all: 0
                                     on_click:
                                       - script.execute:
@@ -655,11 +666,12 @@ lvgl:
                                           text_color: 0x000000
                                           align: center
                                 - button:
-                                    width: 50
-                                    height: 50
-                                    radius: 25
-                                    bg_color: 0xFFFFFF
+                                    width: 65
+                                    height: 44
+                                    radius: 0
+                                    bg_opa: 0%
                                     border_width: 0
+                                    shadow_width: 0
                                     pad_all: 0
                                     on_click:
                                       - script.execute:
@@ -726,9 +738,11 @@ lvgl:
                                     text_opa: 80%
                           - obj:
                               id: speaker_btns_2
-                              width: 100%
-                              height: SIZE_CONTENT
-                              bg_opa: 0%
+                              width: 130
+                              height: 44
+                              radius: 22
+                              bg_color: 0xFFFFFF
+                              bg_opa: 100%
                               border_width: 0
                               pad_all: 0
                               scrollable: false
@@ -736,14 +750,15 @@ lvgl:
                               layout:
                                 type: flex
                                 flex_flow: ROW
-                                pad_column: 12
+                                pad_column: 0
                               widgets:
                                 - button:
-                                    width: 50
-                                    height: 50
-                                    radius: 25
-                                    bg_color: 0xFFFFFF
+                                    width: 65
+                                    height: 44
+                                    radius: 0
+                                    bg_opa: 0%
                                     border_width: 0
+                                    shadow_width: 0
                                     pad_all: 0
                                     on_click:
                                       - script.execute:
@@ -757,11 +772,12 @@ lvgl:
                                           text_color: 0x000000
                                           align: center
                                 - button:
-                                    width: 50
-                                    height: 50
-                                    radius: 25
-                                    bg_color: 0xFFFFFF
+                                    width: 65
+                                    height: 44
+                                    radius: 0
+                                    bg_opa: 0%
                                     border_width: 0
+                                    shadow_width: 0
                                     pad_all: 0
                                     on_click:
                                       - script.execute:
@@ -828,9 +844,11 @@ lvgl:
                                     text_opa: 80%
                           - obj:
                               id: speaker_btns_3
-                              width: 100%
-                              height: SIZE_CONTENT
-                              bg_opa: 0%
+                              width: 130
+                              height: 44
+                              radius: 22
+                              bg_color: 0xFFFFFF
+                              bg_opa: 100%
                               border_width: 0
                               pad_all: 0
                               scrollable: false
@@ -838,14 +856,15 @@ lvgl:
                               layout:
                                 type: flex
                                 flex_flow: ROW
-                                pad_column: 12
+                                pad_column: 0
                               widgets:
                                 - button:
-                                    width: 50
-                                    height: 50
-                                    radius: 25
-                                    bg_color: 0xFFFFFF
+                                    width: 65
+                                    height: 44
+                                    radius: 0
+                                    bg_opa: 0%
                                     border_width: 0
+                                    shadow_width: 0
                                     pad_all: 0
                                     on_click:
                                       - script.execute:
@@ -859,11 +878,12 @@ lvgl:
                                           text_color: 0x000000
                                           align: center
                                 - button:
-                                    width: 50
-                                    height: 50
-                                    radius: 25
-                                    bg_color: 0xFFFFFF
+                                    width: 65
+                                    height: 44
+                                    radius: 0
+                                    bg_opa: 0%
                                     border_width: 0
+                                    shadow_width: 0
                                     pad_all: 0
                                     on_click:
                                       - script.execute:
@@ -930,9 +950,11 @@ lvgl:
                                     text_opa: 80%
                           - obj:
                               id: speaker_btns_4
-                              width: 100%
-                              height: SIZE_CONTENT
-                              bg_opa: 0%
+                              width: 130
+                              height: 44
+                              radius: 22
+                              bg_color: 0xFFFFFF
+                              bg_opa: 100%
                               border_width: 0
                               pad_all: 0
                               scrollable: false
@@ -940,14 +962,15 @@ lvgl:
                               layout:
                                 type: flex
                                 flex_flow: ROW
-                                pad_column: 12
+                                pad_column: 0
                               widgets:
                                 - button:
-                                    width: 50
-                                    height: 50
-                                    radius: 25
-                                    bg_color: 0xFFFFFF
+                                    width: 65
+                                    height: 44
+                                    radius: 0
+                                    bg_opa: 0%
                                     border_width: 0
+                                    shadow_width: 0
                                     pad_all: 0
                                     on_click:
                                       - script.execute:
@@ -961,11 +984,12 @@ lvgl:
                                           text_color: 0x000000
                                           align: center
                                 - button:
-                                    width: 50
-                                    height: 50
-                                    radius: 25
-                                    bg_color: 0xFFFFFF
+                                    width: 65
+                                    height: 44
+                                    radius: 0
+                                    bg_opa: 0%
                                     border_width: 0
+                                    shadow_width: 0
                                     pad_all: 0
                                     on_click:
                                       - script.execute:
@@ -1032,9 +1056,11 @@ lvgl:
                                     text_opa: 80%
                           - obj:
                               id: speaker_btns_5
-                              width: 100%
-                              height: SIZE_CONTENT
-                              bg_opa: 0%
+                              width: 130
+                              height: 44
+                              radius: 22
+                              bg_color: 0xFFFFFF
+                              bg_opa: 100%
                               border_width: 0
                               pad_all: 0
                               scrollable: false
@@ -1042,14 +1068,15 @@ lvgl:
                               layout:
                                 type: flex
                                 flex_flow: ROW
-                                pad_column: 12
+                                pad_column: 0
                               widgets:
                                 - button:
-                                    width: 50
-                                    height: 50
-                                    radius: 25
-                                    bg_color: 0xFFFFFF
+                                    width: 65
+                                    height: 44
+                                    radius: 0
+                                    bg_opa: 0%
                                     border_width: 0
+                                    shadow_width: 0
                                     pad_all: 0
                                     on_click:
                                       - script.execute:
@@ -1063,11 +1090,12 @@ lvgl:
                                           text_color: 0x000000
                                           align: center
                                 - button:
-                                    width: 50
-                                    height: 50
-                                    radius: 25
-                                    bg_color: 0xFFFFFF
+                                    width: 65
+                                    height: 44
+                                    radius: 0
+                                    bg_opa: 0%
                                     border_width: 0
+                                    shadow_width: 0
                                     pad_all: 0
                                     on_click:
                                       - script.execute:
