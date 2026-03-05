@@ -245,6 +245,9 @@ touchscreen:
   - platform: gt911
     id: tft_touch
     display: tft_display
+    transform:
+      mirror_x: ${touch_mirror_x}
+      mirror_y: ${touch_mirror_y}
     on_touch:
       - lambda: |-
           id(was_screen_dimmed) = id(is_screen_dimmed);
@@ -639,6 +642,7 @@ script:
 display:
   - platform: st7701s
     id: tft_display
+    rotation: ${display_rotation}
     dimensions:
       width: 480
       height: 480
