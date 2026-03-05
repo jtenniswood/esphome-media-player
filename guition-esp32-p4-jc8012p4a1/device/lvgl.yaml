@@ -415,7 +415,7 @@ lvgl:
                                 pad_row: 7
                               widgets:
                                 - label:
-                                    text: "Group Volume"
+                                    text: "Group"
                                     text_font: roboto_light26_font
                                     text_color: 0xFFFFFF
                                     width: 150
@@ -428,20 +428,20 @@ lvgl:
                           - slider:
                               id: group_vol_slider
                               width: 160
-                              height: 6
+                              height: 12
                               min_value: 0
                               max_value: 100
                               value: 0
                               bg_color: 0x333333
-                              radius: 3
+                              radius: 6
                               indicator:
                                 bg_color: 0xFFFFFF
-                                radius: 3
+                                radius: 6
                               knob:
                                 bg_color: 0xFFFFFF
-                                radius: 7
-                                width: 14
-                                height: 14
+                                radius: 13
+                                width: 26
+                                height: 40
                               on_release:
                                 - script.execute:
                                     id: group_volume_set
@@ -493,20 +493,20 @@ lvgl:
                           - slider:
                               id: speaker_slider_0
                               width: 160
-                              height: 6
+                              height: 12
                               min_value: 0
                               max_value: 100
                               value: 0
                               bg_color: 0x333333
-                              radius: 3
+                              radius: 6
                               indicator:
                                 bg_color: 0xFFFFFF
-                                radius: 3
+                                radius: 6
                               knob:
                                 bg_color: 0xFFFFFF
-                                radius: 7
-                                width: 14
-                                height: 14
+                                radius: 13
+                                width: 26
+                                height: 40
                               on_release:
                                 - script.execute:
                                     id: speaker_volume_set
@@ -563,20 +563,20 @@ lvgl:
                           - slider:
                               id: speaker_slider_1
                               width: 160
-                              height: 6
+                              height: 12
                               min_value: 0
                               max_value: 100
                               value: 0
                               bg_color: 0x333333
-                              radius: 3
+                              radius: 6
                               indicator:
                                 bg_color: 0xFFFFFF
-                                radius: 3
+                                radius: 6
                               knob:
                                 bg_color: 0xFFFFFF
-                                radius: 7
-                                width: 14
-                                height: 14
+                                radius: 13
+                                width: 26
+                                height: 40
                               on_release:
                                 - script.execute:
                                     id: speaker_volume_set
@@ -633,20 +633,20 @@ lvgl:
                           - slider:
                               id: speaker_slider_2
                               width: 160
-                              height: 6
+                              height: 12
                               min_value: 0
                               max_value: 100
                               value: 0
                               bg_color: 0x333333
-                              radius: 3
+                              radius: 6
                               indicator:
                                 bg_color: 0xFFFFFF
-                                radius: 3
+                                radius: 6
                               knob:
                                 bg_color: 0xFFFFFF
-                                radius: 7
-                                width: 14
-                                height: 14
+                                radius: 13
+                                width: 26
+                                height: 40
                               on_release:
                                 - script.execute:
                                     id: speaker_volume_set
@@ -703,20 +703,20 @@ lvgl:
                           - slider:
                               id: speaker_slider_3
                               width: 160
-                              height: 6
+                              height: 12
                               min_value: 0
                               max_value: 100
                               value: 0
                               bg_color: 0x333333
-                              radius: 3
+                              radius: 6
                               indicator:
                                 bg_color: 0xFFFFFF
-                                radius: 3
+                                radius: 6
                               knob:
                                 bg_color: 0xFFFFFF
-                                radius: 7
-                                width: 14
-                                height: 14
+                                radius: 13
+                                width: 26
+                                height: 40
                               on_release:
                                 - script.execute:
                                     id: speaker_volume_set
@@ -773,20 +773,20 @@ lvgl:
                           - slider:
                               id: speaker_slider_4
                               width: 160
-                              height: 6
+                              height: 12
                               min_value: 0
                               max_value: 100
                               value: 0
                               bg_color: 0x333333
-                              radius: 3
+                              radius: 6
                               indicator:
                                 bg_color: 0xFFFFFF
-                                radius: 3
+                                radius: 6
                               knob:
                                 bg_color: 0xFFFFFF
-                                radius: 7
-                                width: 14
-                                height: 14
+                                radius: 13
+                                width: 26
+                                height: 40
                               on_release:
                                 - script.execute:
                                     id: speaker_volume_set
@@ -843,20 +843,20 @@ lvgl:
                           - slider:
                               id: speaker_slider_5
                               width: 160
-                              height: 6
+                              height: 12
                               min_value: 0
                               max_value: 100
                               value: 0
                               bg_color: 0x333333
-                              radius: 3
+                              radius: 6
                               indicator:
                                 bg_color: 0xFFFFFF
-                                radius: 3
+                                radius: 6
                               knob:
                                 bg_color: 0xFFFFFF
-                                radius: 7
-                                width: 14
-                                height: 14
+                                radius: 13
+                                width: 26
+                                height: 40
                               on_release:
                                 - script.execute:
                                     id: speaker_volume_set
@@ -913,20 +913,20 @@ lvgl:
                           - slider:
                               id: speaker_slider_6
                               width: 160
-                              height: 6
+                              height: 12
                               min_value: 0
                               max_value: 100
                               value: 0
                               bg_color: 0x333333
-                              radius: 3
+                              radius: 6
                               indicator:
                                 bg_color: 0xFFFFFF
-                                radius: 3
+                                radius: 6
                               knob:
                                 bg_color: 0xFFFFFF
-                                radius: 7
-                                width: 14
-                                height: 14
+                                radius: 13
+                                width: 26
+                                height: 40
                               on_release:
                                 - script.execute:
                                     id: speaker_volume_set
@@ -983,20 +983,20 @@ lvgl:
                           - slider:
                               id: speaker_slider_7
                               width: 160
-                              height: 6
+                              height: 12
                               min_value: 0
                               max_value: 100
                               value: 0
                               bg_color: 0x333333
-                              radius: 3
+                              radius: 6
                               indicator:
                                 bg_color: 0xFFFFFF
-                                radius: 3
+                                radius: 6
                               knob:
                                 bg_color: 0xFFFFFF
-                                radius: 7
-                                width: 14
-                                height: 14
+                                radius: 13
+                                width: 26
+                                height: 40
                               on_release:
                                 - script.execute:
                                     id: speaker_volume_set

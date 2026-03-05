@@ -295,6 +295,7 @@ script:
                 lv_obj_set_style_bg_opa(cards[i], LV_OPA_COVER, 0);
                 lv_obj_set_style_bg_color(cards[i], lv_color_hex(0x474747), 0);
                 lv_obj_set_style_border_width(cards[i], 0, 0);
+                lv_obj_set_style_flex_main_place(cards[i], LV_FLEX_ALIGN_SPACE_BETWEEN, 0);
                 int pct = (int)(id(speaker_volumes)[i] * 100.0f);
                 char vol_buf[8];
                 snprintf(vol_buf, sizeof(vol_buf), "%d%%", pct);
@@ -302,11 +303,13 @@ script:
                 lv_obj_clear_flag(vol_labels[i], LV_OBJ_FLAG_HIDDEN);
                 lv_obj_clear_flag(sliders[i], LV_OBJ_FLAG_HIDDEN);
                 lv_slider_set_value(sliders[i], pct, LV_ANIM_OFF);
+                lv_obj_set_ext_click_area(sliders[i], 25);
               } else {
                 lv_obj_set_style_bg_opa(cards[i], LV_OPA_TRANSP, 0);
                 lv_obj_set_style_border_width(cards[i], 1, 0);
                 lv_obj_set_style_border_color(cards[i], lv_color_hex(0x7D7D7D), 0);
                 lv_obj_set_style_border_opa(cards[i], LV_OPA_COVER, 0);
+                lv_obj_set_style_flex_main_place(cards[i], LV_FLEX_ALIGN_START, 0);
                 lv_obj_add_flag(vol_labels[i], LV_OBJ_FLAG_HIDDEN);
                 lv_obj_add_flag(sliders[i], LV_OBJ_FLAG_HIDDEN);
               }
