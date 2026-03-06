@@ -1656,7 +1656,7 @@ lvgl:
             widgets:
               - label:
                   text: "Starting up"
-                  text_font: roboto_light70_font
+                  text_font: roboto_light40_font
                   text_color: 0xFFFFFF
                   align: center
                   y: -50
