@@ -272,6 +272,10 @@ script:
             id(speaker_btns_0), id(speaker_btns_1), id(speaker_btns_2), id(speaker_btns_3),
             id(speaker_btns_4), id(speaker_btns_5), id(speaker_btns_6), id(speaker_btns_7)
           };
+          lv_obj_t *tops[] = {
+            nullptr, id(speaker_top_1), id(speaker_top_2), id(speaker_top_3),
+            id(speaker_top_4), id(speaker_top_5), id(speaker_top_6), id(speaker_top_7)
+          };
           for (int i = 0; i < 8; i++) {
             if (i < id(speaker_count)) {
               lv_obj_clear_flag(cards[i], LV_OBJ_FLAG_HIDDEN);
@@ -288,6 +292,10 @@ script:
                 lv_obj_set_style_border_width(cards[i], 0, 0);
                 lv_obj_set_style_flex_main_place(cards[i], LV_FLEX_ALIGN_SPACE_BETWEEN, 0);
                 lv_obj_clear_flag(btns[i], LV_OBJ_FLAG_HIDDEN);
+                if (i > 0) {
+                  lv_obj_clear_flag(cards[i], LV_OBJ_FLAG_CLICKABLE);
+                  lv_obj_add_flag(tops[i], LV_OBJ_FLAG_CLICKABLE);
+                }
               } else {
                 lv_obj_add_flag(vol_labels[i], LV_OBJ_FLAG_HIDDEN);
                 lv_obj_set_style_bg_opa(cards[i], LV_OPA_COVER, 0);
@@ -296,6 +304,10 @@ script:
                 lv_obj_set_style_border_color(cards[i], lv_color_hex(0x373737), 0);
                 lv_obj_set_style_flex_main_place(cards[i], LV_FLEX_ALIGN_START, 0);
                 lv_obj_add_flag(btns[i], LV_OBJ_FLAG_HIDDEN);
+                if (i > 0) {
+                  lv_obj_add_flag(cards[i], LV_OBJ_FLAG_CLICKABLE);
+                  lv_obj_clear_flag(tops[i], LV_OBJ_FLAG_CLICKABLE);
+                }
               }
             } else {
               lv_obj_add_flag(cards[i], LV_OBJ_FLAG_HIDDEN);

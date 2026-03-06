@@ -750,6 +750,7 @@ lvgl:
                           flex_align_cross: start
                         widgets:
                           - obj:
+                              id: speaker_top_1
                               width: 160
                               height: SIZE_CONTENT
                               bg_opa: 0%
@@ -757,6 +758,10 @@ lvgl:
                               pad_all: 0
                               scrollable: false
                               clickable: false
+                              on_click:
+                                - script.execute:
+                                    id: speaker_toggle
+                                    slot: 1
                               layout:
                                 type: flex
                                 flex_flow: COLUMN
@@ -867,6 +872,7 @@ lvgl:
                           flex_align_cross: start
                         widgets:
                           - obj:
+                              id: speaker_top_2
                               width: 160
                               height: SIZE_CONTENT
                               bg_opa: 0%
@@ -874,6 +880,10 @@ lvgl:
                               pad_all: 0
                               scrollable: false
                               clickable: false
+                              on_click:
+                                - script.execute:
+                                    id: speaker_toggle
+                                    slot: 2
                               layout:
                                 type: flex
                                 flex_flow: COLUMN
@@ -984,6 +994,7 @@ lvgl:
                           flex_align_cross: start
                         widgets:
                           - obj:
+                              id: speaker_top_3
                               width: 160
                               height: SIZE_CONTENT
                               bg_opa: 0%
@@ -991,6 +1002,10 @@ lvgl:
                               pad_all: 0
                               scrollable: false
                               clickable: false
+                              on_click:
+                                - script.execute:
+                                    id: speaker_toggle
+                                    slot: 3
                               layout:
                                 type: flex
                                 flex_flow: COLUMN
@@ -1101,6 +1116,7 @@ lvgl:
                           flex_align_cross: start
                         widgets:
                           - obj:
+                              id: speaker_top_4
                               width: 160
                               height: SIZE_CONTENT
                               bg_opa: 0%
@@ -1108,6 +1124,10 @@ lvgl:
                               pad_all: 0
                               scrollable: false
                               clickable: false
+                              on_click:
+                                - script.execute:
+                                    id: speaker_toggle
+                                    slot: 4
                               layout:
                                 type: flex
                                 flex_flow: COLUMN
@@ -1218,6 +1238,7 @@ lvgl:
                           flex_align_cross: start
                         widgets:
                           - obj:
+                              id: speaker_top_5
                               width: 160
                               height: SIZE_CONTENT
                               bg_opa: 0%
@@ -1225,6 +1246,10 @@ lvgl:
                               pad_all: 0
                               scrollable: false
                               clickable: false
+                              on_click:
+                                - script.execute:
+                                    id: speaker_toggle
+                                    slot: 5
                               layout:
                                 type: flex
                                 flex_flow: COLUMN
@@ -1335,6 +1360,7 @@ lvgl:
                           flex_align_cross: start
                         widgets:
                           - obj:
+                              id: speaker_top_6
                               width: 160
                               height: SIZE_CONTENT
                               bg_opa: 0%
@@ -1342,6 +1368,10 @@ lvgl:
                               pad_all: 0
                               scrollable: false
                               clickable: false
+                              on_click:
+                                - script.execute:
+                                    id: speaker_toggle
+                                    slot: 6
                               layout:
                                 type: flex
                                 flex_flow: COLUMN
@@ -1452,6 +1482,7 @@ lvgl:
                           flex_align_cross: start
                         widgets:
                           - obj:
+                              id: speaker_top_7
                               width: 160
                               height: SIZE_CONTENT
                               bg_opa: 0%
@@ -1459,6 +1490,10 @@ lvgl:
                               pad_all: 0
                               scrollable: false
                               clickable: false
+                              on_click:
+                                - script.execute:
+                                    id: speaker_toggle
+                                    slot: 7
                               layout:
                                 type: flex
                                 flex_flow: COLUMN
