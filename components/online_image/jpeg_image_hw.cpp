@@ -159,6 +159,12 @@ int HOT HwJpegDecoder::decode(uint8_t *buffer, size_t size) {
   int src_h = info.height;
   ESP_LOGD(TAG, "Image size: %d x %d", src_w, src_h);
 
+  if (src_w <= 0 || src_h <= 0) {
+    ESP_LOGW(TAG, "HW codec returned invalid dimensions (%d x %d), using software fallback", src_w, src_h);
+    free(tx_buf);
+    return this->software_decode_fallback_(buffer, size);
+  }
+
   if (!this->set_size(src_w, src_h)) {
     free(tx_buf);
     return DECODE_ERROR_OUT_OF_MEMORY;
