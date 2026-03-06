@@ -16,15 +16,17 @@ Speaker grouping requires speakers that support the `media_player.join` and `med
 
 This feature relies on Home Assistant's `media_player.join` and `media_player.unjoin` services. These are only available on speaker platforms that support grouping. If your speakers don't support these services, the grouping controls will not work.
 
-| Platform | Supported | Notes |
-|----------|-----------|-------|
-| Sonos | Yes | Tested and confirmed |
-| Google Cast | Yes | Supports `join` / `unjoin` |
-| HEOS (Denon/Marantz) | Yes | Supports `join` / `unjoin` |
-| Yamaha MusicCast | Yes | Supports `join` / `unjoin` |
-| LinkPlay | Yes | Supports `join` / `unjoin` |
-| Bluesound | Yes | Supports `join` / `unjoin` |
-| Bang & Olufsen | Yes | Supports `join` / `unjoin` |
+
+| Platform             | Supported | Notes                      |
+| -------------------- | --------- | -------------------------- |
+| Sonos                | Yes       | Tested and confirmed       |
+| Google Cast          | Yes       | Supports `join` / `unjoin` |
+| HEOS (Denon/Marantz) | Yes       | Supports `join` / `unjoin` |
+| Yamaha MusicCast     | Yes       | Supports `join` / `unjoin` |
+| LinkPlay             | Yes       | Supports `join` / `unjoin` |
+| Bluesound            | Yes       | Supports `join` / `unjoin` |
+| Bang & Olufsen       | Yes       | Supports `join` / `unjoin` |
+
 
 ## Setup
 
@@ -36,10 +38,12 @@ One template sensor helper needs to be created in Home Assistant. This is done e
 2. Click **+ Create Helper** → **Template** → **Template a sensor**
 3. Fill in the following:
 
-| Field | Value |
-|-------|-------|
-| Name | `Speaker Group` |
-| State template | see below |
+
+| Field          | Value           |
+| -------------- | --------------- |
+| Name           | `Speaker Group` |
+| State template | see below       |
+
 
 Paste this into the **State template** field, replacing `"sonos"` with the name of your speaker integration (e.g. `"cast"`, `"heos"`, `"yamaha_musiccast"`):
 
@@ -59,10 +63,6 @@ office,kitchen|Office,Kitchen|0.45,0.6
 ```
 
 The ESPHome panel subscribes to this sensor automatically at boot. If the speaker page is empty, reboot the screen to see the update.
-
-::: warning Upgrading from an earlier version?
-If you previously created a sensor named `Sonos Speakers` (`sensor.sonos_speakers`), you'll need to delete it and create a new one named `Speaker Group` (`sensor.speaker_group`), or rename the existing helper.
-:::
 
 ## Behavior
 
@@ -84,3 +84,4 @@ template:
                       | list -%}
           {{ s | map("replace", "media_player.", "") | join(",") }}|{{ s | map("state_attr", "friendly_name") | join(",") }}|{{ s | map("state_attr", "volume_level") | join(",") }}
 ```
+
