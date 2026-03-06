@@ -13,5 +13,5 @@ packages:
   music_dashboard:
     url: https://github.com/jtenniswood/esphome-media-player
     files: [guition-esp32-s3-4848s040/packages.yaml]
-    ref: main
+    ref: feature/progressive-jpegs
     refresh: 1s
