@@ -27,7 +27,7 @@ external_components:
   - source:
       type: git
       url: https://github.com/jtenniswood/esphome-media-player
-      ref: main
+      ref: feature/progressive-jpegs
       path: components
     components: [online_image]
     refresh: 1s
