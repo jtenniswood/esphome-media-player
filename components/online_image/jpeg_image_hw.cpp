@@ -4,8 +4,9 @@
 #include "soc/soc_caps.h"
 #if SOC_JPEG_CODEC_SUPPORTED
 
+#include <csetjmp>
 #include <cstring>
-#include <JPEGDEC.h>
+#include <jpeglib.h>
 #include "driver/jpeg_decode.h"
 #include "esphome/core/application.h"
 #include "esphome/core/log.h"
@@ -107,29 +108,6 @@ static bool is_grayscale_jpeg(const uint8_t *data, size_t size) {
     pos += 2 + seg_len;
   }
   return false;
-}
-
-static int sw_fallback_draw_callback_(JPEGDRAW *jpeg) {
-  ImageDecoder *decoder = (ImageDecoder *) jpeg->pUser;
-  App.feed_wdt();
-  if (jpeg->iBpp == 16) {
-    decoder->draw_rgb565_block(jpeg->x, jpeg->y, jpeg->iWidth, jpeg->iHeight,
-                               reinterpret_cast<const uint8_t *>(jpeg->pPixels));
-    return 1;
-  }
-  size_t height = static_cast<size_t>(jpeg->iHeight);
-  size_t width = static_cast<size_t>(jpeg->iWidth);
-  size_t position = 0;
-  for (size_t y = 0; y < height; y++) {
-    for (size_t x = 0; x < width; x++) {
-      if (jpeg->iBpp == 8) {
-        auto *bytes = reinterpret_cast<uint8_t *>(jpeg->pPixels);
-        uint8_t gray = bytes[position++];
-        decoder->draw(jpeg->x + x, jpeg->y + y, 1, 1, Color(gray, gray, gray));
-      }
-    }
-  }
-  return 1;
 }
 
 int HwJpegDecoder::prepare(size_t download_size) {
@@ -243,73 +221,135 @@ int HOT HwJpegDecoder::decode(uint8_t *buffer, size_t size) {
   return this->software_decode_fallback_(buffer, size);
 }
 
+/// libjpeg-turbo error manager for longjmp-based error handling
+struct HwJpegErrorMgr {
+  jpeg_error_mgr pub;
+  jmp_buf setjmp_buffer;
+  char message[JMSG_LENGTH_MAX];
+};
+
+static void hw_jpeg_error_exit(j_common_ptr cinfo) {
+  auto *err = reinterpret_cast<HwJpegErrorMgr *>(cinfo->err);
+  (*(cinfo->err->format_message))(cinfo, err->message);
+  longjmp(err->setjmp_buffer, 1);
+}
+
 int HwJpegDecoder::software_decode_fallback_(uint8_t *buffer, size_t size) {
-  ESP_LOGI(TAG, "Falling back to software JPEG decoder");
-  auto jpeg = esphome::make_unique<JPEGDEC>();
+  ESP_LOGI(TAG, "Falling back to software JPEG decoder (libjpeg-turbo)");
 
-  if (!jpeg->openRAM(buffer, size, sw_fallback_draw_callback_)) {
-    ESP_LOGE(TAG, "Software fallback: could not open image: %d", jpeg->getLastError());
-    return DECODE_ERROR_INVALID_TYPE;
-  }
+  jpeg_decompress_struct cinfo;
+  HwJpegErrorMgr jerr{};
 
-  auto jpeg_type = jpeg->getJPEGType();
-  if (jpeg_type == JPEG_MODE_INVALID) {
-    ESP_LOGE(TAG, "Software fallback: invalid JPEG");
-    return DECODE_ERROR_INVALID_TYPE;
-  }
-  if (jpeg_type == JPEG_MODE_PROGRESSIVE) {
-    ESP_LOGE(TAG, "Software fallback: progressive JPEG not supported");
-    return DECODE_ERROR_INVALID_TYPE;
-  }
+  cinfo.err = jpeg_std_error(&jerr.pub);
+  jerr.pub.error_exit = hw_jpeg_error_exit;
 
-  int bpp = jpeg->getBpp();
-  int src_w = jpeg->getWidth();
-  int src_h = jpeg->getHeight();
-  ESP_LOGD(TAG, "Software fallback: image size %d x %d, bpp: %d", src_w, src_h, bpp);
+  // Raw pointer for longjmp safety
+  uint8_t *row_buffer = nullptr;
 
-  jpeg->setUserPointer(this);
-  if (bpp <= 8) {
-    jpeg->setPixelType(EIGHT_BIT_GRAYSCALE);
-  } else {
-    jpeg->setPixelType(this->image_->is_big_endian() ? RGB565_BIG_ENDIAN : RGB565_LITTLE_ENDIAN);
-  }
-
-  int decode_options = 0;
-  int out_w = src_w;
-  int out_h = src_h;
-  int target_w = this->image_->get_fixed_width();
-  int target_h = this->image_->get_fixed_height();
-  if (target_w > 0 && target_h > 0) {
-    if (src_w / 8 >= target_w && src_h / 8 >= target_h) {
-      decode_options = JPEG_SCALE_EIGHTH;
-      out_w = src_w / 8;
-      out_h = src_h / 8;
-    } else if (src_w / 4 >= target_w && src_h / 4 >= target_h) {
-      decode_options = JPEG_SCALE_QUARTER;
-      out_w = src_w / 4;
-      out_h = src_h / 4;
-    } else if (src_w / 2 >= target_w && src_h / 2 >= target_h) {
-      decode_options = JPEG_SCALE_HALF;
-      out_w = src_w / 2;
-      out_h = src_h / 2;
-    }
-    if (decode_options) {
-      ESP_LOGD(TAG, "Software fallback: downscale %dx%d -> %dx%d", src_w, src_h, out_w, out_h);
-    }
-  }
-
-  if (!this->set_size(out_w, out_h)) {
-    return DECODE_ERROR_OUT_OF_MEMORY;
-  }
-
-  if (!jpeg->decode(0, 0, decode_options)) {
-    ESP_LOGE(TAG, "Software fallback: decode failed");
-    jpeg->close();
+  if (setjmp(jerr.setjmp_buffer)) {
+    ESP_LOGE(TAG, "Software fallback JPEG error: %s", jerr.message);
+    free(row_buffer);
+    jpeg_destroy_decompress(&cinfo);
     return DECODE_ERROR_UNSUPPORTED_FORMAT;
   }
 
+  jpeg_create_decompress(&cinfo);
+  jpeg_mem_src(&cinfo, buffer, size);
+
+  if (jpeg_read_header(&cinfo, TRUE) != JPEG_HEADER_OK) {
+    ESP_LOGE(TAG, "Software fallback: could not read JPEG header");
+    jpeg_destroy_decompress(&cinfo);
+    return DECODE_ERROR_INVALID_TYPE;
+  }
+
+  int src_w = cinfo.image_width;
+  int src_h = cinfo.image_height;
+  ESP_LOGD(TAG, "Software fallback: %dx%d, progressive=%s",
+           src_w, src_h, cinfo.progressive_mode ? "yes" : "no");
+
+  cinfo.out_color_space = JCS_RGB;
+  cinfo.dct_method = JDCT_IFAST;
+
+  // Use IDCT scaling to downscale during decode
+  int target_w = this->image_->get_fixed_width();
+  int target_h = this->image_->get_fixed_height();
+  if (target_w > 0 && target_h > 0) {
+    constexpr unsigned int denoms[] = {8, 4, 2, 1};
+    for (unsigned int denom : denoms) {
+      cinfo.scale_num = 1;
+      cinfo.scale_denom = denom;
+      jpeg_calc_output_dimensions(&cinfo);
+      if (static_cast<int>(cinfo.output_width) >= target_w &&
+          static_cast<int>(cinfo.output_height) >= target_h) {
+        break;
+      }
+    }
+    if (static_cast<int>(cinfo.output_width) < target_w ||
+        static_cast<int>(cinfo.output_height) < target_h) {
+      cinfo.scale_num = 1;
+      cinfo.scale_denom = 1;
+      jpeg_calc_output_dimensions(&cinfo);
+    }
+  } else {
+    jpeg_calc_output_dimensions(&cinfo);
+  }
+
+  int out_w = cinfo.output_width;
+  int out_h = cinfo.output_height;
+  if (out_w != src_w || out_h != src_h) {
+    ESP_LOGD(TAG, "Software fallback: IDCT downscale %dx%d -> %dx%d", src_w, src_h, out_w, out_h);
+  }
+
+  if (!this->set_size(out_w, out_h)) {
+    jpeg_destroy_decompress(&cinfo);
+    return DECODE_ERROR_OUT_OF_MEMORY;
+  }
+
+  jpeg_start_decompress(&cinfo);
+
+  size_t row_stride = static_cast<size_t>(out_w) * 3;
+  row_buffer = static_cast<uint8_t *>(malloc(row_stride));
+  if (row_buffer == nullptr) {
+    jpeg_destroy_decompress(&cinfo);
+    return DECODE_ERROR_OUT_OF_MEMORY;
+  }
+
+  // HW decoder is only used for RGB565 image types — convert in-place
+  bool big_endian = this->image_->is_big_endian();
+
+  int y = 0;
+  while (cinfo.output_scanline < cinfo.output_height) {
+    uint8_t *row_ptr = row_buffer;
+    jpeg_read_scanlines(&cinfo, &row_ptr, 1);
+
+    if ((y & 63) == 0) {
+      App.feed_wdt();
+    }
+
+    uint8_t *dst = row_buffer;
+    for (int x = 0; x < out_w; x++) {
+      uint8_t r = row_buffer[x * 3 + 0];
+      uint8_t g = row_buffer[x * 3 + 1];
+      uint8_t b = row_buffer[x * 3 + 2];
+      uint16_t rgb565 = ((r & 0xF8) << 8) | ((g & 0xFC) << 3) | (b >> 3);
+      if (big_endian) {
+        dst[0] = rgb565 >> 8;
+        dst[1] = rgb565 & 0xFF;
+      } else {
+        dst[0] = rgb565 & 0xFF;
+        dst[1] = rgb565 >> 8;
+      }
+      dst += 2;
+    }
+    this->draw_rgb565_block(0, y, out_w, 1, row_buffer);
+    y++;
+  }
+
+  jpeg_finish_decompress(&cinfo);
+  jpeg_destroy_decompress(&cinfo);
+  free(row_buffer);
+
   this->decoded_bytes_ = size;
-  jpeg->close();
   ESP_LOGI(TAG, "Software JPEG fallback decode complete (%d x %d)", out_w, out_h);
   return size;
 }

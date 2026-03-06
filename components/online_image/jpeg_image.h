@@ -3,7 +3,8 @@
 #include "image_decoder.h"
 #include "esphome/core/defines.h"
 #ifdef USE_ONLINE_IMAGE_JPEG_SUPPORT
-#include <JPEGDEC.h>
+#include <jpeglib.h>
+#include <csetjmp>
 
 namespace esphome {
 namespace online_image {
@@ -23,9 +24,6 @@ class JpegDecoder : public ImageDecoder {
 
   int prepare(size_t download_size) override;
   int HOT decode(uint8_t *buffer, size_t size) override;
-
- protected:
-  JPEGDEC jpeg_{};
 };
 
 }  // namespace online_image

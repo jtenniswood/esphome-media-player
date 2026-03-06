@@ -1,4 +1,5 @@
 import logging
+import os
 
 from esphome import automation
 import esphome.codegen as cg
@@ -70,7 +71,27 @@ class JPEGFormat(Format):
 
     def actions(self):
         cg.add_define("USE_ONLINE_IMAGE_JPEG_SUPPORT")
-        cg.add_library("JPEGDEC", None, "https://github.com/bitbank2/JPEGDEC#ca1e0f2")
+        import shutil
+        from esphome.core import CORE
+
+        # Copy libjpeg-turbo as an IDF component into the build directory.
+        # Skip if dest already exists and CMakeLists.txt mtimes match (avoid
+        # redundant copies on incremental builds).
+        src_path = os.path.join(
+            os.path.dirname(__file__), "..", "libjpeg-turbo-esp32"
+        )
+        dest_path = str(
+            CORE.relative_build_path("components", "libjpeg-turbo-esp32")
+        )
+        src_cmake = os.path.join(src_path, "CMakeLists.txt")
+        dest_cmake = os.path.join(dest_path, "CMakeLists.txt")
+        needs_copy = not os.path.exists(dest_cmake) or (
+            os.path.getmtime(src_cmake) > os.path.getmtime(dest_cmake)
+        )
+        if needs_copy:
+            if os.path.exists(dest_path):
+                shutil.rmtree(dest_path)
+            shutil.copytree(src_path, dest_path)
 
 
 class PNGFormat(Format):
