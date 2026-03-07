@@ -4,8 +4,6 @@ Control multi-room speaker groups directly from the touchscreen panel. The setti
 
 ![Speaker grouping panel](/images/guition-esp32-p4-jc8012p4a1-multi-speaker.jpg)
 
-Speaker grouping requires speakers that support the `media_player.join` and `media_player.unjoin` services in Home Assistant.
-
 ## How it works
 
 - The panel auto-discovers all speakers from the configured integration in your Home Assistant instance
@@ -19,35 +17,23 @@ Speaker grouping requires speakers that support the `media_player.join` and `med
 This feature relies on Home Assistant's `media_player.join` and `media_player.unjoin` services. These are only available on speaker platforms that support grouping. If your speakers don't support these services, the grouping controls will not work.
 
 
-| Platform             | Supported | Notes                      |
-| -------------------- | --------- | -------------------------- |
-| Sonos                | Yes       | Tested and confirmed       |
-| Google Cast          | Yes       | Supports `join` / `unjoin` |
-| HEOS (Denon/Marantz) | Yes       | Supports `join` / `unjoin` |
-| Yamaha MusicCast     | Yes       | Supports `join` / `unjoin` |
-| LinkPlay             | Yes       | Supports `join` / `unjoin` |
-| Bluesound            | Yes       | Supports `join` / `unjoin` |
-| Bang & Olufsen       | Yes       | Supports `join` / `unjoin` |
+| Platform             | Supported | Integration name       |
+| -------------------- | --------- | ---------------------- |
+| Sonos                | Yes       | `sonos`                |
+| Google Cast          | Yes       | `cast`                 |
+| HEOS (Denon/Marantz) | Yes       | `heos`                 |
+| Yamaha MusicCast     | Yes       | `yamaha_musiccast`     |
+| LinkPlay             | Yes       | `linkplay`             |
+| Bluesound            | Yes       | `bluesound`            |
+| Bang & Olufsen       | Yes       | `bang_olufsen`         |
 
 
-## Setup
-
-One template sensor helper needs to be created in Home Assistant. This is done entirely through the UI — no YAML editing required. 
-
-### Create the Speaker Group sensor
+## Setup the Speaker Group helper
 
 1. Go to **Settings → Devices & Services → Helpers** tab
 2. Click **+ Create Helper** → **Template** → **Template a sensor**
-3. Fill in the following:
-
-
-| Field          | Value           |
-| -------------- | --------------- |
-| Name           | `Speaker Group` |
-| State template | see below       |
-
-
-Paste this into the **State template** field, replacing `"sonos"` with the name of your speaker integration (e.g. `"cast"`, `"heos"`, `"yamaha_musiccast"`):
+3. Name the sensor `Speaker Group`
+4. Paste in this code, changing sonos for the integration you wish to use.
 
 ```
 {%- set s = integration_entities("sonos") | select("match", "media_player") | list -%}
