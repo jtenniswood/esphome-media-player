@@ -56,34 +56,6 @@ Paste this into the **State template** field, replacing `"sonos"` with the name 
 
 Leave all other fields as default and click **Submit**.
 
-### Verify
-
-Go to **Developer Tools → States** and search for `sensor.speaker_group`. It should show a pipe-delimited string containing short entity IDs (without the `media_player.` prefix), friendly names, and volume levels, e.g.:
-
-```
-office,kitchen|Office,Kitchen|0.45,0.6
-```
-
-The ESPHome panel subscribes to this sensor automatically at boot. If the speaker page is empty, reboot the screen to see the update.
-
 ## Behavior
 
 - The speaker list appears in the settings panel (swipe down) when there are at least two speakers from the configured integration
-- Up to 8 speakers are supported
-- The panel automatically closes after 15 seconds of inactivity (no touch). Any touch resets the timer. This timeout is configurable in [Settings](/features/settings) — set to 0 to keep the panel open until manually closed
-
-## State template reference
-
-If you prefer YAML over the UI, you can add this to your `configuration.yaml` or a `packages/` file. Replace `"sonos"` with your integration name:
-
-```yaml
-template:
-  - sensor:
-      - name: "Speaker Group"
-        unique_id: esphome_speaker_group
-        state: >-
-          {%- set s = integration_entities("sonos")
-                      | select("match", "media_player")
-                      | list -%}
-          {{ s | map("replace", "media_player.", "") | join(",") }}|{{ s | map("state_attr", "friendly_name") | join(",") }}|{{ s | map("state_attr", "volume_level") | join(",") }}
-```
