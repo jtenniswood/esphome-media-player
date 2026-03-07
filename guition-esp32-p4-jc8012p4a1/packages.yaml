@@ -10,6 +10,7 @@ packages:
   time_sync: !include addon/time.yaml
   network: !include addon/network.yaml
   speaker_group: !include addon/speaker_group.yaml
+  media_browse: !include addon/media_browse.yaml
   fonts: !include assets/fonts.yaml
   icons: !include assets/icons.yaml
   device: !include device/device.yaml

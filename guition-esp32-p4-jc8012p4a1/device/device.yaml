@@ -232,6 +232,15 @@ touchscreen:
             return;
           }
 
+          // --- Swipe up from bottom 200px: open playlist browser ---
+          if (dy < -60 && sy > 600 && abs(dy) > abs(dx) * 2 && !id(is_browse_open)) {
+            id(open_browse_panel).execute();
+            return;
+          }
+          if (id(is_browse_open)) {
+            return;
+          }
+
           // --- Horizontal swipe: track navigation (works when playing or paused) ---
           if (abs(dx) > 80 && abs(dx) > abs(dy) * 2) {
             bool can_skip = false;
@@ -323,6 +332,11 @@ script:
           then:
             - lvgl.widget.hide: settings_panel
             - lambda: 'id(is_panel_open) = false;'
+      - if:
+          condition:
+            lambda: 'return id(is_browse_open);'
+          then:
+            - script.execute: close_browse_panel
 
   - id: enter_tv_mode
     mode: single

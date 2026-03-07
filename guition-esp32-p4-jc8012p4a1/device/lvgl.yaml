@@ -13,6 +13,9 @@ lvgl:
         lv_obj_clear_flag(id(speakers_container), LV_OBJ_FLAG_SCROLL_MOMENTUM);
         lv_obj_clear_flag(id(speakers_container), LV_OBJ_FLAG_SCROLL_ELASTIC);
         lv_obj_set_scroll_dir(id(speakers_container), LV_DIR_VER);
+        lv_obj_clear_flag(id(playlist_container), LV_OBJ_FLAG_SCROLL_MOMENTUM);
+        lv_obj_clear_flag(id(playlist_container), LV_OBJ_FLAG_SCROLL_ELASTIC);
+        lv_obj_set_scroll_dir(id(playlist_container), LV_DIR_VER);
 
   pages:
     - id: main_page
@@ -1433,6 +1436,525 @@ lvgl:
                                           text_font: icon_font_small
                                           text_color: 0xFFFFFF
                                           align: center
+
+        # ---------------------------------------------------------------
+        # PLAYLIST BROWSE PANEL (swipe-up from bottom)
+        # ---------------------------------------------------------------
+        - obj:
+            id: playlist_panel
+            x: 0
+            y: 0
+            width: 1280
+            height: 800
+            bg_color: 0x000000
+            bg_opa: 100%
+            radius: 0
+            border_width: 0
+            pad_all: 0
+            scrollable: false
+            scrollbar_mode: "off"
+            hidden: true
+            widgets:
+              # Close button (top-right)
+              - button:
+                  align: top_right
+                  x: -24
+                  y: 24
+                  width: 56px
+                  height: 56px
+                  radius: 28
+                  bg_opa: 0%
+                  border_width: 0
+                  shadow_width: 0
+                  pad_all: 0
+                  widgets:
+                    - label:
+                        text_font: $icon_font
+                        align: center
+                        text: $icon_close
+                        text_color: 0xFFFFFF
+                  on_press:
+                    - script.execute: close_browse_panel
+
+              # Title
+              - label:
+                  text: "Playlists"
+                  text_font: roboto_light60_font
+                  text_color: 0xFFFFFF
+                  x: 48
+                  y: 38
+                  width: 600
+                  text_align: left
+
+              # Scrollable playlist list
+              - obj:
+                  id: playlist_container
+                  x: 48
+                  y: 130
+                  width: 1184
+                  height: 640
+                  bg_opa: 0%
+                  border_width: 0
+                  pad_left: 0
+                  pad_right: 0
+                  pad_top: 0
+                  pad_bottom: 16
+                  scrollable: true
+                  scrollbar_mode: auto
+                  layout:
+                    type: flex
+                    flex_flow: COLUMN
+                    pad_row: 0
+                  widgets:
+                    # --- Row 0 ---
+                    - button:
+                        id: playlist_row_0
+                        width: 1184
+                        height: 64
+                        radius: 0
+                        bg_opa: 0%
+                        border_width: 0
+                        border_side: bottom
+                        border_color: 0x333333
+                        shadow_width: 0
+                        pad_left: 0
+                        pad_right: 0
+                        pad_top: 0
+                        pad_bottom: 0
+                        hidden: true
+                        on_click:
+                          - script.execute:
+                              id: play_playlist
+                              slot: 0
+                        widgets:
+                          - label:
+                              id: playlist_label_0
+                              text: ""
+                              text_font: roboto30_font
+                              text_color: 0xFFFFFF
+                              width: 1140
+                              long_mode: dot
+                              align: left_mid
+
+                    # --- Row 1 ---
+                    - button:
+                        id: playlist_row_1
+                        width: 1184
+                        height: 64
+                        radius: 0
+                        bg_opa: 0%
+                        border_width: 0
+                        border_side: bottom
+                        border_color: 0x333333
+                        shadow_width: 0
+                        pad_left: 0
+                        pad_right: 0
+                        pad_top: 0
+                        pad_bottom: 0
+                        hidden: true
+                        on_click:
+                          - script.execute:
+                              id: play_playlist
+                              slot: 1
+                        widgets:
+                          - label:
+                              id: playlist_label_1
+                              text: ""
+                              text_font: roboto30_font
+                              text_color: 0xFFFFFF
+                              width: 1140
+                              long_mode: dot
+                              align: left_mid
+
+                    # --- Row 2 ---
+                    - button:
+                        id: playlist_row_2
+                        width: 1184
+                        height: 64
+                        radius: 0
+                        bg_opa: 0%
+                        border_width: 0
+                        border_side: bottom
+                        border_color: 0x333333
+                        shadow_width: 0
+                        pad_left: 0
+                        pad_right: 0
+                        pad_top: 0
+                        pad_bottom: 0
+                        hidden: true
+                        on_click:
+                          - script.execute:
+                              id: play_playlist
+                              slot: 2
+                        widgets:
+                          - label:
+                              id: playlist_label_2
+                              text: ""
+                              text_font: roboto30_font
+                              text_color: 0xFFFFFF
+                              width: 1140
+                              long_mode: dot
+                              align: left_mid
+
+                    # --- Row 3 ---
+                    - button:
+                        id: playlist_row_3
+                        width: 1184
+                        height: 64
+                        radius: 0
+                        bg_opa: 0%
+                        border_width: 0
+                        border_side: bottom
+                        border_color: 0x333333
+                        shadow_width: 0
+                        pad_left: 0
+                        pad_right: 0
+                        pad_top: 0
+                        pad_bottom: 0
+                        hidden: true
+                        on_click:
+                          - script.execute:
+                              id: play_playlist
+                              slot: 3
+                        widgets:
+                          - label:
+                              id: playlist_label_3
+                              text: ""
+                              text_font: roboto30_font
+                              text_color: 0xFFFFFF
+                              width: 1140
+                              long_mode: dot
+                              align: left_mid
+
+                    # --- Row 4 ---
+                    - button:
+                        id: playlist_row_4
+                        width: 1184
+                        height: 64
+                        radius: 0
+                        bg_opa: 0%
+                        border_width: 0
+                        border_side: bottom
+                        border_color: 0x333333
+                        shadow_width: 0
+                        pad_left: 0
+                        pad_right: 0
+                        pad_top: 0
+                        pad_bottom: 0
+                        hidden: true
+                        on_click:
+                          - script.execute:
+                              id: play_playlist
+                              slot: 4
+                        widgets:
+                          - label:
+                              id: playlist_label_4
+                              text: ""
+                              text_font: roboto30_font
+                              text_color: 0xFFFFFF
+                              width: 1140
+                              long_mode: dot
+                              align: left_mid
+
+                    # --- Row 5 ---
+                    - button:
+                        id: playlist_row_5
+                        width: 1184
+                        height: 64
+                        radius: 0
+                        bg_opa: 0%
+                        border_width: 0
+                        border_side: bottom
+                        border_color: 0x333333
+                        shadow_width: 0
+                        pad_left: 0
+                        pad_right: 0
+                        pad_top: 0
+                        pad_bottom: 0
+                        hidden: true
+                        on_click:
+                          - script.execute:
+                              id: play_playlist
+                              slot: 5
+                        widgets:
+                          - label:
+                              id: playlist_label_5
+                              text: ""
+                              text_font: roboto30_font
+                              text_color: 0xFFFFFF
+                              width: 1140
+                              long_mode: dot
+                              align: left_mid
+
+                    # --- Row 6 ---
+                    - button:
+                        id: playlist_row_6
+                        width: 1184
+                        height: 64
+                        radius: 0
+                        bg_opa: 0%
+                        border_width: 0
+                        border_side: bottom
+                        border_color: 0x333333
+                        shadow_width: 0
+                        pad_left: 0
+                        pad_right: 0
+                        pad_top: 0
+                        pad_bottom: 0
+                        hidden: true
+                        on_click:
+                          - script.execute:
+                              id: play_playlist
+                              slot: 6
+                        widgets:
+                          - label:
+                              id: playlist_label_6
+                              text: ""
+                              text_font: roboto30_font
+                              text_color: 0xFFFFFF
+                              width: 1140
+                              long_mode: dot
+                              align: left_mid
+
+                    # --- Row 7 ---
+                    - button:
+                        id: playlist_row_7
+                        width: 1184
+                        height: 64
+                        radius: 0
+                        bg_opa: 0%
+                        border_width: 0
+                        border_side: bottom
+                        border_color: 0x333333
+                        shadow_width: 0
+                        pad_left: 0
+                        pad_right: 0
+                        pad_top: 0
+                        pad_bottom: 0
+                        hidden: true
+                        on_click:
+                          - script.execute:
+                              id: play_playlist
+                              slot: 7
+                        widgets:
+                          - label:
+                              id: playlist_label_7
+                              text: ""
+                              text_font: roboto30_font
+                              text_color: 0xFFFFFF
+                              width: 1140
+                              long_mode: dot
+                              align: left_mid
+
+                    # --- Row 8 ---
+                    - button:
+                        id: playlist_row_8
+                        width: 1184
+                        height: 64
+                        radius: 0
+                        bg_opa: 0%
+                        border_width: 0
+                        border_side: bottom
+                        border_color: 0x333333
+                        shadow_width: 0
+                        pad_left: 0
+                        pad_right: 0
+                        pad_top: 0
+                        pad_bottom: 0
+                        hidden: true
+                        on_click:
+                          - script.execute:
+                              id: play_playlist
+                              slot: 8
+                        widgets:
+                          - label:
+                              id: playlist_label_8
+                              text: ""
+                              text_font: roboto30_font
+                              text_color: 0xFFFFFF
+                              width: 1140
+                              long_mode: dot
+                              align: left_mid
+
+                    # --- Row 9 ---
+                    - button:
+                        id: playlist_row_9
+                        width: 1184
+                        height: 64
+                        radius: 0
+                        bg_opa: 0%
+                        border_width: 0
+                        border_side: bottom
+                        border_color: 0x333333
+                        shadow_width: 0
+                        pad_left: 0
+                        pad_right: 0
+                        pad_top: 0
+                        pad_bottom: 0
+                        hidden: true
+                        on_click:
+                          - script.execute:
+                              id: play_playlist
+                              slot: 9
+                        widgets:
+                          - label:
+                              id: playlist_label_9
+                              text: ""
+                              text_font: roboto30_font
+                              text_color: 0xFFFFFF
+                              width: 1140
+                              long_mode: dot
+                              align: left_mid
+
+                    # --- Row 10 ---
+                    - button:
+                        id: playlist_row_10
+                        width: 1184
+                        height: 64
+                        radius: 0
+                        bg_opa: 0%
+                        border_width: 0
+                        border_side: bottom
+                        border_color: 0x333333
+                        shadow_width: 0
+                        pad_left: 0
+                        pad_right: 0
+                        pad_top: 0
+                        pad_bottom: 0
+                        hidden: true
+                        on_click:
+                          - script.execute:
+                              id: play_playlist
+                              slot: 10
+                        widgets:
+                          - label:
+                              id: playlist_label_10
+                              text: ""
+                              text_font: roboto30_font
+                              text_color: 0xFFFFFF
+                              width: 1140
+                              long_mode: dot
+                              align: left_mid
+
+                    # --- Row 11 ---
+                    - button:
+                        id: playlist_row_11
+                        width: 1184
+                        height: 64
+                        radius: 0
+                        bg_opa: 0%
+                        border_width: 0
+                        border_side: bottom
+                        border_color: 0x333333
+                        shadow_width: 0
+                        pad_left: 0
+                        pad_right: 0
+                        pad_top: 0
+                        pad_bottom: 0
+                        hidden: true
+                        on_click:
+                          - script.execute:
+                              id: play_playlist
+                              slot: 11
+                        widgets:
+                          - label:
+                              id: playlist_label_11
+                              text: ""
+                              text_font: roboto30_font
+                              text_color: 0xFFFFFF
+                              width: 1140
+                              long_mode: dot
+                              align: left_mid
+
+                    # --- Row 12 ---
+                    - button:
+                        id: playlist_row_12
+                        width: 1184
+                        height: 64
+                        radius: 0
+                        bg_opa: 0%
+                        border_width: 0
+                        border_side: bottom
+                        border_color: 0x333333
+                        shadow_width: 0
+                        pad_left: 0
+                        pad_right: 0
+                        pad_top: 0
+                        pad_bottom: 0
+                        hidden: true
+                        on_click:
+                          - script.execute:
+                              id: play_playlist
+                              slot: 12
+                        widgets:
+                          - label:
+                              id: playlist_label_12
+                              text: ""
+                              text_font: roboto30_font
+                              text_color: 0xFFFFFF
+                              width: 1140
+                              long_mode: dot
+                              align: left_mid
+
+                    # --- Row 13 ---
+                    - button:
+                        id: playlist_row_13
+                        width: 1184
+                        height: 64
+                        radius: 0
+                        bg_opa: 0%
+                        border_width: 0
+                        border_side: bottom
+                        border_color: 0x333333
+                        shadow_width: 0
+                        pad_left: 0
+                        pad_right: 0
+                        pad_top: 0
+                        pad_bottom: 0
+                        hidden: true
+                        on_click:
+                          - script.execute:
+                              id: play_playlist
+                              slot: 13
+                        widgets:
+                          - label:
+                              id: playlist_label_13
+                              text: ""
+                              text_font: roboto30_font
+                              text_color: 0xFFFFFF
+                              width: 1140
+                              long_mode: dot
+                              align: left_mid
+
+                    # --- Row 14 ---
+                    - button:
+                        id: playlist_row_14
+                        width: 1184
+                        height: 64
+                        radius: 0
+                        bg_opa: 0%
+                        border_width: 0
+                        border_side: bottom
+                        border_color: 0x333333
+                        shadow_width: 0
+                        pad_left: 0
+                        pad_right: 0
+                        pad_top: 0
+                        pad_bottom: 0
+                        hidden: true
+                        on_click:
+                          - script.execute:
+                              id: play_playlist
+                              slot: 14
+                        widgets:
+                          - label:
+                              id: playlist_label_14
+                              text: ""
+                              text_font: roboto30_font
+                              text_color: 0xFFFFFF
+                              width: 1140
+                              long_mode: dot
+                              align: left_mid
 
         # ---------------------------------------------------------------
         # HOME ASSISTANT SETUP PROMPT

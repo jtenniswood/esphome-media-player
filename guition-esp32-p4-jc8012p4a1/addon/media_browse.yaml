@@ -1,0 +1,157 @@
+# =============================================================================
+# MEDIA BROWSE - Playlist browser
+# =============================================================================
+# Fetches playlists from Home Assistant via the esphome_media_browse custom
+# integration REST proxy, displays them in a scrollable LVGL panel, and
+# plays the selected playlist via media_player.play_media.
+#
+# Requires: homeassistant/custom_components/esphome_media_browse/
+# =============================================================================
+
+globals:
+  - id: playlist_titles
+    type: std::string[15]
+  - id: playlist_uris
+    type: std::string[15]
+  - id: playlist_types
+    type: std::string[15]
+  - id: playlist_count
+    type: int
+    initial_value: '0'
+  - id: is_browse_open
+    type: bool
+    initial_value: 'false'
+  - id: play_content_id
+    type: std::string
+    initial_value: '""'
+  - id: play_content_type
+    type: std::string
+    initial_value: '""'
+
+script:
+  # ---------------------------------------------------------------------------
+  # Fetch playlists from the HA REST proxy and populate the global arrays.
+  # ---------------------------------------------------------------------------
+  - id: fetch_playlists
+    mode: restart
+    then:
+      - lambda: |-
+          if (id(media_player_entity).state.empty()) {
+            ESP_LOGW("media_browse", "No media player entity configured");
+            return;
+          }
+      - http_request.get:
+          url: !lambda |-
+            std::string url = id(ha_base_url) + "/api/esphome/browse_media";
+            url += "?entity_id=" + id(media_player_entity).state;
+            return url;
+          capture_response: true
+          max_response_buffer_size: 4096
+          on_response:
+            then:
+              - lambda: |-
+                  if (response->status_code != 200) {
+                    ESP_LOGE("media_browse", "Fetch failed with status %d", response->status_code);
+                    return;
+                  }
+                  id(playlist_count) = 0;
+                  for (int i = 0; i < 15; i++) {
+                    id(playlist_titles)[i] = "";
+                    id(playlist_uris)[i] = "";
+                    id(playlist_types)[i] = "";
+                  }
+                  json::parse_json(body, [](JsonObject root) -> bool {
+                    JsonArray items = root["items"];
+                    if (items.isNull()) return false;
+                    int count = 0;
+                    for (JsonObject item : items) {
+                      if (count >= 15) break;
+                      id(playlist_titles)[count] = item["title"].as<std::string>();
+                      id(playlist_uris)[count] = item["uri"].as<std::string>();
+                      id(playlist_types)[count] = item["type"].as<std::string>();
+                      count++;
+                    }
+                    id(playlist_count) = count;
+                    ESP_LOGI("media_browse", "Loaded %d playlists", count);
+                    return true;
+                  });
+              - script.execute: render_playlist_list
+
+  # ---------------------------------------------------------------------------
+  # Update LVGL playlist row labels and visibility from the global arrays.
+  # ---------------------------------------------------------------------------
+  - id: render_playlist_list
+    mode: restart
+    then:
+      - lambda: |-
+          lv_obj_t *rows[] = {
+            id(playlist_row_0),  id(playlist_row_1),  id(playlist_row_2),
+            id(playlist_row_3),  id(playlist_row_4),  id(playlist_row_5),
+            id(playlist_row_6),  id(playlist_row_7),  id(playlist_row_8),
+            id(playlist_row_9),  id(playlist_row_10), id(playlist_row_11),
+            id(playlist_row_12), id(playlist_row_13), id(playlist_row_14)
+          };
+          lv_obj_t *labels[] = {
+            id(playlist_label_0),  id(playlist_label_1),  id(playlist_label_2),
+            id(playlist_label_3),  id(playlist_label_4),  id(playlist_label_5),
+            id(playlist_label_6),  id(playlist_label_7),  id(playlist_label_8),
+            id(playlist_label_9),  id(playlist_label_10), id(playlist_label_11),
+            id(playlist_label_12), id(playlist_label_13), id(playlist_label_14)
+          };
+          for (int i = 0; i < 15; i++) {
+            if (i < id(playlist_count)) {
+              lv_label_set_text(labels[i], id(playlist_titles)[i].c_str());
+              lv_obj_clear_flag(rows[i], LV_OBJ_FLAG_HIDDEN);
+            } else {
+              lv_obj_add_flag(rows[i], LV_OBJ_FLAG_HIDDEN);
+            }
+          }
+
+  # ---------------------------------------------------------------------------
+  # Play a playlist by slot index. Copies URI/type into scalar globals then
+  # calls the HA service (same pattern as speaker_vol_target).
+  # ---------------------------------------------------------------------------
+  - id: play_playlist
+    mode: single
+    parameters:
+      slot: int
+    then:
+      - lambda: |-
+          if (slot < 0 || slot >= id(playlist_count)) return;
+          id(play_content_id) = id(playlist_uris)[slot];
+          id(play_content_type) = id(playlist_types)[slot];
+      - homeassistant.service:
+          service: media_player.play_media
+          variables:
+            target: !lambda 'return id(media_player_entity).state;'
+            content_id: !lambda 'return id(play_content_id);'
+            content_type: !lambda 'return id(play_content_type);'
+          data_template:
+            entity_id: "{{ target }}"
+            media_content_id: "{{ content_id }}"
+            media_content_type: "{{ content_type }}"
+          on_error:
+            - logger.log:
+                level: ERROR
+                tag: media_browse
+                format: "Failed to play playlist"
+      - logger.log:
+          tag: media_browse
+          format: "Playing playlist"
+      - script.execute: close_browse_panel
+
+  # ---------------------------------------------------------------------------
+  # Open / close the browse panel.
+  # ---------------------------------------------------------------------------
+  - id: open_browse_panel
+    mode: single
+    then:
+      - lambda: 'id(is_browse_open) = true;'
+      - lvgl.widget.show: playlist_panel
+      - script.execute: fetch_playlists
+
+  - id: close_browse_panel
+    mode: single
+    then:
+      - lvgl.widget.hide: playlist_panel
+      - lambda: 'id(is_browse_open) = false;'
