@@ -1,26 +1,30 @@
 # =============================================================================
 # SPEAKER DISCOVERY - Home Assistant Setup
 # =============================================================================
-# Create one template sensor helper in the Home Assistant UI so the ESPHome
-# panel can auto-discover your speakers for the grouping UI.
+# Create a template sensor in your Home Assistant configuration.yaml so the
+# ESPHome panel can auto-discover your speakers for the grouping UI.
 #
 # Works with any integration that exposes media_player entities and supports
 # media_player.join / media_player.unjoin (e.g. Sonos, Google Cast, HEOS,
 # MusicCast, LinkPlay, Bluesound).
 #
-# Steps:
+# Add the following to your configuration.yaml (replace "sonos" with your
+# integration name), then restart Home Assistant:
 #
-#   1. Go to Settings > Devices & Services > Helpers tab
-#
-#   2. Click "+ Create Helper" > Template > Template a sensor
-#        Name:           Speaker Group
-#        State template: (replace "sonos" with your integration name)
-#          {%- set s = integration_entities("sonos") | select("match", "media_player") | list -%}
-#          {{ s | map("replace", "media_player.", "") | join(",") }}|{{ s | map("state_attr", "friendly_name") | join(",") }}|{{ s | map("state_attr", "volume_level") | join(",") }}
-#      Leave everything else as default and click Submit.
+#   template:
+#     - sensor:
+#         - name: "Speaker Group"
+#           state: >
+#             {%- set s = integration_entities("sonos") | select("match", "media_player") | list -%}
+#             {{ s | count }}
+#           attributes:
+#             data: >
+#               {%- set s = integration_entities("sonos") | select("match", "media_player") | list -%}
+#               {{ s | map("replace", "media_player.", "") | join(",") }}|{{ s | map("state_attr", "friendly_name") | join(",") }}|{{ s | map("state_attr", "volume_level") | join(",") }}
 #
 # Done. The ESPHome panel picks up this sensor automatically.
 #
 # To verify, check Developer Tools > States:
-#   sensor.speaker_group → e.g. office,kitchen|Office,Kitchen|0.45,0.6
+#   sensor.speaker_group → state: 6 (count of speakers)
+#   data attribute → e.g. office,kitchen|Office,Kitchen|0.45,0.6
 # =============================================================================

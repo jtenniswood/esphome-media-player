@@ -15,11 +15,11 @@ globals:
     type: int
     initial_value: '0'
   - id: speaker_entity_ids
-    type: std::string[8]
+    type: std::string[16]
   - id: speaker_names
-    type: std::string[8]
+    type: std::string[16]
   - id: speaker_grouped
-    type: bool[8]
+    type: bool[16]
     initial_value: '{false}'
   - id: speaker_join_member
     type: std::string
@@ -34,13 +34,14 @@ globals:
     type: int
     initial_value: '0'
   - id: speaker_volumes
-    type: float[8]
+    type: float[16]
     initial_value: '{0.0f}'
 
 text_sensor:
   - platform: homeassistant
     id: speakers_sensor
     entity_id: sensor.speaker_group
+    attribute: data
     on_value:
       - script.execute: parse_speakers
 
@@ -51,9 +52,9 @@ text_sensor:
 
 script:
   # ---------------------------------------------------------------------------
-  # Parse the pipe-delimited sensor (ids|names|volumes) from the single HA
-  # template sensor into fixed-size global arrays. Volumes are assigned
-  # directly during reorder so no separate volume-mapping pass is needed.
+  # Parse the pipe-delimited attribute (ids|names|volumes) from the HA
+  # template sensor into global arrays. Volumes are assigned directly
+  # during reorder so no separate volume-mapping pass is needed.
   # ---------------------------------------------------------------------------
   - id: parse_speakers
     mode: restart
@@ -96,11 +97,11 @@ script:
             return out;
           };
 
-          std::vector<std::string> ids   = split_csv(ids_raw, 8);
-          std::vector<std::string> names = split_csv(names_raw, 8);
-          std::vector<std::string> vtoks = split_csv(vols_raw, 8);
+          std::vector<std::string> ids   = split_csv(ids_raw, 16);
+          std::vector<std::string> names = split_csv(names_raw, 16);
+          std::vector<std::string> vtoks = split_csv(vols_raw, 16);
 
-          // Restore full entity IDs (prefix stripped in HA template to fit 255-char state limit)
+          // Restore full entity IDs (prefix stripped in HA template for brevity)
           for (auto &eid : ids) {
             if (!eid.empty()) eid = "media_player." + eid;
           }
@@ -114,7 +115,7 @@ script:
 
           // Reset globals
           id(speaker_count) = 0;
-          for (int i = 0; i < 8; i++) {
+          for (int i = 0; i < 16; i++) {
             id(speaker_entity_ids)[i] = "";
             id(speaker_names)[i] = "";
             id(speaker_grouped)[i] = false;
@@ -141,7 +142,7 @@ script:
 
           // Fill all speakers, then sort alphabetically by name
           int count = 0;
-          for (size_t i = 0; i < ids.size() && count < 8; i++) {
+          for (size_t i = 0; i < ids.size() && count < 16; i++) {
             id(speaker_entity_ids)[count] = ids[i];
             id(speaker_names)[count] = (i < names.size()) ? names[i] : ids[i];
             id(speaker_volumes)[count] = (i < vols.size()) ? vols[i] : 0.0f;
@@ -186,7 +187,7 @@ script:
             return;
           }
 
-          for (int i = 0; i < 8; i++) {
+          for (int i = 0; i < 16; i++) {
             id(speaker_entity_ids)[i] = "";
             id(speaker_names)[i] = "";
             id(speaker_grouped)[i] = false;
@@ -281,25 +282,35 @@ script:
       - lambda: |-
           lv_obj_t *cards[] = {
             id(speaker_card_0), id(speaker_card_1), id(speaker_card_2), id(speaker_card_3),
-            id(speaker_card_4), id(speaker_card_5), id(speaker_card_6), id(speaker_card_7)
+            id(speaker_card_4), id(speaker_card_5), id(speaker_card_6), id(speaker_card_7),
+            id(speaker_card_8), id(speaker_card_9), id(speaker_card_10), id(speaker_card_11),
+            id(speaker_card_12), id(speaker_card_13), id(speaker_card_14), id(speaker_card_15)
           };
           lv_obj_t *name_labels[] = {
             id(speaker_name_0), id(speaker_name_1), id(speaker_name_2), id(speaker_name_3),
-            id(speaker_name_4), id(speaker_name_5), id(speaker_name_6), id(speaker_name_7)
+            id(speaker_name_4), id(speaker_name_5), id(speaker_name_6), id(speaker_name_7),
+            id(speaker_name_8), id(speaker_name_9), id(speaker_name_10), id(speaker_name_11),
+            id(speaker_name_12), id(speaker_name_13), id(speaker_name_14), id(speaker_name_15)
           };
           lv_obj_t *vol_labels[] = {
             id(speaker_vol_label_0), id(speaker_vol_label_1), id(speaker_vol_label_2), id(speaker_vol_label_3),
-            id(speaker_vol_label_4), id(speaker_vol_label_5), id(speaker_vol_label_6), id(speaker_vol_label_7)
+            id(speaker_vol_label_4), id(speaker_vol_label_5), id(speaker_vol_label_6), id(speaker_vol_label_7),
+            id(speaker_vol_label_8), id(speaker_vol_label_9), id(speaker_vol_label_10), id(speaker_vol_label_11),
+            id(speaker_vol_label_12), id(speaker_vol_label_13), id(speaker_vol_label_14), id(speaker_vol_label_15)
           };
           lv_obj_t *btns[] = {
             id(speaker_btns_0), id(speaker_btns_1), id(speaker_btns_2), id(speaker_btns_3),
-            id(speaker_btns_4), id(speaker_btns_5), id(speaker_btns_6), id(speaker_btns_7)
+            id(speaker_btns_4), id(speaker_btns_5), id(speaker_btns_6), id(speaker_btns_7),
+            id(speaker_btns_8), id(speaker_btns_9), id(speaker_btns_10), id(speaker_btns_11),
+            id(speaker_btns_12), id(speaker_btns_13), id(speaker_btns_14), id(speaker_btns_15)
           };
           lv_obj_t *tops[] = {
             nullptr, id(speaker_top_1), id(speaker_top_2), id(speaker_top_3),
-            id(speaker_top_4), id(speaker_top_5), id(speaker_top_6), id(speaker_top_7)
+            id(speaker_top_4), id(speaker_top_5), id(speaker_top_6), id(speaker_top_7),
+            id(speaker_top_8), id(speaker_top_9), id(speaker_top_10), id(speaker_top_11),
+            id(speaker_top_12), id(speaker_top_13), id(speaker_top_14), id(speaker_top_15)
           };
-          for (int i = 0; i < 8; i++) {
+          for (int i = 0; i < 16; i++) {
             if (i < id(speaker_count)) {
               lv_obj_clear_flag(cards[i], LV_OBJ_FLAG_HIDDEN);
               lv_label_set_text(name_labels[i], id(speaker_names)[i].c_str());
