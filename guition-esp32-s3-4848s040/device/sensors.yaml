@@ -4,8 +4,8 @@
 # Template sensors receive state from dynamic subscriptions managed by
 # media_player_select.yaml. Updates LVGL labels, bar, image, and play/pause
 # icon via on_value automations.
-# Album art URL is built automatically from the HA API client's IP address;
-# override ha_port in substitutions for non-standard setups.
+# Album art URL is built automatically from the ha_host substitution;
+# override ha_host or ha_port in substitutions for non-standard setups.
 # =============================================================================
 
 # Store last HA position and time so we can estimate elapsed time between updates
@@ -13,7 +13,7 @@
 globals:
   - id: ha_base_url
     type: std::string
-    initial_value: '"http://homeassistant.local:${ha_port}"'
+    initial_value: '"http://${ha_host}:${ha_port}"'
   - id: last_media_position
     type: float
     initial_value: '0.0'

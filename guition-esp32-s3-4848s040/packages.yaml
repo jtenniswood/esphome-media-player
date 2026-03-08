@@ -2,6 +2,7 @@ substitutions:
   media_player: ""
   tv_media_player: ""
   ha_port: "8123"
+  ha_host: "homeassistant.local"
   # Display rotation in degrees: 0, 90, 180, or 270
   # Rotate to match your preferred mounting orientation / power cable direction
   display_rotation: "0"
