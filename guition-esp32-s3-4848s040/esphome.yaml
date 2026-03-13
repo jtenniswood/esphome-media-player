@@ -2,6 +2,7 @@
 substitutions:
   name: "music-dashboard"
   friendly_name: "Music Dashboard"
+  # ha_host: "homeassistant.local"  # Home Assistant hostname or IP (change if HA runs on a different host)
   # ha_port: "8123"  # Home Assistant port (change if HA runs on a non-standard port)
 
 # Wifi Setup

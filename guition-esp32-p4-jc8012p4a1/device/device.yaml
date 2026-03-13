@@ -66,7 +66,7 @@ ota:
 api:
   on_client_connected:
     - lambda: |-
-        id(ha_base_url) = "http://" + client_address + ":${ha_port}";
+        id(ha_base_url) = "http://${ha_host}:${ha_port}";
     - lvgl.widget.hide: ha_setup_prompt
     - script.execute: subscribe_media_player
     - script.execute: subscribe_tv_media_player
