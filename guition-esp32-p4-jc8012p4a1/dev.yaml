@@ -1,0 +1,16 @@
+substitutions:
+  name: "music-dashboard-dev"
+  friendly_name: "Music Dashboard Dev"
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+packages:
+  music_dashboard: !include packages.yaml
+
+external_components:
+  - source:
+      type: local
+      path: ../components
+    components: [online_image]

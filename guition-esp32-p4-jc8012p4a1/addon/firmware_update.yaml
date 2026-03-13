@@ -47,7 +47,7 @@ interval:
       - lambda: |-
           if (!id(auto_update_switch).state) return;
           int counter = id(update_check_counter);
-          std::string freq = id(update_frequency_select).state;
+          std::string freq = id(update_frequency_select).current_option();
           int threshold = 24;
           if (freq == "Hourly") threshold = 1;
           else if (freq == "Weekly") threshold = 168;
@@ -58,7 +58,7 @@ interval:
 
 button:
   - platform: template
-    name: Check for Update
+    name: Install Latest Firmware
     icon: "mdi:update"
     on_press:
       - component.update: firmware_update

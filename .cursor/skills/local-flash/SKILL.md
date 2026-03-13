@@ -1,6 +1,6 @@
 ---
 name: local-flash
-description: Compile and flash ESPHome firmware locally to a USB-connected ESP32 device using Docker. Use when the user says "flash", "local flash", "build and flash", "upload firmware", "flash over USB", "test locally", or wants to test component changes on a physical device.
+description: Compile and flash ESPHome firmware locally to a USB-connected ESP32 device using Docker. Use when the user says "deploy locally", "dploy over usb", "build and flash", "upload firmware", "flash over USB", "test locally", or wants to test component changes on a physical device.
 ---
 
 # Local Flash via USB
