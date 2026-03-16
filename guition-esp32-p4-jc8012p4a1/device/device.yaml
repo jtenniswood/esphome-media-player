@@ -311,7 +311,7 @@ script:
       - lambda: 'id(is_panel_open) = true;'
       - if:
           condition:
-            lambda: 'return id(speaker_count) == 0;'
+            lambda: 'return id(speaker_count) <= 1;'
           then:
             - script.execute: show_fallback_speaker
       - lvgl.widget.show: settings_panel

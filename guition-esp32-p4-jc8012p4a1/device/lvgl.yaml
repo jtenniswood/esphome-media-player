@@ -411,6 +411,7 @@ lvgl:
                   y: 220
                   width: 96px
                   height: 96px
+                  radius: 48
                   styles: control_round
                   hidden: true
                   widgets:
@@ -433,6 +434,7 @@ lvgl:
                   y: 220
                   width: 96px
                   height: 96px
+                  radius: 48
                   styles: control_round
                   hidden: true
                   widgets:
