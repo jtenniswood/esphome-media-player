@@ -322,10 +322,11 @@ lvgl:
                   align: top_right
                   x: -24
                   y: 24
-                  width: 56px
-                  height: 56px
-                  radius: 28
-                  bg_opa: 0%
+                  width: 64px
+                  height: 64px
+                  radius: 32
+                  bg_color: 0x262626
+                  bg_opa: 100%
                   border_width: 0
                   shadow_width: 0
                   pad_all: 0
