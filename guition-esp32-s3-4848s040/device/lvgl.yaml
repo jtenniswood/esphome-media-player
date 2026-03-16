@@ -334,12 +334,12 @@ lvgl:
                   value: 30
                   adjustable: true
                   arc_color: 0x333333
-                  arc_width: 16
+                  arc_width: 20
                   arc_rounded: true
                   hidden: true
                   indicator:
                     arc_color: 0x999999
-                    arc_width: 16
+                    arc_width: 20
                     arc_rounded: true
                   knob:
                     bg_color: 0xFFFFFF
