@@ -5,9 +5,10 @@
 Album art is loaded from your Home Assistant instance. If it isn't appearing:
 
 1. **Check the media player entity** — make sure the entity you configured on the device page has an `entity_picture` attribute when playing. You can verify this in **Developer Tools → States** in Home Assistant.
-2. **Check network connectivity** — the device needs to reach your Home Assistant instance over the local network. Make sure both are on the same network/VLAN.
-3. **Check the image size** — very large album art images may fail to download on the ESP32's limited memory. If you're using a custom media player integration, check whether it provides a resized image URL.
-4. **Restart the device** — occasionally the image download can get stuck. A restart (via the physical button or from the ESPHome dashboard) usually resolves it.
+2. **Check the Home Assistant host** — the device fetches artwork from `http://<ha_host>:<ha_port>/api/...`. If your Home Assistant instance uses a hostname or IP other than `homeassistant.local`, or runs on a port other than `8123`, artwork will fail to load. Set the `ha_host` and/or `ha_port` substitutions to match your setup — see [Non-standard Home Assistant host or port](/advanced/manual-setup#non-standard-home-assistant-host-or-port).
+3. **Check network connectivity** — the device needs to reach your Home Assistant instance over the local network. Make sure both are on the same network/VLAN.
+4. **Check the image size** — very large album art images may fail to download on the ESP32's limited memory. If you're using a custom media player integration, check whether it provides a resized image URL.
+5. **Restart the device** — occasionally the image download can get stuck. A restart (via the physical button or from the ESPHome dashboard) usually resolves it.
 
 ## The device won't connect to Wi-Fi
 
