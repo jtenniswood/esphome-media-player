@@ -501,7 +501,7 @@ lvgl:
                                 pad_row: 7
                               widgets:
                                 - label:
-                                    text: "Group"
+                                    text: "Group Volume"
                                     text_font: roboto30_font
                                     text_color: 0xFFFFFF
                                     width: 150
