@@ -506,7 +506,7 @@ lvgl:
                           flex_align_cross: start
                         widgets:
                           - obj:
-                              width: 160
+                              width: 182
                               height: SIZE_CONTENT
                               bg_opa: 0%
                               border_width: 0
@@ -522,7 +522,7 @@ lvgl:
                                     text: "Group"
                                     text_font: roboto_light30_font
                                     text_color: 0xFFFFFF
-                                    width: 150
+                                    width: 172
                                 - label:
                                     id: group_vol_label
                                     text: ""
@@ -611,7 +611,7 @@ lvgl:
                           flex_align_cross: start
                         widgets:
                           - obj:
-                              width: 160
+                              width: 182
                               height: SIZE_CONTENT
                               bg_opa: 0%
                               border_width: 0
@@ -628,7 +628,7 @@ lvgl:
                                     text: ""
                                     text_font: roboto_light30_font
                                     text_color: 0xFFFFFF
-                                    width: 150
+                                    width: 172
                                 - label:
                                     id: speaker_vol_label_0
                                     text: ""
@@ -728,7 +728,7 @@ lvgl:
                         widgets:
                           - obj:
                               id: speaker_top_1
-                              width: 160
+                              width: 182
                               height: SIZE_CONTENT
                               bg_opa: 0%
                               border_width: 0
@@ -749,7 +749,7 @@ lvgl:
                                     text: ""
                                     text_font: roboto_light30_font
                                     text_color: 0xFFFFFF
-                                    width: 150
+                                    width: 172
                                 - label:
                                     id: speaker_vol_label_1
                                     text: ""
@@ -849,7 +849,7 @@ lvgl:
                         widgets:
                           - obj:
                               id: speaker_top_2
-                              width: 160
+                              width: 182
                               height: SIZE_CONTENT
                               bg_opa: 0%
                               border_width: 0
@@ -870,7 +870,7 @@ lvgl:
                                     text: ""
                                     text_font: roboto_light30_font
                                     text_color: 0xFFFFFF
-                                    width: 150
+                                    width: 172
                                 - label:
                                     id: speaker_vol_label_2
                                     text: ""
@@ -970,7 +970,7 @@ lvgl:
                         widgets:
                           - obj:
                               id: speaker_top_3
-                              width: 160
+                              width: 182
                               height: SIZE_CONTENT
                               bg_opa: 0%
                               border_width: 0
@@ -991,7 +991,7 @@ lvgl:
                                     text: ""
                                     text_font: roboto_light30_font
                                     text_color: 0xFFFFFF
-                                    width: 150
+                                    width: 172
                                 - label:
                                     id: speaker_vol_label_3
                                     text: ""
@@ -1091,7 +1091,7 @@ lvgl:
                         widgets:
                           - obj:
                               id: speaker_top_4
-                              width: 160
+                              width: 182
                               height: SIZE_CONTENT
                               bg_opa: 0%
                               border_width: 0
@@ -1112,7 +1112,7 @@ lvgl:
                                     text: ""
                                     text_font: roboto_light30_font
                                     text_color: 0xFFFFFF
-                                    width: 150
+                                    width: 172
                                 - label:
                                     id: speaker_vol_label_4
                                     text: ""
@@ -1212,7 +1212,7 @@ lvgl:
                         widgets:
                           - obj:
                               id: speaker_top_5
-                              width: 160
+                              width: 182
                               height: SIZE_CONTENT
                               bg_opa: 0%
                               border_width: 0
@@ -1233,7 +1233,7 @@ lvgl:
                                     text: ""
                                     text_font: roboto_light30_font
                                     text_color: 0xFFFFFF
-                                    width: 150
+                                    width: 172
                                 - label:
                                     id: speaker_vol_label_5
                                     text: ""
@@ -1333,7 +1333,7 @@ lvgl:
                         widgets:
                           - obj:
                               id: speaker_top_6
-                              width: 160
+                              width: 182
                               height: SIZE_CONTENT
                               bg_opa: 0%
                               border_width: 0
@@ -1354,7 +1354,7 @@ lvgl:
                                     text: ""
                                     text_font: roboto_light30_font
                                     text_color: 0xFFFFFF
-                                    width: 150
+                                    width: 172
                                 - label:
                                     id: speaker_vol_label_6
                                     text: ""
@@ -1454,7 +1454,7 @@ lvgl:
                         widgets:
                           - obj:
                               id: speaker_top_7
-                              width: 160
+                              width: 182
                               height: SIZE_CONTENT
                               bg_opa: 0%
                               border_width: 0
@@ -1475,7 +1475,7 @@ lvgl:
                                     text: ""
                                     text_font: roboto_light30_font
                                     text_color: 0xFFFFFF
-                                    width: 150
+                                    width: 172
                                 - label:
                                     id: speaker_vol_label_7
                                     text: ""
@@ -1575,7 +1575,7 @@ lvgl:
                         widgets:
                           - obj:
                               id: speaker_top_8
-                              width: 160
+                              width: 182
                               height: SIZE_CONTENT
                               bg_opa: 0%
                               border_width: 0
@@ -1596,7 +1596,7 @@ lvgl:
                                     text: ""
                                     text_font: roboto_light30_font
                                     text_color: 0xFFFFFF
-                                    width: 150
+                                    width: 172
                                 - label:
                                     id: speaker_vol_label_8
                                     text: ""
@@ -1696,7 +1696,7 @@ lvgl:
                         widgets:
                           - obj:
                               id: speaker_top_9
-                              width: 160
+                              width: 182
                               height: SIZE_CONTENT
                               bg_opa: 0%
                               border_width: 0
@@ -1717,7 +1717,7 @@ lvgl:
                                     text: ""
                                     text_font: roboto_light30_font
                                     text_color: 0xFFFFFF
-                                    width: 150
+                                    width: 172
                                 - label:
                                     id: speaker_vol_label_9
                                     text: ""
@@ -1817,7 +1817,7 @@ lvgl:
                         widgets:
                           - obj:
                               id: speaker_top_10
-                              width: 160
+                              width: 182
                               height: SIZE_CONTENT
                               bg_opa: 0%
                               border_width: 0
@@ -1838,7 +1838,7 @@ lvgl:
                                     text: ""
                                     text_font: roboto_light30_font
                                     text_color: 0xFFFFFF
-                                    width: 150
+                                    width: 172
                                 - label:
                                     id: speaker_vol_label_10
                                     text: ""
@@ -1938,7 +1938,7 @@ lvgl:
                         widgets:
                           - obj:
                               id: speaker_top_11
-                              width: 160
+                              width: 182
                               height: SIZE_CONTENT
                               bg_opa: 0%
                               border_width: 0
@@ -1959,7 +1959,7 @@ lvgl:
                                     text: ""
                                     text_font: roboto_light30_font
                                     text_color: 0xFFFFFF
-                                    width: 150
+                                    width: 172
                                 - label:
                                     id: speaker_vol_label_11
                                     text: ""
@@ -2059,7 +2059,7 @@ lvgl:
                         widgets:
                           - obj:
                               id: speaker_top_12
-                              width: 160
+                              width: 182
                               height: SIZE_CONTENT
                               bg_opa: 0%
                               border_width: 0
@@ -2080,7 +2080,7 @@ lvgl:
                                     text: ""
                                     text_font: roboto_light30_font
                                     text_color: 0xFFFFFF
-                                    width: 150
+                                    width: 172
                                 - label:
                                     id: speaker_vol_label_12
                                     text: ""
@@ -2180,7 +2180,7 @@ lvgl:
                         widgets:
                           - obj:
                               id: speaker_top_13
-                              width: 160
+                              width: 182
                               height: SIZE_CONTENT
                               bg_opa: 0%
                               border_width: 0
@@ -2201,7 +2201,7 @@ lvgl:
                                     text: ""
                                     text_font: roboto_light30_font
                                     text_color: 0xFFFFFF
-                                    width: 150
+                                    width: 172
                                 - label:
                                     id: speaker_vol_label_13
                                     text: ""
@@ -2301,7 +2301,7 @@ lvgl:
                         widgets:
                           - obj:
                               id: speaker_top_14
-                              width: 160
+                              width: 182
                               height: SIZE_CONTENT
                               bg_opa: 0%
                               border_width: 0
@@ -2322,7 +2322,7 @@ lvgl:
                                     text: ""
                                     text_font: roboto_light30_font
                                     text_color: 0xFFFFFF
-                                    width: 150
+                                    width: 172
                                 - label:
                                     id: speaker_vol_label_14
                                     text: ""
@@ -2422,7 +2422,7 @@ lvgl:
                         widgets:
                           - obj:
                               id: speaker_top_15
-                              width: 160
+                              width: 182
                               height: SIZE_CONTENT
                               bg_opa: 0%
                               border_width: 0
@@ -2443,7 +2443,7 @@ lvgl:
                                     text: ""
                                     text_font: roboto_light30_font
                                     text_color: 0xFFFFFF
-                                    width: 150
+                                    width: 172
                                 - label:
                                     id: speaker_vol_label_15
                                     text: ""
