@@ -103,9 +103,19 @@ class PNGFormat(Format):
         cg.add_library("pngle", "1.1.0")
 
 
+class AutoFormat(Format):
+    def __init__(self):
+        super().__init__("AUTO")
+
+    def actions(self):
+        JPEGFormat().actions()
+        PNGFormat().actions()
+
+
 IMAGE_FORMATS = {
     x.image_type: x
     for x in (
+        AutoFormat(),
         BMPFormat(),
         JPEGFormat(),
         PNGFormat(),
@@ -152,7 +162,7 @@ ONLINE_IMAGE_SCHEMA = (
             cv.Optional(CONF_REQUEST_HEADERS): cv.All(
                 cv.Schema({cv.string: cv.templatable(cv.string)})
             ),
-            cv.Required(CONF_FORMAT): cv.one_of(*IMAGE_FORMATS, upper=True),
+            cv.Optional(CONF_FORMAT, default="AUTO"): cv.one_of(*IMAGE_FORMATS, upper=True),
             cv.Optional(CONF_PLACEHOLDER): cv.use_id(Image_),
             cv.Optional(CONF_BUFFER_SIZE, default=65536): cv.int_range(256, 524288),
             cv.Optional(CONF_ON_DOWNLOAD_FINISHED): automation.validate_automation(

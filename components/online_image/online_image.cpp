@@ -8,6 +8,7 @@ static const char *const ETAG_HEADER_NAME = "etag";
 static const char *const IF_NONE_MATCH_HEADER_NAME = "if-none-match";
 static const char *const LAST_MODIFIED_HEADER_NAME = "last-modified";
 static const char *const IF_MODIFIED_SINCE_HEADER_NAME = "if-modified-since";
+static const char *const CONTENT_TYPE_HEADER_NAME = "content-type";
 
 #include "image_decoder.h"
 
@@ -138,6 +139,9 @@ void OnlineImage::update() {
   accept_header.name = "Accept";
   std::string accept_mime_type;
   switch (this->format_) {
+    case ImageFormat::AUTO:
+      accept_mime_type = "image/jpeg, image/png";
+      break;
 #ifdef USE_ONLINE_IMAGE_BMP_SUPPORT
     case ImageFormat::BMP:
       accept_mime_type = "image/bmp";
@@ -172,7 +176,7 @@ void OnlineImage::update() {
     headers.push_back(http_request::Header{header.first, header.second.value()});
   }
 
-  this->downloader_ = this->parent_->get(this->url_, headers, {ETAG_HEADER_NAME, LAST_MODIFIED_HEADER_NAME});
+  this->downloader_ = this->parent_->get(this->url_, headers, {ETAG_HEADER_NAME, LAST_MODIFIED_HEADER_NAME, CONTENT_TYPE_HEADER_NAME});
 
   if (this->downloader_ == nullptr) {
     ESP_LOGE(TAG, "Download failed.");
@@ -199,36 +203,18 @@ void OnlineImage::update() {
   ESP_LOGD(TAG, "Starting download");
   size_t total_size = this->downloader_->content_length;
 
-#ifdef USE_ONLINE_IMAGE_BMP_SUPPORT
-  if (this->format_ == ImageFormat::BMP) {
-    ESP_LOGD(TAG, "Allocating BMP decoder");
-    this->decoder_ = make_unique<BmpDecoder>(this);
-    this->enable_loop();
-  }
-#endif  // USE_ONLINE_IMAGE_BMP_SUPPORT
-#ifdef USE_ONLINE_IMAGE_JPEG_SUPPORT
-  if (this->format_ == ImageFormat::JPEG) {
-    ESP_LOGD(TAG, "Allocating software JPEG decoder");
-    this->decoder_ = esphome::make_unique<JpegDecoder>(this);
-    this->enable_loop();
-  }
-#endif  // USE_ONLINE_IMAGE_JPEG_SUPPORT
-#ifdef USE_ONLINE_IMAGE_PNG_SUPPORT
-  if (this->format_ == ImageFormat::PNG) {
-    ESP_LOGD(TAG, "Allocating PNG decoder");
-    this->decoder_ = make_unique<PngDecoder>(this);
-    this->enable_loop();
-  }
-#endif  // USE_ONLINE_IMAGE_PNG_SUPPORT
+  ImageFormat resolved = this->detect_format_();
 
-  if (!this->decoder_) {
-    ESP_LOGE(TAG, "Could not instantiate decoder. Image format unsupported: %d", this->format_);
-    this->end_connection_();
-    this->download_error_callback_.call();
+  if (resolved == ImageFormat::AUTO) {
+    // Content-Type didn't identify the format; defer to loop() for magic-byte detection
+    ESP_LOGD(TAG, "Image format not identified from Content-Type, deferring to magic-byte detection");
+    this->data_start_ = nullptr;
+    this->start_time_ = ::time(nullptr);
+    this->enable_loop();
     return;
   }
-  auto prepare_result = this->decoder_->prepare(total_size);
-  if (prepare_result < 0) {
+
+  if (!this->create_decoder_(resolved, total_size)) {
     this->end_connection_();
     this->download_error_callback_.call();
     return;
@@ -236,14 +222,60 @@ void OnlineImage::update() {
   this->data_start_ = nullptr;
   ESP_LOGI(TAG, "Downloading image (Size: %zu)", total_size);
   this->start_time_ = ::time(nullptr);
+  this->enable_loop();
 }
 
 void OnlineImage::loop() {
-  if (!this->decoder_) {
-    // Not decoding at the moment => nothing to do.
+  if (!this->decoder_ && !this->downloader_) {
     this->disable_loop();
     return;
   }
+
+  // Deferred decoder creation for AUTO format: read data for magic-byte detection
+  if (!this->decoder_ && this->downloader_) {
+    size_t available = this->download_buffer_.free_capacity();
+    if (available) {
+      available = std::min(available, this->download_buffer_initial_size_);
+      auto len = this->downloader_->read(this->download_buffer_.append(), available);
+      if (len > 0) {
+        this->download_buffer_.write(len);
+      }
+    }
+
+    if (this->download_buffer_.unread() < 4) {
+      return;
+    }
+
+    ImageFormat resolved = this->detect_format_();
+    if (resolved == ImageFormat::AUTO) {
+      ESP_LOGE(TAG, "Could not determine image format from headers or file content");
+      this->end_connection_();
+      this->download_error_callback_.call();
+      return;
+    }
+
+    size_t total_size = this->downloader_->content_length;
+    if (!this->create_decoder_(resolved, total_size)) {
+      this->end_connection_();
+      this->download_error_callback_.call();
+      return;
+    }
+    ESP_LOGI(TAG, "Downloading image (Size: %zu)", total_size);
+
+    // Feed already-buffered data to the newly created decoder
+    if (this->download_buffer_.unread() > 0) {
+      auto fed = this->decoder_->decode(this->download_buffer_.data(), this->download_buffer_.unread());
+      if (fed < 0) {
+        ESP_LOGE(TAG, "Error when decoding image.");
+        this->end_connection_();
+        this->download_error_callback_.call();
+        return;
+      }
+      this->download_buffer_.read(fed);
+    }
+    return;
+  }
+
   if (!this->downloader_ || this->decoder_->is_finished()) {
     this->data_start_ = buffer_;
     this->width_ = buffer_width_;
@@ -367,6 +399,78 @@ void OnlineImage::draw_pixel_(int x, int y, Color color) {
       break;
     }
   }
+}
+
+ImageFormat OnlineImage::detect_format_() {
+  if (this->format_ != ImageFormat::AUTO) {
+    return this->format_;
+  }
+
+  // Try Content-Type header
+  if (this->downloader_) {
+    std::string ct = this->downloader_->get_response_header(CONTENT_TYPE_HEADER_NAME);
+    if (ct.find("image/jpeg") != std::string::npos || ct.find("image/jpg") != std::string::npos) {
+      ESP_LOGD(TAG, "Detected JPEG from Content-Type: %s", ct.c_str());
+      return ImageFormat::JPEG;
+    }
+    if (ct.find("image/png") != std::string::npos) {
+      ESP_LOGD(TAG, "Detected PNG from Content-Type: %s", ct.c_str());
+      return ImageFormat::PNG;
+    }
+    if (ct.find("image/bmp") != std::string::npos) {
+      ESP_LOGD(TAG, "Detected BMP from Content-Type: %s", ct.c_str());
+      return ImageFormat::BMP;
+    }
+  }
+
+  // Fallback: magic bytes from download buffer
+  if (this->download_buffer_.unread() >= 4) {
+    const uint8_t *data = this->download_buffer_.data();
+    if (data[0] == 0xFF && data[1] == 0xD8) {
+      ESP_LOGD(TAG, "Detected JPEG from magic bytes");
+      return ImageFormat::JPEG;
+    }
+    if (data[0] == 0x89 && data[1] == 0x50 && data[2] == 0x4E && data[3] == 0x47) {
+      ESP_LOGD(TAG, "Detected PNG from magic bytes");
+      return ImageFormat::PNG;
+    }
+    if (data[0] == 0x42 && data[1] == 0x4D) {
+      ESP_LOGD(TAG, "Detected BMP from magic bytes");
+      return ImageFormat::BMP;
+    }
+  }
+
+  return ImageFormat::AUTO;
+}
+
+bool OnlineImage::create_decoder_(ImageFormat format, size_t total_size) {
+#ifdef USE_ONLINE_IMAGE_BMP_SUPPORT
+  if (format == ImageFormat::BMP) {
+    ESP_LOGD(TAG, "Allocating BMP decoder");
+    this->decoder_ = make_unique<BmpDecoder>(this);
+  }
+#endif
+#ifdef USE_ONLINE_IMAGE_JPEG_SUPPORT
+  if (format == ImageFormat::JPEG) {
+    ESP_LOGD(TAG, "Allocating JPEG decoder");
+    this->decoder_ = esphome::make_unique<JpegDecoder>(this);
+  }
+#endif
+#ifdef USE_ONLINE_IMAGE_PNG_SUPPORT
+  if (format == ImageFormat::PNG) {
+    ESP_LOGD(TAG, "Allocating PNG decoder");
+    this->decoder_ = make_unique<PngDecoder>(this);
+  }
+#endif
+  if (!this->decoder_) {
+    ESP_LOGE(TAG, "Could not instantiate decoder. Image format unsupported: %d", format);
+    return false;
+  }
+  if (this->decoder_->prepare(total_size) < 0) {
+    this->decoder_.reset();
+    return false;
+  }
+  return true;
 }
 
 void OnlineImage::end_connection_() {
