@@ -263,6 +263,7 @@ touchscreen:
   - platform: gt911
     id: tft_touch
     display: tft_display
+    # Touch mirror must match display_rotation (0/90/180/270); see packages.yaml
     transform:
       mirror_x: ${touch_mirror_x}
       mirror_y: ${touch_mirror_y}
@@ -676,7 +677,7 @@ script:
 display:
   - platform: st7701s
     id: tft_display
-    rotation: ${display_rotation}
+    rotation: ${display_rotation}  # 0, 90, 180, or 270; touch mirror must match
     dimensions:
       width: 480
       height: 480

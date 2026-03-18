@@ -199,6 +199,7 @@ touchscreen:
     display: tft_display
     reset_pin: GPIO22
     interrupt_pin: GPIO21
+    # Touch mirror must match display_rotation (90 or 270); see packages.yaml
     transform:
       swap_xy: true
       mirror_x: ${touch_mirror_x}
@@ -488,7 +489,7 @@ display:
     model: JC8012P4A1
     id: tft_display
     reset_pin: GPIO27
-    rotation: ${display_rotation}
+    rotation: ${display_rotation}  # 90 (default) or 270 (flipped landscape)
     auto_clear_enabled: false
     color_order: RGB
     dimensions:
