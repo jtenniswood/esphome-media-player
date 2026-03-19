@@ -44,7 +44,7 @@ wifi:
 packages:
   music_dashboard:
     url: https://github.com/jtenniswood/esphome-media-player
-    files: [guition-esp32-p4-jc8012p4a1/packages-landscape.yaml]
+    files: [guition-esp32-p4-jc8012p4a1/packages.yaml]
     ref: main
     refresh: 1s
 ```
@@ -113,7 +113,7 @@ The rectangular display supports both landscape and portrait orientations, each 
 
 #### Landscape (default)
 
-Use `packages-landscape.yaml`. To flip 180°, override `display_rotation` and touch mirrors:
+Use `packages.yaml`. To flip 180°, override `display_rotation` and touch mirrors:
 
 | `display_rotation` | `touch_swap_xy` | `touch_mirror_x` | `touch_mirror_y` |
 | ------------------- | --------------- | ----------------- | ----------------- |
@@ -147,7 +147,7 @@ wifi:
 packages:
   music_dashboard:
     url: https://github.com/jtenniswood/esphome-media-player
-    files: [guition-esp32-p4-jc8012p4a1/packages-landscape.yaml]
+    files: [guition-esp32-p4-jc8012p4a1/packages.yaml]
     ref: main
     refresh: 1s
 ```

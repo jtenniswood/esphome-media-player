@@ -5,7 +5,7 @@ substitutions:
   # ha_host: "homeassistant.local"  # Home Assistant hostname or IP (change if HA runs on a different host)
   # ha_port: "8123"  # Home Assistant port (change if HA runs on a non-standard port)
   # Display rotation: 90 (default) or 270 (flipped landscape)
-  # For portrait mode, use packages-portrait.yaml instead of packages-landscape.yaml
+  # For portrait mode, use packages-portrait.yaml instead of packages.yaml
   # display_rotation: "270"
   # touch_mirror_x: "true"
   # touch_mirror_y: "true"
@@ -19,6 +19,6 @@ wifi:
 packages:
   music_dashboard:
     url: https://github.com/jtenniswood/esphome-media-player
-    files: [guition-esp32-p4-jc8012p4a1/packages-landscape.yaml]
+    files: [guition-esp32-p4-jc8012p4a1/packages.yaml]
     ref: main
     refresh: 1s

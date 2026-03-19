@@ -4,7 +4,7 @@ substitutions:
   ha_port: "8123"
   ha_host: "homeassistant.local"
   # Display rotation: 0 (default portrait) or 180 (flipped portrait)
-  # For landscape mode, use packages-landscape.yaml instead.
+  # For landscape mode, use packages.yaml instead.
   display_rotation: "0"
   # Touch transform (must match display_rotation):
   #   0:   swap_xy "false", mirror_x "true",  mirror_y "false"

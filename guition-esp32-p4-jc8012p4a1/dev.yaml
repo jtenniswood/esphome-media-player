@@ -7,7 +7,7 @@ wifi:
   password: !secret wifi_password
 
 packages:
-  music_dashboard: !include packages-landscape.yaml
+  music_dashboard: !include packages.yaml
 
 external_components:
   - source:
