@@ -17,6 +17,7 @@ A touchscreen media controller for Home Assistant: album art, track info, and to
 - [Installation](/installation) — flash, connect, and configure your device
 - [Firmware Updates](/features/firmware-updates) — automatic over-the-air updates
 - [Speaker Grouping](/features/speaker-grouping) — multi-room speaker control
+- [Screen Saver](/features/screen-saver) — dimming, clock, and day/night brightness
 - [Settings](/features/settings) — brightness, timeouts, screen saver, track info
 - [Manual installation](/advanced/esphome-config) — flash via ESPHome dashboard instead of the web installer
 - [Troubleshooting](/advanced/troubleshooting) — common issues and fixes
@@ -60,24 +61,11 @@ This feature works with any speaker platform that supports grouping in Home Assi
 
 The device checks for new firmware automatically and can install updates over-the-air — no USB cable needed. You control the behavior from Home Assistant: enable or disable auto-update, choose a check frequency (hourly, daily, or weekly), and trigger manual installs at any time. See [Firmware Updates](/features/firmware-updates) for details.
 
-### Screensaver
+### Screen saver
 
-When playback is paused, the device uses a two-stage screensaver:
+When playback is paused, the device dims the screen after a configurable delay, then either shows a clock or turns the screen off. An optional clock screen saver displays the time in large digits on a black background — it drifts subtly to prevent burn-in. Brightness levels and behavior adjust automatically between day and night. Any touch or new media playback instantly wakes the screen.
 
-1. After **Screen Saver: Paused Dimming** elapses, the screen dims to **Day/Night: Dim Brightness**.
-2. After **Screen Saver: Timer** elapses, the screen saver activates:
-   - If the **Screen Saver: Clock** switch is on, a large `HH:MM` clock is shown at **Screen Saver: Clock Brightness**.
-   - Otherwise, the screen turns off (unless disabled by the **Day/Night: Screen Saver** switch, in which case it stays dimmed).
-
-Active brightness (**Day/Night: Active Brightness**) adjusts automatically between day and night based on the `sun.sun` entity in Home Assistant. All of these settings are configurable from the device page in Home Assistant (see [Settings](/features/settings)).
-
-### Clock screen saver
-
-An optional clock screen saver displays the current time in large, thin digits on a black background when the device is idle. Enable it with the **Screen Saver: Clock** switch in Home Assistant.
-
-When enabled, the clock replaces the screen-off stage of the screen saver flow. After the screen dims and the **Screen Saver: Timer** elapses, the display switches to a `HH:MM` clock at **Screen Saver: Clock Brightness** (default 35%). The screen **never turns off** — the clock stays visible.
-
-The clock position drifts subtly each minute to prevent screen burn-in. Any touch or new media playback instantly returns to the full-brightness now-playing view.
+See [Screen Saver](/features/screen-saver) for full details and settings.
 
 ## Support This Project
 

@@ -4,27 +4,9 @@ Most settings are configurable from the device page in Home Assistant (**Setting
 
 ![Device settings](../images/ha-device-settings.png)
 
-## Display
-
-| Setting | Description |
-|---------|-------------|
-| **Day/Night: Active Brightness** | Screen brightness during active use. Automatically adjusts between day and night values based on the `sun.sun` entity in Home Assistant. |
-| **Day/Night: Dim Brightness** | Screen brightness when dimmed (screensaver stage 1). |
-| **Day/Night: Screen Saver** | When enabled, the screen turns off after the **Screen Saver: Timer** elapses (unless the clock screen saver is active). When disabled, the screen stays at dim brightness instead of turning off. |
-
 ## Screen Saver
 
-| Setting | Description |
-|---------|-------------|
-| **Screen Saver: Clock** | When enabled, the clock screen saver replaces the screen-off stage: after the screen dims and the **Screen Saver: Timer** elapses, a large 24-hour clock (`HH:MM`) is shown on a black background instead of turning the screen off. The clock position drifts subtly each minute to prevent burn-in. |
-| **Screen Saver: Clock Brightness** | Backlight level for the clock screen saver. Default: 35%. |
-
-## Timeouts
-
-| Setting | Description |
-|---------|-------------|
-| **Screen Saver: Paused Dimming** | Time after playback pauses before the screen dims to the dim brightness level. |
-| **Screen Saver: Timer** | Time after dimming before the screen saver activates. If the clock screen saver is enabled, the clock is shown. Otherwise, the screen turns off (if the **Day/Night: Screen Saver** switch is on). |
+See [Screen Saver](/features/screen-saver) for all brightness, timer, clock, and day/night screen saver settings.
 
 ## Speakers
 
