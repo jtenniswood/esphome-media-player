@@ -166,7 +166,7 @@ number:
     min_value: 1
     max_value: 300
     step: 1
-    initial_value: 10
+    initial_value: 300
     optimistic: true
     restore_value: true
     unit_of_measurement: "s"
