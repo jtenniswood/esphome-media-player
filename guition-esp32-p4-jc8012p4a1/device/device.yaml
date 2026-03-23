@@ -13,8 +13,11 @@
 esp32:
   variant: ESP32P4
   flash_size: 16MB
+  engineering_sample: true
   framework:
     type: esp-idf
+    sdkconfig_options:
+      CONFIG_HTTPD_MAX_URI_LEN: "128"
     advanced:
       enable_idf_experimental_features: true
 
