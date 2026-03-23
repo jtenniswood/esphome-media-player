@@ -12,7 +12,7 @@ substitutions:
   #   0:   swap_xy "false", mirror_x "false", mirror_y "false"
   #   90:  swap_xy "false", mirror_x "true",  mirror_y "false"
   #   180: swap_xy "false", mirror_x "true",  mirror_y "true"
-  #   270: swap_xy "true",  mirror_x "true",  mirror_y "true"
+  #   270: swap_xy "true",  mirror_x "false", mirror_y "false"
   touch_swap_xy: "false"
   touch_mirror_x: "false"
   touch_mirror_y: "false"

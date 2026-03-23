@@ -4,8 +4,8 @@ substitutions:
   # 270° mounting — see docs/advanced/display-rotation.md (swap_xy + mirrors)
   display_rotation: "270"
   touch_swap_xy: "true"
-  touch_mirror_x: "true"
-  touch_mirror_y: "true"
+  touch_mirror_x: "false"
+  touch_mirror_y: "false"
 
 wifi:
   ssid: !secret wifi_ssid
