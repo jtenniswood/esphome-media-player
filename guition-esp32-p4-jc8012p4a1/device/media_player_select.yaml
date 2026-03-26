@@ -151,7 +151,7 @@ script:
 
           sub_text("media_title", id(media_title_sensor));
           sub_text("media_artist", id(media_artist_sensor));
-          sub_text("entity_picture", id(media_entity_picture_sensor));
+          sub_text("media_image_url", id(media_entity_picture_sensor));
 
           api->subscribe_home_assistant_state(entity, esphome::optional<std::string>(""),
               str_cb([gen, gen_ptr](const std::string &state) {
@@ -223,7 +223,7 @@ script:
 
           sub_text("media_title", id(tv_media_title_sensor));
           sub_text("media_artist", id(tv_media_artist_sensor));
-          sub_text("entity_picture", id(tv_entity_picture_sensor));
+          sub_text("media_image_url", id(tv_entity_picture_sensor));
 
           api->subscribe_home_assistant_state(entity, esphome::optional<std::string>(""),
               str_cb([gen, gen_ptr](const std::string &state) {
