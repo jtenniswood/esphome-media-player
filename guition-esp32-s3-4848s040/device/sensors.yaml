@@ -285,7 +285,7 @@ text_sensor:
                         - script.stop: start_hide_track_info_timer
                         - lvgl.label.update:
                             id: media_title_label
-                            text: "\xe2\x80\x94"
+                            text: "—"
                         - lambda: 'id(artist_has_content) = false;'
                         - lvgl.widget.hide: media_artist_label
                         - lvgl.label.update:
