@@ -133,7 +133,7 @@ void OnlineImage::update() {
   }
   ESP_LOGI(TAG, "Updating image %s", this->url_.c_str());
 
-  std::list<http_request::Header> headers = {};
+  std::vector<http_request::Header> headers = {};
 
   http_request::Header accept_header;
   accept_header.name = "Accept";
