@@ -23,6 +23,11 @@
 # See addon/accent_color.yaml for a working example.
 # =============================================================================
 
+globals:
+  - id: artwork_retry_pending
+    type: bool
+    initial_value: 'false'
+
 external_components:
   - source:
       type: git
@@ -74,6 +79,7 @@ script:
     mode: restart
     then:
       - lvgl.widget.hide: artwork_error_label
+      - lambda: 'id(artwork_retry_pending) = false;'
       - lambda: |-
           auto *img = id(is_tv_mode) ? id(tv_art_background) : id(album_art_background);
           int iw = img->get_width();
@@ -119,12 +125,27 @@ script:
       - lambda: |-
           const std::string &url = id(is_tv_mode) ? id(last_tv_artwork_url) : id(last_artwork_url);
           ESP_LOGW("artwork", "Artwork download failed: %s", url.c_str());
-      - delay: 1s
-      - lambda: |-
-          auto *img = id(is_tv_mode) ? id(tv_art_background) : id(album_art_background);
-          const std::string &url = id(is_tv_mode) ? id(last_tv_artwork_url) : id(last_artwork_url);
-          if (!url.empty()) {
-            ESP_LOGI("artwork", "Retrying artwork download: %s", url.c_str());
-            img->set_url(url);
-            img->update();
-          }
+      - if:
+          condition:
+            lambda: 'return !id(artwork_retry_pending);'
+          then:
+            - lambda: 'id(artwork_retry_pending) = true;'
+            - delay: 1s
+            - lambda: |-
+                auto *img = id(is_tv_mode) ? id(tv_art_background) : id(album_art_background);
+                const std::string &url = id(is_tv_mode) ? id(last_tv_artwork_url) : id(last_artwork_url);
+                if (!url.empty()) {
+                  ESP_LOGI("artwork", "Retrying artwork download: %s", url.c_str());
+                  img->set_url(url);
+                  img->update();
+                }
+          else:
+            - lambda: |-
+                id(artwork_retry_pending) = false;
+                ESP_LOGW("artwork", "Retry also failed — clearing stale artwork");
+            - lvgl.image.update:
+                id: album_art_background_widget
+                src: album_art_placeholder
+            - lvgl.widget.update:
+                id: album_art_background_widget
+                opa: 50%
