@@ -90,25 +90,20 @@ int HOT JpegDecoder::decode(uint8_t *buffer, size_t size) {
   int target_h = this->image_->get_fixed_height();
   if (target_w > 0 && target_h > 0) {
     // libjpeg supports scale_num/scale_denom ratios: 1/1, 1/2, 1/4, 1/8
-    // Pick the smallest that still produces output >= 75% of target.
-    // Accepting slightly-smaller-than-target output enables aggressive IDCT
-    // scaling (e.g. 800x800 at 1/2 = 400x400 for a 480 target) which is ~4x
-    // faster to decode. The small shortfall is handled by LVGL zoom in the
-    // apply_downloaded_artwork script.
-    int threshold_w = target_w * 3 / 4;
-    int threshold_h = target_h * 3 / 4;
+    // Pick the smallest that still produces output >= target
     constexpr unsigned int denoms[] = {8, 4, 2, 1};
     for (unsigned int denom : denoms) {
       cinfo.scale_num = 1;
       cinfo.scale_denom = denom;
       jpeg_calc_output_dimensions(&cinfo);
-      if (static_cast<int>(cinfo.output_width) >= threshold_w &&
-          static_cast<int>(cinfo.output_height) >= threshold_h) {
+      if (static_cast<int>(cinfo.output_width) >= target_w &&
+          static_cast<int>(cinfo.output_height) >= target_h) {
         break;
       }
     }
-    if (static_cast<int>(cinfo.output_width) < threshold_w ||
-        static_cast<int>(cinfo.output_height) < threshold_h) {
+    // Reset to 1/1 if none fit (shouldn't happen since 1/1 >= source)
+    if (static_cast<int>(cinfo.output_width) < target_w ||
+        static_cast<int>(cinfo.output_height) < target_h) {
       cinfo.scale_num = 1;
       cinfo.scale_denom = 1;
       jpeg_calc_output_dimensions(&cinfo);
@@ -128,18 +123,11 @@ int HOT JpegDecoder::decode(uint8_t *buffer, size_t size) {
     return DECODE_ERROR_OUT_OF_MEMORY;
   }
 
-  int buf_w = this->image_->get_width();
-  int buf_h = this->image_->get_height();
-  bool upscale = (buf_w > out_w || buf_h > out_h);
-  if (upscale) {
-    ESP_LOGD(TAG, "Upscaling decoded %dx%d -> buffer %dx%d", out_w, out_h, buf_w, buf_h);
-  }
-
   jpeg_start_decompress(&cinfo);
 
+  // Allocate row buffers (raw pointers — safe across longjmp)
   size_t row_stride = static_cast<size_t>(out_w) * 3;
-  size_t scaled_bytes = upscale ? static_cast<size_t>(buf_w) * 2 : 0;
-  row_buffer = static_cast<uint8_t *>(malloc(std::max(row_stride, scaled_bytes)));
+  row_buffer = static_cast<uint8_t *>(malloc(row_stride));
   if (row_buffer == nullptr) {
     jpeg_destroy_decompress(&cinfo);
     return DECODE_ERROR_OUT_OF_MEMORY;
@@ -158,6 +146,10 @@ int HOT JpegDecoder::decode(uint8_t *buffer, size_t size) {
     }
 
     if (use_rgb565) {
+      // Convert RGB888 -> RGB565 in-place (2 bpp fits within the 3 bpp
+      // source buffer, so no separate allocation needed).  We read forward
+      // and write forward; the write pointer never overtakes the read
+      // pointer because 2 < 3.
       uint8_t *dst = row_buffer;
       for (int x = 0; x < out_w; x++) {
         uint8_t r = row_buffer[x * 3 + 0];
@@ -173,22 +165,9 @@ int HOT JpegDecoder::decode(uint8_t *buffer, size_t size) {
         }
         dst += 2;
       }
-
-      if (upscale) {
-        for (int tx = buf_w - 1; tx >= 0; tx--) {
-          int sx = tx * out_w / buf_w;
-          row_buffer[tx * 2 + 0] = row_buffer[sx * 2 + 0];
-          row_buffer[tx * 2 + 1] = row_buffer[sx * 2 + 1];
-        }
-        int ty_start = y * buf_h / out_h;
-        int ty_end = (y + 1) * buf_h / out_h;
-        for (int ty = ty_start; ty < ty_end; ty++) {
-          this->draw_rgb565_block(0, ty, buf_w, 1, row_buffer);
-        }
-      } else {
-        this->draw_rgb565_block(0, y, out_w, 1, row_buffer);
-      }
+      this->draw_rgb565_block(0, y, out_w, 1, row_buffer);
     } else {
+      // Per-pixel draw for other image types
       for (int x = 0; x < out_w; x++) {
         Color color(row_buffer[x * 3 + 0], row_buffer[x * 3 + 1], row_buffer[x * 3 + 2]);
         this->draw(x, y, 1, 1, color);
