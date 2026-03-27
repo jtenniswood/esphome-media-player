@@ -435,6 +435,42 @@ script:
             - lvgl.widget.update:
                 id: album_art_background_widget
                 opa: 50%
+            - if:
+                condition:
+                  lambda: |-
+                    return id(tv_media_title_sensor).has_state()
+                        && !id(tv_media_title_sensor).state.empty();
+                then:
+                  - lvgl.label.update:
+                      id: media_title_label
+                      text: !lambda 'return id(tv_media_title_sensor).state;'
+            - if:
+                condition:
+                  lambda: |-
+                    return id(tv_media_artist_sensor).has_state()
+                        && !id(tv_media_artist_sensor).state.empty()
+                        && id(tv_media_artist_sensor).state != "\xe2\x80\x94";
+                then:
+                  - lambda: 'id(artist_has_content) = true;'
+                  - lvgl.label.update:
+                      id: media_artist_label
+                      text: !lambda 'return id(tv_media_artist_sensor).state;'
+                  - lvgl.widget.show: media_artist_label
+            - if:
+                condition:
+                  lambda: |-
+                    return id(tv_entity_picture_sensor).has_state()
+                        && !id(tv_entity_picture_sensor).state.empty();
+                then:
+                  - lambda: |-
+                      std::string path = id(tv_entity_picture_sensor).state;
+                      while (!path.empty() && (path.back() == '\n' || path.back() == '\r' || path.back() == ' ')) path.pop_back();
+                      id(last_tv_artwork_url) = (path.substr(0, 7) == "http://" || path.substr(0, 8) == "https://") ? path : (id(ha_base_url) + path);
+                      id(last_tv_artwork_url) = esphome::online_image::cap_artwork_url(id(last_tv_artwork_url));
+                  - delay: 50ms
+                  - online_image.set_url:
+                      id: tv_art_background
+                      url: !lambda 'return id(last_tv_artwork_url);'
       - script.execute: show_track_view
       - logger.log: "Entered linked media player mode"
 

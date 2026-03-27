@@ -108,6 +108,17 @@ text_sensor:
             - online_image.set_url:
                 id: tv_art_background
                 url: !lambda 'return id(last_tv_artwork_url);'
+      - if:
+          condition:
+            lambda: 'return id(is_tv_mode) && x.empty() && !id(last_tv_artwork_url).empty();'
+          then:
+            - lambda: 'id(last_tv_artwork_url) = "";'
+            - lvgl.image.update:
+                id: album_art_background_widget
+                src: album_art_placeholder
+            - lvgl.widget.update:
+                id: album_art_background_widget
+                opa: 50%
 
   - platform: template
     id: tv_media_player_state_sensor
@@ -126,6 +137,10 @@ text_sensor:
                 then:
                   - lambda: |-
                       id(is_tv_idle) = true;
+                      id(last_tv_artwork_url) = "";
+                      id(last_tv_media_position) = 0.0f;
+                      id(tv_ha_position_epoch) = 0;
+                      id(last_tv_position_timestamp) = 0;
                       lv_obj_set_style_bg_color(id(track_info_overlay), lv_color_make(0, 0, 0), 0);
                       lv_obj_set_style_bg_color(id(artwork_bg_panel), lv_color_make(0, 0, 0), 0);
                   - script.stop: start_hide_track_info_timer
@@ -167,6 +182,55 @@ text_sensor:
                         - lvgl.widget.show: media_play_pause_button
                         - lvgl.widget.show: media_time_label
                         - lvgl.widget.show: album_art_background_widget
+                        - if:
+                            condition:
+                              lambda: |-
+                                return id(tv_media_title_sensor).has_state()
+                                    && !id(tv_media_title_sensor).state.empty();
+                            then:
+                              - lvgl.label.update:
+                                  id: media_title_label
+                                  text: !lambda 'return id(tv_media_title_sensor).state;'
+                        - if:
+                            condition:
+                              lambda: |-
+                                return id(tv_media_artist_sensor).has_state()
+                                    && !id(tv_media_artist_sensor).state.empty()
+                                    && id(tv_media_artist_sensor).state != "\xe2\x80\x94";
+                            then:
+                              - lambda: 'id(artist_has_content) = true;'
+                              - lvgl.label.update:
+                                  id: media_artist_label
+                                  text: !lambda 'return id(tv_media_artist_sensor).state;'
+                              - lvgl.widget.show: media_artist_label
+                        - lvgl.image.update:
+                            id: album_art_background_widget
+                            src: tv_art_background
+                        - if:
+                            condition:
+                              lambda: |-
+                                return id(tv_entity_picture_sensor).has_state()
+                                    && !id(tv_entity_picture_sensor).state.empty();
+                            then:
+                              - lambda: |-
+                                  std::string path = id(tv_entity_picture_sensor).state;
+                                  while (!path.empty() && (path.back() == '\n' || path.back() == '\r' || path.back() == ' ')) path.pop_back();
+                                  id(last_tv_artwork_url) = (path.substr(0, 7) == "http://" || path.substr(0, 8) == "https://") ? path : (id(ha_base_url) + path);
+                                  id(last_tv_artwork_url) = esphome::online_image::cap_artwork_url(id(last_tv_artwork_url));
+                              - lvgl.widget.update:
+                                  id: album_art_background_widget
+                                  opa: 50%
+                              - delay: 50ms
+                              - online_image.set_url:
+                                  id: tv_art_background
+                                  url: !lambda 'return id(last_tv_artwork_url);'
+                            else:
+                              - lvgl.image.update:
+                                  id: album_art_background_widget
+                                  src: album_art_placeholder
+                              - lvgl.widget.update:
+                                  id: album_art_background_widget
+                                  opa: 50%
                   - script.stop: backlight_wake_timeout
                   - lvgl.resume:
                   - lvgl.widget.hide:
