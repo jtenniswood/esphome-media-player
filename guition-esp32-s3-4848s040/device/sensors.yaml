@@ -157,6 +157,7 @@ script:
   - id: debounce_artwork_download
     mode: restart
     then:
+      - script.stop: delayed_idle_cleanup
       - delay: 300ms
       - lvgl.widget.hide: artwork_error_label
       - online_image.set_url:
