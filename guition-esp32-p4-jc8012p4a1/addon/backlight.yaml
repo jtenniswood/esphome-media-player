@@ -238,6 +238,14 @@ switch:
     icon: "mdi:clock-outline"
     entity_category: config
 
+  - platform: template
+    name: "Screen Saver: 24-Hour Clock"
+    id: clock_24h_enabled
+    optimistic: true
+    restore_mode: RESTORE_DEFAULT_ON
+    icon: "mdi:clock-digital"
+    entity_category: config
+
 
 # -----------------------------------------------------------------------------
 # BACKLIGHT WAKE / DIM / OFF SCRIPT
@@ -349,7 +357,13 @@ script:
           auto time = id(ha_time).now();
           if (time.is_valid()) {
             char buf[6];
-            snprintf(buf, sizeof(buf), "%02d:%02d", time.hour, time.minute);
+            if (id(clock_24h_enabled).state) {
+              snprintf(buf, sizeof(buf), "%02d:%02d", time.hour, time.minute);
+            } else {
+              int h12 = time.hour % 12;
+              if (h12 == 0) h12 = 12;
+              snprintf(buf, sizeof(buf), "%2d:%02d", h12, time.minute);
+            }
             lv_label_set_text(id(clock_label), buf);
             lv_obj_update_layout(id(clock_label));
             lv_coord_t w = lv_obj_get_width(id(clock_label));
@@ -358,6 +372,16 @@ script:
             int ox = (time.minute * 7) % 61 - 30;
             int oy = (time.minute * 13) % 41 - 20;
             lv_obj_set_pos(id(clock_label), cx + ox - w/2, cy + oy - h/2);
+            if (id(clock_24h_enabled).state) {
+              lv_obj_add_flag(id(am_pm_label), LV_OBJ_FLAG_HIDDEN);
+            } else {
+              lv_label_set_text(id(am_pm_label), time.hour < 12 ? "AM" : "PM");
+              lv_obj_clear_flag(id(am_pm_label), LV_OBJ_FLAG_HIDDEN);
+              lv_obj_update_layout(id(am_pm_label));
+              lv_coord_t pw = lv_obj_get_width(id(am_pm_label));
+              lv_coord_t ph = lv_obj_get_height(id(am_pm_label));
+              lv_obj_set_pos(id(am_pm_label), cx + ox + w/2 - pw, cy + oy + h/2 - ph);
+            }
           }
       - lvgl.widget.show: clock_screensaver
       - light.turn_on:
@@ -407,7 +431,13 @@ interval:
           auto time = id(ha_time).now();
           if (!time.is_valid()) return;
           char buf[6];
-          snprintf(buf, sizeof(buf), "%02d:%02d", time.hour, time.minute);
+          if (id(clock_24h_enabled).state) {
+            snprintf(buf, sizeof(buf), "%02d:%02d", time.hour, time.minute);
+          } else {
+            int h12 = time.hour % 12;
+            if (h12 == 0) h12 = 12;
+            snprintf(buf, sizeof(buf), "%2d:%02d", h12, time.minute);
+          }
           lv_label_set_text(id(clock_label), buf);
           lv_obj_update_layout(id(clock_label));
           lv_coord_t w = lv_obj_get_width(id(clock_label));
@@ -416,3 +446,13 @@ interval:
           int ox = (time.minute * 7) % 61 - 30;
           int oy = (time.minute * 13) % 41 - 20;
           lv_obj_set_pos(id(clock_label), cx + ox - w/2, cy + oy - h/2);
+          if (id(clock_24h_enabled).state) {
+            lv_obj_add_flag(id(am_pm_label), LV_OBJ_FLAG_HIDDEN);
+          } else {
+            lv_label_set_text(id(am_pm_label), time.hour < 12 ? "AM" : "PM");
+            lv_obj_clear_flag(id(am_pm_label), LV_OBJ_FLAG_HIDDEN);
+            lv_obj_update_layout(id(am_pm_label));
+            lv_coord_t pw = lv_obj_get_width(id(am_pm_label));
+            lv_coord_t ph = lv_obj_get_height(id(am_pm_label));
+            lv_obj_set_pos(id(am_pm_label), cx + ox + w/2 - pw, cy + oy + h/2 - ph);
+          }

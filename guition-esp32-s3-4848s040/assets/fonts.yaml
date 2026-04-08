@@ -4,12 +4,19 @@
 # Two content lines in each >- block: the fold produces exactly one space glyph.
 # roboto56_font uses regular weight with minimal glyphs (digits + %) for the volume dial.
 # roboto_thin160_font uses Thin weight for the clock screensaver (digits + colon only).
+# roboto_thin_ampm_font uses Thin weight for the AM/PM indicator in 12-hour mode.
 font:
   - file: "gfonts://Roboto@Thin"
     id: roboto_thin160_font
     size: 160
     bpp: 4
     glyphs: " 0123456789:"
+
+  - file: "gfonts://Roboto@Thin"
+    id: roboto_thin_ampm_font
+    size: 40
+    bpp: 4
+    glyphs: "AMP "
 
   - file: "gfonts://Roboto"
     id: roboto56_font
