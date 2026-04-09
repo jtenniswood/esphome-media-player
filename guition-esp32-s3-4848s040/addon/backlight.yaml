@@ -234,6 +234,12 @@ switch:
     restore_mode: RESTORE_DEFAULT_ON
     icon: "mdi:clock-digital"
     entity_category: config
+    on_state:
+      - if:
+          condition:
+            lambda: 'return id(is_clock_showing);'
+          then:
+            - script.execute: show_clock_view
 
 
 # -----------------------------------------------------------------------------
