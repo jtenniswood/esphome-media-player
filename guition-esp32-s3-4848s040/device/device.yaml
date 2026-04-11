@@ -693,5 +693,5 @@ display:
     update_interval: never
     auto_clear_enabled: False
     transform:
-      mirror_x: true
-      mirror_y: true
+      mirror_x: false
+      mirror_y: false
