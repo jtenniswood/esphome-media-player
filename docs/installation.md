@@ -11,7 +11,7 @@
 
 ## Flash firmware
 
-Select your device and click **Install** to flash the firmware directly from your browser. No ESPHome dashboard or YAML required.
+Click **Install** on your device to flash the firmware directly from your browser. No ESPHome dashboard or YAML required.
 
 <InstallButton />
 
