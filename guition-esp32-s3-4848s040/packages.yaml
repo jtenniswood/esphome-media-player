@@ -20,6 +20,7 @@ substitutions:
   # -- Shared config (consumed by shared/ files) --
   artwork_size: "480"
   artwork_display_size: "480"
+  artwork_image_type: "RGB565"
   image_byte_order: "big_endian"
   online_image_buffer_size: "65536"
   clock_cx: "240"

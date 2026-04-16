@@ -26,14 +26,14 @@ http_request:
 image:
   - file: "https://github.com/jtenniswood/esphome-media-player/raw/main/${device_slug}/assets/placeholder.png"
     id: album_art_placeholder
-    type: RGB565
+    type: ${artwork_image_type}
     byte_order: ${image_byte_order}
 
 online_image:
   - url: "https://placehold.co/${artwork_size}x${artwork_size}/2d2d2d/555555"
     id: album_art_background
     format: AUTO
-    type: RGB565
+    type: ${artwork_image_type}
     byte_order: ${image_byte_order}
     placeholder: album_art_placeholder
     resize: ${artwork_size}x${artwork_size}
@@ -46,7 +46,7 @@ online_image:
   - url: "https://placehold.co/${artwork_size}x${artwork_size}/2d2d2d/555555"
     id: tv_art_background
     format: AUTO
-    type: RGB565
+    type: ${artwork_image_type}
     byte_order: ${image_byte_order}
     placeholder: album_art_placeholder
     resize: ${artwork_size}x${artwork_size}

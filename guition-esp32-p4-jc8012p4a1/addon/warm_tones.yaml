@@ -117,15 +117,27 @@ script:
           if (!dsc || !dsc->data) return;
           uint8_t *buf = const_cast<uint8_t*>(dsc->data);
           int total = img->get_width() * img->get_height();
-          for (int i = 0; i < total; i++) {
-            int pos = i * 2;
-            uint16_t px = buf[pos] | (buf[pos + 1] << 8);
-            uint8_t r5 = r_lut[(px >> 11) & 0x1F];
-            uint8_t g6 = g_lut[(px >> 5) & 0x3F];
-            uint8_t b5 = b_lut[px & 0x1F];
-            uint16_t out = (r5 << 11) | (g6 << 5) | b5;
-            buf[pos]     = out & 0xFF;
-            buf[pos + 1] = (out >> 8) & 0xFF;
+          if (img->get_type() == esphome::image::IMAGE_TYPE_RGB) {
+            for (int i = 0; i < total; i++) {
+              int pos = i * 3;
+              uint8_t r5 = r_lut[buf[pos] >> 3];
+              uint8_t g6 = g_lut[buf[pos + 1] >> 2];
+              uint8_t b5 = b_lut[buf[pos + 2] >> 3];
+              buf[pos] = (r5 << 3) | (r5 >> 2);
+              buf[pos + 1] = (g6 << 2) | (g6 >> 4);
+              buf[pos + 2] = (b5 << 3) | (b5 >> 2);
+            }
+          } else {
+            for (int i = 0; i < total; i++) {
+              int pos = i * 2;
+              uint16_t px = buf[pos] | (buf[pos + 1] << 8);
+              uint8_t r5 = r_lut[(px >> 11) & 0x1F];
+              uint8_t g6 = g_lut[(px >> 5) & 0x3F];
+              uint8_t b5 = b_lut[px & 0x1F];
+              uint16_t out = (r5 << 11) | (g6 << 5) | b5;
+              buf[pos]     = out & 0xFF;
+              buf[pos + 1] = (out >> 8) & 0xFF;
+            }
           }
 
           lv_obj_invalidate(id(album_art_background_widget));
