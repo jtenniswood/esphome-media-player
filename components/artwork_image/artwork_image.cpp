@@ -469,7 +469,7 @@ ImageFormat ArtworkImage::detect_format_() {
   return ImageFormat::AUTO;
 }
 
-bool ArtworkImage::detect_progressive_jpeg_() const {
+bool ArtworkImage::detect_progressive_jpeg_() {
   size_t len = this->download_buffer_.unread();
   const uint8_t *data = this->download_buffer_.data();
   if (len < 4 || data[0] != 0xFF || data[1] != 0xD8) {
@@ -504,7 +504,7 @@ bool ArtworkImage::detect_progressive_jpeg_() const {
   return false;
 }
 
-bool ArtworkImage::detect_heic_() const {
+bool ArtworkImage::detect_heic_() {
   size_t len = this->download_buffer_.unread();
   const uint8_t *data = this->download_buffer_.data();
   if (len < 12) {

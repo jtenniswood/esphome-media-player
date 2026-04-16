@@ -110,8 +110,8 @@ class ArtworkImage : public PollingComponent,
  protected:
   bool validate_url_(const std::string &url);
   ImageFormat detect_format_();
-  bool detect_progressive_jpeg_() const;
-  bool detect_heic_() const;
+  bool detect_progressive_jpeg_();
+  bool detect_heic_();
   bool create_decoder_(ImageFormat format, size_t total_size);
 
   RAMAllocator<uint8_t> allocator_{};
