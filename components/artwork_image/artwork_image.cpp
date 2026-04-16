@@ -460,7 +460,7 @@ ImageFormat ArtworkImage::detect_format_() {
     const uint8_t *data = this->download_buffer_.data();
     if (data[0] == 0xFF && data[1] == 0xD8) {
       if (this->detect_progressive_jpeg_()) {
-        ESP_LOGW(TAG, "Detected progressive JPEG from magic bytes; progressive artwork is not supported yet");
+        ESP_LOGW(TAG, "Detected progressive JPEG from magic bytes; attempting native JPEG decoder");
       } else {
         ESP_LOGD(TAG, "Detected JPEG from magic bytes; decoder will report baseline/progressive from the header");
       }
