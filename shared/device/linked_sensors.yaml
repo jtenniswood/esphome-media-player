@@ -95,6 +95,7 @@ text_sensor:
               std::string path = x;
               while (!path.empty() && (path.back() == '\n' || path.back() == '\r' || path.back() == ' ')) path.pop_back();
               std::string new_url = (path.substr(0, 7) == "http://" || path.substr(0, 8) == "https://") ? path : (id(ha_base_url) + path);
+              new_url = esphome::artwork_image::cap_artwork_url(new_url, ${artwork_size});
               if (new_url == id(last_tv_artwork_url)) return false;
               id(last_tv_artwork_url) = new_url;
               return true;
@@ -215,6 +216,7 @@ text_sensor:
                                   std::string path = id(tv_entity_picture_sensor).state;
                                   while (!path.empty() && (path.back() == '\n' || path.back() == '\r' || path.back() == ' ')) path.pop_back();
                                   id(last_tv_artwork_url) = (path.substr(0, 7) == "http://" || path.substr(0, 8) == "https://") ? path : (id(ha_base_url) + path);
+                                  id(last_tv_artwork_url) = esphome::artwork_image::cap_artwork_url(id(last_tv_artwork_url), ${artwork_size});
                               - lvgl.widget.update:
                                   id: album_art_background_widget
                                   opa: 50%

@@ -6,6 +6,7 @@
 #include "esphome/core/defines.h"
 #include "esphome/core/helpers.h"
 
+#include "artwork_url.h"
 #include "image_decoder.h"
 
 namespace esphome {

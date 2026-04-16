@@ -603,6 +603,7 @@ script:
                       std::string path = id(tv_entity_picture_sensor).state;
                       while (!path.empty() && (path.back() == '\n' || path.back() == '\r' || path.back() == ' ')) path.pop_back();
                       id(last_tv_artwork_url) = (path.substr(0, 7) == "http://" || path.substr(0, 8) == "https://") ? path : (id(ha_base_url) + path);
+                      id(last_tv_artwork_url) = esphome::artwork_image::cap_artwork_url(id(last_tv_artwork_url), 480);
                   - delay: 50ms
                   - artwork_image.set_url:
                       id: tv_art_background
@@ -670,6 +671,7 @@ script:
                 std::string path = id(media_entity_picture_sensor).state;
                 while (!path.empty() && (path.back() == '\n' || path.back() == '\r' || path.back() == ' ')) path.pop_back();
                 id(last_artwork_url) = (path.substr(0, 7) == "http://" || path.substr(0, 8) == "https://") ? path : (id(ha_base_url) + path);
+                id(last_artwork_url) = esphome::artwork_image::cap_artwork_url(id(last_artwork_url), 480);
             - artwork_image.set_url:
                 id: album_art_background
                 url: !lambda 'return id(last_artwork_url);'
