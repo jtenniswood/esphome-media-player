@@ -257,7 +257,7 @@ touchscreen:
           int dy = id(touch_y_end) - id(touch_y_start);
           int gesture_dx = dy;
           int gesture_dy = -dx;
-          int gesture_sy = id(touch_x_start);
+          int gesture_sy = 800 - id(touch_x_start);
           ESP_LOGD("touch", "Swipe dx=%d dy=%d gesture=(%d,%d) start=(%d,%d) end=(%d,%d)",
                    dx, dy, gesture_dx, gesture_dy,
                    id(touch_x_start), id(touch_y_start),
