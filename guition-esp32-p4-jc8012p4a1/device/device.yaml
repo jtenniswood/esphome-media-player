@@ -230,7 +230,7 @@ touchscreen:
     reset_pin: GPIO22
     interrupt_pin: GPIO21
     transform:
-      mirror_y: true
+      mirror_x: true
     on_touch:
       - lambda: |-
           id(was_screen_dimmed) = id(is_screen_dimmed);
