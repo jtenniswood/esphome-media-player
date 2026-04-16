@@ -282,11 +282,12 @@ touchscreen:
             return;
           }
 
-          // --- Top-edge swipe: settings panel open ---
+          // --- Top-edge touch/swipe: settings panel open ---
           // P4 touch deltas arrive rotated relative to the visible screen, so
-          // any clear swipe that starts in the top strip belongs to the panel
-          // instead of track navigation.
-          if (gesture_sy < 200 && (abs(gesture_dx) > 30 || abs(gesture_dy) > 30) && !id(is_panel_open)) {
+          // anything that starts in the top strip belongs to the panel instead
+          // of track navigation. The GSL3680 sometimes reports a top-edge
+          // swipe as a zero-distance release.
+          if (gesture_sy < 200 && !id(is_panel_open)) {
             id(open_settings_panel).execute();
             return;
           }
