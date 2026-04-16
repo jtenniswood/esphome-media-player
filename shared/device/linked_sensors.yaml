@@ -104,7 +104,7 @@ text_sensor:
                 opa: 50%
             - lvgl.widget.hide: artwork_error_label
             - delay: 50ms
-            - online_image.set_url:
+            - artwork_image.set_url:
                 id: tv_art_background
                 url: !lambda 'return id(last_tv_artwork_url);'
       - if:
@@ -219,7 +219,7 @@ text_sensor:
                                   id: album_art_background_widget
                                   opa: 50%
                               - delay: 50ms
-                              - online_image.set_url:
+                              - artwork_image.set_url:
                                   id: tv_art_background
                                   url: !lambda 'return id(last_tv_artwork_url);'
                             else:

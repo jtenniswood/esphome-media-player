@@ -160,7 +160,7 @@ script:
       - script.stop: delayed_idle_cleanup
       - delay: 300ms
       - lvgl.widget.hide: artwork_error_label
-      - online_image.set_url:
+      - artwork_image.set_url:
           id: album_art_background
           url: !lambda 'return id(last_artwork_url);'
 

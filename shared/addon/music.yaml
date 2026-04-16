@@ -1,7 +1,7 @@
 # =============================================================================
 # MUSIC DASHBOARD - HTTP request, album art image
 # =============================================================================
-# Required for online_image (album art from Home Assistant entity_picture).
+# Required for artwork_image (album art from Home Assistant entity_picture).
 # Placeholder image shown until art is downloaded.
 # =============================================================================
 
@@ -9,6 +9,15 @@ globals:
   - id: artwork_retry_pending
     type: bool
     initial_value: 'false'
+
+external_components:
+  - source:
+      type: git
+      url: https://github.com/jtenniswood/esphome-media-player
+      ref: main
+      path: components
+    components: [artwork_image]
+    refresh: 1s
 
 http_request:
   id: http_req
@@ -20,15 +29,15 @@ image:
     type: RGB565
     byte_order: ${image_byte_order}
 
-online_image:
+artwork_image:
   - url: "https://placehold.co/${artwork_size}x${artwork_size}/2d2d2d/555555.jpg"
     id: album_art_background
-    format: JPEG
+    format: AUTO
     type: RGB565
     byte_order: ${image_byte_order}
     placeholder: album_art_placeholder
     resize: ${artwork_size}x${artwork_size}
-    buffer_size: ${online_image_buffer_size}
+    buffer_size: ${artwork_image_buffer_size}
     on_download_finished:
       - script.execute: apply_downloaded_artwork
     on_error:
@@ -36,12 +45,12 @@ online_image:
 
   - url: "https://placehold.co/${artwork_size}x${artwork_size}/2d2d2d/555555.jpg"
     id: tv_art_background
-    format: JPEG
+    format: AUTO
     type: RGB565
     byte_order: ${image_byte_order}
     placeholder: album_art_placeholder
     resize: ${artwork_size}x${artwork_size}
-    buffer_size: ${online_image_buffer_size}
+    buffer_size: ${artwork_image_buffer_size}
     on_download_finished:
       - script.execute: apply_downloaded_artwork
     on_error:

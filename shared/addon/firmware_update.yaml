@@ -82,8 +82,8 @@ script:
           id: backlight
           transition_length: 0s
       - lvgl.pause
-      - online_image.release: album_art_background
-      - online_image.release: tv_art_background
+      - artwork_image.release: album_art_background
+      - artwork_image.release: tv_art_background
       - delay: 500ms
       - component.update: firmware_update
       - delay: 15s

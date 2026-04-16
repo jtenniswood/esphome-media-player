@@ -2,7 +2,7 @@
 # LVGL MUSIC DASHBOARD
 # =============================================================================
 # Single-screen now-playing view for any Home Assistant media player.
-# Data from sensors.yaml; album art from online_image (addon/music.yaml).
+# Data from sensors.yaml; album art from artwork_image (addon/music.yaml).
 # =============================================================================
 
 lvgl:

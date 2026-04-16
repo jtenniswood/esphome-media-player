@@ -2,7 +2,7 @@
 # LVGL MUSIC DASHBOARD - 1280x800 Landscape
 # =============================================================================
 # Split layout: album art on left 800x800, track info on right in 480px panel.
-# Data from sensors.yaml; album art from online_image (addon/music.yaml).
+# Data from sensors.yaml; album art from artwork_image (addon/music.yaml).
 # =============================================================================
 
 lvgl:

@@ -604,7 +604,7 @@ script:
                       while (!path.empty() && (path.back() == '\n' || path.back() == '\r' || path.back() == ' ')) path.pop_back();
                       id(last_tv_artwork_url) = (path.substr(0, 7) == "http://" || path.substr(0, 8) == "https://") ? path : (id(ha_base_url) + path);
                   - delay: 50ms
-                  - online_image.set_url:
+                  - artwork_image.set_url:
                       id: tv_art_background
                       url: !lambda 'return id(last_tv_artwork_url);'
       - script.execute: show_track_view
@@ -670,7 +670,7 @@ script:
                 std::string path = id(media_entity_picture_sensor).state;
                 while (!path.empty() && (path.back() == '\n' || path.back() == '\r' || path.back() == ' ')) path.pop_back();
                 id(last_artwork_url) = (path.substr(0, 7) == "http://" || path.substr(0, 8) == "https://") ? path : (id(ha_base_url) + path);
-            - online_image.set_url:
+            - artwork_image.set_url:
                 id: album_art_background
                 url: !lambda 'return id(last_artwork_url);'
       - script.execute: show_track_view
