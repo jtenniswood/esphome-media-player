@@ -78,7 +78,6 @@ int HOT JpegDecoder::decode(uint8_t *buffer, size_t size) {
   ESP_LOGD(TAG, "JPEG header: %dx%d, components=%d, progressive=%s",
            src_w, src_h, cinfo.num_components,
            cinfo.progressive_mode ? "yes" : "no");
-
   // Request RGB output regardless of input colorspace
   cinfo.out_color_space = JCS_RGB;
   // Use fast integer IDCT — slightly lower quality but faster on ESP32
