@@ -258,6 +258,7 @@ touchscreen:
           int gesture_dx = dy;
           int gesture_dy = -dx;
           int gesture_sy = 800 - id(touch_x_start);
+          bool starts_in_top_strip = gesture_sy < 200 || id(touch_y_start) > 1080;
           ESP_LOGD("touch", "Swipe dx=%d dy=%d gesture=(%d,%d) start=(%d,%d) end=(%d,%d)",
                    dx, dy, gesture_dx, gesture_dy,
                    id(touch_x_start), id(touch_y_start),
@@ -287,7 +288,7 @@ touchscreen:
           // anything that starts in the top strip belongs to the panel instead
           // of track navigation. The GSL3680 sometimes reports a top-edge
           // swipe as a zero-distance release.
-          if (gesture_sy < 200 && !id(is_panel_open)) {
+          if (starts_in_top_strip && !id(is_panel_open)) {
             id(open_settings_panel).execute();
             return;
           }
