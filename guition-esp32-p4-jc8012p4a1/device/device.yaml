@@ -18,6 +18,7 @@ esp32:
     type: esp-idf
     sdkconfig_options:
       CONFIG_HTTPD_MAX_URI_LEN: "128"
+      CONFIG_LV_DRAW_SW_SUPPORT_RGB565: "y"
     advanced:
       enable_idf_experimental_features: true
 
@@ -37,6 +38,7 @@ esphome:
     board_build.flash_mode: dio
     build_flags:
       - "-DCONFIG_LV_DISP_DEF_REFR_PERIOD=10"
+      - "-DLV_DRAW_SW_SUPPORT_RGB565=1"
       - "-DCONFIG_COMPILER_OPTIMIZATION_PERF=y"
       - "-Wno-deprecated-declarations"
 
@@ -568,7 +570,6 @@ display:
     model: JC8012P4A1
     id: tft_display
     reset_pin: GPIO27
-    rotation: ${display_rotation}  # 90 (default) or 270 (flipped landscape)
     auto_clear_enabled: false
     color_order: RGB
     dimensions:
