@@ -258,7 +258,10 @@ touchscreen:
           int gesture_dx = dy;
           int gesture_dy = -dx;
           int gesture_sy = 800 - id(touch_x_start);
-          bool starts_in_top_strip = gesture_sy < 200 || id(touch_y_start) > 1080;
+          bool starts_in_top_strip = gesture_sy < 200;
+          bool top_strip_panel_gesture = starts_in_top_strip
+              && ((abs(gesture_dx) < 30 && abs(gesture_dy) < 30)
+                  || (gesture_dy > 30 && abs(gesture_dy) > abs(gesture_dx) * 2));
           ESP_LOGD("touch", "Swipe dx=%d dy=%d gesture=(%d,%d) start=(%d,%d) end=(%d,%d)",
                    dx, dy, gesture_dx, gesture_dy,
                    id(touch_x_start), id(touch_y_start),
@@ -285,10 +288,10 @@ touchscreen:
 
           // --- Top-edge touch/swipe: settings panel open ---
           // P4 touch deltas arrive rotated relative to the visible screen, so
-          // anything that starts in the top strip belongs to the panel instead
+          // taps/vertical swipes in the top strip belong to the panel instead
           // of track navigation. The GSL3680 sometimes reports a top-edge
-          // swipe as a zero-distance release.
-          if (starts_in_top_strip && !id(is_panel_open)) {
+          // panel swipe as a zero-distance release.
+          if (top_strip_panel_gesture && !id(is_panel_open)) {
             ESP_LOGD("touch", "Action: open_settings_panel");
             id(open_settings_panel).execute();
             return;
