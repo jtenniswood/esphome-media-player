@@ -67,7 +67,7 @@ script:
           int iw = img->get_width();
           int ih = img->get_height();
           auto *w = id(album_art_background_widget);
-          constexpr int display_size = ${artwork_size};
+          constexpr int display_size = ${artwork_display_size};
           int dim = (iw < ih) ? iw : ih;
           if (!id(is_tv_mode) && dim > 0 && dim < display_size) {
             int zoom = (256 * display_size + dim - 1) / dim;
