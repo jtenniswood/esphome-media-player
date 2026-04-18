@@ -3,12 +3,19 @@
 # symbols (©, ®, ™, €, •, etc.) and typographic quotes (' ' " ") for song metadata.
 # Two content lines in each >- block: the fold produces exactly one space glyph.
 # roboto_thin300_font uses Thin weight for the clock screensaver (digits + colon only).
+# roboto_thin_ampm_font uses Thin weight for the AM/PM indicator in 12-hour mode.
 font:
   - file: "gfonts://Roboto@Thin"
     id: roboto_thin300_font
     size: 300
     bpp: 4
     glyphs: " 0123456789:"
+
+  - file: "gfonts://Roboto@Thin"
+    id: roboto_thin_ampm_font
+    size: 60
+    bpp: 4
+    glyphs: "AMP "
 
   - file: "gfonts://Roboto@Light"
     id: roboto_light88_font
