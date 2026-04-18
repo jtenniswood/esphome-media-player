@@ -2465,3 +2465,9 @@ lvgl:
                   text_font: roboto_thin300_font
                   text_color: 0xFFFFFF
                   text: "00:00"
+              - label:
+                  id: am_pm_label
+                  text_font: roboto_thin_ampm_font
+                  text_color: 0xFFFFFF
+                  text: "AM"
+                  hidden: true
