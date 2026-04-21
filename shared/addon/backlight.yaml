@@ -49,6 +49,12 @@ text_sensor:
     entity_id: sun.sun
     id: sun_state_sensor
     internal: true
+    on_value:
+      - if:
+          condition:
+            lambda: 'return id(day_night_sensor_entity).state.empty();'
+          then:
+            - script.execute: apply_day_night_backlight
 
 
 # -----------------------------------------------------------------------------
@@ -225,6 +231,34 @@ switch:
 # BACKLIGHT WAKE / DIM / OFF SCRIPT
 # -----------------------------------------------------------------------------
 script:
+  - id: apply_day_night_backlight
+    mode: restart
+    then:
+      - if:
+          condition:
+            light.is_on: backlight
+          then:
+            - if:
+                condition:
+                  lambda: 'return id(is_clock_showing);'
+                then:
+                  - light.turn_on:
+                      id: backlight
+                      brightness: !lambda 'return id(clock_brightness).state / 100.0f;'
+                      transition_length: 500ms
+                else:
+                  - light.turn_on:
+                      id: backlight
+                      brightness: !lambda |-
+                        bool is_day = id(day_night_sensor_entity).state.empty()
+                            ? (id(sun_state_sensor).has_state() && id(sun_state_sensor).state == "above_horizon")
+                            : id(custom_day_night_is_day);
+                        float pct = id(is_screen_dimmed)
+                          ? (is_day ? id(backlight_day_brightness).state : id(backlight_night_brightness).state)
+                          : (is_day ? id(backlight_day_active_brightness).state : id(backlight_night_active_brightness).state);
+                        return pct / 100.0f;
+                      transition_length: 500ms
+
   - id: backlight_wake_timeout
     mode: restart
     then:
@@ -360,6 +394,7 @@ script:
           if (entity.empty()) {
             id(subscribed_day_night_sensor_entity) = "";
             id(day_night_subscription_gen) += 1;
+            id(apply_day_night_backlight).execute();
             return;
           }
           if (entity.substr(0, 14) != "binary_sensor." && entity.substr(0, 14) != "input_boolean.") {
@@ -381,6 +416,7 @@ script:
               std::function<void(esphome::StringRef)>([gen, gen_ptr](esphome::StringRef state) {
                 if (gen != *gen_ptr) return;
                 id(custom_day_night_is_day) = (state == "on");
+                id(apply_day_night_backlight).execute();
               }));
           ESP_LOGI("backlight", "Subscribed to day/night sensor '%s'", entity.c_str());
 
