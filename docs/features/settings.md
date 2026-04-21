@@ -12,15 +12,15 @@ See [Screen Saver](/features/screen-saver) for all brightness, timer, clock, and
 |---------|-------------|
 | **Day-Night Sensor** | (Optional) Entity ID of a `binary_sensor` or `input_boolean` to control day/night mode (`on` = day, `off` = night). Leave empty to use `sun.sun` (default). See [Screen Saver](/features/screen-saver#custom-day-night-sensor). |
 
-## Screen Schedule
+## Night Schedule
 
-See [Screen Schedule](/features/screen-schedule) for the full behavior.
+See [Night Schedule](/features/night-schedule) for the full behavior.
 
 | Setting | Description |
 |---------|-------------|
-| **Screen Schedule** | Enables automatic display sleep and wake times. Default: off. |
-| **Screen Schedule: On Time** | First whole hour when the screen should be awake. Default: 6:00 AM. |
-| **Screen Schedule: Off Time** | First whole hour when the screen should sleep. Default: 11:00 PM. |
+| **Night Schedule** | Enables automatic display sleep and wake times. Default: off. |
+| **Night Schedule: On Time** | First whole hour when the screen should be awake. Default: 6:00 AM. |
+| **Night Schedule: Off Time** | First whole hour when the screen should sleep. Default: 11:00 PM. |
 
 ## Screen Tone <Badge type="info" text="ESP32-P4 only" />
 

@@ -236,7 +236,7 @@ switch:
     entity_category: config
 
   - platform: template
-    name: "Screen Schedule"
+    name: "Night Schedule"
     id: screen_schedule_enabled
     optimistic: true
     restore_mode: RESTORE_DEFAULT_OFF
@@ -258,11 +258,11 @@ switch:
 
 
 # -----------------------------------------------------------------------------
-# SCREEN SCHEDULE TIMES (exposed to Home Assistant)
+# NIGHT SCHEDULE TIMES (exposed to Home Assistant)
 # -----------------------------------------------------------------------------
 select:
   - platform: template
-    name: "Screen Schedule: On Time"
+    name: "Night Schedule: On Time"
     id: screen_schedule_on_time
     optimistic: true
     restore_value: true
@@ -298,7 +298,7 @@ select:
       - script.execute: check_screen_schedule
 
   - platform: template
-    name: "Screen Schedule: Off Time"
+    name: "Night Schedule: Off Time"
     id: screen_schedule_off_time
     optimistic: true
     restore_value: true
@@ -507,8 +507,8 @@ script:
       - script.execute: resume_artwork_prefetch
       - logger.log:
           level: INFO
-          tag: screen_schedule
-          format: "Screen schedule woke the display"
+          tag: night_schedule
+          format: "Night schedule woke the display"
 
   - id: sleep_display_for_schedule
     mode: restart
@@ -537,8 +537,8 @@ script:
             - lvgl.pause:
       - logger.log:
           level: INFO
-          tag: screen_schedule
-          format: "Screen schedule put the display to sleep"
+          tag: night_schedule
+          format: "Night schedule put the display to sleep"
 
   - id: check_screen_schedule
     mode: restart

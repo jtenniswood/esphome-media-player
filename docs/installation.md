@@ -47,7 +47,7 @@ That's it — the screen should start showing now-playing info from your selecte
 
 - [Firmware Updates](/features/firmware-updates) — automatic over-the-air updates
 - [Settings](/features/settings) — configure brightness, timeouts, and display options
-- [Screen Schedule](/features/screen-schedule) — automatic overnight screen sleep
+- [Night Schedule](/features/night-schedule) — automatic overnight screen sleep
 - [Speaker Grouping](/features/speaker-grouping) — set up multi-room speaker control
 - [Source Inputs](/features/source-inputs) — show media info from a TV or Line-in input
 - [Troubleshooting](/advanced/troubleshooting) — common issues and fixes

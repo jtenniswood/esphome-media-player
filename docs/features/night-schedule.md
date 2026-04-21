@@ -1,8 +1,8 @@
-# Screen Schedule
+# Night Schedule
 
-Screen Schedule lets the display go fully dark during hours when you do not want the media controller visible, such as overnight.
+Night Schedule lets the display go fully dark during hours when you do not want the media controller visible, such as overnight.
 
-It is separate from the normal [Screen Saver](/features/screen-saver). The screen saver still handles dimming while the device is awake. Screen Schedule is the stronger rule: outside the saved hours, the backlight is turned off and artwork downloads are paused.
+It is separate from the normal [Screen Saver](/features/screen-saver). The screen saver still handles dimming while the device is awake. Night Schedule is the stronger rule: outside the saved hours, the backlight is turned off and artwork downloads are paused.
 
 ## Settings
 
@@ -12,11 +12,11 @@ The schedule uses the selected **Clock: Timezone** setting. If the device has no
 
 | Setting | Description | Default |
 |---------|-------------|---------|
-| **Screen Schedule** | Enables automatic sleep and wake times. When off, the device uses the normal screen saver only. | Off |
-| **Screen Schedule: On Time** | First whole hour when the screen should be awake. | 6:00 AM |
-| **Screen Schedule: Off Time** | First whole hour when the screen should sleep. | 11:00 PM |
+| **Night Schedule** | Enables automatic sleep and wake times. When off, the device uses the normal screen saver only. | Off |
+| **Night Schedule: On Time** | First whole hour when the screen should be awake. | 6:00 AM |
+| **Night Schedule: Off Time** | First whole hour when the screen should sleep. | 11:00 PM |
 
-Home Assistant shows the on/off time selectors even when the schedule is off. They are ignored until **Screen Schedule** is enabled.
+Home Assistant shows the on/off time selectors even when the schedule is off. They are ignored until **Night Schedule** is enabled.
 
 ## How The Time Window Works
 

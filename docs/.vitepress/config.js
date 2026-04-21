@@ -45,7 +45,7 @@ export default {
         items: [
           { text: 'Settings', link: '/features/settings' },
           { text: 'Screen Saver', link: '/features/screen-saver' },
-          { text: 'Screen Schedule', link: '/features/screen-schedule' },
+          { text: 'Night Schedule', link: '/features/night-schedule' },
           { text: 'Speaker Grouping', link: '/features/speaker-grouping' },
           { text: 'Source Inputs', link: '/features/source-inputs' },
           { text: 'Firmware Updates', link: '/features/firmware-updates' },

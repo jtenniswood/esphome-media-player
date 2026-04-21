@@ -12,7 +12,7 @@ When playback is paused, the device uses a two-stage screen saver to reduce powe
 
 Any touch or new media playback instantly returns the display to full active brightness.
 
-[Screen Schedule](/features/screen-schedule) is separate from this screen saver. The screen saver reacts to playback and idle time while the device is awake. Screen Schedule can turn the backlight fully off during saved hours and pause artwork downloads while asleep.
+[Night Schedule](/features/night-schedule) is separate from this screen saver. The screen saver reacts to playback and idle time while the device is awake. Night Schedule can turn the backlight fully off during saved hours and pause artwork downloads while asleep.
 
 ## Clock screen saver
 
