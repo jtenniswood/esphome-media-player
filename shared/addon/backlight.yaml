@@ -20,6 +20,12 @@ globals:
   - id: custom_day_night_is_day
     type: bool
     initial_value: 'true'
+  - id: subscribed_day_night_sensor_entity
+    type: std::string
+    initial_value: '""'
+  - id: day_night_subscription_gen
+    type: int
+    initial_value: '0'
 
 
 # -----------------------------------------------------------------------------
@@ -43,6 +49,12 @@ text_sensor:
     entity_id: sun.sun
     id: sun_state_sensor
     internal: true
+    on_value:
+      - if:
+          condition:
+            lambda: 'return id(day_night_sensor_entity).state.empty();'
+          then:
+            - script.execute: apply_day_night_backlight
 
 
 # -----------------------------------------------------------------------------
@@ -233,6 +245,34 @@ switch:
 # BACKLIGHT WAKE / DIM / OFF SCRIPT
 # -----------------------------------------------------------------------------
 script:
+  - id: apply_day_night_backlight
+    mode: restart
+    then:
+      - if:
+          condition:
+            light.is_on: backlight
+          then:
+            - if:
+                condition:
+                  lambda: 'return id(is_clock_showing);'
+                then:
+                  - light.turn_on:
+                      id: backlight
+                      brightness: !lambda 'return id(clock_brightness).state / 100.0f;'
+                      transition_length: 500ms
+                else:
+                  - light.turn_on:
+                      id: backlight
+                      brightness: !lambda |-
+                        bool is_day = id(day_night_sensor_entity).state.empty()
+                            ? (id(sun_state_sensor).has_state() && id(sun_state_sensor).state == "above_horizon")
+                            : id(custom_day_night_is_day);
+                        float pct = id(is_screen_dimmed)
+                          ? (is_day ? id(backlight_day_brightness).state : id(backlight_night_brightness).state)
+                          : (is_day ? id(backlight_day_active_brightness).state : id(backlight_night_active_brightness).state);
+                        return pct / 100.0f;
+                      transition_length: 500ms
+
   - id: backlight_wake_timeout
     mode: restart
     then:
@@ -290,7 +330,7 @@ script:
                 then:
                   - if:
                       condition:
-                        lambda: 'return id(clock_screensaver_enabled).state;'
+                        lambda: 'return ${clock_screensaver_supported} && id(clock_screensaver_enabled).state;'
                       then:
                         - script.execute: show_clock_view
                       else:
@@ -307,7 +347,11 @@ script:
                               - light.turn_off:
                                   id: backlight
                                   transition_length: 3s
-                              - lvgl.pause:
+                              - if:
+                                  condition:
+                                    lambda: 'return ${pause_lvgl_on_screen_off};'
+                                  then:
+                                    - lvgl.pause:
 
   - id: turn_off_display
     mode: single
@@ -318,45 +362,48 @@ script:
           id: backlight
           transition_length: 1s
       - delay: 1s
-      - lvgl.pause:
+      - if:
+          condition:
+            lambda: 'return ${pause_lvgl_on_screen_off};'
+          then:
+            - lvgl.pause:
 
   - id: show_clock_view
     mode: single
     then:
+      - lambda: 'id(is_clock_showing) = true;'
+      - lvgl.widget.show: clock_screensaver
       - lambda: |-
-          id(is_clock_showing) = true;
           setenv("TZ", id(tz_posix).c_str(), 1);
           tzset();
           auto time = id(ha_time).now();
-          if (time.is_valid()) {
-            char buf[6];
-            if (id(clock_24h_enabled).state) {
-              snprintf(buf, sizeof(buf), "%02d:%02d", time.hour, time.minute);
-            } else {
-              int h12 = time.hour % 12;
-              if (h12 == 0) h12 = 12;
-              snprintf(buf, sizeof(buf), "%2d:%02d", h12, time.minute);
-            }
-            lv_label_set_text(id(clock_label), buf);
-            lv_obj_update_layout(id(clock_label));
-            lv_coord_t w = lv_obj_get_width(id(clock_label));
-            lv_coord_t h = lv_obj_get_height(id(clock_label));
-            int cx = ${clock_cx}, cy = ${clock_cy};
-            int ox = (time.minute * 7) % 61 - 30;
-            int oy = (time.minute * 13) % 41 - 20;
-            lv_obj_set_pos(id(clock_label), cx + ox - w/2, cy + oy - h/2);
-            if (id(clock_24h_enabled).state) {
-              lv_obj_add_flag(id(am_pm_label), LV_OBJ_FLAG_HIDDEN);
-            } else {
-              lv_label_set_text(id(am_pm_label), time.hour < 12 ? "AM" : "PM");
-              lv_obj_clear_flag(id(am_pm_label), LV_OBJ_FLAG_HIDDEN);
-              lv_obj_update_layout(id(am_pm_label));
-              lv_coord_t pw = lv_obj_get_width(id(am_pm_label));
-              lv_coord_t ph = lv_obj_get_height(id(am_pm_label));
-              lv_obj_set_pos(id(am_pm_label), cx + ox + w/2 - pw, cy + oy + h/2 - ph);
-            }
+          if (!time.is_valid()) return;
+          char buf[6];
+          if (id(clock_24h_enabled).state) {
+            snprintf(buf, sizeof(buf), "%02d:%02d", time.hour, time.minute);
+          } else {
+            int h12 = time.hour % 12;
+            if (h12 == 0) h12 = 12;
+            snprintf(buf, sizeof(buf), "%2d:%02d", h12, time.minute);
           }
-      - lvgl.widget.show: clock_screensaver
+          lv_label_set_text(id(clock_label), buf);
+          lv_obj_update_layout(id(clock_label));
+          lv_coord_t w = lv_obj_get_width(id(clock_label));
+          lv_coord_t h = lv_obj_get_height(id(clock_label));
+          int cx = ${clock_cx}, cy = ${clock_cy};
+          int ox = (time.minute * 7) % 61 - 30;
+          int oy = (time.minute * 13) % 41 - 20;
+          lv_obj_set_pos(id(clock_label), cx + ox - w/2, cy + oy - h/2);
+          if (id(clock_24h_enabled).state) {
+            lv_obj_add_flag(id(am_pm_label), LV_OBJ_FLAG_HIDDEN);
+          } else {
+            lv_label_set_text(id(am_pm_label), time.hour < 12 ? "AM" : "PM");
+            lv_obj_clear_flag(id(am_pm_label), LV_OBJ_FLAG_HIDDEN);
+            lv_obj_update_layout(id(am_pm_label));
+            lv_coord_t pw = lv_obj_get_width(id(am_pm_label));
+            lv_coord_t ph = lv_obj_get_height(id(am_pm_label));
+            lv_obj_set_pos(id(am_pm_label), cx + ox + w/2 - pw, cy + oy + h/2 - ph);
+          }
       - light.turn_on:
           id: backlight
           brightness: !lambda 'return id(clock_brightness).state / 100.0f;'
@@ -374,15 +421,32 @@ script:
       - lambda: |-
           if (esphome::api::global_api_server == nullptr) return;
           std::string entity = id(day_night_sensor_entity).state;
-          if (entity.empty()) return;
-          if (entity.substr(0, 14) != "binary_sensor." && entity.substr(0, 14) != "input_boolean.") {
-            ESP_LOGW("backlight", "Invalid day/night entity '%s' — must start with 'binary_sensor.' or 'input_boolean.'", entity.c_str());
+          if (entity.empty()) {
+            id(subscribed_day_night_sensor_entity) = "";
+            id(day_night_subscription_gen) += 1;
+            id(apply_day_night_backlight).execute();
             return;
           }
+          if (entity.substr(0, 14) != "binary_sensor." && entity.substr(0, 14) != "input_boolean.") {
+            ESP_LOGW("backlight", "Invalid day/night entity '%s' — must start with 'binary_sensor.' or 'input_boolean.'", entity.c_str());
+            id(subscribed_day_night_sensor_entity) = "";
+            id(day_night_subscription_gen) += 1;
+            return;
+          }
+          if (entity == id(subscribed_day_night_sensor_entity)) {
+            ESP_LOGD("backlight", "Already subscribed to day/night sensor '%s'", entity.c_str());
+            return;
+          }
+          id(day_night_subscription_gen) += 1;
+          id(subscribed_day_night_sensor_entity) = entity;
+          int gen = id(day_night_subscription_gen);
+          int *gen_ptr = &id(day_night_subscription_gen);
           auto *api = esphome::api::global_api_server;
           api->subscribe_home_assistant_state(entity, esphome::optional<std::string>(""),
-              std::function<void(const std::string &)>([](const std::string &state) {
+              std::function<void(esphome::StringRef)>([gen, gen_ptr](esphome::StringRef state) {
+                if (gen != *gen_ptr) return;
                 id(custom_day_night_is_day) = (state == "on");
+                id(apply_day_night_backlight).execute();
               }));
           ESP_LOGI("backlight", "Subscribed to day/night sensor '%s'", entity.c_str());
 
@@ -395,6 +459,7 @@ interval:
     then:
       - lambda: |-
           if (!id(is_clock_showing)) return;
+          if (lv_obj_has_flag(id(clock_screensaver), LV_OBJ_FLAG_HIDDEN)) return;
           setenv("TZ", id(tz_posix).c_str(), 1);
           tzset();
           auto time = id(ha_time).now();

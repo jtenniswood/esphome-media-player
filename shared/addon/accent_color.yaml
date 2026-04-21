@@ -117,5 +117,10 @@ script:
             auto call = id(accent_color_light).turn_on();
             call.set_rgb(r / 255.0f, g / 255.0f, b / 255.0f);
             call.set_transition_length(0);
+            // Publish manually so ESPHome does not log the verbose RGB values.
+            call.set_publish(false);
+            call.set_save(false);
             call.perform();
+            id(accent_color_light).remote_values = id(accent_color_light).current_values;
+            id(accent_color_light).publish_state();
           }

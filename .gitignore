@@ -1,6 +1,9 @@
 # ESPHome
 secrets.yaml
 .esphome/
+.platformio/
+.uv-cache/
+.cache/
 
 # macOS
 .DS_Store

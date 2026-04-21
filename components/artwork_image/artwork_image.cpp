@@ -304,7 +304,6 @@ void ArtworkImage::loop() {
              this->width_, this->height_);
     ESP_LOGD(TAG, "Total time: %" PRIu32 "s", (uint32_t) (::time(nullptr) - this->start_time_));
 #ifdef USE_LVGL
-    this->dsc_.data = this->buffer_ + 1;
 #if ESPHOME_VERSION_CODE >= VERSION_CODE(2026, 4, 0)
     this->get_lv_image_dsc();
 #else

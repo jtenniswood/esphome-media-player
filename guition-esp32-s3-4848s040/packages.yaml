@@ -21,6 +21,8 @@ substitutions:
   firmware_manifest_slug: "4848s040"
   post_artwork_script: "start_hide_track_info_timer"
   track_info_duration_default: "5"
+  pause_lvgl_on_screen_off: "true"
+  clock_screensaver_supported: "true"
 
 packages:
   # Shared

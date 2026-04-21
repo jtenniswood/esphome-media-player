@@ -165,23 +165,23 @@ script:
           int *gen_ptr = &id(subscription_gen);
 
           auto *api = esphome::api::global_api_server;
-          using str_cb = std::function<void(const std::string &)>;
+          using state_cb = std::function<void(esphome::StringRef)>;
 
           // --- Helper: subscribe to a text attribute ---
           auto sub_text = [&](const std::string &attr, esphome::text_sensor::TextSensor *sensor) {
             api->subscribe_home_assistant_state(entity, esphome::optional<std::string>(attr),
-                str_cb([gen, gen_ptr, sensor](const std::string &state) {
+                state_cb([gen, gen_ptr, sensor](esphome::StringRef state) {
                   if (gen != *gen_ptr) return;
-                  sensor->publish_state(state);
+                  sensor->publish_state(state.str());
                 }));
           };
 
           // --- Helper: subscribe to a numeric attribute ---
           auto sub_num = [&](const std::string &attr, esphome::sensor::Sensor *sensor) {
             api->subscribe_home_assistant_state(entity, esphome::optional<std::string>(attr),
-                str_cb([gen, gen_ptr, sensor](const std::string &state) {
+                state_cb([gen, gen_ptr, sensor](esphome::StringRef state) {
                   if (gen != *gen_ptr) return;
-                  auto v = esphome::parse_number<float>(state);
+                  auto v = esphome::parse_number<float>(state.str());
                   if (v.has_value()) sensor->publish_state(v.value());
                 }));
           };
@@ -193,9 +193,9 @@ script:
 
           // Main state (playing/paused/idle) — empty attribute = entity state
           api->subscribe_home_assistant_state(entity, esphome::optional<std::string>(""),
-              str_cb([gen, gen_ptr](const std::string &state) {
+              state_cb([gen, gen_ptr](esphome::StringRef state) {
                 if (gen != *gen_ptr) return;
-                id(media_player_state_sensor).publish_state(state);
+                id(media_player_state_sensor).publish_state(state.str());
               }));
 
           sub_text("media_position_updated_at", id(media_position_updated_at_sensor));
@@ -254,21 +254,21 @@ script:
           int *gen_ptr = &id(tv_subscription_gen);
 
           auto *api = esphome::api::global_api_server;
-          using str_cb = std::function<void(const std::string &)>;
+          using state_cb = std::function<void(esphome::StringRef)>;
 
           auto sub_text = [&](const std::string &attr, esphome::text_sensor::TextSensor *sensor) {
             api->subscribe_home_assistant_state(entity, esphome::optional<std::string>(attr),
-                str_cb([gen, gen_ptr, sensor](const std::string &state) {
+                state_cb([gen, gen_ptr, sensor](esphome::StringRef state) {
                   if (gen != *gen_ptr) return;
-                  sensor->publish_state(state);
+                  sensor->publish_state(state.str());
                 }));
           };
 
           auto sub_num = [&](const std::string &attr, esphome::sensor::Sensor *sensor) {
             api->subscribe_home_assistant_state(entity, esphome::optional<std::string>(attr),
-                str_cb([gen, gen_ptr, sensor](const std::string &state) {
+                state_cb([gen, gen_ptr, sensor](esphome::StringRef state) {
                   if (gen != *gen_ptr) return;
-                  auto v = esphome::parse_number<float>(state);
+                  auto v = esphome::parse_number<float>(state.str());
                   if (v.has_value()) sensor->publish_state(v.value());
                 }));
           };
@@ -278,9 +278,9 @@ script:
           sub_text("entity_picture", id(tv_entity_picture_sensor));
 
           api->subscribe_home_assistant_state(entity, esphome::optional<std::string>(""),
-              str_cb([gen, gen_ptr](const std::string &state) {
+              state_cb([gen, gen_ptr](esphome::StringRef state) {
                 if (gen != *gen_ptr) return;
-                id(tv_media_player_state_sensor).publish_state(state);
+                id(tv_media_player_state_sensor).publish_state(state.str());
               }));
 
           sub_text("media_position_updated_at", id(tv_media_position_updated_at_sensor));
