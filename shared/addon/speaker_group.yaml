@@ -169,7 +169,21 @@ script:
             id(speaker_volumes)[count] = (i < vols.size()) ? vols[i] : 0.0f;
             count++;
           }
-          for (int i = 0; i < count - 1; i++) {
+          int selected_index = -1;
+          for (int i = 0; i < count; i++) {
+            if (id(speaker_entity_ids)[i] == selected) {
+              selected_index = i;
+              break;
+            }
+          }
+          if (selected_index > 0) {
+            std::swap(id(speaker_entity_ids)[0], id(speaker_entity_ids)[selected_index]);
+            std::swap(id(speaker_names)[0], id(speaker_names)[selected_index]);
+            std::swap(id(speaker_volumes)[0], id(speaker_volumes)[selected_index]);
+          }
+
+          // Slot 0 is the selected player/leader card, so only sort the rest.
+          for (int i = 1; i < count - 1; i++) {
             for (int j = i + 1; j < count; j++) {
               if (id(speaker_names)[i] > id(speaker_names)[j]) {
                 std::swap(id(speaker_entity_ids)[i], id(speaker_entity_ids)[j]);
@@ -183,8 +197,12 @@ script:
           ESP_LOGI("speaker_group", "Discovered %d speakers", count);
 
           if (count > 1) {
-            lv_label_set_text(id(speakers_title_label), "Speakers");
-            lv_obj_clear_flag(id(speakers_title_label), LV_OBJ_FLAG_HIDDEN);
+            if (${artwork_display_size} >= 800) {
+              lv_label_set_text(id(speakers_title_label), "Speakers");
+              lv_obj_clear_flag(id(speakers_title_label), LV_OBJ_FLAG_HIDDEN);
+            } else {
+              lv_obj_add_flag(id(speakers_title_label), LV_OBJ_FLAG_HIDDEN);
+            }
             lv_obj_clear_flag(id(speakers_container), LV_OBJ_FLAG_HIDDEN);
             lv_obj_clear_flag(id(speakers_close_button), LV_OBJ_FLAG_HIDDEN);
             lv_obj_clear_flag(id(group_vol_card), LV_OBJ_FLAG_HIDDEN);
@@ -524,4 +542,3 @@ script:
                 data_template:
                   entity_id: "{{ target }}"
             - delay: 150ms
-
