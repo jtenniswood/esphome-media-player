@@ -26,6 +26,15 @@ globals:
   - id: day_night_subscription_gen
     type: int
     initial_value: '0'
+  - id: backlight_paused
+    type: bool
+    initial_value: 'false'
+  - id: backlight_manual_off
+    type: bool
+    initial_value: 'false'
+  - id: manual_wake_ms
+    type: uint32_t
+    initial_value: '0'
 
 
 # -----------------------------------------------------------------------------
@@ -83,7 +92,7 @@ number:
   - platform: template
     name: "Day: Active Brightness"
     id: backlight_day_active_brightness
-    min_value: 5
+    min_value: 10
     max_value: 100
     step: 5
     initial_value: 100
@@ -101,7 +110,7 @@ number:
                 id: backlight
                 brightness: !lambda |-
                   bool is_day = id(day_night_sensor_entity).state.empty()
-                      ? (id(sun_state_sensor).has_state() && id(sun_state_sensor).state == "above_horizon")
+                      ? (!id(sun_state_sensor).has_state() || id(sun_state_sensor).state == "above_horizon")
                       : id(custom_day_night_is_day);
                   return (is_day ? x : id(backlight_night_active_brightness).state) / 100.0f;
                 transition_length: 500ms
@@ -109,10 +118,10 @@ number:
   - platform: template
     name: "Night: Active Brightness"
     id: backlight_night_active_brightness
-    min_value: 5
+    min_value: 10
     max_value: 100
     step: 5
-    initial_value: 80
+    initial_value: 75
     optimistic: true
     restore_value: true
     unit_of_measurement: "%"
@@ -127,7 +136,7 @@ number:
                 id: backlight
                 brightness: !lambda |-
                   bool is_day = id(day_night_sensor_entity).state.empty()
-                      ? (id(sun_state_sensor).has_state() && id(sun_state_sensor).state == "above_horizon")
+                      ? (!id(sun_state_sensor).has_state() || id(sun_state_sensor).state == "above_horizon")
                       : id(custom_day_night_is_day);
                   return (is_day ? id(backlight_day_active_brightness).state : x) / 100.0f;
                 transition_length: 500ms
@@ -226,6 +235,104 @@ switch:
     icon: "mdi:clock-outline"
     entity_category: config
 
+  - platform: template
+    name: "Screen Schedule"
+    id: screen_schedule_enabled
+    optimistic: true
+    restore_mode: RESTORE_DEFAULT_OFF
+    icon: "mdi:calendar-clock"
+    entity_category: config
+    on_turn_on:
+      - script.execute: check_screen_schedule
+    on_turn_off:
+      - if:
+          condition:
+            lambda: 'return id(backlight_paused);'
+          then:
+            - lambda: |-
+                id(backlight_manual_off) = false;
+                id(manual_wake_ms) = 0;
+            - script.execute: wake_display_from_schedule
+          else:
+            - script.execute: apply_day_night_backlight
+
+
+# -----------------------------------------------------------------------------
+# SCREEN SCHEDULE TIMES (exposed to Home Assistant)
+# -----------------------------------------------------------------------------
+select:
+  - platform: template
+    name: "Screen Schedule: On Time"
+    id: screen_schedule_on_time
+    optimistic: true
+    restore_value: true
+    initial_option: "6:00 AM"
+    icon: "mdi:sun-clock"
+    entity_category: config
+    options:
+      - "12:00 AM"
+      - "1:00 AM"
+      - "2:00 AM"
+      - "3:00 AM"
+      - "4:00 AM"
+      - "5:00 AM"
+      - "6:00 AM"
+      - "7:00 AM"
+      - "8:00 AM"
+      - "9:00 AM"
+      - "10:00 AM"
+      - "11:00 AM"
+      - "12:00 PM"
+      - "1:00 PM"
+      - "2:00 PM"
+      - "3:00 PM"
+      - "4:00 PM"
+      - "5:00 PM"
+      - "6:00 PM"
+      - "7:00 PM"
+      - "8:00 PM"
+      - "9:00 PM"
+      - "10:00 PM"
+      - "11:00 PM"
+    on_value:
+      - script.execute: check_screen_schedule
+
+  - platform: template
+    name: "Screen Schedule: Off Time"
+    id: screen_schedule_off_time
+    optimistic: true
+    restore_value: true
+    initial_option: "11:00 PM"
+    icon: "mdi:weather-night"
+    entity_category: config
+    options:
+      - "12:00 AM"
+      - "1:00 AM"
+      - "2:00 AM"
+      - "3:00 AM"
+      - "4:00 AM"
+      - "5:00 AM"
+      - "6:00 AM"
+      - "7:00 AM"
+      - "8:00 AM"
+      - "9:00 AM"
+      - "10:00 AM"
+      - "11:00 AM"
+      - "12:00 PM"
+      - "1:00 PM"
+      - "2:00 PM"
+      - "3:00 PM"
+      - "4:00 PM"
+      - "5:00 PM"
+      - "6:00 PM"
+      - "7:00 PM"
+      - "8:00 PM"
+      - "9:00 PM"
+      - "10:00 PM"
+      - "11:00 PM"
+    on_value:
+      - script.execute: check_screen_schedule
+
 
 # -----------------------------------------------------------------------------
 # BACKLIGHT WAKE / DIM / OFF SCRIPT
@@ -236,118 +343,259 @@ script:
     then:
       - if:
           condition:
-            light.is_on: backlight
+            lambda: 'return id(backlight_paused);'
           then:
+            - light.turn_off:
+                id: backlight
+                transition_length: 0s
+          else:
             - if:
                 condition:
-                  lambda: 'return id(is_clock_showing);'
+                  light.is_on: backlight
                 then:
-                  - light.turn_on:
-                      id: backlight
-                      brightness: !lambda 'return id(clock_brightness).state / 100.0f;'
-                      transition_length: 500ms
-                else:
-                  - light.turn_on:
-                      id: backlight
-                      brightness: !lambda |-
-                        bool is_day = id(day_night_sensor_entity).state.empty()
-                            ? (id(sun_state_sensor).has_state() && id(sun_state_sensor).state == "above_horizon")
-                            : id(custom_day_night_is_day);
-                        float pct = id(is_screen_dimmed)
-                          ? (is_day ? id(backlight_day_brightness).state : id(backlight_night_brightness).state)
-                          : (is_day ? id(backlight_day_active_brightness).state : id(backlight_night_active_brightness).state);
-                        return pct / 100.0f;
-                      transition_length: 500ms
+                  - if:
+                      condition:
+                        lambda: 'return id(is_clock_showing);'
+                      then:
+                        - light.turn_on:
+                            id: backlight
+                            brightness: !lambda 'return id(clock_brightness).state / 100.0f;'
+                            transition_length: 500ms
+                      else:
+                        - light.turn_on:
+                            id: backlight
+                            brightness: !lambda |-
+                              bool is_day = id(day_night_sensor_entity).state.empty()
+                                  ? (!id(sun_state_sensor).has_state() || id(sun_state_sensor).state == "above_horizon")
+                                  : id(custom_day_night_is_day);
+                              float pct = id(is_screen_dimmed)
+                                ? (is_day ? id(backlight_day_brightness).state : id(backlight_night_brightness).state)
+                                : (is_day ? id(backlight_day_active_brightness).state : id(backlight_night_active_brightness).state);
+                              return pct / 100.0f;
+                            transition_length: 500ms
 
   - id: backlight_wake_timeout
     mode: restart
     then:
-      - lambda: |-
-          id(was_screen_dimmed) = id(is_screen_dimmed);
-          id(is_screen_dimmed) = false;
-      - if:
-          condition: lvgl.is_paused
-          then:
-            - lvgl.resume:
-            - lvgl.widget.redraw:
-      - delay: 100ms
-      - light.turn_on:
-          id: backlight
-          brightness: !lambda |-
-            bool is_day = id(day_night_sensor_entity).state.empty()
-                ? (id(sun_state_sensor).has_state() && id(sun_state_sensor).state == "above_horizon")
-                : id(custom_day_night_is_day);
-            float pct = is_day
-              ? id(backlight_day_active_brightness).state
-              : id(backlight_night_active_brightness).state;
-            return pct / 100.0f;
-          transition_length: 1s
       - if:
           condition:
-            lambda: 'return id(was_screen_dimmed);'
+            lambda: 'return !id(backlight_paused);'
           then:
-            - script.execute: hide_clock_view
-            - script.execute: show_track_view
-      - delay: !lambda 'return (uint32_t)(id(backlight_dim_timeout).state * 1000);'
-      - if:
-          condition:
-            lambda: >-
-              return !id(media_player_state_sensor).has_state() ||
-                     id(media_player_state_sensor).state != "playing";
-          then:
-            - lambda: 'id(is_screen_dimmed) = true;'
+            - lambda: |-
+                id(was_screen_dimmed) = id(is_screen_dimmed);
+                id(is_screen_dimmed) = false;
+            - if:
+                condition: lvgl.is_paused
+                then:
+                  - lvgl.resume:
+                  - lvgl.widget.redraw:
+            - delay: 100ms
             - light.turn_on:
                 id: backlight
                 brightness: !lambda |-
                   bool is_day = id(day_night_sensor_entity).state.empty()
-                      ? (id(sun_state_sensor).has_state() && id(sun_state_sensor).state == "above_horizon")
+                      ? (!id(sun_state_sensor).has_state() || id(sun_state_sensor).state == "above_horizon")
                       : id(custom_day_night_is_day);
                   float pct = is_day
-                    ? id(backlight_day_brightness).state
-                    : id(backlight_night_brightness).state;
+                    ? id(backlight_day_active_brightness).state
+                    : id(backlight_night_active_brightness).state;
                   return pct / 100.0f;
-                transition_length: 3s
-            - delay: !lambda 'return (uint32_t)(id(backlight_off_timeout).state * 1000);'
+                transition_length: 1s
+            - if:
+                condition:
+                  lambda: 'return id(was_screen_dimmed);'
+                then:
+                  - script.execute: hide_clock_view
+                  - script.execute: show_track_view
+            - delay: !lambda 'return (uint32_t)(id(backlight_dim_timeout).state * 1000);'
             - if:
                 condition:
                   lambda: >-
-                    return !id(media_player_state_sensor).has_state() ||
-                           id(media_player_state_sensor).state != "playing";
+                    return !id(backlight_paused) &&
+                           (!id(media_player_state_sensor).has_state() ||
+                            id(media_player_state_sensor).state != "playing");
                 then:
+                  - lambda: 'id(is_screen_dimmed) = true;'
+                  - light.turn_on:
+                      id: backlight
+                      brightness: !lambda |-
+                        bool is_day = id(day_night_sensor_entity).state.empty()
+                            ? (!id(sun_state_sensor).has_state() || id(sun_state_sensor).state == "above_horizon")
+                            : id(custom_day_night_is_day);
+                        float pct = is_day
+                          ? id(backlight_day_brightness).state
+                          : id(backlight_night_brightness).state;
+                        return pct / 100.0f;
+                      transition_length: 3s
+                  - delay: !lambda 'return (uint32_t)(id(backlight_off_timeout).state * 1000);'
                   - if:
                       condition:
-                        lambda: 'return ${clock_screensaver_supported} && id(clock_screensaver_enabled).state;'
+                        lambda: >-
+                          return !id(backlight_paused) &&
+                                 (!id(media_player_state_sensor).has_state() ||
+                                  id(media_player_state_sensor).state != "playing");
                       then:
-                        - script.execute: show_clock_view
-                      else:
                         - if:
                             condition:
-                              lambda: |-
-                                bool is_day = id(day_night_sensor_entity).state.empty()
-                                    ? (id(sun_state_sensor).has_state() && id(sun_state_sensor).state == "above_horizon")
-                                    : id(custom_day_night_is_day);
-                                return is_day
-                                  ? id(backlight_day_screen_off).state
-                                  : id(backlight_night_screen_off).state;
+                              lambda: 'return ${clock_screensaver_supported} && id(clock_screensaver_enabled).state;'
                             then:
-                              - light.turn_off:
-                                  id: backlight
-                                  transition_length: 3s
+                              - script.execute: show_clock_view
+                            else:
                               - if:
                                   condition:
-                                    lambda: 'return ${pause_lvgl_on_screen_off};'
+                                    lambda: |-
+                                      bool is_day = id(day_night_sensor_entity).state.empty()
+                                          ? (!id(sun_state_sensor).has_state() || id(sun_state_sensor).state == "above_horizon")
+                                          : id(custom_day_night_is_day);
+                                      return is_day
+                                        ? id(backlight_day_screen_off).state
+                                        : id(backlight_night_screen_off).state;
                                   then:
-                                    - lvgl.pause:
+                                    - light.turn_off:
+                                        id: backlight
+                                        transition_length: 3s
+                                    - if:
+                                        condition:
+                                          lambda: 'return ${pause_lvgl_on_screen_off};'
+                                        then:
+                                          - lvgl.pause:
 
-  - id: turn_off_display
-    mode: single
+  - id: wake_display_from_touch
+    mode: restart
+    then:
+      - lambda: |-
+          auto parse_hour = [](const std::string &option, int fallback) -> int {
+            int hour = fallback;
+            if (sscanf(option.c_str(), "%d", &hour) != 1) return fallback;
+            bool pm = option.find("PM") != std::string::npos;
+            if (hour == 12) hour = 0;
+            if (pm) hour += 12;
+            return hour;
+          };
+          auto in_window = [](int current_hour, int on_hour, int off_hour) -> bool {
+            if (on_hour < off_hour) return current_hour >= on_hour && current_hour < off_hour;
+            if (on_hour > off_hour) return current_hour >= on_hour || current_hour < off_hour;
+            return true;
+          };
+          bool outside_schedule = false;
+          if (id(screen_schedule_enabled).state) {
+            auto time = id(ha_time).now();
+            if (time.is_valid()) {
+              int on_hour = parse_hour(id(screen_schedule_on_time).current_option(), 6);
+              int off_hour = parse_hour(id(screen_schedule_off_time).current_option(), 23);
+              outside_schedule = !in_window(time.hour, on_hour, off_hour);
+            }
+          }
+          id(backlight_paused) = false;
+          id(backlight_manual_off) = false;
+          id(manual_wake_ms) = outside_schedule ? millis() : 0;
+      - script.execute: backlight_wake_timeout
+      - script.execute: resume_artwork_prefetch
+
+  - id: wake_display_from_schedule
+    mode: restart
     then:
       - script.stop: backlight_wake_timeout
-      - lambda: 'id(is_screen_dimmed) = true;'
+      - lambda: |-
+          id(backlight_paused) = false;
+          id(backlight_manual_off) = false;
+          id(manual_wake_ms) = 0;
+          id(is_screen_dimmed) = false;
+      - script.execute: hide_clock_view
+      - script.execute: show_track_view
+      - script.execute: backlight_wake_timeout
+      - script.execute: resume_artwork_prefetch
+      - logger.log:
+          level: INFO
+          tag: screen_schedule
+          format: "Screen schedule woke the display"
+
+  - id: sleep_display_for_schedule
+    mode: restart
+    then:
+      - script.stop: backlight_wake_timeout
+      - script.stop: start_hide_track_info_timer
+      - script.stop: debounce_artwork_download
+      - lambda: |-
+          id(backlight_paused) = true;
+          id(backlight_manual_off) = false;
+          id(manual_wake_ms) = 0;
+          id(is_screen_dimmed) = true;
+          id(is_clock_showing) = false;
+      - lvgl.widget.hide: clock_screensaver
       - light.turn_off:
           id: backlight
           transition_length: 1s
       - delay: 1s
+      - light.turn_off:
+          id: backlight
+          transition_length: 0s
+      - if:
+          condition:
+            lambda: 'return ${pause_lvgl_on_screen_off};'
+          then:
+            - lvgl.pause:
+      - logger.log:
+          level: INFO
+          tag: screen_schedule
+          format: "Screen schedule put the display to sleep"
+
+  - id: check_screen_schedule
+    mode: restart
+    then:
+      - lambda: |-
+          if (!id(screen_schedule_enabled).state) return;
+          auto time = id(ha_time).now();
+          if (!time.is_valid()) return;
+          auto parse_hour = [](const std::string &option, int fallback) -> int {
+            int hour = fallback;
+            if (sscanf(option.c_str(), "%d", &hour) != 1) return fallback;
+            bool pm = option.find("PM") != std::string::npos;
+            if (hour == 12) hour = 0;
+            if (pm) hour += 12;
+            return hour;
+          };
+          int on_hour = parse_hour(id(screen_schedule_on_time).current_option(), 6);
+          int off_hour = parse_hour(id(screen_schedule_off_time).current_option(), 23);
+          bool in_window;
+          if (on_hour < off_hour) {
+            in_window = time.hour >= on_hour && time.hour < off_hour;
+          } else if (on_hour > off_hour) {
+            in_window = time.hour >= on_hour || time.hour < off_hour;
+          } else {
+            in_window = true;
+          }
+          if (in_window && id(backlight_paused) && !id(backlight_manual_off)) {
+            id(wake_display_from_schedule).execute();
+            return;
+          }
+          if (!in_window && !id(backlight_paused)) {
+            if (id(manual_wake_ms) != 0 && (uint32_t)(millis() - id(manual_wake_ms)) < 120000UL) {
+              return;
+            }
+            id(sleep_display_for_schedule).execute();
+          }
+
+  - id: turn_off_display
+    mode: restart
+    then:
+      - script.stop: backlight_wake_timeout
+      - script.stop: start_hide_track_info_timer
+      - script.stop: debounce_artwork_download
+      - lambda: |-
+          id(backlight_paused) = true;
+          id(backlight_manual_off) = true;
+          id(manual_wake_ms) = 0;
+          id(is_screen_dimmed) = true;
+          id(is_clock_showing) = false;
+      - lvgl.widget.hide: clock_screensaver
+      - light.turn_off:
+          id: backlight
+          transition_length: 1s
+      - delay: 1s
+      - light.turn_off:
+          id: backlight
+          transition_length: 0s
       - if:
           condition:
             lambda: 'return ${pause_lvgl_on_screen_off};'
@@ -357,27 +605,31 @@ script:
   - id: show_clock_view
     mode: single
     then:
-      - lambda: 'id(is_clock_showing) = true;'
-      - lvgl.widget.show: clock_screensaver
-      - lambda: |-
-          setenv("TZ", id(tz_posix).c_str(), 1);
-          tzset();
-          auto time = id(ha_time).now();
-          if (!time.is_valid()) return;
-          char buf[6];
-          snprintf(buf, sizeof(buf), "%02d:%02d", time.hour, time.minute);
-          lv_label_set_text(id(clock_label), buf);
-          lv_obj_update_layout(id(clock_label));
-          lv_coord_t w = lv_obj_get_width(id(clock_label));
-          lv_coord_t h = lv_obj_get_height(id(clock_label));
-          int cx = ${clock_cx}, cy = ${clock_cy};
-          int ox = (time.minute * 7) % 61 - 30;
-          int oy = (time.minute * 13) % 41 - 20;
-          lv_obj_set_pos(id(clock_label), cx + ox - w/2, cy + oy - h/2);
-      - light.turn_on:
-          id: backlight
-          brightness: !lambda 'return id(clock_brightness).state / 100.0f;'
-          transition_length: 3s
+      - if:
+          condition:
+            lambda: 'return !id(backlight_paused);'
+          then:
+            - lambda: 'id(is_clock_showing) = true;'
+            - lvgl.widget.show: clock_screensaver
+            - lambda: |-
+                setenv("TZ", id(tz_posix).c_str(), 1);
+                tzset();
+                auto time = id(ha_time).now();
+                if (!time.is_valid()) return;
+                char buf[6];
+                snprintf(buf, sizeof(buf), "%02d:%02d", time.hour, time.minute);
+                lv_label_set_text(id(clock_label), buf);
+                lv_obj_update_layout(id(clock_label));
+                lv_coord_t w = lv_obj_get_width(id(clock_label));
+                lv_coord_t h = lv_obj_get_height(id(clock_label));
+                int cx = ${clock_cx}, cy = ${clock_cy};
+                int ox = (time.minute * 7) % 61 - 30;
+                int oy = (time.minute * 13) % 41 - 20;
+                lv_obj_set_pos(id(clock_label), cx + ox - w/2, cy + oy - h/2);
+            - light.turn_on:
+                id: backlight
+                brightness: !lambda 'return id(clock_brightness).state / 100.0f;'
+                transition_length: 3s
 
   - id: hide_clock_view
     mode: single
@@ -444,3 +696,7 @@ interval:
           int ox = (time.minute * 7) % 61 - 30;
           int oy = (time.minute * 13) % 41 - 20;
           lv_obj_set_pos(id(clock_label), cx + ox - w/2, cy + oy - h/2);
+
+  - interval: 60s
+    then:
+      - script.execute: check_screen_schedule

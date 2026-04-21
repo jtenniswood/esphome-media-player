@@ -12,6 +12,16 @@ See [Screen Saver](/features/screen-saver) for all brightness, timer, clock, and
 |---------|-------------|
 | **Day-Night Sensor** | (Optional) Entity ID of a `binary_sensor` or `input_boolean` to control day/night mode (`on` = day, `off` = night). Leave empty to use `sun.sun` (default). See [Screen Saver](/features/screen-saver#custom-day-night-sensor). |
 
+## Screen Schedule
+
+See [Screen Schedule](/features/screen-schedule) for the full behavior.
+
+| Setting | Description |
+|---------|-------------|
+| **Screen Schedule** | Enables automatic display sleep and wake times. Default: off. |
+| **Screen Schedule: On Time** | First whole hour when the screen should be awake. Default: 6:00 AM. |
+| **Screen Schedule: Off Time** | First whole hour when the screen should sleep. Default: 11:00 PM. |
+
 ## Screen Tone <Badge type="info" text="ESP32-P4 only" />
 
 Shifts album art toward warmer colors (reduced blue, slight red boost) for a more comfortable viewing experience — especially at night. Separate day and night sliders follow the same [day/night detection](/features/screen-saver#day-night-awareness) used by screen brightness. The tint updates instantly without reloading the image.
@@ -39,6 +49,8 @@ Shifts album art toward warmer colors (reduced blue, slight red boost) for a mor
 |---------|-------------|
 | **Playback: Show Remaining Time** | When enabled, the time label shows elapsed and remaining time. When disabled, it shows elapsed and total duration. Tap the time label on the device to toggle this at any time. |
 | **Media Player Entity** | The `media_player` entity to control. |
+| **Source Input Media Player** | (Optional) Entity ID of a media player connected to the speaker's TV or Line-in input. See [Source Inputs](/features/source-inputs). Leave empty to disable. |
+| **Speaker Group Sensor** | (Optional) Entity ID of the template sensor for [Speaker Grouping](/features/speaker-grouping). Leave empty to disable. |
 
 ## Firmware Updates
 
@@ -52,5 +64,3 @@ Shifts album art toward warmer colors (reduced blue, slight red boost) for a mor
 | **Install Latest Firmware** | Manually triggers an update check and install. |
 
 See [Firmware Updates](/features/firmware-updates) for full details.
-| **Source Input Media Player** | (Optional) Entity ID of a media player connected to the speaker's TV or Line-in input. See [Source Inputs](/features/source-inputs). Leave empty to disable. |
-| **Speaker Group Sensor** | (Optional) Entity ID of the template sensor for [Speaker Grouping](/features/speaker-grouping). Leave empty to disable. |

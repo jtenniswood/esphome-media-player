@@ -159,10 +159,19 @@ script:
     then:
       - script.stop: delayed_idle_cleanup
       - delay: 300ms
-      - lvgl.widget.hide: artwork_error_label
-      - artwork_image.set_url:
-          id: album_art_background
-          url: !lambda 'return id(last_artwork_url);'
+      - if:
+          condition:
+            lambda: 'return !id(backlight_paused);'
+          then:
+            - lvgl.widget.hide: artwork_error_label
+            - artwork_image.set_url:
+                id: album_art_background
+                url: !lambda 'return id(last_artwork_url);'
+          else:
+            - logger.log:
+                level: DEBUG
+                tag: artwork
+                format: "Artwork download skipped while the screen is asleep"
 
   - id: delayed_idle_cleanup
     mode: restart
@@ -288,22 +297,34 @@ text_sensor:
                   lambda: 'return x == "playing";'
                 then:
                   - script.stop: delayed_idle_cleanup
-                  - script.stop: backlight_wake_timeout
-                  - lvgl.resume:
                   - lvgl.widget.hide:
                       id: media_play_icon
                   - lvgl.widget.show:
                       id: media_pause_icon
-                  - light.turn_on:
-                      id: backlight
-                      brightness: 100%
                   - if:
                       condition:
-                        lambda: 'return id(is_screen_dimmed);'
+                        lambda: 'return !id(backlight_paused);'
                       then:
-                        - lambda: 'id(is_screen_dimmed) = false;'
-                        - script.execute: hide_clock_view
-                        - script.execute: show_track_view
+                        - script.stop: backlight_wake_timeout
+                        - if:
+                            condition: lvgl.is_paused
+                            then:
+                              - lvgl.resume:
+                              - lvgl.widget.redraw:
+                        - light.turn_on:
+                            id: backlight
+                            brightness: !lambda |-
+                              bool is_day = id(day_night_sensor_entity).state.empty()
+                                  ? (!id(sun_state_sensor).has_state() || id(sun_state_sensor).state == "above_horizon")
+                                  : id(custom_day_night_is_day);
+                              return (is_day ? id(backlight_day_active_brightness).state : id(backlight_night_active_brightness).state) / 100.0f;
+                        - if:
+                            condition:
+                              lambda: 'return id(is_screen_dimmed);'
+                            then:
+                              - lambda: 'id(is_screen_dimmed) = false;'
+                              - script.execute: hide_clock_view
+                              - script.execute: show_track_view
                   - if:
                       condition:
                         lambda: |-
@@ -338,7 +359,11 @@ text_sensor:
                             id(last_artwork_url) = (path.substr(0, 7) == "http://" || path.substr(0, 8) == "https://") ? path : (id(ha_base_url) + path);
                             id(last_artwork_url) = esphome::artwork_image::cap_artwork_url(id(last_artwork_url), ${artwork_size});
                         - script.execute: debounce_artwork_download
-                  - script.execute: start_hide_track_info_timer
+                  - if:
+                      condition:
+                        lambda: 'return !id(backlight_paused);'
+                      then:
+                        - script.execute: start_hide_track_info_timer
                 else:
                   - if:
                       condition:

@@ -12,6 +12,8 @@ When playback is paused, the device uses a two-stage screen saver to reduce powe
 
 Any touch or new media playback instantly returns the display to full active brightness.
 
+[Screen Schedule](/features/screen-schedule) is separate from this screen saver. The screen saver reacts to playback and idle time while the device is awake. Screen Schedule can turn the backlight fully off during saved hours and pause artwork downloads while asleep.
+
 ## Clock screen saver
 
 An optional clock screen saver displays the current time in large, thin digits on a black background. When enabled, it replaces the screen-off stage — the display is never fully dark.
@@ -27,7 +29,7 @@ Brightness levels and screen saver behavior adapt automatically based on whether
 
 This lets you configure different behavior for day and night — for example, keeping the screen on during the day but turning it off at night. On the ESP32-P4, [Screen Tone](/features/settings#screen-tone) warmth also follows the same day/night detection, so album art can shift warmer at night.
 
-By default, the device reads the `sun.sun` entity in Home Assistant (sun above horizon = day, below horizon = night). You can override this with any `binary_sensor` or `input_boolean` entity by setting the **Day-Night Sensor** field on the device page.
+By default, the device reads the `sun.sun` entity in Home Assistant (sun above horizon = day, below horizon = night). If that state is not available yet, the device uses daytime brightness as a safe fallback. You can override day/night detection with any `binary_sensor` or `input_boolean` entity by setting the **Day-Night Sensor** field on the device page.
 
 ### Custom day/night sensor
 
@@ -63,7 +65,7 @@ This is useful when you want day/night to depend on more than just the sun — f
 | Setting | Description | Default |
 |---------|-------------|---------|
 | **Day: Active Brightness** | Screen brightness during active use (daytime). | 100% |
-| **Night: Active Brightness** | Screen brightness during active use (nighttime). | 80% |
+| **Night: Active Brightness** | Screen brightness during active use (nighttime). | 75% |
 | **Day: Dim Brightness** | Screen brightness when dimmed (daytime). | 35% |
 | **Night: Dim Brightness** | Screen brightness when dimmed (nighttime). | 25% |
 

@@ -18,6 +18,7 @@ A touchscreen media controller for Home Assistant: album art, track info, and to
 - [Firmware Updates](/features/firmware-updates) — automatic over-the-air updates
 - [Speaker Grouping](/features/speaker-grouping) — multi-room speaker control
 - [Screen Saver](/features/screen-saver) — dimming, clock, and day/night brightness
+- [Screen Schedule](/features/screen-schedule) — automatic overnight screen sleep
 - [Settings](/features/settings) — brightness, timeouts, screen saver, track info
 - [Manual installation](/advanced/esphome-config) — flash via ESPHome dashboard instead of the web installer
 - [Troubleshooting](/advanced/troubleshooting) — common issues and fixes
@@ -66,6 +67,12 @@ The device checks for new firmware automatically and can install updates over-th
 When playback is paused, the device dims the screen after a configurable delay, then either shows a clock or turns the screen off. An optional clock screen saver displays the time in large digits on a black background — it drifts subtly to prevent burn-in. Brightness levels and behavior adjust automatically between day and night. Any touch or new media playback instantly wakes the screen.
 
 See [Screen Saver](/features/screen-saver) for full details and settings.
+
+### Screen schedule
+
+Screen Schedule can automatically put the display fully to sleep outside your chosen hours, for example overnight. While asleep, the backlight is off and artwork downloads are paused. Tap the screen to wake it temporarily without changing the saved schedule.
+
+See [Screen Schedule](/features/screen-schedule) for setup and behavior details.
 
 ### Screen tone (ESP32-P4)
 

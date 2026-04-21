@@ -181,3 +181,5 @@ script:
             }
           }
           ESP_LOGW("timezone", "Unknown timezone selection: %s", sel.c_str());
+      - script.execute: check_screen_schedule
+      - script.execute: apply_day_night_backlight
