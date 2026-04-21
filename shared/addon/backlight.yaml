@@ -292,8 +292,11 @@ script:
       - if:
           condition:
             lambda: >-
-              return !id(media_player_state_sensor).has_state() ||
-                     id(media_player_state_sensor).state != "playing";
+              return id(is_tv_mode)
+                ? (!id(tv_media_player_state_sensor).has_state() ||
+                   id(tv_media_player_state_sensor).state != "playing")
+                : (!id(media_player_state_sensor).has_state() ||
+                   id(media_player_state_sensor).state != "playing");
           then:
             - lambda: 'id(is_screen_dimmed) = true;'
             - light.turn_on:
@@ -311,8 +314,11 @@ script:
             - if:
                 condition:
                   lambda: >-
-                    return !id(media_player_state_sensor).has_state() ||
-                           id(media_player_state_sensor).state != "playing";
+                    return id(is_tv_mode)
+                      ? (!id(tv_media_player_state_sensor).has_state() ||
+                         id(tv_media_player_state_sensor).state != "playing")
+                      : (!id(media_player_state_sensor).has_state() ||
+                         id(media_player_state_sensor).state != "playing");
                 then:
                   - if:
                       condition:
@@ -357,23 +363,36 @@ script:
   - id: show_clock_view
     mode: single
     then:
-      - lambda: 'id(is_clock_showing) = true;'
-      - lvgl.widget.show: clock_screensaver
+      - if:
+          condition: lvgl.is_paused
+          then:
+            - lvgl.resume:
+            - lvgl.widget.redraw:
       - lambda: |-
+          id(is_screen_dimmed) = true;
+          id(is_clock_showing) = true;
+          lv_obj_clear_flag(id(clock_screensaver), LV_OBJ_FLAG_HIDDEN);
+          lv_obj_move_foreground(id(clock_screensaver));
           setenv("TZ", id(tz_posix).c_str(), 1);
           tzset();
           auto time = id(ha_time).now();
-          if (!time.is_valid()) return;
+          int hour = 0;
+          int minute = 0;
+          if (time.is_valid()) {
+            hour = time.hour;
+            minute = time.minute;
+          }
           char buf[6];
-          snprintf(buf, sizeof(buf), "%02d:%02d", time.hour, time.minute);
+          snprintf(buf, sizeof(buf), "%02d:%02d", hour, minute);
           lv_label_set_text(id(clock_label), buf);
           lv_obj_update_layout(id(clock_label));
           lv_coord_t w = lv_obj_get_width(id(clock_label));
           lv_coord_t h = lv_obj_get_height(id(clock_label));
           int cx = ${clock_cx}, cy = ${clock_cy};
-          int ox = (time.minute * 7) % 61 - 30;
-          int oy = (time.minute * 13) % 41 - 20;
+          int ox = (minute * 7) % 61 - 30;
+          int oy = (minute * 13) % 41 - 20;
           lv_obj_set_pos(id(clock_label), cx + ox - w/2, cy + oy - h/2);
+      - lvgl.widget.redraw:
       - light.turn_on:
           id: backlight
           brightness: !lambda 'return id(clock_brightness).state / 100.0f;'

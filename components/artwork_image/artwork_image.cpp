@@ -5,10 +5,6 @@
 #include "esphome/core/version.h"
 
 static const char *const TAG = "artwork_image";
-static const char *const ETAG_HEADER_NAME = "etag";
-static const char *const IF_NONE_MATCH_HEADER_NAME = "if-none-match";
-static const char *const LAST_MODIFIED_HEADER_NAME = "last-modified";
-static const char *const IF_MODIFIED_SINCE_HEADER_NAME = "if-modified-since";
 static const char *const CONTENT_TYPE_HEADER_NAME = "content-type";
 
 #include "image_decoder.h"
@@ -71,8 +67,6 @@ void ArtworkImage::release() {
 #ifdef USE_LVGL
     memset(&this->dsc_, 0, sizeof(this->dsc_));
 #endif
-    this->last_modified_ = "";
-    this->etag_ = "";
     this->end_connection_();
   }
 }
@@ -177,21 +171,13 @@ void ArtworkImage::update() {
   }
   accept_header.value = accept_mime_type + ",*/*;q=0.8";
 
-  if (!this->etag_.empty()) {
-    headers.push_back(http_request::Header{IF_NONE_MATCH_HEADER_NAME, this->etag_});
-  }
-
-  if (!this->last_modified_.empty()) {
-    headers.push_back(http_request::Header{IF_MODIFIED_SINCE_HEADER_NAME, this->last_modified_});
-  }
-
   headers.push_back(accept_header);
 
   for (auto &header : this->request_headers_) {
     headers.push_back(http_request::Header{header.first, header.second.value()});
   }
 
-  this->downloader_ = this->parent_->get(this->url_, headers, {ETAG_HEADER_NAME, LAST_MODIFIED_HEADER_NAME, CONTENT_TYPE_HEADER_NAME});
+  this->downloader_ = this->parent_->get(this->url_, headers, {CONTENT_TYPE_HEADER_NAME});
 
   if (this->downloader_ == nullptr) {
     ESP_LOGE(TAG, "Download failed.");
@@ -310,8 +296,6 @@ void ArtworkImage::loop() {
     this->get_lv_img_dsc();
 #endif
 #endif
-    this->etag_ = this->downloader_->get_response_header(ETAG_HEADER_NAME);
-    this->last_modified_ = this->downloader_->get_response_header(LAST_MODIFIED_HEADER_NAME);
     this->download_finished_callback_.call(false);
     this->end_connection_();
     return;

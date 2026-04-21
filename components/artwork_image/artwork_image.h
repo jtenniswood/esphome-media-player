@@ -66,8 +66,6 @@ class ArtworkImage : public PollingComponent,
     if (this->validate_url_(url)) {
       this->url_ = url;
     }
-    this->etag_ = "";
-    this->last_modified_ = "";
   }
 
   /** Add the request header */
@@ -203,15 +201,6 @@ class ArtworkImage : public PollingComponent,
    * decoded images).
    */
   int buffer_height_;
-  /**
-   * The value of the ETag HTTP header provided in the last response.
-   */
-  std::string etag_ = "";
-  /**
-   * The value of the Last-Modified HTTP header provided in the last response.
-   */
-  std::string last_modified_ = "";
-
   time_t start_time_;
   uint32_t last_data_millis_{0};
   static constexpr uint32_t DOWNLOAD_STALL_TIMEOUT_MS = 10000;

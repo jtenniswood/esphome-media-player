@@ -245,6 +245,7 @@ text_sensor:
                         lambda: 'return id(is_screen_dimmed);'
                       then:
                         - lambda: 'id(is_screen_dimmed) = false;'
+                        - script.execute: hide_clock_view
                         - script.execute: show_track_view
                   - script.execute: start_hide_track_info_timer
                 else:
