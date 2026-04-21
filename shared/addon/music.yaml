@@ -57,21 +57,6 @@ artwork_image:
       - script.execute: handle_artwork_error
 
 script:
-  - id: resume_artwork_prefetch
-    mode: restart
-    then:
-      - lambda: |-
-          if (id(backlight_paused)) {
-            ESP_LOGD("artwork", "Artwork prefetch remains paused while the screen is asleep");
-            return;
-          }
-          auto *img = id(is_tv_mode) ? id(tv_art_background) : id(album_art_background);
-          const std::string &url = id(is_tv_mode) ? id(last_tv_artwork_url) : id(last_artwork_url);
-          if (url.empty()) return;
-          ESP_LOGI("artwork", "Resuming artwork prefetch: %s", url.c_str());
-          img->set_url(url);
-          img->update();
-
   - id: apply_downloaded_artwork
     mode: restart
     then:
@@ -134,10 +119,7 @@ script:
             - lambda: |-
                 auto *img = id(is_tv_mode) ? id(tv_art_background) : id(album_art_background);
                 const std::string &url = id(is_tv_mode) ? id(last_tv_artwork_url) : id(last_artwork_url);
-                if (id(backlight_paused)) {
-                  id(artwork_retry_pending) = false;
-                  ESP_LOGD("artwork", "Artwork retry skipped while the screen is asleep");
-                } else if (!url.empty()) {
+                if (!url.empty()) {
                   ESP_LOGI("artwork", "Retrying artwork download: %s", url.c_str());
                   img->set_url(url);
                   img->update();

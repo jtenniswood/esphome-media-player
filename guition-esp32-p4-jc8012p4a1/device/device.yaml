@@ -245,7 +245,7 @@ touchscreen:
           id(touch_x_end) = touch.x;
           id(touch_y_end) = touch.y;
           id(touch_start_time) = millis();
-      - script.execute: wake_display_from_touch
+      - script.execute: backlight_wake_timeout
       - lambda: |-
           if (id(is_panel_open)) id(start_speaker_panel_timeout).execute();
     on_update:
@@ -284,9 +284,9 @@ touchscreen:
             return;
           }
 
-          // --- Long press (3 s): turn off display ---
+          // --- Long press (5 s): turn off display ---
           if (abs(dx) < 20 && abs(dy) < 20 && !id(was_screen_dimmed)
-              && (millis() - id(touch_start_time) >= 3000)) {
+              && (millis() - id(touch_start_time) >= 5000)) {
             id(turn_off_display).execute();
             return;
           }
@@ -506,19 +506,10 @@ script:
                       while (!path.empty() && (path.back() == '\n' || path.back() == '\r' || path.back() == ' ')) path.pop_back();
                       id(last_tv_artwork_url) = (path.substr(0, 7) == "http://" || path.substr(0, 8) == "https://") ? path : (id(ha_base_url) + path);
                       id(last_tv_artwork_url) = esphome::artwork_image::cap_artwork_url(id(last_tv_artwork_url), 800);
-                  - if:
-                      condition:
-                        lambda: 'return !id(backlight_paused);'
-                      then:
-                        - delay: 50ms
-                        - artwork_image.set_url:
-                            id: tv_art_background
-                            url: !lambda 'return id(last_tv_artwork_url);'
-                      else:
-                        - logger.log:
-                            level: DEBUG
-                            tag: artwork
-                            format: "Linked artwork download skipped while the screen is asleep"
+                  - delay: 50ms
+                  - artwork_image.set_url:
+                      id: tv_art_background
+                      url: !lambda 'return id(last_tv_artwork_url);'
       - script.execute: show_track_view
       - logger.log: "Entered linked media player mode"
 
@@ -583,19 +574,10 @@ script:
                 while (!path.empty() && (path.back() == '\n' || path.back() == '\r' || path.back() == ' ')) path.pop_back();
                 id(last_artwork_url) = (path.substr(0, 7) == "http://" || path.substr(0, 8) == "https://") ? path : (id(ha_base_url) + path);
                 id(last_artwork_url) = esphome::artwork_image::cap_artwork_url(id(last_artwork_url), 800);
-            - if:
-                condition:
-                  lambda: 'return !id(backlight_paused);'
-                then:
-                  - delay: 50ms
-                  - artwork_image.set_url:
-                      id: album_art_background
-                      url: !lambda 'return id(last_artwork_url);'
-                else:
-                  - logger.log:
-                      level: DEBUG
-                      tag: artwork
-                      format: "Artwork download skipped while the screen is asleep"
+            - delay: 50ms
+            - artwork_image.set_url:
+                id: album_art_background
+                url: !lambda 'return id(last_artwork_url);'
       - script.execute: show_track_view
       - logger.log: "Exited linked media player mode"
 

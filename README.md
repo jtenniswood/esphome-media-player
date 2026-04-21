@@ -14,7 +14,6 @@ A touchscreen media controller that shows album art and track info and lets you 
 - **Touch controls** — Play/pause, swipe for next/previous, volume arc dial (swipe down)
 - **Linked media player** — Automatically shows now-playing from a linked media player when the speaker switches to a TV or Line-in input
 - **Screensaver** — Day/night aware dimming and screen-off when paused
-- **Night schedule** — Automatically sleep the display outside your chosen hours
 - **Configurable from Home Assistant** — Media player, brightness, timeouts, track info duration; no reflashing
 
 *Full details: [Features](https://jtenniswood.github.io/esphome-media-player/features)*

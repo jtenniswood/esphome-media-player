@@ -74,7 +74,7 @@ script:
           id(warm_tone_retint) = false;
 
           bool is_day = id(day_night_sensor_entity).state.empty()
-              ? (!id(sun_state_sensor).has_state() || id(sun_state_sensor).state == "above_horizon")
+              ? (id(sun_state_sensor).has_state() && id(sun_state_sensor).state == "above_horizon")
               : id(custom_day_night_is_day);
           float w = (is_day ? id(screen_warmth_day).state : id(screen_warmth_night).state) / 100.0f;
           float last_w = retint ? id(warm_tone_last_w) : 0.0f;

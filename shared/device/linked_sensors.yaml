@@ -100,23 +100,14 @@ text_sensor:
               id(last_tv_artwork_url) = new_url;
               return true;
           then:
-            - if:
-                condition:
-                  lambda: 'return !id(backlight_paused);'
-                then:
-                  - lvgl.widget.update:
-                      id: album_art_background_widget
-                      opa: 50%
-                  - lvgl.widget.hide: artwork_error_label
-                  - delay: 50ms
-                  - artwork_image.set_url:
-                      id: tv_art_background
-                      url: !lambda 'return id(last_tv_artwork_url);'
-                else:
-                  - logger.log:
-                      level: DEBUG
-                      tag: artwork
-                      format: "Linked artwork download skipped while the screen is asleep"
+            - lvgl.widget.update:
+                id: album_art_background_widget
+                opa: 50%
+            - lvgl.widget.hide: artwork_error_label
+            - delay: 50ms
+            - artwork_image.set_url:
+                id: tv_art_background
+                url: !lambda 'return id(last_tv_artwork_url);'
       - if:
           condition:
             lambda: 'return id(is_tv_mode) && x.empty() && !id(last_tv_artwork_url).empty();'
@@ -229,19 +220,10 @@ text_sensor:
                               - lvgl.widget.update:
                                   id: album_art_background_widget
                                   opa: 50%
-                              - if:
-                                  condition:
-                                    lambda: 'return !id(backlight_paused);'
-                                  then:
-                                    - delay: 50ms
-                                    - artwork_image.set_url:
-                                        id: tv_art_background
-                                        url: !lambda 'return id(last_tv_artwork_url);'
-                                  else:
-                                    - logger.log:
-                                        level: DEBUG
-                                        tag: artwork
-                                        format: "Linked artwork download skipped while the screen is asleep"
+                              - delay: 50ms
+                              - artwork_image.set_url:
+                                  id: tv_art_background
+                                  url: !lambda 'return id(last_tv_artwork_url);'
                             else:
                               - lvgl.image.update:
                                   id: album_art_background_widget
@@ -249,34 +231,22 @@ text_sensor:
                               - lvgl.widget.update:
                                   id: album_art_background_widget
                                   opa: 50%
+                  - script.stop: backlight_wake_timeout
+                  - lvgl.resume:
                   - lvgl.widget.hide:
                       id: media_play_icon
                   - lvgl.widget.show:
                       id: media_pause_icon
+                  - light.turn_on:
+                      id: backlight
+                      brightness: 100%
                   - if:
                       condition:
-                        lambda: 'return !id(backlight_paused);'
+                        lambda: 'return id(is_screen_dimmed);'
                       then:
-                        - script.stop: backlight_wake_timeout
-                        - if:
-                            condition: lvgl.is_paused
-                            then:
-                              - lvgl.resume:
-                              - lvgl.widget.redraw:
-                        - light.turn_on:
-                            id: backlight
-                            brightness: !lambda |-
-                              bool is_day = id(day_night_sensor_entity).state.empty()
-                                  ? (!id(sun_state_sensor).has_state() || id(sun_state_sensor).state == "above_horizon")
-                                  : id(custom_day_night_is_day);
-                              return (is_day ? id(backlight_day_active_brightness).state : id(backlight_night_active_brightness).state) / 100.0f;
-                        - if:
-                            condition:
-                              lambda: 'return id(is_screen_dimmed);'
-                            then:
-                              - lambda: 'id(is_screen_dimmed) = false;'
-                              - script.execute: show_track_view
-                        - script.execute: start_hide_track_info_timer
+                        - lambda: 'id(is_screen_dimmed) = false;'
+                        - script.execute: show_track_view
+                  - script.execute: start_hide_track_info_timer
                 else:
                   - if:
                       condition:
