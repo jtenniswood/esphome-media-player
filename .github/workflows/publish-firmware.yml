@@ -13,7 +13,7 @@ jobs:
     uses: esphome/workflows/.github/workflows/build.yml@2026.4.0
     with:
       files: builds/guition-esp32-s3-4848s040.factory.yaml
-      esphome-version: latest
+      esphome-version: 2026.4.1
       combined-name: media-player
       release-summary: ${{ github.event.release.body }}
       release-url: ${{ github.event.release.html_url }}
@@ -79,7 +79,7 @@ jobs:
         run: >-
           docker run --rm
           -v "${PWD}:/config"
-          ghcr.io/esphome/esphome:latest
+          ghcr.io/esphome/esphome:2026.4.1
           compile /config/builds/guition-esp32-p4-jc8012p4a1.factory.yaml
       - name: Collect firmware files
         run: |
