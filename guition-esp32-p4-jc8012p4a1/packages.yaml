@@ -20,6 +20,7 @@ substitutions:
   device_slug: "guition-esp32-p4-jc8012p4a1"
   firmware_manifest_slug: "jc8012p4a1"
   post_artwork_script: "apply_warm_tones"
+  warm_tone_post_script: "warm_tones_done"
   track_info_duration_default: "0"
   pause_lvgl_on_screen_off: "false"
   clock_screensaver_supported: "false"
@@ -38,8 +39,9 @@ packages:
   media_player_select: !include ../shared/device/media_player_select.yaml
   linked_sensors: !include ../shared/device/linked_sensors.yaml
 
+  warm_tones: !include ../shared/addon/warm_tones.yaml
+
   # Device-specific
-  warm_tones: !include addon/warm_tones.yaml
   device: !include device/device.yaml
   lvgl: !include device/lvgl.yaml
   fonts: !include assets/fonts.yaml

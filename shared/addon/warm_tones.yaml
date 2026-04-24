@@ -24,7 +24,7 @@ globals:
 
 
 # -----------------------------------------------------------------------------
-# HA sliders: Day / Night warmth (0–100%)
+# HA sliders: Day / Night warmth (0-100%)
 # -----------------------------------------------------------------------------
 number:
   - platform: template
@@ -66,6 +66,11 @@ number:
 # Apply warmth to current image buffer (LUT-based RGB565 tint)
 # -----------------------------------------------------------------------------
 script:
+  - id: warm_tones_done
+    mode: single
+    then:
+      - lambda: 'return;'
+
   - id: apply_warm_tones
     mode: restart
     then:
@@ -130,3 +135,4 @@ script:
 
           lv_obj_invalidate(id(album_art_background_widget));
           id(warm_tone_last_w) = w;
+      - script.execute: ${warm_tone_post_script}
