@@ -57,6 +57,31 @@ packages:
     refresh: 1s
 ```
 
+## Waveshare ESP32-P4 86 Panel
+
+The 720x720 square display supports the same four rotations as the S3 square display.
+
+| `display_rotation` |
+|---|
+| `"0"` |
+| `"90"` |
+| `"180"` |
+| `"270"` |
+
+Example:
+
+```yaml
+substitutions:
+  display_rotation: "90"
+
+packages:
+  music_dashboard:
+    url: https://github.com/jtenniswood/esphome-media-player
+    files: [waveshare-esp32-p4-86-panel/packages.yaml]
+    ref: main
+    refresh: 1s
+```
+
 ## ESP32-P4 JC8012P4A1
 
 The rectangular display defaults to landscape orientation and supports a 180° flip for alternate mounting. To flip 180°, override `display_rotation`:

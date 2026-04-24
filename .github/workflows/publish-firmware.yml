@@ -62,14 +62,22 @@ jobs:
   # ESP32-P4 build handled separately because esphome/build-action does not
   # yet support ESP32-P4. The manifest is patched in the publish-pages workflow.
   build-p4:
-    name: Build P4 Firmware
+    name: Build P4 Firmware (${{ matrix.slug }})
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - slug: jc8012p4a1
+            config: guition-esp32-p4-jc8012p4a1
+          - slug: p4-86-panel
+            config: waveshare-esp32-p4-86-panel
     steps:
       - uses: actions/checkout@v6
       - name: Replace project version
         run: >-
           sed -i "s/version: dev/version: ${{ github.event.release.tag_name }}/g"
-          builds/guition-esp32-p4-jc8012p4a1.factory.yaml
+          builds/${{ matrix.config }}.factory.yaml
       - name: Download C6 co-processor firmware
         run: |
           curl -sSL -o builds/network_adapter_esp32c6.bin \
@@ -80,18 +88,18 @@ jobs:
           docker run --rm
           -v "${PWD}:/config"
           ghcr.io/esphome/esphome:2026.4.1
-          compile /config/builds/guition-esp32-p4-jc8012p4a1.factory.yaml
+          compile /config/builds/${{ matrix.config }}.factory.yaml
       - name: Collect firmware files
         run: |
           mkdir -p output
           BUILD_DIR="builds/.esphome/build/media-player/.pioenvs/media-player"
-          sudo cp "${BUILD_DIR}/firmware.factory.bin" output/media-player-jc8012p4a1.factory.bin
-          sudo cp "${BUILD_DIR}/firmware.ota.bin" output/media-player-jc8012p4a1.ota.bin
+          sudo cp "${BUILD_DIR}/firmware.factory.bin" "output/media-player-${{ matrix.slug }}.factory.bin"
+          sudo cp "${BUILD_DIR}/firmware.ota.bin" "output/media-player-${{ matrix.slug }}.ota.bin"
       - name: Upload P4 firmware to release
         env:
           GH_TOKEN: ${{ github.token }}
         run: >-
           gh release upload "${{ github.event.release.tag_name }}"
-          output/media-player-jc8012p4a1.factory.bin
-          output/media-player-jc8012p4a1.ota.bin
+          output/media-player-${{ matrix.slug }}.factory.bin
+          output/media-player-${{ matrix.slug }}.ota.bin
           --clobber

@@ -1,0 +1,704 @@
+# =============================================================================
+# HARDWARE CONFIGURATION - Waveshare ESP32-P4-86-Panel / Touch LCD 4B
+# =============================================================================
+# This file defines the physical hardware settings for the ESP32 touchscreen.
+# It tells ESPHome how to communicate with the display, touchscreen, and
+# other components on this specific device.
+#
+# WARNING: These settings are specific to the Waveshare 4" 720x720 ESP32-P4
+#          panel family: ESP32-P4-WIFI6-Touch-LCD-4B and
+#          ESP32-P4-86-Panel-ETH-2RO.
+#          Using this config with a different device may cause issues.
+# =============================================================================
+
+
+# -----------------------------------------------------------------------------
+# PROCESSOR / BOARD
+# -----------------------------------------------------------------------------
+# Defines which ESP32 chip and development framework to use.
+# The ESP32-P4 has no built-in Wi-Fi, so connectivity is provided by the
+# ESP32-C6 coprocessor configured below.
+# -----------------------------------------------------------------------------
+esp32:
+  variant: ESP32P4
+  flash_size: 32MB
+  cpu_frequency: 360MHz
+  framework:
+    type: esp-idf
+    sdkconfig_options:
+      CONFIG_HTTPD_MAX_URI_LEN: "128"
+      CONFIG_LV_DRAW_SW_SUPPORT_RGB565: "y"
+    advanced:
+      enable_idf_experimental_features: true
+
+
+# -----------------------------------------------------------------------------
+# ESPHOME DEVICE IDENTITY
+# -----------------------------------------------------------------------------
+# Basic device information visible in Home Assistant.
+# - name: Internal hostname (used for mDNS, e.g., device-name.local)
+# - friendly_name: Human-readable name shown in Home Assistant UI
+# - area: Which room/area this device belongs to in Home Assistant
+#
+# These values come from variables ($name, etc.) defined in template.yaml
+# -----------------------------------------------------------------------------
+esphome:
+  name: ${name}
+  friendly_name: ${friendly_name}
+  platformio_options:
+    board_build.flash_mode: dio
+    build_flags:
+      - "-DCONFIG_LV_DISP_DEF_REFR_PERIOD=10"
+      - "-DLV_DRAW_SW_SUPPORT_RGB565=1"
+      - "-DCONFIG_COMPILER_OPTIMIZATION_PERF=y"
+      - "-Wno-deprecated-declarations"
+
+
+# -----------------------------------------------------------------------------
+# ESP32-C6 COPROCESSOR (Wi-Fi / Bluetooth)
+# -----------------------------------------------------------------------------
+esp32_hosted:
+  variant: ESP32C6
+  reset_pin: GPIO54
+  cmd_pin: GPIO19
+  clk_pin: GPIO18
+  d0_pin: GPIO14
+  d1_pin: GPIO15
+  d2_pin: GPIO16
+  d3_pin: GPIO17
+  active_high: true
+
+
+# -----------------------------------------------------------------------------
+# OVER THE AIR (OTA) UPDATES
+# -----------------------------------------------------------------------------
+# Allows updating the firmware wirelessly without plugging in USB.
+# Once configured, you can flash new code from ESPHome dashboard.
+# -----------------------------------------------------------------------------
+ota:
+  - platform: esphome
+    on_begin:
+      - lvgl.pause
+      - light.turn_off:
+          id: backlight
+          transition_length: 0s
+    on_error:
+      - light.turn_on:
+          id: backlight
+          brightness: 100%
+          transition_length: 0s
+      - lvgl.resume
+
+
+# -----------------------------------------------------------------------------
+# HOME ASSISTANT API
+# -----------------------------------------------------------------------------
+# Enables communication between this device and Home Assistant.
+# Without this, the device won't appear in Home Assistant.
+# The encryption key is typically set in your secrets.yaml file.
+# -----------------------------------------------------------------------------
+api:
+  on_client_connected:
+    - lambda: |-
+        if (client_info.find("Home Assistant") != std::string::npos) {
+          std::string protocol = "${ha_protocol}";
+          std::string host = "${ha_host}";
+          // Use the HA API client IP for http (avoids mDNS lookup for artwork),
+          // but keep the configured hostname for https (raw IPs won't match SSL certs).
+          if (protocol == "http" && host == "homeassistant.local") {
+            id(ha_base_url) = "http://" + client_address + ":${ha_port}";
+          } else {
+            id(ha_base_url) = "${ha_protocol}://${ha_host}:${ha_port}";
+          }
+        }
+    - lvgl.widget.hide: ha_setup_prompt
+    - lambda: |-
+        std::string old_val = id(tv_media_player_entity).state;
+        if (!old_val.empty() && id(linked_media_player_entity).state.empty()) {
+          ESP_LOGI("media_select", "Migrating TV entity '%s' to linked media player", old_val.c_str());
+          auto call = id(linked_media_player_entity).make_call();
+          call.set_value(old_val);
+          call.perform();
+        }
+        if (!old_val.empty()) {
+          auto call = id(tv_media_player_entity).make_call();
+          call.set_value("");
+          call.perform();
+        }
+    - script.execute: subscribe_media_player
+    - script.execute: subscribe_linked_media_player
+    - script.execute: subscribe_day_night_sensor
+  on_client_disconnected:
+    - lvgl.widget.hide: setup_prompt
+    - if:
+        condition:
+          lambda: |-
+            return !id(device_has_been_setup)
+                && !id(boot_grace_period)
+                && (esphome::api::global_api_server == nullptr
+                    || !esphome::api::global_api_server->is_connected());
+        then:
+          - lvgl.widget.show: ha_setup_prompt
+
+
+# -----------------------------------------------------------------------------
+# LOGGING
+# -----------------------------------------------------------------------------
+# Outputs debug messages for troubleshooting.
+# View logs in ESPHome dashboard or via serial connection.
+# -----------------------------------------------------------------------------
+logger:
+  level: DEBUG
+  hardware_uart: UART0
+
+
+# -----------------------------------------------------------------------------
+# PSRAM (External Memory)
+# -----------------------------------------------------------------------------
+# The display requires extra memory for graphics. PSRAM is external RAM
+# soldered onto the board that supplements the ESP32's internal memory.
+# Without this, the display won't have enough memory for the framebuffer.
+# -----------------------------------------------------------------------------
+psram:
+  speed: 200MHz
+
+
+# MIPI DSI PHY power rail.
+esp_ldo:
+  - channel: 3
+    id: dsi_phy_enable
+    voltage: 2.5V
+
+
+# -----------------------------------------------------------------------------
+# BACKLIGHT CONTROL
+# -----------------------------------------------------------------------------
+# The display backlight is controlled via PWM (pulse width modulation).
+# This allows dimming the screen brightness from 0-100%.
+# This output is used by the backlight component in addon/backlight.yaml
+# -----------------------------------------------------------------------------
+output:
+  - platform: ledc
+    id: backlight_output
+    pin: GPIO26
+
+
+# -----------------------------------------------------------------------------
+# I2C BUS (Touchscreen Communication)
+# -----------------------------------------------------------------------------
+# I2C is how the ESP32 communicates with the touchscreen controller.
+# This I2C bus is used by the touchscreen configuration below.
+# -----------------------------------------------------------------------------
+i2c:
+  id: touchscreen_bus
+  sda: GPIO7
+  scl: GPIO8
+  scan: true
+  frequency: 400kHz
+
+
+# -----------------------------------------------------------------------------
+# GLOBAL STATE VARIABLES
+# -----------------------------------------------------------------------------
+# Shared state used across touch handling, gesture detection, UI visibility,
+# and the settings panel. These persist for the lifetime of the device and are
+# accessed from touchscreen handlers, scripts, and lambdas.
+# -----------------------------------------------------------------------------
+globals:
+  # -- Touch tracking (swipe gesture detection) --
+  - id: touch_x_start            # X coordinate when finger first touches
+    type: int
+    initial_value: '0'
+  - id: touch_y_start            # Y coordinate when finger first touches
+    type: int
+    initial_value: '0'
+  - id: touch_x_end              # X coordinate updated as finger moves
+    type: int
+    initial_value: '0'
+  - id: touch_y_end              # Y coordinate updated as finger moves
+    type: int
+    initial_value: '0'
+  - id: touch_start_time          # millis() when finger first touches (for long-press)
+    type: uint32_t
+    initial_value: '0'
+
+  # -- UI overlay visibility --
+  - id: is_ui_hidden             # True when title/artist/play button are hidden
+    type: bool
+    initial_value: 'false'
+  - id: is_screen_dimmed         # True when backlight is in dimmed/idle state
+    type: bool
+    initial_value: 'false'
+  - id: was_screen_dimmed        # Snapshot at touch-start; prevents toggle on wake
+    type: bool
+    initial_value: 'false'
+  - id: is_clock_showing         # True when clock screensaver overlay is visible
+    type: bool
+    initial_value: 'false'
+
+  # -- Settings panel state --
+  - id: is_panel_open            # True when the swipe-down settings panel is visible
+    type: bool
+    initial_value: 'false'
+  - id: was_panel_open           # Snapshot at touch-start; blocks bleed-through taps
+    type: bool
+    initial_value: 'false'
+
+  # -- TV source mode --
+  - id: is_tv_mode
+    type: bool
+    initial_value: 'false'
+  - id: is_tv_idle
+    type: bool
+    initial_value: 'false'
+
+  # -- Setup flow --
+  - id: actions_prompt_acked
+    type: bool
+    restore_value: true
+    initial_value: 'false'
+  # True after first successful setup (WiFi + HA + media entity); suppresses
+  # WiFi/HA/actions setup prompts on restart so user sees loading/main UI instead.
+  - id: device_has_been_setup
+    type: bool
+    restore_value: true
+    initial_value: 'false'
+
+
+
+# -----------------------------------------------------------------------------
+# TOUCHSCREEN (GT911 Controller)
+# -----------------------------------------------------------------------------
+# The GT911 is the touch controller chip on this display.
+# It detects finger touches and reports X/Y coordinates.
+# - display: Links to the display so touch coordinates match screen position
+#
+# Touch events are automatically forwarded to LVGL for button presses.
+# Swipe detection: on_touch stores start position, on_update tracks the
+# finger as it moves, on_release evaluates whether the gesture was a swipe.
+# -----------------------------------------------------------------------------
+touchscreen:
+  - platform: gt911
+    id: tft_touch
+    display: my_display
+    on_touch:
+      - lambda: |-
+          id(was_screen_dimmed) = id(is_screen_dimmed);
+          id(was_panel_open) = id(is_panel_open);
+          id(touch_x_start) = touch.x;
+          id(touch_y_start) = touch.y;
+          id(touch_x_end) = touch.x;
+          id(touch_y_end) = touch.y;
+          id(touch_start_time) = millis();
+      - script.execute: backlight_wake_timeout
+      - lambda: |-
+          if (id(is_panel_open)) id(start_speaker_panel_timeout).execute();
+    on_update:
+      - lambda: |-
+          for (auto touch: touches) {
+            if (touch.state <= 2) {
+              id(touch_x_end) = touch.x;
+              id(touch_y_end) = touch.y;
+            }
+          }
+    on_release:
+      - lambda: |-
+          int dx = id(touch_x_end) - id(touch_x_start);
+          int dy = id(touch_y_end) - id(touch_y_start);
+          int sy = id(touch_y_start);
+          ESP_LOGD("touch", "Swipe dx=%d dy=%d start=(%d,%d) end=(%d,%d)",
+                   dx, dy, id(touch_x_start), id(touch_y_start),
+                   id(touch_x_end), id(touch_y_end));
+
+          // --- Dismiss actions prompt on tap ---
+          if (!lv_obj_has_flag(id(actions_prompt), LV_OBJ_FLAG_HIDDEN)) {
+            if (abs(dx) < 30 && abs(dy) < 30) {
+              lv_obj_add_flag(id(actions_prompt), LV_OBJ_FLAG_HIDDEN);
+              id(actions_prompt_acked) = true;
+              id(device_has_been_setup) = true;
+              global_preferences->sync();
+            }
+            return;
+          }
+
+          // --- Long press (5 s): turn off display ---
+          if (abs(dx) < 30 && abs(dy) < 30 && !id(was_screen_dimmed)
+              && (millis() - id(touch_start_time) >= 5000)) {
+            id(turn_off_display).execute();
+            return;
+          }
+
+          // --- Vertical swipe: settings panel open/close ---
+          // Swipe down to open: 30px+ downward movement, panel closed
+          if (dy > 30 && abs(dy) > abs(dx) * 2 && !id(is_panel_open)) {
+            id(open_settings_panel).execute();
+            return;
+          }
+          // Swipe up to close: panel is open, but not when multi-speaker list is scrollable
+          if (dy < -90 && abs(dy) > abs(dx) * 2 && id(is_panel_open)
+              && (lv_obj_has_flag(id(speakers_container), LV_OBJ_FLAG_HIDDEN) || id(speaker_count) <= 1)) {
+            id(close_settings_panel).execute();
+            return;
+          }
+          // When panel is (or was) open, ignore all main-screen gestures.
+          // was_panel_open guards against the close button tap bleeding
+          // through to toggle_ui after the panel has already been hidden.
+          if (id(is_panel_open) || id(was_panel_open)) {
+            return;
+          }
+
+          // --- Horizontal swipe: track navigation (works when playing or paused) ---
+          if (abs(dx) > 120 && abs(dx) > abs(dy) * 2) {
+            bool can_skip = false;
+            if (id(is_tv_mode)) {
+              std::string e = id(linked_media_player_entity).state;
+              can_skip = !e.empty() && id(tv_media_player_state_sensor).has_state();
+              if (can_skip) {
+                std::string s = id(tv_media_player_state_sensor).state;
+                can_skip = (s == "playing" || s == "paused");
+              }
+            } else {
+              std::string e = id(media_player_entity).state;
+              can_skip = !e.empty() && id(media_player_state_sensor).has_state();
+              if (can_skip) {
+                std::string s = id(media_player_state_sensor).state;
+                can_skip = (s == "playing" || s == "paused");
+              }
+            }
+            if (can_skip) {
+              if (dx > 0) {
+                id(swipe_previous_track).execute();
+              } else {
+                id(swipe_next_track).execute();
+              }
+            }
+          }
+          // Tap: minimal movement anywhere on screen — toggle UI visibility
+          // Excludes the play/pause button area (x:390-462, y:356-428).
+          // If screen was dimmed, just wake it (don't hide the UI).
+          // Only allow hiding the UI when media is actively playing.
+          else if (abs(dx) < 30 && abs(dy) < 30) {
+            int sx = id(touch_x_start);
+            // Ignore taps on the play/pause button
+            if (sx >= 578 && sx <= 701 && sy >= 527 && sy <= 650) {
+              return;
+            }
+            if (id(was_screen_dimmed)) {
+              // Screen was dimmed — wake only, don't toggle
+            } else if (id(is_ui_hidden)) {
+              // UI is hidden — always allow showing it
+              id(toggle_ui).execute();
+            } else {
+              bool playing;
+              if (id(is_tv_mode)) {
+                playing = id(tv_media_player_state_sensor).has_state() && id(tv_media_player_state_sensor).state == "playing";
+              } else {
+                playing = id(media_player_state_sensor).has_state() && id(media_player_state_sensor).state == "playing";
+              }
+              if (playing) id(toggle_ui).execute();
+            }
+          }
+
+
+# -----------------------------------------------------------------------------
+# INTERACTION SCRIPTS
+# -----------------------------------------------------------------------------
+# Scripts triggered by touch gestures and UI events:
+#   toggle_ui           – Tap to show/hide the now-playing overlay (fade anim)
+#   swipe_next_track    – Swipe left to skip to the next track (allowed when playing or paused)
+#   swipe_previous_track– Swipe right to go back to the previous track (allowed when playing or paused)
+#   open_settings_panel – Swipe down to reveal the settings panel
+#   close_settings_panel– Swipe up (or tap close) to hide the settings panel
+#   show_track_view     – Resets to the main now-playing view (closes panel,
+#                         shows overlay); called when new media starts
+#
+# mode: single  – ignores re-triggers while already running
+# mode: restart – cancels the in-progress run and starts fresh
+# -----------------------------------------------------------------------------
+script:
+  # -- Toggle now-playing overlay (fade in / fade out) --
+  - id: toggle_ui
+    mode: restart
+    then:
+      - if:
+          condition:
+            lambda: 'return id(is_ui_hidden);'
+          then:
+            - lambda: 'id(is_ui_hidden) = false;'
+            - lvgl.widget.show: accent_overlay
+            - lvgl.widget.show: track_info_text
+            - lvgl.widget.show: media_play_pause_button
+            - lambda: |-
+                if (id(artist_has_content)) lv_obj_clear_flag(id(media_artist_label), LV_OBJ_FLAG_HIDDEN);
+                lv_obj_fade_in(id(accent_overlay), 200, 0);
+                lv_obj_fade_in(id(track_info_text), 200, 0);
+                lv_obj_fade_in(id(media_play_pause_button), 200, 0);
+          else:
+            - lambda: 'id(is_ui_hidden) = true;'
+            - lambda: |-
+                lv_obj_fade_out(id(accent_overlay), 300, 0);
+                lv_obj_fade_out(id(track_info_text), 300, 0);
+                lv_obj_fade_out(id(media_play_pause_button), 300, 0);
+            - delay: 400ms
+            - lvgl.widget.hide: accent_overlay
+            - lvgl.widget.hide: track_info_text
+            - lvgl.widget.hide: media_play_pause_button
+            - lvgl.widget.hide: media_artist_label
+  # -- Track navigation (horizontal swipe; allowed when playing or paused) --
+  - id: swipe_next_track
+    mode: single
+    then:
+      - homeassistant.service:
+          service: media_player.media_next_track
+          variables:
+            target: !lambda |-
+              return id(is_tv_mode) ? id(linked_media_player_entity).state : id(media_player_entity).state;
+          data_template:
+            entity_id: "{{ target }}"
+          on_error:
+            - lambda: |-
+                if (!id(actions_prompt_acked) && !id(device_has_been_setup)) {
+                  lv_obj_clear_flag(id(actions_prompt), LV_OBJ_FLAG_HIDDEN);
+                }
+      - logger.log: "Media: next_track"
+  - id: swipe_previous_track
+    mode: single
+    then:
+      - homeassistant.service:
+          service: media_player.media_previous_track
+          variables:
+            target: !lambda |-
+              return id(is_tv_mode) ? id(linked_media_player_entity).state : id(media_player_entity).state;
+          data_template:
+            entity_id: "{{ target }}"
+          on_error:
+            - lambda: |-
+                if (!id(actions_prompt_acked) && !id(device_has_been_setup)) {
+                  lv_obj_clear_flag(id(actions_prompt), LV_OBJ_FLAG_HIDDEN);
+                }
+      - logger.log: "Media: previous_track"
+
+  # -- Settings panel (called by vertical swipe gestures) --
+  - id: open_settings_panel
+    mode: single
+    then:
+      - lambda: 'id(is_panel_open) = true;'
+      - if:
+          condition:
+            lambda: 'return id(speaker_count) <= 1;'
+          then:
+            - script.execute: show_fallback_speaker
+      - lvgl.widget.show: settings_panel
+      - script.execute: start_speaker_panel_timeout
+  - id: close_settings_panel
+    mode: single
+    then:
+      - script.stop: start_speaker_panel_timeout
+      - lvgl.widget.hide: settings_panel
+      - lambda: 'id(is_panel_open) = false;'
+  - id: start_speaker_panel_timeout
+    mode: restart
+    then:
+      - if:
+          condition:
+            lambda: 'return id(speaker_panel_timeout).state > 0;'
+          then:
+            - delay: !lambda 'return (uint32_t)(id(speaker_panel_timeout).state * 1000);'
+            - if:
+                condition:
+                  lambda: 'return id(is_panel_open);'
+                then:
+                  - script.execute: close_settings_panel
+
+  # -- Reset to now-playing view (e.g. when a new track starts) --
+  - id: show_track_view
+    mode: single
+    then:
+      - if:
+          condition:
+            lambda: 'return id(is_panel_open) && lv_obj_has_flag(id(speakers_container), LV_OBJ_FLAG_HIDDEN);'
+          then:
+            - lvgl.widget.hide: settings_panel
+            - lambda: 'id(is_panel_open) = false;'
+      - if:
+          condition:
+            lambda: 'return id(is_ui_hidden);'
+          then:
+            - script.stop: toggle_ui
+            - lambda: 'id(is_ui_hidden) = false;'
+            - lvgl.widget.show: accent_overlay
+            - lvgl.widget.show: track_info_text
+            - lambda: |-
+                if (!id(is_tv_idle)) {
+                  lv_obj_clear_flag(id(media_play_pause_button), LV_OBJ_FLAG_HIDDEN);
+                  lv_obj_fade_in(id(media_play_pause_button), 200, 0);
+                }
+                if (id(artist_has_content) && !id(is_tv_idle)) lv_obj_clear_flag(id(media_artist_label), LV_OBJ_FLAG_HIDDEN);
+                lv_obj_fade_in(id(accent_overlay), 200, 0);
+                lv_obj_fade_in(id(track_info_text), 200, 0);
+
+  - id: enter_tv_mode
+    mode: single
+    then:
+      - lambda: |-
+          id(is_tv_mode) = true;
+          id(is_tv_idle) = false;
+          id(last_tv_artwork_url) = "";
+          lv_obj_set_style_bg_color(id(accent_overlay), lv_color_make(0, 0, 0), 0);
+          lv_obj_set_style_bg_color(id(artwork_bg_panel), lv_color_make(0, 0, 0), 0);
+          lv_obj_set_style_bg_color(id(media_play_pause_button), lv_color_make(0, 0, 0), 0);
+      - lvgl.label.update:
+          id: media_title_label
+          text: !lambda 'return id(media_source_sensor).state;'
+      - lambda: 'id(artist_has_content) = false;'
+      - lvgl.widget.hide: media_artist_label
+      - lvgl.widget.hide: artwork_error_label
+      - lvgl.bar.update:
+          id: media_progress_bar
+          value: 0
+      - lvgl.label.update:
+          id: media_time_label
+          text: "0:00"
+      - if:
+          condition:
+            lambda: 'return id(linked_media_player_entity).state.empty();'
+          then:
+            - lambda: 'id(is_tv_idle) = true;'
+            - lvgl.widget.hide: media_play_pause_button
+            - lvgl.widget.hide: media_time_label
+            - lvgl.widget.hide: media_progress_bar
+            - lvgl.widget.hide: album_art_background_widget
+            - script.execute: backlight_wake_timeout
+          else:
+            - if:
+                condition:
+                  lambda: |-
+                    return id(tv_media_player_state_sensor).has_state()
+                        && id(tv_media_player_state_sensor).state == "playing";
+                then:
+                  - lvgl.widget.hide: media_play_icon
+                  - lvgl.widget.show: media_pause_icon
+                else:
+                  - lvgl.widget.show: media_play_icon
+                  - lvgl.widget.hide: media_pause_icon
+            - lvgl.image.update:
+                id: album_art_background_widget
+                src: album_art_placeholder
+            - lvgl.widget.update:
+                id: album_art_background_widget
+                opa: 50%
+            - if:
+                condition:
+                  lambda: |-
+                    return id(tv_media_title_sensor).has_state()
+                        && !id(tv_media_title_sensor).state.empty();
+                then:
+                  - lvgl.label.update:
+                      id: media_title_label
+                      text: !lambda 'return id(tv_media_title_sensor).state;'
+            - if:
+                condition:
+                  lambda: |-
+                    return id(tv_media_artist_sensor).has_state()
+                        && !id(tv_media_artist_sensor).state.empty()
+                        && id(tv_media_artist_sensor).state != "\xe2\x80\x94";
+                then:
+                  - lambda: 'id(artist_has_content) = true;'
+                  - lvgl.label.update:
+                      id: media_artist_label
+                      text: !lambda 'return id(tv_media_artist_sensor).state;'
+                  - lvgl.widget.show: media_artist_label
+            - if:
+                condition:
+                  lambda: |-
+                    return id(tv_entity_picture_sensor).has_state()
+                        && !id(tv_entity_picture_sensor).state.empty();
+                then:
+                  - lambda: |-
+                      std::string path = id(tv_entity_picture_sensor).state;
+                      while (!path.empty() && (path.back() == '\n' || path.back() == '\r' || path.back() == ' ')) path.pop_back();
+                      id(last_tv_artwork_url) = (path.substr(0, 7) == "http://" || path.substr(0, 8) == "https://") ? path : (id(ha_base_url) + path);
+                      id(last_tv_artwork_url) = esphome::artwork_image::cap_artwork_url(id(last_tv_artwork_url), 720);
+                  - delay: 50ms
+                  - artwork_image.set_url:
+                      id: tv_art_background
+                      url: !lambda 'return id(last_tv_artwork_url);'
+      - script.execute: show_track_view
+      - logger.log: "Entered linked media player mode"
+
+  - id: exit_tv_mode
+    mode: single
+    then:
+      - lambda: |-
+          id(is_tv_mode) = false;
+          id(is_tv_idle) = false;
+          lv_obj_set_style_bg_color(id(artwork_bg_panel), lv_color_make(0, 0, 0), 0);
+          lv_obj_set_size(id(album_art_background_widget), 720, 720);
+          lv_obj_set_pos(id(album_art_background_widget), 0, 0);
+      - lvgl.widget.show: media_play_pause_button
+      - lvgl.widget.show: media_time_label
+      - lvgl.label.update:
+          id: media_title_label
+          text: !lambda |-
+            return id(media_title_sensor).has_state() && !id(media_title_sensor).state.empty()
+                ? id(media_title_sensor).state : std::string("\xe2\x80\x94");
+      - if:
+          condition:
+            lambda: |-
+              return id(media_artist_sensor).has_state()
+                  && !id(media_artist_sensor).state.empty()
+                  && id(media_artist_sensor).state != "\xe2\x80\x94";
+          then:
+            - lambda: 'id(artist_has_content) = true;'
+            - lvgl.label.update:
+                id: media_artist_label
+                text: !lambda 'return id(media_artist_sensor).state;'
+            - lvgl.widget.show: media_artist_label
+          else:
+            - lambda: 'id(artist_has_content) = false;'
+            - lvgl.widget.hide: media_artist_label
+      - if:
+          condition:
+            lambda: |-
+              return id(media_player_state_sensor).has_state()
+                  && id(media_player_state_sensor).state == "playing";
+          then:
+            - lvgl.widget.hide: media_play_icon
+            - lvgl.widget.show: media_pause_icon
+          else:
+            - lvgl.widget.show: media_play_icon
+            - lvgl.widget.hide: media_pause_icon
+      - lvgl.widget.show: album_art_background_widget
+      - lvgl.image.update:
+          id: album_art_background_widget
+          src: album_art_background
+      - lvgl.widget.update:
+          id: album_art_background_widget
+          opa: 100%
+      - lvgl.widget.hide: artwork_error_label
+      - if:
+          condition:
+            lambda: |-
+              return id(media_entity_picture_sensor).has_state()
+                  && !id(media_entity_picture_sensor).state.empty();
+          then:
+            - lambda: |-
+                std::string path = id(media_entity_picture_sensor).state;
+                while (!path.empty() && (path.back() == '\n' || path.back() == '\r' || path.back() == ' ')) path.pop_back();
+                id(last_artwork_url) = (path.substr(0, 7) == "http://" || path.substr(0, 8) == "https://") ? path : (id(ha_base_url) + path);
+                id(last_artwork_url) = esphome::artwork_image::cap_artwork_url(id(last_artwork_url), 720);
+            - artwork_image.set_url:
+                id: album_art_background
+                url: !lambda 'return id(last_artwork_url);'
+      - script.execute: show_track_view
+      - logger.log: "Exited linked media player mode"
+
+
+
+display:
+  - platform: mipi_dsi
+    model: WAVESHARE-P4-86-PANEL
+    id: my_display
+    reset_pin: GPIO27
+    color_order: RGB
+    auto_clear_enabled: false

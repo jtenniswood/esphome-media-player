@@ -37,6 +37,7 @@ export default {
         text: 'Devices',
         items: [
           { text: 'ESP32-S3 4848S040 (4")', link: '/devices/esp32-s3-4848s040' },
+          { text: 'ESP32-P4 86 Panel (4")', link: '/devices/esp32-p4-86-panel' },
           { text: 'ESP32-P4 JC8012P4A1 (10.1")', link: '/devices/esp32-p4-jc8012p4a1' },
         ],
       },

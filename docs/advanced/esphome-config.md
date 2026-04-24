@@ -49,6 +49,25 @@ packages:
     refresh: 1s
 ```
 
+### Waveshare ESP32-P4 86 Panel (4")
+
+```yaml
+substitutions:
+  name: "music-dashboard"
+  friendly_name: "Music Dashboard"
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+packages:
+  music_dashboard:
+    url: https://github.com/jtenniswood/esphome-media-player
+    files: [waveshare-esp32-p4-86-panel/packages.yaml]
+    ref: main
+    refresh: 1s
+```
+
 ## Available substitutions
 
 These substitutions can be added to the `substitutions:` block in your configuration to override the defaults.
@@ -63,4 +82,4 @@ These substitutions can be added to the `substitutions:` block in your configura
 | `ha_port`         | `"8123"`                | Port that Home Assistant is running on                                     |
 | `ha_protocol`     | `"http"`                | Protocol for artwork requests — `"http"` or `"https"`                      |
 | `ha_verify_ssl`   | `"true"`                | Verify SSL certificate — set to `"false"` for self-signed or local CA certs |
-| `display_rotation` | `"0"` (S3) / `"90"` (P4) | Display rotation in degrees. See [Display Rotation](/advanced/display-rotation).  |
+| `display_rotation` | `"0"` (S3 / P4 86 Panel) / `"90"` (10.1" P4) | Display rotation in degrees. See [Display Rotation](/advanced/display-rotation).  |

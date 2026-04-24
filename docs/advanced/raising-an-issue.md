@@ -11,7 +11,7 @@ If you've gone through [Troubleshooting](/advanced/troubleshooting) and still ne
 
 To help diagnose the problem quickly, include the following:
 
-- **Device** — which hardware you're using (e.g. ESP32-S3 4848S040 4", ESP32-P4 JC8012P4A1 10.1")
+- **Device** — which hardware you're using (e.g. ESP32-S3 4848S040 4", Waveshare ESP32-P4 86 Panel 4", ESP32-P4 JC8012P4A1 10.1")
 - **Installation method** — web installer or manual ESPHome setup
 - **Description** — what you expected vs. what happened
 - **Steps to reproduce** — how to trigger the issue

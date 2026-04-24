@@ -50,50 +50,67 @@ jobs:
               mv "$OLD" "$NEW" && echo "Renamed $(basename "$OLD") -> $(basename "$NEW")"
             fi
           done
-      - name: Add ESP32-P4 build to manifest
+      - name: Add ESP32-P4 builds to manifest
         run: |
           FW="docs/.vitepress/dist/firmware"
           MANIFEST="${FW}/media-player.manifest.json"
-          FACTORY="${FW}/media-player-jc8012p4a1.factory.bin"
-          OTA="${FW}/media-player-jc8012p4a1.ota.bin"
 
-          if [ ! -f "$MANIFEST" ] || [ ! -f "$FACTORY" ]; then
-            echo "Manifest or P4 factory binary not found; skipping."
+          if [ ! -f "$MANIFEST" ]; then
+            echo "Manifest not found; skipping P4 builds."
             exit 0
           fi
 
-          FACTORY_MD5=$(md5sum "$FACTORY" | awk '{print $1}')
-          FACTORY_SHA256=$(sha256sum "$FACTORY" | awk '{print $1}')
+          add_p4_build() {
+            local slug="$1"
+            local factory="${FW}/media-player-${slug}.factory.bin"
+            local ota="${FW}/media-player-${slug}.ota.bin"
 
-          P4_BUILD=$(jq -n \
-            --arg fm "$FACTORY_MD5" \
-            --arg fs "$FACTORY_SHA256" \
-            '{
-              chipFamily: "ESP32-P4",
-              parts: [{
-                path: "media-player-jc8012p4a1.factory.bin",
-                offset: 0,
-                md5: $fm,
-                sha256: $fs
-              }]
-            }')
+            if [ ! -f "$factory" ]; then
+              echo "P4 factory binary for ${slug} not found; skipping."
+              return
+            fi
 
-          if [ -f "$OTA" ]; then
-            OTA_MD5=$(md5sum "$OTA" | awk '{print $1}')
-            OTA_SHA256=$(sha256sum "$OTA" | awk '{print $1}')
-            SUMMARY=$(jq -r '.builds[0].ota.summary // empty' "$MANIFEST")
-            RELEASE_URL=$(jq -r '.builds[0].ota.release_url // empty' "$MANIFEST")
-            P4_BUILD=$(echo "$P4_BUILD" | jq \
-              --arg om "$OTA_MD5" \
-              --arg os "$OTA_SHA256" \
-              --arg summary "$SUMMARY" \
-              --arg url "$RELEASE_URL" \
-              '. + {ota: {path: "media-player-jc8012p4a1.ota.bin", md5: $om, sha256: $os, summary: $summary, release_url: $url}}')
-          fi
+            local factory_md5 factory_sha256
+            factory_md5=$(md5sum "$factory" | awk '{print $1}')
+            factory_sha256=$(sha256sum "$factory" | awk '{print $1}')
 
-          jq --argjson p4 "$P4_BUILD" '.builds += [$p4]' "$MANIFEST" > "${MANIFEST}.tmp"
-          mv "${MANIFEST}.tmp" "$MANIFEST"
-          echo "ESP32-P4 build added to manifest."
+            local p4_build
+            p4_build=$(jq -n \
+              --arg path "media-player-${slug}.factory.bin" \
+              --arg fm "$factory_md5" \
+              --arg fs "$factory_sha256" \
+              '{
+                chipFamily: "ESP32-P4",
+                parts: [{
+                  path: $path,
+                  offset: 0,
+                  md5: $fm,
+                  sha256: $fs
+                }]
+              }')
+
+            if [ -f "$ota" ]; then
+              local ota_md5 ota_sha256 summary release_url
+              ota_md5=$(md5sum "$ota" | awk '{print $1}')
+              ota_sha256=$(sha256sum "$ota" | awk '{print $1}')
+              summary=$(jq -r '.builds[0].ota.summary // empty' "$MANIFEST")
+              release_url=$(jq -r '.builds[0].ota.release_url // empty' "$MANIFEST")
+              p4_build=$(echo "$p4_build" | jq \
+                --arg path "media-player-${slug}.ota.bin" \
+                --arg om "$ota_md5" \
+                --arg os "$ota_sha256" \
+                --arg summary "$summary" \
+                --arg url "$release_url" \
+                '. + {ota: {path: $path, md5: $om, sha256: $os, summary: $summary, release_url: $url}}')
+            fi
+
+            jq --argjson p4 "$p4_build" '.builds += [$p4]' "$MANIFEST" > "${MANIFEST}.tmp"
+            mv "${MANIFEST}.tmp" "$MANIFEST"
+            echo "ESP32-P4 build added to manifest for ${slug}."
+          }
+
+          add_p4_build "jc8012p4a1"
+          add_p4_build "p4-86-panel"
       - name: Rename S3 paths in combined manifest
         run: |
           FW="docs/.vitepress/dist/firmware"
@@ -124,10 +141,15 @@ jobs:
             "$MANIFEST" > "${FW}/media-player-4848s040.manifest.json"
           echo "Created media-player-4848s040.manifest.json"
 
-          # P4 device manifest (JC8012P4A1) — extract the ESP32-P4 build entry
-          jq '{name: .name, version: .version, home_assistant_domain: .home_assistant_domain, new_install_prompt_erase: .new_install_prompt_erase, builds: [.builds[] | select(.chipFamily == "ESP32-P4")]}' \
+          # P4 device manifest (JC8012P4A1) — extract the matching ESP32-P4 build entry
+          jq '{name: .name, version: .version, home_assistant_domain: .home_assistant_domain, new_install_prompt_erase: .new_install_prompt_erase, builds: [.builds[] | select(any(.parts[]; .path == "media-player-jc8012p4a1.factory.bin"))]}' \
             "$MANIFEST" > "${FW}/media-player-jc8012p4a1.manifest.json"
           echo "Created media-player-jc8012p4a1.manifest.json"
+
+          # P4 device manifest (Waveshare 86 Panel) — extract the matching ESP32-P4 build entry
+          jq '{name: .name, version: .version, home_assistant_domain: .home_assistant_domain, new_install_prompt_erase: .new_install_prompt_erase, builds: [.builds[] | select(any(.parts[]; .path == "media-player-p4-86-panel.factory.bin"))]}' \
+            "$MANIFEST" > "${FW}/media-player-p4-86-panel.manifest.json"
+          echo "Created media-player-p4-86-panel.manifest.json"
       - uses: actions/upload-pages-artifact@v5
         with:
           path: docs/.vitepress/dist
