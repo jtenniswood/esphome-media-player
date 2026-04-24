@@ -23,6 +23,9 @@ esp32:
   variant: ESP32P4
   flash_size: 32MB
   cpu_frequency: 360MHz
+  # Current Waveshare 4" P4 panels report ESP-ROM:esp32p4-eco2 in the boot log.
+  # ESPHome 2026.4 defaults P4 builds to production rev3 silicon unless this is set.
+  engineering_sample: true
   framework:
     type: esp-idf
     sdkconfig_options:
