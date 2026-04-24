@@ -1,22 +1,15 @@
 substitutions:
-  media_player: ""
-  linked_media_player: ""
-  ha_port: "8123"
-  ha_host: "homeassistant.local"
-  ha_protocol: "http"
-  ha_verify_ssl: "true"
   # Display rotation in degrees: 0, 90, 180, or 270
   # Rotate to match your preferred mounting orientation / power cable direction
   display_rotation: "0"
 
-  # -- Common config (consumed by common/ files) --
+  # Device profile
+  screen_width: "720"
+  screen_height: "720"
   artwork_size: "720"
   artwork_display_size: "720"
-  image_byte_order: "little_endian"
-  artwork_image_buffer_size: "65536"
   clock_cx: "360"
   clock_cy: "360"
-  rgb565_read_expr: "data[pos] | (data[pos + 1] << 8)"
   device_slug: "esp32-p4-86-panel"
   firmware_manifest_slug: "p4-86-panel"
   post_artwork_script: "apply_warm_tones"
@@ -30,20 +23,25 @@ substitutions:
   pause_lvgl_on_screen_off: "true"
   clock_screensaver_supported: "true"
 
+  # Setup screens
+  setup_content_width: "630"
+  setup_pad_row: "24"
+  setup_instructions_pad_top: "12"
+  setup_icon_font: "$icon_font"
+  setup_button_width: "270"
+  setup_button_height: "66"
+  setup_button_radius: "33"
+  setup_button_font: "roboto19_font"
+  loading_pad_row: "24"
+  loading_bar_width: "120"
+  loading_bar_height: "6"
+  loading_bar_radius: "5"
+  loading_bar_pad_top: "36"
+
 packages:
   # Common
-  time_sync: !include ../../common/addon/time.yaml
-  timezone: !include ../../common/addon/timezone.yaml
-  music: !include ../../common/addon/music.yaml
-  backlight: !include ../../common/addon/backlight.yaml
-  network: !include ../../common/addon/network.yaml
-  speaker_group: !include ../../common/addon/speaker_group.yaml
-  accent_color: !include ../../common/addon/accent_color.yaml
+  base: !include ../../common/device/base.yaml
   warm_tones: !include ../../common/addon/warm_tones.yaml
-  firmware_update: !include ../../common/addon/firmware_update.yaml
-  sensors: !include ../../common/device/sensors.yaml
-  media_player_select: !include ../../common/device/media_player_select.yaml
-  linked_sensors: !include ../../common/device/linked_sensors.yaml
 
   # Device-specific
   device: !include device/device.yaml

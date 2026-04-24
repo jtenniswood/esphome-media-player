@@ -1,22 +1,15 @@
 substitutions:
-  media_player: ""
-  linked_media_player: ""
-  ha_port: "8123"
-  ha_host: "homeassistant.local"
-  ha_protocol: "http"
-  ha_verify_ssl: "true"
   # Display rotation in degrees: 0, 90, 180, or 270
   # Rotate to match your preferred mounting orientation / power cable direction
   display_rotation: "0"
 
-  # -- Common config (consumed by common/ files) --
+  # Device profile
+  screen_width: "480"
+  screen_height: "480"
   artwork_size: "480"
   artwork_display_size: "480"
-  image_byte_order: "little_endian"
-  artwork_image_buffer_size: "65536"
   clock_cx: "240"
   clock_cy: "240"
-  rgb565_read_expr: "data[pos] | (data[pos + 1] << 8)"
   device_slug: "guition-esp32-s3-4848s040"
   firmware_manifest_slug: "4848s040"
   post_artwork_script: "start_hide_track_info_timer"
@@ -24,19 +17,24 @@ substitutions:
   pause_lvgl_on_screen_off: "true"
   clock_screensaver_supported: "true"
 
+  # Setup screens
+  setup_content_width: "420"
+  setup_pad_row: "16"
+  setup_instructions_pad_top: "8"
+  setup_icon_font: "$icon_font"
+  setup_button_width: "180"
+  setup_button_height: "44"
+  setup_button_radius: "22"
+  setup_button_font: "roboto19_font"
+  loading_pad_row: "16"
+  loading_bar_width: "80"
+  loading_bar_height: "4"
+  loading_bar_radius: "3"
+  loading_bar_pad_top: "24"
+
 packages:
   # Common
-  time_sync: !include ../../common/addon/time.yaml
-  timezone: !include ../../common/addon/timezone.yaml
-  music: !include ../../common/addon/music.yaml
-  backlight: !include ../../common/addon/backlight.yaml
-  network: !include ../../common/addon/network.yaml
-  speaker_group: !include ../../common/addon/speaker_group.yaml
-  accent_color: !include ../../common/addon/accent_color.yaml
-  firmware_update: !include ../../common/addon/firmware_update.yaml
-  sensors: !include ../../common/device/sensors.yaml
-  media_player_select: !include ../../common/device/media_player_select.yaml
-  linked_sensors: !include ../../common/device/linked_sensors.yaml
+  base: !include ../../common/device/base.yaml
 
   # Device-specific
   device: !include device/device.yaml

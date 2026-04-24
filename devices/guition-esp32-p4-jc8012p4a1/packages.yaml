@@ -1,22 +1,15 @@
 substitutions:
-  media_player: ""
-  linked_media_player: ""
-  ha_port: "8123"
-  ha_host: "homeassistant.local"
-  ha_protocol: "http"
-  ha_verify_ssl: "true"
   # Display rotation: 90 (default landscape) or 270 (flipped landscape)
   # Flip to 270 if mounting with the power cable on the opposite side
   display_rotation: "90"
 
-  # -- Common config (consumed by common/ files) --
+  # Device profile
+  screen_width: "1280"
+  screen_height: "800"
   artwork_size: "800"
   artwork_display_size: "800"
-  image_byte_order: "little_endian"
-  artwork_image_buffer_size: "65536"
   clock_cx: "640"
   clock_cy: "400"
-  rgb565_read_expr: "data[pos] | (data[pos + 1] << 8)"
   device_slug: "guition-esp32-p4-jc8012p4a1"
   firmware_manifest_slug: "jc8012p4a1"
   post_artwork_script: "apply_warm_tones"
@@ -30,20 +23,24 @@ substitutions:
   pause_lvgl_on_screen_off: "false"
   clock_screensaver_supported: "false"
 
+  # Setup screens
+  setup_content_width: "700"
+  setup_pad_row: "20"
+  setup_instructions_pad_top: "8"
+  setup_icon_font: "icon_font_setup"
+  setup_button_width: "220"
+  setup_button_height: "52"
+  setup_button_radius: "26"
+  setup_button_font: "roboto30_font"
+  loading_pad_row: "40"
+  loading_bar_width: "75"
+  loading_bar_height: "4"
+  loading_bar_radius: "3"
+  loading_bar_pad_top: "0"
+
 packages:
   # Common
-  time_sync: !include ../../common/addon/time.yaml
-  timezone: !include ../../common/addon/timezone.yaml
-  music: !include ../../common/addon/music.yaml
-  backlight: !include ../../common/addon/backlight.yaml
-  network: !include ../../common/addon/network.yaml
-  speaker_group: !include ../../common/addon/speaker_group.yaml
-  accent_color: !include ../../common/addon/accent_color.yaml
-  firmware_update: !include ../../common/addon/firmware_update.yaml
-  sensors: !include ../../common/device/sensors.yaml
-  media_player_select: !include ../../common/device/media_player_select.yaml
-  linked_sensors: !include ../../common/device/linked_sensors.yaml
-
+  base: !include ../../common/device/base.yaml
   warm_tones: !include ../../common/addon/warm_tones.yaml
 
   # Device-specific
