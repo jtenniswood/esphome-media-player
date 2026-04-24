@@ -84,7 +84,7 @@ script:
           float w = (is_day ? id(screen_warmth_day).state : id(screen_warmth_night).state) / 100.0f;
           float last_w = retint ? id(warm_tone_last_w) : 0.0f;
 
-          if (fabsf(w - last_w) < 0.01f) return;
+          if (retint && fabsf(w - last_w) < 0.01f) return;
 
           ESP_LOGI("warm", "Warmth: %d%% -> %d%%", (int)(last_w * 100.0f + 0.5f), (int)(w * 100.0f + 0.5f));
 
