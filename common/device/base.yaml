@@ -1,0 +1,23 @@
+substitutions:
+  media_player: ""
+  linked_media_player: ""
+  ha_port: "8123"
+  ha_host: "homeassistant.local"
+  ha_protocol: "http"
+  ha_verify_ssl: "true"
+  image_byte_order: "little_endian"
+  artwork_image_buffer_size: "65536"
+  rgb565_read_expr: "data[pos] | (data[pos + 1] << 8)"
+
+packages:
+  time_sync: !include ../addon/time.yaml
+  timezone: !include ../addon/timezone.yaml
+  music: !include ../addon/music.yaml
+  backlight: !include ../addon/backlight.yaml
+  network: !include ../addon/network.yaml
+  speaker_group: !include ../addon/speaker_group.yaml
+  accent_color: !include ../addon/accent_color.yaml
+  firmware_update: !include ../addon/firmware_update.yaml
+  sensors: !include sensors.yaml
+  media_player_select: !include media_player_select.yaml
+  linked_sensors: !include linked_sensors.yaml

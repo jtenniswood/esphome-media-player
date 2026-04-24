@@ -357,7 +357,7 @@ lvgl:
                   text_align: left
                   hidden: true
 
-              # Close button (hidden by default; shared speaker_group.yaml references it)
+              # Close button (hidden by default; common speaker_group.yaml references it)
               - button:
                   id: speakers_close_button
                   align: top_right

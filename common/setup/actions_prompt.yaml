@@ -1,0 +1,65 @@
+# =============================================================================
+# ACTIONS PROMPT (enable HA actions toggle)
+# =============================================================================
+
+obj:
+  id: actions_prompt
+  x: 0
+  y: 0
+  width: ${screen_width}
+  height: ${screen_height}
+  bg_color: 0x000000
+  bg_opa: 100%
+  radius: 0
+  border_width: 0
+  pad_all: 0
+  scrollable: false
+  scrollbar_mode: "off"
+  hidden: true
+  widgets:
+    - obj:
+        align: center
+        width: ${setup_content_width}
+        height: SIZE_CONTENT
+        bg_opa: 0%
+        border_width: 0
+        pad_all: 0
+        scrollable: false
+        layout:
+          type: flex
+          flex_flow: COLUMN
+          flex_align_main: center
+          flex_align_cross: center
+          pad_row: ${setup_pad_row}
+        widgets:
+          - label:
+              text_font: ${setup_icon_font}
+              text: $icon_shield
+              text_color: 0xFFFFFF
+          - label:
+              text: "Enable Actions"
+              text_font: roboto_light40_font
+              text_color: 0xFFFFFF
+              width: ${setup_content_width}
+              text_align: center
+          - label:
+              id: actions_instructions
+              text: "In Home Assistant, go to\nSettings > Devices > ESPHome\nFind the device and enable\n'Allow the device to perform\nHome Assistant actions'"
+              text_font: roboto30_font
+              text_color: 0x888888
+              width: ${setup_content_width}
+              text_align: center
+              pad_top: ${setup_instructions_pad_top}
+          - button:
+              width: ${setup_button_width}
+              height: ${setup_button_height}
+              radius: ${setup_button_radius}
+              bg_color: 0xFFFFFF
+              border_width: 0
+              pad_all: 0
+              widgets:
+                - label:
+                    text: "Understood"
+                    text_font: ${setup_button_font}
+                    text_color: 0x000000
+                    align: center

@@ -9,7 +9,7 @@ substitutions:
   # Rotate to match your preferred mounting orientation / power cable direction
   display_rotation: "0"
 
-  # -- Shared config (consumed by shared/ files) --
+  # -- Common config (consumed by common/ files) --
   artwork_size: "480"
   artwork_display_size: "480"
   image_byte_order: "little_endian"
@@ -25,18 +25,18 @@ substitutions:
   clock_screensaver_supported: "true"
 
 packages:
-  # Shared
-  time_sync: !include ../../shared/addon/time.yaml
-  timezone: !include ../../shared/addon/timezone.yaml
-  music: !include ../../shared/addon/music.yaml
-  backlight: !include ../../shared/addon/backlight.yaml
-  network: !include ../../shared/addon/network.yaml
-  speaker_group: !include ../../shared/addon/speaker_group.yaml
-  accent_color: !include ../../shared/addon/accent_color.yaml
-  firmware_update: !include ../../shared/addon/firmware_update.yaml
-  sensors: !include ../../shared/device/sensors.yaml
-  media_player_select: !include ../../shared/device/media_player_select.yaml
-  linked_sensors: !include ../../shared/device/linked_sensors.yaml
+  # Common
+  time_sync: !include ../../common/addon/time.yaml
+  timezone: !include ../../common/addon/timezone.yaml
+  music: !include ../../common/addon/music.yaml
+  backlight: !include ../../common/addon/backlight.yaml
+  network: !include ../../common/addon/network.yaml
+  speaker_group: !include ../../common/addon/speaker_group.yaml
+  accent_color: !include ../../common/addon/accent_color.yaml
+  firmware_update: !include ../../common/addon/firmware_update.yaml
+  sensors: !include ../../common/device/sensors.yaml
+  media_player_select: !include ../../common/device/media_player_select.yaml
+  linked_sensors: !include ../../common/device/linked_sensors.yaml
 
   # Device-specific
   device: !include device/device.yaml
