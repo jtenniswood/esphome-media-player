@@ -1,5 +1,5 @@
 packages:
-  core: !include guition-esp32-p4-jc8012p4a1.yaml
+  core: !include esp32-p4-86-panel.yaml
 
 esphome:
   project:
@@ -7,7 +7,7 @@ esphome:
     version: dev
 
 dashboard_import:
-  package_import_url: github://jtenniswood/esphome-media-player/devices/guition-esp32-p4-jc8012p4a1/esphome.yaml@main
+  package_import_url: github://jtenniswood/esphome-media-player/devices/esp32-p4-86-panel/esphome.yaml@main
 
 update:
   - platform: esp32_hosted

@@ -1,0 +1,44 @@
+substitutions:
+  # Display rotation in degrees: 0, 90, 180, or 270
+  # Rotate to match your preferred mounting orientation / power cable direction
+  display_rotation: "0"
+
+  # Device profile
+  screen_width: "480"
+  screen_height: "480"
+  artwork_size: "480"
+  artwork_display_size: "480"
+  clock_cx: "240"
+  clock_cy: "240"
+  device_slug: "guition-esp32-s3-4848s040"
+  firmware_manifest_slug: "4848s040"
+  post_artwork_script: "start_hide_track_info_timer"
+  track_info_duration_default: "5"
+  pause_lvgl_on_screen_off: "true"
+  clock_screensaver_supported: "true"
+
+  # Setup screens
+  setup_content_width: "420"
+  setup_pad_row: "16"
+  setup_instructions_pad_top: "8"
+  setup_icon_font: "$icon_font"
+  setup_button_width: "180"
+  setup_button_height: "44"
+  setup_button_radius: "22"
+  setup_button_font: "roboto19_font"
+  loading_pad_row: "16"
+  loading_bar_width: "80"
+  loading_bar_height: "4"
+  loading_bar_radius: "3"
+  loading_bar_pad_top: "24"
+
+packages:
+  # Common
+  base: !include ../../common/device/base.yaml
+
+  # Device-specific
+  device: !include device/device.yaml
+  lvgl: !include device/lvgl.yaml
+  fonts: !include assets/fonts.yaml
+  icons: !include assets/icons.yaml
+  button: !include theme/button.yaml

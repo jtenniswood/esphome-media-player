@@ -25,7 +25,7 @@ wifi:
 packages:
   music_dashboard:
     url: https://github.com/jtenniswood/esphome-media-player
-    files: [guition-esp32-s3-4848s040/packages.yaml]
+    files: [devices/guition-esp32-s3-4848s040/packages.yaml]
     ref: main
     refresh: 1s
 ```
@@ -44,12 +44,12 @@ wifi:
 packages:
   music_dashboard:
     url: https://github.com/jtenniswood/esphome-media-player
-    files: [guition-esp32-p4-jc8012p4a1/packages.yaml]
+    files: [devices/guition-esp32-p4-jc8012p4a1/packages.yaml]
     ref: main
     refresh: 1s
 ```
 
-### Waveshare ESP32-P4 86 Panel (4")
+### ESP32-P4 86 Panel (4")
 
 ```yaml
 substitutions:
@@ -63,7 +63,7 @@ wifi:
 packages:
   music_dashboard:
     url: https://github.com/jtenniswood/esphome-media-player
-    files: [waveshare-esp32-p4-86-panel/packages.yaml]
+    files: [devices/esp32-p4-86-panel/packages.yaml]
     ref: main
     refresh: 1s
 ```

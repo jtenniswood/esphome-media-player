@@ -1,0 +1,54 @@
+# =============================================================================
+# LOADING SCREEN (shown at boot until WiFi/grace period)
+# =============================================================================
+
+obj:
+  id: loading_screen
+  x: 0
+  y: 0
+  width: ${screen_width}
+  height: ${screen_height}
+  bg_color: 0x000000
+  bg_opa: 100%
+  radius: 0
+  border_width: 0
+  pad_all: 0
+  scrollable: false
+  scrollbar_mode: "off"
+  hidden: false
+  widgets:
+    - obj:
+        align: center
+        width: ${setup_content_width}
+        height: SIZE_CONTENT
+        bg_opa: 0%
+        border_width: 0
+        pad_all: 0
+        scrollable: false
+        layout:
+          type: flex
+          flex_flow: COLUMN
+          flex_align_main: center
+          flex_align_cross: center
+          pad_row: ${loading_pad_row}
+        widgets:
+          - label:
+              text: "Starting up"
+              text_font: roboto_light40_font
+              text_color: 0xFFFFFF
+              width: ${setup_content_width}
+              text_align: center
+          - bar:
+              id: loading_progress_bar
+              width: ${loading_bar_width}
+              height: ${loading_bar_height}
+              bg_color: 0x333333
+              bg_opa: 100%
+              radius: ${loading_bar_radius}
+              min_value: 0
+              max_value: 100
+              value: 0
+              pad_top: ${loading_bar_pad_top}
+              indicator:
+                bg_color: 0xFFFFFF
+                radius: ${loading_bar_radius}

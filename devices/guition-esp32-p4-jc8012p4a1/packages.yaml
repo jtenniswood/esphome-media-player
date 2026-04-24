@@ -1,0 +1,51 @@
+substitutions:
+  # Display rotation: 90 (default landscape) or 270 (flipped landscape)
+  # Flip to 270 if mounting with the power cable on the opposite side
+  display_rotation: "90"
+
+  # Device profile
+  screen_width: "1280"
+  screen_height: "800"
+  artwork_size: "800"
+  artwork_display_size: "800"
+  clock_cx: "640"
+  clock_cy: "400"
+  device_slug: "guition-esp32-p4-jc8012p4a1"
+  firmware_manifest_slug: "jc8012p4a1"
+  post_artwork_script: "apply_warm_tones"
+  warm_tone_post_script: "warm_tones_done"
+  warm_tone_red_boost: "0.12f"
+  warm_tone_green_reduce: "0.14f"
+  warm_tone_blue_reduce: "0.45f"
+  artwork_contrast_boost: "0.0f"
+  artwork_saturation_boost: "0.0f"
+  track_info_duration_default: "0"
+  pause_lvgl_on_screen_off: "false"
+  clock_screensaver_supported: "false"
+
+  # Setup screens
+  setup_content_width: "700"
+  setup_pad_row: "20"
+  setup_instructions_pad_top: "8"
+  setup_icon_font: "icon_font_setup"
+  setup_button_width: "220"
+  setup_button_height: "52"
+  setup_button_radius: "26"
+  setup_button_font: "roboto30_font"
+  loading_pad_row: "40"
+  loading_bar_width: "75"
+  loading_bar_height: "4"
+  loading_bar_radius: "3"
+  loading_bar_pad_top: "0"
+
+packages:
+  # Common
+  base: !include ../../common/device/base.yaml
+  warm_tones: !include ../../common/addon/warm_tones.yaml
+
+  # Device-specific
+  device: !include device/device.yaml
+  lvgl: !include device/lvgl.yaml
+  fonts: !include assets/fonts.yaml
+  icons: !include assets/icons.yaml
+  button: !include theme/button.yaml

@@ -1,0 +1,52 @@
+# =============================================================================
+# HOME ASSISTANT SETUP PROMPT (WiFi connected, HA not yet)
+# =============================================================================
+
+obj:
+  id: ha_setup_prompt
+  x: 0
+  y: 0
+  width: ${screen_width}
+  height: ${screen_height}
+  bg_color: 0x000000
+  bg_opa: 100%
+  radius: 0
+  border_width: 0
+  pad_all: 0
+  scrollable: false
+  scrollbar_mode: "off"
+  hidden: true
+  widgets:
+    - obj:
+        align: center
+        width: ${setup_content_width}
+        height: SIZE_CONTENT
+        bg_opa: 0%
+        border_width: 0
+        pad_all: 0
+        scrollable: false
+        layout:
+          type: flex
+          flex_flow: COLUMN
+          flex_align_main: center
+          flex_align_cross: center
+          pad_row: ${setup_pad_row}
+        widgets:
+          - label:
+              text_font: ${setup_icon_font}
+              text: $icon_ha
+              text_color: 0xFFFFFF
+          - label:
+              text: "Home Assistant"
+              text_font: roboto_light40_font
+              text_color: 0xFFFFFF
+              width: ${setup_content_width}
+              text_align: center
+          - label:
+              id: ha_setup_instructions
+              text: "Add this device in\nSettings > Devices > ESPHome"
+              text_font: roboto30_font
+              text_color: 0x888888
+              width: ${setup_content_width}
+              text_align: center
+              pad_top: ${setup_instructions_pad_top}

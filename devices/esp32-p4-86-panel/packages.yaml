@@ -1,0 +1,51 @@
+substitutions:
+  # Display rotation in degrees: 0, 90, 180, or 270
+  # Rotate to match your preferred mounting orientation / power cable direction
+  display_rotation: "0"
+
+  # Device profile
+  screen_width: "720"
+  screen_height: "720"
+  artwork_size: "720"
+  artwork_display_size: "720"
+  clock_cx: "360"
+  clock_cy: "360"
+  device_slug: "esp32-p4-86-panel"
+  firmware_manifest_slug: "p4-86-panel"
+  post_artwork_script: "apply_warm_tones"
+  warm_tone_post_script: "start_hide_track_info_timer"
+  warm_tone_red_boost: "0.11f"
+  warm_tone_green_reduce: "0.22f"
+  warm_tone_blue_reduce: "0.28f"
+  artwork_contrast_boost: "0.04f"
+  artwork_saturation_boost: "0.10f"
+  track_info_duration_default: "5"
+  pause_lvgl_on_screen_off: "true"
+  clock_screensaver_supported: "true"
+
+  # Setup screens
+  setup_content_width: "630"
+  setup_pad_row: "24"
+  setup_instructions_pad_top: "12"
+  setup_icon_font: "$icon_font"
+  setup_button_width: "270"
+  setup_button_height: "66"
+  setup_button_radius: "33"
+  setup_button_font: "roboto19_font"
+  loading_pad_row: "24"
+  loading_bar_width: "120"
+  loading_bar_height: "6"
+  loading_bar_radius: "5"
+  loading_bar_pad_top: "36"
+
+packages:
+  # Common
+  base: !include ../../common/device/base.yaml
+  warm_tones: !include ../../common/addon/warm_tones.yaml
+
+  # Device-specific
+  device: !include device/device.yaml
+  lvgl: !include device/lvgl.yaml
+  fonts: !include assets/fonts.yaml
+  icons: !include assets/icons.yaml
+  button: !include theme/button.yaml

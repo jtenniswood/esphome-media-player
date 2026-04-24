@@ -4,7 +4,7 @@
 
 - A supported device:
   - [Guition ESP32-S3 4848S040 (4")](/devices/esp32-s3-4848s040)
-  - [Waveshare ESP32-P4 86 Panel (4")](/devices/esp32-p4-86-panel)
+  - [ESP32-P4 86 Panel (4")](/devices/esp32-p4-86-panel)
   - [Guition ESP32-P4 JC8012P4A1 (10.1")](/devices/esp32-p4-jc8012p4a1)
 - [Home Assistant](https://www.home-assistant.io/) with at least one `media_player` entity
 - Google Chrome or Microsoft Edge (for the web installer)
