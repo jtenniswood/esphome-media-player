@@ -88,12 +88,18 @@ script:
 
           ESP_LOGI("warm", "Warmth: %d%% -> %d%%", (int)(last_w * 100.0f + 0.5f), (int)(w * 100.0f + 0.5f));
 
-          float r_undo = (last_w > 0.005f) ? 1.0f / (1.0f + last_w * 0.12f) : 1.0f;
-          float g_undo = (last_w > 0.005f) ? 1.0f / (1.0f - last_w * 0.14f) : 1.0f;
-          float b_undo = (last_w > 0.005f) ? 1.0f / (1.0f - last_w * 0.45f) : 1.0f;
-          float r_apply = 1.0f + w * 0.12f;
-          float g_apply = 1.0f - w * 0.14f;
-          float b_apply = 1.0f - w * 0.45f;
+          const float red_boost = ${warm_tone_red_boost};
+          const float green_reduce = ${warm_tone_green_reduce};
+          const float blue_reduce = ${warm_tone_blue_reduce};
+          const float contrast_boost = ${artwork_contrast_boost};
+          const float saturation_boost = ${artwork_saturation_boost};
+
+          float r_undo = (last_w > 0.005f) ? 1.0f / (1.0f + last_w * red_boost) : 1.0f;
+          float g_undo = (last_w > 0.005f) ? 1.0f / (1.0f - last_w * green_reduce) : 1.0f;
+          float b_undo = (last_w > 0.005f) ? 1.0f / (1.0f - last_w * blue_reduce) : 1.0f;
+          float r_apply = 1.0f + w * red_boost;
+          float g_apply = 1.0f - w * green_reduce;
+          float b_apply = 1.0f - w * blue_reduce;
 
           uint8_t r_lut[32], g_lut[64], b_lut[32];
           for (int i = 0; i < 32; i++) {
@@ -125,10 +131,26 @@ script:
           for (int i = 0; i < total; i++) {
             int pos = i * 2;
             uint16_t px = buf[pos] | (buf[pos + 1] << 8);
-            uint8_t r5 = r_lut[(px >> 11) & 0x1F];
-            uint8_t g6 = g_lut[(px >> 5) & 0x3F];
-            uint8_t b5 = b_lut[px & 0x1F];
-            uint16_t out = (r5 << 11) | (g6 << 5) | b5;
+            int r = ((int)r_lut[(px >> 11) & 0x1F] << 3);
+            int g = ((int)g_lut[(px >> 5) & 0x3F] << 2);
+            int b = ((int)b_lut[px & 0x1F] << 3);
+            if (!retint && contrast_boost > 0.001f) {
+              float c = 1.0f + contrast_boost;
+              r = (int)((r - 128) * c + 128);
+              g = (int)((g - 128) * c + 128);
+              b = (int)((b - 128) * c + 128);
+            }
+            if (!retint && saturation_boost > 0.001f) {
+              float s = 1.0f + saturation_boost;
+              int gray = (r * 77 + g * 150 + b * 29) >> 8;
+              r = (int)((r - gray) * s + gray);
+              g = (int)((g - gray) * s + gray);
+              b = (int)((b - gray) * s + gray);
+            }
+            if (r > 255) r = 255; else if (r < 0) r = 0;
+            if (g > 255) g = 255; else if (g < 0) g = 0;
+            if (b > 255) b = 255; else if (b < 0) b = 0;
+            uint16_t out = ((r >> 3) << 11) | ((g >> 2) << 5) | (b >> 3);
             buf[pos]     = out & 0xFF;
             buf[pos + 1] = (out >> 8) & 0xFF;
           }
