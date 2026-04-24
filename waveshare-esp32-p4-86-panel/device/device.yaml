@@ -184,6 +184,7 @@ output:
   - platform: ledc
     id: backlight_output
     pin: GPIO26
+    inverted: true
 
 
 # -----------------------------------------------------------------------------
