@@ -7,7 +7,7 @@ esphome:
   name_add_mac_suffix: true
 
 packages:
-  music_dashboard: !include ../waveshare-esp32-p4-86-panel/packages.yaml
+  music_dashboard: !include ../devices/waveshare-esp32-p4-86-panel/packages.yaml
 
 wifi:
   ap:

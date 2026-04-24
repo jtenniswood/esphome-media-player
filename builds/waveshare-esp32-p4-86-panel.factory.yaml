@@ -7,7 +7,7 @@ esphome:
     version: dev
 
 dashboard_import:
-  package_import_url: github://jtenniswood/esphome-media-player/waveshare-esp32-p4-86-panel/esphome.yaml@main
+  package_import_url: github://jtenniswood/esphome-media-player/devices/waveshare-esp32-p4-86-panel/esphome.yaml@main
 
 update:
   - platform: esp32_hosted

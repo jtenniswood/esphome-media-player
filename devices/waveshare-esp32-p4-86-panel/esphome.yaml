@@ -1,4 +1,4 @@
-# Guition ESP32-S3-4848S040 Music Dashboard
+# Waveshare ESP32-P4 86 Panel Music Dashboard
 substitutions:
   name: "music-dashboard"
   friendly_name: "Music Dashboard"
@@ -14,6 +14,6 @@ wifi:
 packages:
   music_dashboard:
     url: https://github.com/jtenniswood/esphome-media-player
-    files: [guition-esp32-s3-4848s040/packages.yaml]
+    files: [devices/waveshare-esp32-p4-86-panel/packages.yaml]
     ref: main
     refresh: 1s
