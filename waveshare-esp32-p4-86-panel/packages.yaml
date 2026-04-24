@@ -21,7 +21,7 @@ substitutions:
   firmware_manifest_slug: "p4-86-panel"
   post_artwork_script: "apply_warm_tones"
   warm_tone_post_script: "start_hide_track_info_timer"
-  warm_tone_red_boost: "0.16f"
+  warm_tone_red_boost: "0.11f"
   warm_tone_green_reduce: "0.22f"
   warm_tone_blue_reduce: "0.28f"
   artwork_contrast_boost: "0.04f"
