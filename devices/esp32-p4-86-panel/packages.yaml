@@ -17,7 +17,7 @@ substitutions:
   clock_cx: "360"
   clock_cy: "360"
   rgb565_read_expr: "data[pos] | (data[pos + 1] << 8)"
-  device_slug: "waveshare-esp32-p4-86-panel"
+  device_slug: "esp32-p4-86-panel"
   firmware_manifest_slug: "p4-86-panel"
   post_artwork_script: "apply_warm_tones"
   warm_tone_post_script: "start_hide_track_info_timer"

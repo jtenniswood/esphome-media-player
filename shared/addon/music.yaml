@@ -24,7 +24,7 @@ http_request:
   verify_ssl: ${ha_verify_ssl}
 
 image:
-  - file: "https://github.com/jtenniswood/esphome-media-player/raw/main/${device_slug}/assets/placeholder.png"
+  - file: "../devices/${device_slug}/assets/placeholder.png"
     id: album_art_placeholder
     type: RGB565
     byte_order: ${image_byte_order}

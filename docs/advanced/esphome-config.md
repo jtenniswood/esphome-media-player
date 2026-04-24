@@ -63,7 +63,7 @@ wifi:
 packages:
   music_dashboard:
     url: https://github.com/jtenniswood/esphome-media-player
-    files: [devices/waveshare-esp32-p4-86-panel/packages.yaml]
+    files: [devices/esp32-p4-86-panel/packages.yaml]
     ref: main
     refresh: 1s
 ```

@@ -71,7 +71,7 @@ jobs:
           - slug: jc8012p4a1
             config: guition-esp32-p4-jc8012p4a1
           - slug: p4-86-panel
-            config: waveshare-esp32-p4-86-panel
+            config: esp32-p4-86-panel
     steps:
       - uses: actions/checkout@v6
       - name: Replace project version
