@@ -32,6 +32,12 @@ globals:
   - id: volume_updating_from_ha
     type: bool
     initial_value: 'false'
+  - id: volume_pending_pct
+    type: int
+    initial_value: '-1'
+  - id: volume_pending_until
+    type: uint32_t
+    initial_value: '0'
   - id: last_artwork_url
     type: std::string
     initial_value: '""'
@@ -417,10 +423,20 @@ sensor:
     on_value:
       - lambda: |-
           if (id(speaker_count) <= 1) {
+            int pct = (int)(x * 100.0f + 0.5f);
+            if (id(volume_pending_until) != 0) {
+              uint32_t now = millis();
+              bool pending_active = (int32_t)(id(volume_pending_until) - now) > 0;
+              if (pending_active && pct != id(volume_pending_pct)) {
+                ESP_LOGD("volume", "Ignoring stale volume echo: %d%% while waiting for %d%%", pct, id(volume_pending_pct));
+                return;
+              }
+              id(volume_pending_pct) = -1;
+              id(volume_pending_until) = 0;
+            }
             id(volume_updating_from_ha) = true;
-            lv_arc_set_value(id(volume_arc), (int)(x * 100.0f));
+            lv_arc_set_value(id(volume_arc), pct);
             id(volume_updating_from_ha) = false;
-            int pct = (int)(x * 100.0f);
             char buf[8];
             snprintf(buf, sizeof(buf), "%d%%", pct);
             lv_label_set_text(id(volume_pct_label), buf);

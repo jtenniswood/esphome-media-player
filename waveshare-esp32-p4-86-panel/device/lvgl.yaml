@@ -260,6 +260,9 @@ lvgl:
                         condition:
                           lambda: 'return !id(volume_updating_from_ha);'
                         then:
+                          - lambda: |-
+                              id(volume_pending_pct) = (int)(x + 0.5f);
+                              id(volume_pending_until) = millis() + 1500;
                           - homeassistant.service:
                               service: media_player.volume_set
                               variables:
