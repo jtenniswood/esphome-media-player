@@ -57,7 +57,7 @@ packages:
     refresh: 1s
 ```
 
-## Waveshare ESP32-P4 86 Panel
+## ESP32-P4 86 Panel
 
 The 720x720 square display supports the same four rotations as the S3 square display.
 

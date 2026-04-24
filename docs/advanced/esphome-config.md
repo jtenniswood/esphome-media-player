@@ -49,7 +49,7 @@ packages:
     refresh: 1s
 ```
 
-### Waveshare ESP32-P4 86 Panel (4")
+### ESP32-P4 86 Panel (4")
 
 ```yaml
 substitutions:
