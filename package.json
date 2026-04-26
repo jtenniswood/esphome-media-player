@@ -2,6 +2,8 @@
   "name": "esphome-media-player",
   "private": true,
   "scripts": {
+    "webserver:build": "python3 scripts/generate_webserver.py",
+    "check:generated": "python3 scripts/generate_webserver.py --check",
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs"
   },

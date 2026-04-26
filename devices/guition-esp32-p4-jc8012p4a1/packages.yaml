@@ -42,6 +42,7 @@ packages:
   # Common
   base: !include ../../common/device/base.yaml
   warm_tones: !include ../../common/addon/warm_tones.yaml
+  web_settings: !include ../../common/addon/web_settings.yaml
 
   # Device-specific
   device: !include device/device.yaml
