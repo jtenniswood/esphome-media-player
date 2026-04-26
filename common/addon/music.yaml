@@ -25,7 +25,7 @@ http_request:
 
 image:
   # ESPHome resolves local image files from the user's YAML folder, not the package checkout.
-  - file: "https://raw.githubusercontent.com/jtenniswood/esphome-media-player/main/devices/${device_slug}/assets/placeholder.png"
+  - file: "https://raw.githubusercontent.com/jtenniswood/esphome-media-player/main/common/assets/placeholder.png"
     id: album_art_placeholder
     type: RGB565
     byte_order: ${image_byte_order}
