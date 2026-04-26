@@ -1,0 +1,2475 @@
+# =============================================================================
+# LVGL MUSIC DASHBOARD - 480x800 Portrait
+# =============================================================================
+# Portrait now-playing view for any Home Assistant media player.
+# Album art fills the top square. Track data is always visible in the
+# accent-colored panel below it.
+# Data from sensors.yaml; album art from artwork_image (addon/music.yaml).
+# =============================================================================
+
+lvgl:
+  buffer_size: 25%
+  byte_order: little_endian
+  rotation: ${display_rotation}
+  on_boot:
+    - lambda: |-
+        lv_obj_clear_flag(id(speakers_container), LV_OBJ_FLAG_SCROLL_MOMENTUM);
+        lv_obj_clear_flag(id(speakers_container), LV_OBJ_FLAG_SCROLL_ELASTIC);
+        lv_obj_set_scroll_dir(id(speakers_container), LV_DIR_VER);
+        lv_obj_set_style_pad_right(id(speakers_container), 0, LV_PART_SCROLLBAR);
+        lv_obj_set_style_pad_top(id(speakers_container), 0, LV_PART_SCROLLBAR);
+        lv_obj_set_style_pad_bottom(id(speakers_container), 0, LV_PART_SCROLLBAR);
+        lv_indev_t *indev = lv_indev_get_next(NULL);
+        #if ESPHOME_VERSION_CODE >= VERSION_CODE(2026, 4, 0)
+        if (indev) lv_indev_set_scroll_limit(indev, 20);
+        #else
+        if (indev) indev->driver->scroll_limit = 20;
+        #endif
+
+  pages:
+    - id: main_page
+      scrollbar_mode: "off"
+      scrollable: false
+      width: 100%
+      height: 100%
+      bg_color: 0x000000
+      pad_top: 0
+      pad_bottom: 0
+      pad_left: 0
+      pad_right: 0
+
+      widgets:
+        # Colored backdrop behind artwork (visible for non-square TV art)
+        - obj:
+            id: artwork_bg_panel
+            x: 0
+            y: 0
+            width: 480px
+            height: 480px
+            bg_color: 0x000000
+            bg_opa: 100%
+            radius: 0
+            border_width: 0
+            pad_all: 0
+            scrollable: false
+
+        # Top artwork
+        - image:
+            id: album_art_background_widget
+            x: 0
+            y: 0
+            width: 480px
+            height: 480px
+            src: album_art_background
+            opa: 100%
+
+        # Error label: shown when album art download fails
+        - label:
+            id: artwork_error_label
+            text: "Artwork unavailable"
+            x: 90
+            y: 225
+            width: 300px
+            height: 30px
+            text_font: roboto19_font
+            text_color: 0x888888
+            text_align: center
+            hidden: true
+
+        # Accent color background behind permanent track info
+        - obj:
+            id: accent_overlay
+            x: 0
+            y: 480
+            width: 480
+            height: 320
+            bg_color: 0x000000
+            bg_opa: 100%
+            radius: 0
+            border_width: 0
+            pad_all: 0
+            scrollable: false
+            scrollbar_mode: "off"
+            clickable: false
+
+        # Track info text (always visible in the accent panel)
+        - obj:
+            id: track_info_text
+            x: 24
+            y: 510
+            width: 332
+            height: 250
+            bg_opa: 0%
+            radius: 0
+            border_width: 0
+            pad_all: 0
+            scrollable: false
+            scrollbar_mode: "off"
+            clickable: false
+            layout:
+              type: flex
+              flex_flow: COLUMN
+              pad_row: 0
+            widgets:
+              - label:
+                  id: media_title_label
+                  text: "—"
+                  width: 100%
+                  max_height: 142px
+                  long_mode: wrap
+                  text_font: roboto_light40_font
+                  text_color: 0xFFFFFF
+                  text_align: left
+                  text_line_space: 0
+              - label:
+                  id: media_artist_label
+                  text: ""
+                  pad_top: 6
+                  width: 100%
+                  long_mode: dot
+                  text_font: roboto30_font
+                  text_color: 0xFFFFFF
+                  text_opa: 80%
+                  text_align: left
+                  hidden: true
+              - label:
+                  id: media_time_label
+                  text: "0:00  /  0:00"
+                  pad_top: 10
+                  width: 100%
+                  text_font: roboto20_font
+                  text_color: 0xFFFFFF
+                  text_opa: 80%
+                  text_align: left
+                  on_click:
+                    - switch.toggle: show_remaining_time
+
+        # Play/pause: bottom-right corner of the portrait track panel
+        - button:
+            id: media_play_pause_button
+            align: bottom_right
+            x: -24
+            y: -24
+            width: 86px
+            height: 86px
+            radius: 43
+            styles: control_round
+            widgets:
+              - label:
+                  id: media_play_icon
+                  text_font: icon_font_large
+                  align: center
+                  text: $play
+                  text_color: 0xFFFFFF
+                  hidden: false
+              - label:
+                  id: media_pause_icon
+                  text_font: icon_font_large
+                  align: center
+                  text: $pause
+                  text_color: 0xFFFFFF
+                  hidden: true
+            on_press:
+              - homeassistant.service:
+                  service: media_player.media_play_pause
+                  variables:
+                    target: !lambda |-
+                      return id(is_tv_mode) ? id(linked_media_player_entity).state : id(media_player_entity).state;
+                  data_template:
+                    entity_id: "{{ target }}"
+                  on_error:
+                    - lambda: |-
+                        if (!id(actions_prompt_acked) && !id(device_has_been_setup)) {
+                          lv_obj_clear_flag(id(actions_prompt), LV_OBJ_FLAG_HIDDEN);
+                        }
+              - logger.log: "Media: play_pause"
+
+        # Progress bar: full screen width, at the very bottom of the screen
+        - bar:
+            id: media_progress_bar
+            align: bottom_mid
+            y: 0
+            width: 480
+            height: 4
+            bg_color: 0x000000
+            bg_opa: 50%
+            radius: 0
+            min_value: 0
+            max_value: 100
+            value: 0
+            indicator:
+              bg_color: 0xFFFFFF
+              radius: 0
+
+        - !include ../setup/setup_prompt.yaml
+        - !include ../setup/actions_prompt.yaml
+
+        # ---------------------------------------------------------------
+        # SETTINGS PANEL (swipe-down from top)
+        # ---------------------------------------------------------------
+        # Full-screen overlay, starts hidden. Shown/hidden instantly by
+        # open_settings_panel / close_settings_panel scripts in device.yaml.
+        # ---------------------------------------------------------------
+        - obj:
+            id: settings_panel
+            x: 0
+            y: 0
+            width: 480
+            height: 800
+            bg_color: 0x000000
+            bg_opa: 100%
+            radius: 0
+            border_width: 0
+            pad_all: 0
+            scrollable: false
+            scrollbar_mode: "off"
+            hidden: true
+            widgets:
+              # Volume arc dial (single-speaker mode)
+              - arc:
+                  id: volume_arc
+                  align: center
+                  y: 20
+                  width: 380
+                  height: 380
+                  min_value: 0
+                  max_value: 100
+                  value: 30
+                  adjustable: true
+                  arc_color: 0x333333
+                  arc_width: 20
+                  arc_rounded: true
+                  hidden: true
+                  indicator:
+                    arc_color: 0x999999
+                    arc_width: 20
+                    arc_rounded: true
+                  knob:
+                    bg_color: 0xFFFFFF
+                    radius: 14
+                    width: 28
+                    height: 28
+                    border_width: 0
+                  on_value:
+                    - lvgl.label.update:
+                        id: volume_pct_label
+                        text: !lambda |-
+                          char buf[8];
+                          snprintf(buf, sizeof(buf), "%d%%", (int)x);
+                          return std::string(buf);
+                    - if:
+                        condition:
+                          lambda: 'return !id(volume_updating_from_ha);'
+                        then:
+                          - lambda: |-
+                              id(volume_pending_pct) = (int)(x + 0.5f);
+                              id(volume_pending_until) = millis() + 1500;
+                          - homeassistant.service:
+                              service: media_player.volume_set
+                              variables:
+                                target: !lambda 'return id(media_player_entity).state;'
+                                vol_level: !lambda 'return x / 100.0f;'
+                              data_template:
+                                entity_id: "{{ target }}"
+                                volume_level: "{{ vol_level }}"
+              - label:
+                  id: volume_title_label
+                  text: "Volume"
+                  text_font: roboto19_font
+                  text_color: 0x888888
+                  align: center
+                  y: -30
+                  width: 140
+                  height: 24
+                  text_align: center
+                  hidden: true
+              - label:
+                  id: volume_pct_label
+                  text: "30%"
+                  text_font: roboto56_font
+                  text_color: 0xFFFFFF
+                  align: center
+                  y: 20
+                  width: 200
+                  height: 60
+                  text_align: center
+                  hidden: true
+              - button:
+                  id: volume_down_button
+                  align: center
+                  x: -48
+                  y: 165
+                  width: 72px
+                  height: 72px
+                  styles: control_round
+                  hidden: true
+                  widgets:
+                    - label:
+                        text_font: $icon_font
+                        align: center
+                        text: $icon_minus
+                        text_color: 0xFFFFFF
+                  on_press:
+                    - lvgl.arc.update:
+                        id: volume_arc
+                        value: !lambda |-
+                          int v = lv_arc_get_value(id(volume_arc)) - 1;
+                          if (v < 0) v = 0;
+                          return v;
+              - button:
+                  id: volume_up_button
+                  align: center
+                  x: 48
+                  y: 165
+                  width: 72px
+                  height: 72px
+                  styles: control_round
+                  hidden: true
+                  widgets:
+                    - label:
+                        text_font: $icon_font
+                        align: center
+                        text: $icon_plus
+                        text_color: 0xFFFFFF
+                  on_press:
+                    - lvgl.arc.update:
+                        id: volume_arc
+                        value: !lambda |-
+                          int v = lv_arc_get_value(id(volume_arc)) + 1;
+                          if (v > 100) v = 100;
+                          return v;
+
+              # Title
+              - label:
+                  id: speakers_title_label
+                  text: "Speakers"
+                  text_font: roboto_light55_font
+                  text_color: 0xFFFFFF
+                  x: 20
+                  y: 19
+                  width: 400
+                  text_align: left
+                  hidden: true
+
+              # Speaker card grid (2-across)
+              - obj:
+                  id: speakers_container
+                  x: 0
+                  y: 0
+                  width: 100%
+                  height: 100%
+                  bg_opa: 0%
+                  border_width: 0
+                  pad_left: 20
+                  pad_right: 20
+                  pad_top: 24
+                  pad_bottom: 16
+                  scrollable: true
+                  scrollbar_mode: auto
+                  hidden: true
+                  layout:
+                    type: flex
+                    flex_flow: ROW_WRAP
+                    pad_row: 16
+                    pad_column: 16
+                  widgets:
+                    # --- Group Volume card ---
+                    - obj:
+                        id: group_vol_card
+                        width: 212
+                        height: 210
+                        radius: 24
+                        bg_color: 0x212121
+                        bg_opa: 100%
+                        border_width: 0
+                        pad_left: 20
+                        pad_right: 20
+                        pad_top: 20
+                        pad_bottom: 20
+                        scrollable: false
+                        layout:
+                          type: flex
+                          flex_flow: COLUMN
+                          flex_align_main: space_between
+                          flex_align_cross: start
+                        widgets:
+                          - obj:
+                              width: 160
+                              height: SIZE_CONTENT
+                              bg_opa: 0%
+                              border_width: 0
+                              pad_all: 0
+                              scrollable: false
+                              clickable: false
+                              layout:
+                                type: flex
+                                flex_flow: COLUMN
+                                pad_row: 7
+                              widgets:
+                                - label:
+                                    text: "Group Volume"
+                                    text_font: roboto30_font
+                                    text_color: 0xFFFFFF
+                                    width: 150
+                                - label:
+                                    id: group_vol_label
+                                    text: ""
+                                    text_font: roboto19_font
+                                    text_color: 0xFFFFFF
+                                    text_opa: 80%
+                          - obj:
+                              id: group_vol_btns
+                              width: 122
+                              height: 48
+                              radius: 24
+                              bg_color: 0x373737
+                              bg_opa: 100%
+                              border_width: 0
+                              pad_all: 0
+                              scrollable: false
+                              clickable: false
+                              layout:
+                                type: flex
+                                flex_flow: ROW
+                                pad_column: 0
+                              widgets:
+                                - button:
+                                    width: 60
+                                    height: 48
+                                    radius: 0
+                                    bg_opa: 0%
+                                    border_width: 0
+                                    shadow_width: 0
+                                    pad_all: 0
+                                    on_click:
+                                      - script.execute: group_volume_down
+                                    widgets:
+                                      - label:
+                                          text: "${icon_minus}"
+                                          text_font: icon_font_small
+                                          text_color: 0xFFFFFF
+                                          align: center
+                                - obj:
+                                    width: 2
+                                    height: 48
+                                    bg_color: 0x212121
+                                    bg_opa: 100%
+                                    radius: 0
+                                    border_width: 0
+                                    pad_all: 0
+                                    align: center
+                                    clickable: false
+                                - button:
+                                    width: 60
+                                    height: 48
+                                    radius: 0
+                                    bg_opa: 0%
+                                    border_width: 0
+                                    shadow_width: 0
+                                    pad_all: 0
+                                    on_click:
+                                      - script.execute: group_volume_up
+                                    widgets:
+                                      - label:
+                                          text: "${icon_plus}"
+                                          text_font: icon_font_small
+                                          text_color: 0xFFFFFF
+                                          align: center
+
+                    # --- Card 0 (selected speaker / leader, no toggle) ---
+                    - obj:
+                        id: speaker_card_0
+                        width: 212
+                        height: 210
+                        radius: 24
+                        bg_color: 0x000000
+                        bg_opa: 100%
+                        border_width: 2
+                        border_color: 0x373737
+                        pad_left: 20
+                        pad_right: 20
+                        pad_top: 20
+                        pad_bottom: 20
+                        scrollable: false
+                        hidden: true
+                        layout:
+                          type: flex
+                          flex_flow: COLUMN
+                          flex_align_main: space_between
+                          flex_align_cross: start
+                        widgets:
+                          - obj:
+                              width: 160
+                              height: SIZE_CONTENT
+                              bg_opa: 0%
+                              border_width: 0
+                              pad_all: 0
+                              scrollable: false
+                              clickable: false
+                              layout:
+                                type: flex
+                                flex_flow: COLUMN
+                                pad_row: 7
+                              widgets:
+                                - label:
+                                    id: speaker_name_0
+                                    text: ""
+                                    text_font: roboto30_font
+                                    text_color: 0xFFFFFF
+                                    width: 150
+                                - label:
+                                    id: speaker_vol_label_0
+                                    text: ""
+                                    text_font: roboto19_font
+                                    text_color: 0xFFFFFF
+                                    text_opa: 80%
+                          - obj:
+                              id: speaker_btns_0
+                              width: 122
+                              height: 48
+                              radius: 24
+                              bg_color: 0x373737
+                              bg_opa: 100%
+                              border_width: 0
+                              pad_all: 0
+                              scrollable: false
+                              clickable: false
+                              layout:
+                                type: flex
+                                flex_flow: ROW
+                                pad_column: 0
+                              widgets:
+                                - button:
+                                    width: 60
+                                    height: 48
+                                    radius: 0
+                                    bg_opa: 0%
+                                    border_width: 0
+                                    shadow_width: 0
+                                    pad_all: 0
+                                    on_click:
+                                      - script.execute:
+                                          id: speaker_volume_change
+                                          slot: 0
+                                          direction: -1
+                                    widgets:
+                                      - label:
+                                          text: "${icon_minus}"
+                                          text_font: icon_font_small
+                                          text_color: 0xFFFFFF
+                                          align: center
+                                - obj:
+                                    width: 2
+                                    height: 48
+                                    bg_color: 0x212121
+                                    bg_opa: 100%
+                                    radius: 0
+                                    border_width: 0
+                                    pad_all: 0
+                                    align: center
+                                    clickable: false
+                                - button:
+                                    width: 60
+                                    height: 48
+                                    radius: 0
+                                    bg_opa: 0%
+                                    border_width: 0
+                                    shadow_width: 0
+                                    pad_all: 0
+                                    on_click:
+                                      - script.execute:
+                                          id: speaker_volume_change
+                                          slot: 0
+                                          direction: 1
+                                    widgets:
+                                      - label:
+                                          text: "${icon_plus}"
+                                          text_font: icon_font_small
+                                          text_color: 0xFFFFFF
+                                          align: center
+
+                    # --- Card 1 ---
+                    - obj:
+                        id: speaker_card_1
+                        width: 212
+                        height: 210
+                        radius: 24
+                        bg_color: 0x000000
+                        bg_opa: 100%
+                        border_width: 2
+                        border_color: 0x373737
+                        pad_left: 20
+                        pad_right: 20
+                        pad_top: 20
+                        pad_bottom: 20
+                        scrollable: false
+                        hidden: true
+                        clickable: true
+                        on_click:
+                          - script.execute:
+                              id: speaker_toggle
+                              slot: 1
+                        layout:
+                          type: flex
+                          flex_flow: COLUMN
+                          flex_align_main: space_between
+                          flex_align_cross: start
+                        widgets:
+                          - obj:
+                              id: speaker_top_1
+                              width: 160
+                              height: SIZE_CONTENT
+                              bg_opa: 0%
+                              border_width: 0
+                              pad_all: 0
+                              scrollable: false
+                              clickable: false
+                              on_click:
+                                - script.execute:
+                                    id: speaker_toggle
+                                    slot: 1
+                              layout:
+                                type: flex
+                                flex_flow: COLUMN
+                                pad_row: 7
+                              widgets:
+                                - label:
+                                    id: speaker_name_1
+                                    text: ""
+                                    text_font: roboto30_font
+                                    text_color: 0xFFFFFF
+                                    width: 150
+                                - label:
+                                    id: speaker_vol_label_1
+                                    text: ""
+                                    text_font: roboto19_font
+                                    text_color: 0xFFFFFF
+                                    text_opa: 80%
+                          - obj:
+                              id: speaker_btns_1
+                              width: 122
+                              height: 48
+                              radius: 24
+                              bg_color: 0x373737
+                              bg_opa: 100%
+                              border_width: 0
+                              pad_all: 0
+                              scrollable: false
+                              clickable: false
+                              layout:
+                                type: flex
+                                flex_flow: ROW
+                                pad_column: 0
+                              widgets:
+                                - button:
+                                    width: 60
+                                    height: 48
+                                    radius: 0
+                                    bg_opa: 0%
+                                    border_width: 0
+                                    shadow_width: 0
+                                    pad_all: 0
+                                    on_click:
+                                      - script.execute:
+                                          id: speaker_volume_change
+                                          slot: 1
+                                          direction: -1
+                                    widgets:
+                                      - label:
+                                          text: "${icon_minus}"
+                                          text_font: icon_font_small
+                                          text_color: 0xFFFFFF
+                                          align: center
+                                - obj:
+                                    width: 2
+                                    height: 48
+                                    bg_color: 0x212121
+                                    bg_opa: 100%
+                                    radius: 0
+                                    border_width: 0
+                                    pad_all: 0
+                                    align: center
+                                    clickable: false
+                                - button:
+                                    width: 60
+                                    height: 48
+                                    radius: 0
+                                    bg_opa: 0%
+                                    border_width: 0
+                                    shadow_width: 0
+                                    pad_all: 0
+                                    on_click:
+                                      - script.execute:
+                                          id: speaker_volume_change
+                                          slot: 1
+                                          direction: 1
+                                    widgets:
+                                      - label:
+                                          text: "${icon_plus}"
+                                          text_font: icon_font_small
+                                          text_color: 0xFFFFFF
+                                          align: center
+
+                    # --- Card 2 ---
+                    - obj:
+                        id: speaker_card_2
+                        width: 212
+                        height: 210
+                        radius: 24
+                        bg_color: 0x000000
+                        bg_opa: 100%
+                        border_width: 2
+                        border_color: 0x373737
+                        pad_left: 20
+                        pad_right: 20
+                        pad_top: 20
+                        pad_bottom: 20
+                        scrollable: false
+                        hidden: true
+                        clickable: true
+                        on_click:
+                          - script.execute:
+                              id: speaker_toggle
+                              slot: 2
+                        layout:
+                          type: flex
+                          flex_flow: COLUMN
+                          flex_align_main: space_between
+                          flex_align_cross: start
+                        widgets:
+                          - obj:
+                              id: speaker_top_2
+                              width: 160
+                              height: SIZE_CONTENT
+                              bg_opa: 0%
+                              border_width: 0
+                              pad_all: 0
+                              scrollable: false
+                              clickable: false
+                              on_click:
+                                - script.execute:
+                                    id: speaker_toggle
+                                    slot: 2
+                              layout:
+                                type: flex
+                                flex_flow: COLUMN
+                                pad_row: 7
+                              widgets:
+                                - label:
+                                    id: speaker_name_2
+                                    text: ""
+                                    text_font: roboto30_font
+                                    text_color: 0xFFFFFF
+                                    width: 150
+                                - label:
+                                    id: speaker_vol_label_2
+                                    text: ""
+                                    text_font: roboto19_font
+                                    text_color: 0xFFFFFF
+                                    text_opa: 80%
+                          - obj:
+                              id: speaker_btns_2
+                              width: 122
+                              height: 48
+                              radius: 24
+                              bg_color: 0x373737
+                              bg_opa: 100%
+                              border_width: 0
+                              pad_all: 0
+                              scrollable: false
+                              clickable: false
+                              layout:
+                                type: flex
+                                flex_flow: ROW
+                                pad_column: 0
+                              widgets:
+                                - button:
+                                    width: 60
+                                    height: 48
+                                    radius: 0
+                                    bg_opa: 0%
+                                    border_width: 0
+                                    shadow_width: 0
+                                    pad_all: 0
+                                    on_click:
+                                      - script.execute:
+                                          id: speaker_volume_change
+                                          slot: 2
+                                          direction: -1
+                                    widgets:
+                                      - label:
+                                          text: "${icon_minus}"
+                                          text_font: icon_font_small
+                                          text_color: 0xFFFFFF
+                                          align: center
+                                - obj:
+                                    width: 2
+                                    height: 48
+                                    bg_color: 0x212121
+                                    bg_opa: 100%
+                                    radius: 0
+                                    border_width: 0
+                                    pad_all: 0
+                                    align: center
+                                    clickable: false
+                                - button:
+                                    width: 60
+                                    height: 48
+                                    radius: 0
+                                    bg_opa: 0%
+                                    border_width: 0
+                                    shadow_width: 0
+                                    pad_all: 0
+                                    on_click:
+                                      - script.execute:
+                                          id: speaker_volume_change
+                                          slot: 2
+                                          direction: 1
+                                    widgets:
+                                      - label:
+                                          text: "${icon_plus}"
+                                          text_font: icon_font_small
+                                          text_color: 0xFFFFFF
+                                          align: center
+
+                    # --- Card 3 ---
+                    - obj:
+                        id: speaker_card_3
+                        width: 212
+                        height: 210
+                        radius: 24
+                        bg_color: 0x000000
+                        bg_opa: 100%
+                        border_width: 2
+                        border_color: 0x373737
+                        pad_left: 20
+                        pad_right: 20
+                        pad_top: 20
+                        pad_bottom: 20
+                        scrollable: false
+                        hidden: true
+                        clickable: true
+                        on_click:
+                          - script.execute:
+                              id: speaker_toggle
+                              slot: 3
+                        layout:
+                          type: flex
+                          flex_flow: COLUMN
+                          flex_align_main: space_between
+                          flex_align_cross: start
+                        widgets:
+                          - obj:
+                              id: speaker_top_3
+                              width: 160
+                              height: SIZE_CONTENT
+                              bg_opa: 0%
+                              border_width: 0
+                              pad_all: 0
+                              scrollable: false
+                              clickable: false
+                              on_click:
+                                - script.execute:
+                                    id: speaker_toggle
+                                    slot: 3
+                              layout:
+                                type: flex
+                                flex_flow: COLUMN
+                                pad_row: 7
+                              widgets:
+                                - label:
+                                    id: speaker_name_3
+                                    text: ""
+                                    text_font: roboto30_font
+                                    text_color: 0xFFFFFF
+                                    width: 150
+                                - label:
+                                    id: speaker_vol_label_3
+                                    text: ""
+                                    text_font: roboto19_font
+                                    text_color: 0xFFFFFF
+                                    text_opa: 80%
+                          - obj:
+                              id: speaker_btns_3
+                              width: 122
+                              height: 48
+                              radius: 24
+                              bg_color: 0x373737
+                              bg_opa: 100%
+                              border_width: 0
+                              pad_all: 0
+                              scrollable: false
+                              clickable: false
+                              layout:
+                                type: flex
+                                flex_flow: ROW
+                                pad_column: 0
+                              widgets:
+                                - button:
+                                    width: 60
+                                    height: 48
+                                    radius: 0
+                                    bg_opa: 0%
+                                    border_width: 0
+                                    shadow_width: 0
+                                    pad_all: 0
+                                    on_click:
+                                      - script.execute:
+                                          id: speaker_volume_change
+                                          slot: 3
+                                          direction: -1
+                                    widgets:
+                                      - label:
+                                          text: "${icon_minus}"
+                                          text_font: icon_font_small
+                                          text_color: 0xFFFFFF
+                                          align: center
+                                - obj:
+                                    width: 2
+                                    height: 48
+                                    bg_color: 0x212121
+                                    bg_opa: 100%
+                                    radius: 0
+                                    border_width: 0
+                                    pad_all: 0
+                                    align: center
+                                    clickable: false
+                                - button:
+                                    width: 60
+                                    height: 48
+                                    radius: 0
+                                    bg_opa: 0%
+                                    border_width: 0
+                                    shadow_width: 0
+                                    pad_all: 0
+                                    on_click:
+                                      - script.execute:
+                                          id: speaker_volume_change
+                                          slot: 3
+                                          direction: 1
+                                    widgets:
+                                      - label:
+                                          text: "${icon_plus}"
+                                          text_font: icon_font_small
+                                          text_color: 0xFFFFFF
+                                          align: center
+
+                    # --- Card 4 ---
+                    - obj:
+                        id: speaker_card_4
+                        width: 212
+                        height: 210
+                        radius: 24
+                        bg_color: 0x000000
+                        bg_opa: 100%
+                        border_width: 2
+                        border_color: 0x373737
+                        pad_left: 20
+                        pad_right: 20
+                        pad_top: 20
+                        pad_bottom: 20
+                        scrollable: false
+                        hidden: true
+                        clickable: true
+                        on_click:
+                          - script.execute:
+                              id: speaker_toggle
+                              slot: 4
+                        layout:
+                          type: flex
+                          flex_flow: COLUMN
+                          flex_align_main: space_between
+                          flex_align_cross: start
+                        widgets:
+                          - obj:
+                              id: speaker_top_4
+                              width: 160
+                              height: SIZE_CONTENT
+                              bg_opa: 0%
+                              border_width: 0
+                              pad_all: 0
+                              scrollable: false
+                              clickable: false
+                              on_click:
+                                - script.execute:
+                                    id: speaker_toggle
+                                    slot: 4
+                              layout:
+                                type: flex
+                                flex_flow: COLUMN
+                                pad_row: 7
+                              widgets:
+                                - label:
+                                    id: speaker_name_4
+                                    text: ""
+                                    text_font: roboto30_font
+                                    text_color: 0xFFFFFF
+                                    width: 150
+                                - label:
+                                    id: speaker_vol_label_4
+                                    text: ""
+                                    text_font: roboto19_font
+                                    text_color: 0xFFFFFF
+                                    text_opa: 80%
+                          - obj:
+                              id: speaker_btns_4
+                              width: 122
+                              height: 48
+                              radius: 24
+                              bg_color: 0x373737
+                              bg_opa: 100%
+                              border_width: 0
+                              pad_all: 0
+                              scrollable: false
+                              clickable: false
+                              layout:
+                                type: flex
+                                flex_flow: ROW
+                                pad_column: 0
+                              widgets:
+                                - button:
+                                    width: 60
+                                    height: 48
+                                    radius: 0
+                                    bg_opa: 0%
+                                    border_width: 0
+                                    shadow_width: 0
+                                    pad_all: 0
+                                    on_click:
+                                      - script.execute:
+                                          id: speaker_volume_change
+                                          slot: 4
+                                          direction: -1
+                                    widgets:
+                                      - label:
+                                          text: "${icon_minus}"
+                                          text_font: icon_font_small
+                                          text_color: 0xFFFFFF
+                                          align: center
+                                - obj:
+                                    width: 2
+                                    height: 48
+                                    bg_color: 0x212121
+                                    bg_opa: 100%
+                                    radius: 0
+                                    border_width: 0
+                                    pad_all: 0
+                                    align: center
+                                    clickable: false
+                                - button:
+                                    width: 60
+                                    height: 48
+                                    radius: 0
+                                    bg_opa: 0%
+                                    border_width: 0
+                                    shadow_width: 0
+                                    pad_all: 0
+                                    on_click:
+                                      - script.execute:
+                                          id: speaker_volume_change
+                                          slot: 4
+                                          direction: 1
+                                    widgets:
+                                      - label:
+                                          text: "${icon_plus}"
+                                          text_font: icon_font_small
+                                          text_color: 0xFFFFFF
+                                          align: center
+
+                    # --- Card 5 ---
+                    - obj:
+                        id: speaker_card_5
+                        width: 212
+                        height: 210
+                        radius: 24
+                        bg_color: 0x000000
+                        bg_opa: 100%
+                        border_width: 2
+                        border_color: 0x373737
+                        pad_left: 20
+                        pad_right: 20
+                        pad_top: 20
+                        pad_bottom: 20
+                        scrollable: false
+                        hidden: true
+                        clickable: true
+                        on_click:
+                          - script.execute:
+                              id: speaker_toggle
+                              slot: 5
+                        layout:
+                          type: flex
+                          flex_flow: COLUMN
+                          flex_align_main: space_between
+                          flex_align_cross: start
+                        widgets:
+                          - obj:
+                              id: speaker_top_5
+                              width: 160
+                              height: SIZE_CONTENT
+                              bg_opa: 0%
+                              border_width: 0
+                              pad_all: 0
+                              scrollable: false
+                              clickable: false
+                              on_click:
+                                - script.execute:
+                                    id: speaker_toggle
+                                    slot: 5
+                              layout:
+                                type: flex
+                                flex_flow: COLUMN
+                                pad_row: 7
+                              widgets:
+                                - label:
+                                    id: speaker_name_5
+                                    text: ""
+                                    text_font: roboto30_font
+                                    text_color: 0xFFFFFF
+                                    width: 150
+                                - label:
+                                    id: speaker_vol_label_5
+                                    text: ""
+                                    text_font: roboto19_font
+                                    text_color: 0xFFFFFF
+                                    text_opa: 80%
+                          - obj:
+                              id: speaker_btns_5
+                              width: 122
+                              height: 48
+                              radius: 24
+                              bg_color: 0x373737
+                              bg_opa: 100%
+                              border_width: 0
+                              pad_all: 0
+                              scrollable: false
+                              clickable: false
+                              layout:
+                                type: flex
+                                flex_flow: ROW
+                                pad_column: 0
+                              widgets:
+                                - button:
+                                    width: 60
+                                    height: 48
+                                    radius: 0
+                                    bg_opa: 0%
+                                    border_width: 0
+                                    shadow_width: 0
+                                    pad_all: 0
+                                    on_click:
+                                      - script.execute:
+                                          id: speaker_volume_change
+                                          slot: 5
+                                          direction: -1
+                                    widgets:
+                                      - label:
+                                          text: "${icon_minus}"
+                                          text_font: icon_font_small
+                                          text_color: 0xFFFFFF
+                                          align: center
+                                - obj:
+                                    width: 2
+                                    height: 48
+                                    bg_color: 0x212121
+                                    bg_opa: 100%
+                                    radius: 0
+                                    border_width: 0
+                                    pad_all: 0
+                                    align: center
+                                    clickable: false
+                                - button:
+                                    width: 60
+                                    height: 48
+                                    radius: 0
+                                    bg_opa: 0%
+                                    border_width: 0
+                                    shadow_width: 0
+                                    pad_all: 0
+                                    on_click:
+                                      - script.execute:
+                                          id: speaker_volume_change
+                                          slot: 5
+                                          direction: 1
+                                    widgets:
+                                      - label:
+                                          text: "${icon_plus}"
+                                          text_font: icon_font_small
+                                          text_color: 0xFFFFFF
+                                          align: center
+
+                    # --- Card 6 ---
+                    - obj:
+                        id: speaker_card_6
+                        width: 212
+                        height: 210
+                        radius: 24
+                        bg_color: 0x000000
+                        bg_opa: 100%
+                        border_width: 2
+                        border_color: 0x373737
+                        pad_left: 20
+                        pad_right: 20
+                        pad_top: 20
+                        pad_bottom: 20
+                        scrollable: false
+                        hidden: true
+                        clickable: true
+                        on_click:
+                          - script.execute:
+                              id: speaker_toggle
+                              slot: 6
+                        layout:
+                          type: flex
+                          flex_flow: COLUMN
+                          flex_align_main: space_between
+                          flex_align_cross: start
+                        widgets:
+                          - obj:
+                              id: speaker_top_6
+                              width: 160
+                              height: SIZE_CONTENT
+                              bg_opa: 0%
+                              border_width: 0
+                              pad_all: 0
+                              scrollable: false
+                              clickable: false
+                              on_click:
+                                - script.execute:
+                                    id: speaker_toggle
+                                    slot: 6
+                              layout:
+                                type: flex
+                                flex_flow: COLUMN
+                                pad_row: 7
+                              widgets:
+                                - label:
+                                    id: speaker_name_6
+                                    text: ""
+                                    text_font: roboto30_font
+                                    text_color: 0xFFFFFF
+                                    width: 150
+                                - label:
+                                    id: speaker_vol_label_6
+                                    text: ""
+                                    text_font: roboto19_font
+                                    text_color: 0xFFFFFF
+                                    text_opa: 80%
+                          - obj:
+                              id: speaker_btns_6
+                              width: 122
+                              height: 48
+                              radius: 24
+                              bg_color: 0x373737
+                              bg_opa: 100%
+                              border_width: 0
+                              pad_all: 0
+                              scrollable: false
+                              clickable: false
+                              layout:
+                                type: flex
+                                flex_flow: ROW
+                                pad_column: 0
+                              widgets:
+                                - button:
+                                    width: 60
+                                    height: 48
+                                    radius: 0
+                                    bg_opa: 0%
+                                    border_width: 0
+                                    shadow_width: 0
+                                    pad_all: 0
+                                    on_click:
+                                      - script.execute:
+                                          id: speaker_volume_change
+                                          slot: 6
+                                          direction: -1
+                                    widgets:
+                                      - label:
+                                          text: "${icon_minus}"
+                                          text_font: icon_font_small
+                                          text_color: 0xFFFFFF
+                                          align: center
+                                - obj:
+                                    width: 2
+                                    height: 48
+                                    bg_color: 0x212121
+                                    bg_opa: 100%
+                                    radius: 0
+                                    border_width: 0
+                                    pad_all: 0
+                                    align: center
+                                    clickable: false
+                                - button:
+                                    width: 60
+                                    height: 48
+                                    radius: 0
+                                    bg_opa: 0%
+                                    border_width: 0
+                                    shadow_width: 0
+                                    pad_all: 0
+                                    on_click:
+                                      - script.execute:
+                                          id: speaker_volume_change
+                                          slot: 6
+                                          direction: 1
+                                    widgets:
+                                      - label:
+                                          text: "${icon_plus}"
+                                          text_font: icon_font_small
+                                          text_color: 0xFFFFFF
+                                          align: center
+
+                    # --- Card 7 ---
+                    - obj:
+                        id: speaker_card_7
+                        width: 212
+                        height: 210
+                        radius: 24
+                        bg_color: 0x000000
+                        bg_opa: 100%
+                        border_width: 2
+                        border_color: 0x373737
+                        pad_left: 20
+                        pad_right: 20
+                        pad_top: 20
+                        pad_bottom: 20
+                        scrollable: false
+                        hidden: true
+                        clickable: true
+                        on_click:
+                          - script.execute:
+                              id: speaker_toggle
+                              slot: 7
+                        layout:
+                          type: flex
+                          flex_flow: COLUMN
+                          flex_align_main: space_between
+                          flex_align_cross: start
+                        widgets:
+                          - obj:
+                              id: speaker_top_7
+                              width: 160
+                              height: SIZE_CONTENT
+                              bg_opa: 0%
+                              border_width: 0
+                              pad_all: 0
+                              scrollable: false
+                              clickable: false
+                              on_click:
+                                - script.execute:
+                                    id: speaker_toggle
+                                    slot: 7
+                              layout:
+                                type: flex
+                                flex_flow: COLUMN
+                                pad_row: 7
+                              widgets:
+                                - label:
+                                    id: speaker_name_7
+                                    text: ""
+                                    text_font: roboto30_font
+                                    text_color: 0xFFFFFF
+                                    width: 150
+                                - label:
+                                    id: speaker_vol_label_7
+                                    text: ""
+                                    text_font: roboto19_font
+                                    text_color: 0xFFFFFF
+                                    text_opa: 80%
+                          - obj:
+                              id: speaker_btns_7
+                              width: 122
+                              height: 48
+                              radius: 24
+                              bg_color: 0x373737
+                              bg_opa: 100%
+                              border_width: 0
+                              pad_all: 0
+                              scrollable: false
+                              clickable: false
+                              layout:
+                                type: flex
+                                flex_flow: ROW
+                                pad_column: 0
+                              widgets:
+                                - button:
+                                    width: 60
+                                    height: 48
+                                    radius: 0
+                                    bg_opa: 0%
+                                    border_width: 0
+                                    shadow_width: 0
+                                    pad_all: 0
+                                    on_click:
+                                      - script.execute:
+                                          id: speaker_volume_change
+                                          slot: 7
+                                          direction: -1
+                                    widgets:
+                                      - label:
+                                          text: "${icon_minus}"
+                                          text_font: icon_font_small
+                                          text_color: 0xFFFFFF
+                                          align: center
+                                - obj:
+                                    width: 2
+                                    height: 48
+                                    bg_color: 0x212121
+                                    bg_opa: 100%
+                                    radius: 0
+                                    border_width: 0
+                                    pad_all: 0
+                                    align: center
+                                    clickable: false
+                                - button:
+                                    width: 60
+                                    height: 48
+                                    radius: 0
+                                    bg_opa: 0%
+                                    border_width: 0
+                                    shadow_width: 0
+                                    pad_all: 0
+                                    on_click:
+                                      - script.execute:
+                                          id: speaker_volume_change
+                                          slot: 7
+                                          direction: 1
+                                    widgets:
+                                      - label:
+                                          text: "${icon_plus}"
+                                          text_font: icon_font_small
+                                          text_color: 0xFFFFFF
+                                          align: center
+
+                    # --- Card 8 ---
+                    - obj:
+                        id: speaker_card_8
+                        width: 212
+                        height: 210
+                        radius: 24
+                        bg_color: 0x000000
+                        bg_opa: 100%
+                        border_width: 2
+                        border_color: 0x373737
+                        pad_left: 20
+                        pad_right: 20
+                        pad_top: 20
+                        pad_bottom: 20
+                        scrollable: false
+                        hidden: true
+                        clickable: true
+                        on_click:
+                          - script.execute:
+                              id: speaker_toggle
+                              slot: 8
+                        layout:
+                          type: flex
+                          flex_flow: COLUMN
+                          flex_align_main: space_between
+                          flex_align_cross: start
+                        widgets:
+                          - obj:
+                              id: speaker_top_8
+                              width: 160
+                              height: SIZE_CONTENT
+                              bg_opa: 0%
+                              border_width: 0
+                              pad_all: 0
+                              scrollable: false
+                              clickable: false
+                              on_click:
+                                - script.execute:
+                                    id: speaker_toggle
+                                    slot: 8
+                              layout:
+                                type: flex
+                                flex_flow: COLUMN
+                                pad_row: 7
+                              widgets:
+                                - label:
+                                    id: speaker_name_8
+                                    text: ""
+                                    text_font: roboto30_font
+                                    text_color: 0xFFFFFF
+                                    width: 150
+                                - label:
+                                    id: speaker_vol_label_8
+                                    text: ""
+                                    text_font: roboto19_font
+                                    text_color: 0xFFFFFF
+                                    text_opa: 80%
+                          - obj:
+                              id: speaker_btns_8
+                              width: 122
+                              height: 48
+                              radius: 24
+                              bg_color: 0x373737
+                              bg_opa: 100%
+                              border_width: 0
+                              pad_all: 0
+                              scrollable: false
+                              clickable: false
+                              layout:
+                                type: flex
+                                flex_flow: ROW
+                                pad_column: 0
+                              widgets:
+                                - button:
+                                    width: 60
+                                    height: 48
+                                    radius: 0
+                                    bg_opa: 0%
+                                    border_width: 0
+                                    shadow_width: 0
+                                    pad_all: 0
+                                    on_click:
+                                      - script.execute:
+                                          id: speaker_volume_change
+                                          slot: 8
+                                          direction: -1
+                                    widgets:
+                                      - label:
+                                          text: "${icon_minus}"
+                                          text_font: icon_font_small
+                                          text_color: 0xFFFFFF
+                                          align: center
+                                - obj:
+                                    width: 2
+                                    height: 48
+                                    bg_color: 0x212121
+                                    bg_opa: 100%
+                                    radius: 0
+                                    border_width: 0
+                                    pad_all: 0
+                                    align: center
+                                    clickable: false
+                                - button:
+                                    width: 60
+                                    height: 48
+                                    radius: 0
+                                    bg_opa: 0%
+                                    border_width: 0
+                                    shadow_width: 0
+                                    pad_all: 0
+                                    on_click:
+                                      - script.execute:
+                                          id: speaker_volume_change
+                                          slot: 8
+                                          direction: 1
+                                    widgets:
+                                      - label:
+                                          text: "${icon_plus}"
+                                          text_font: icon_font_small
+                                          text_color: 0xFFFFFF
+                                          align: center
+
+                    # --- Card 9 ---
+                    - obj:
+                        id: speaker_card_9
+                        width: 212
+                        height: 210
+                        radius: 24
+                        bg_color: 0x000000
+                        bg_opa: 100%
+                        border_width: 2
+                        border_color: 0x373737
+                        pad_left: 20
+                        pad_right: 20
+                        pad_top: 20
+                        pad_bottom: 20
+                        scrollable: false
+                        hidden: true
+                        clickable: true
+                        on_click:
+                          - script.execute:
+                              id: speaker_toggle
+                              slot: 9
+                        layout:
+                          type: flex
+                          flex_flow: COLUMN
+                          flex_align_main: space_between
+                          flex_align_cross: start
+                        widgets:
+                          - obj:
+                              id: speaker_top_9
+                              width: 160
+                              height: SIZE_CONTENT
+                              bg_opa: 0%
+                              border_width: 0
+                              pad_all: 0
+                              scrollable: false
+                              clickable: false
+                              on_click:
+                                - script.execute:
+                                    id: speaker_toggle
+                                    slot: 9
+                              layout:
+                                type: flex
+                                flex_flow: COLUMN
+                                pad_row: 7
+                              widgets:
+                                - label:
+                                    id: speaker_name_9
+                                    text: ""
+                                    text_font: roboto30_font
+                                    text_color: 0xFFFFFF
+                                    width: 150
+                                - label:
+                                    id: speaker_vol_label_9
+                                    text: ""
+                                    text_font: roboto19_font
+                                    text_color: 0xFFFFFF
+                                    text_opa: 80%
+                          - obj:
+                              id: speaker_btns_9
+                              width: 122
+                              height: 48
+                              radius: 24
+                              bg_color: 0x373737
+                              bg_opa: 100%
+                              border_width: 0
+                              pad_all: 0
+                              scrollable: false
+                              clickable: false
+                              layout:
+                                type: flex
+                                flex_flow: ROW
+                                pad_column: 0
+                              widgets:
+                                - button:
+                                    width: 60
+                                    height: 48
+                                    radius: 0
+                                    bg_opa: 0%
+                                    border_width: 0
+                                    shadow_width: 0
+                                    pad_all: 0
+                                    on_click:
+                                      - script.execute:
+                                          id: speaker_volume_change
+                                          slot: 9
+                                          direction: -1
+                                    widgets:
+                                      - label:
+                                          text: "${icon_minus}"
+                                          text_font: icon_font_small
+                                          text_color: 0xFFFFFF
+                                          align: center
+                                - obj:
+                                    width: 2
+                                    height: 48
+                                    bg_color: 0x212121
+                                    bg_opa: 100%
+                                    radius: 0
+                                    border_width: 0
+                                    pad_all: 0
+                                    align: center
+                                    clickable: false
+                                - button:
+                                    width: 60
+                                    height: 48
+                                    radius: 0
+                                    bg_opa: 0%
+                                    border_width: 0
+                                    shadow_width: 0
+                                    pad_all: 0
+                                    on_click:
+                                      - script.execute:
+                                          id: speaker_volume_change
+                                          slot: 9
+                                          direction: 1
+                                    widgets:
+                                      - label:
+                                          text: "${icon_plus}"
+                                          text_font: icon_font_small
+                                          text_color: 0xFFFFFF
+                                          align: center
+
+                    # --- Card 10 ---
+                    - obj:
+                        id: speaker_card_10
+                        width: 212
+                        height: 210
+                        radius: 24
+                        bg_color: 0x000000
+                        bg_opa: 100%
+                        border_width: 2
+                        border_color: 0x373737
+                        pad_left: 20
+                        pad_right: 20
+                        pad_top: 20
+                        pad_bottom: 20
+                        scrollable: false
+                        hidden: true
+                        clickable: true
+                        on_click:
+                          - script.execute:
+                              id: speaker_toggle
+                              slot: 10
+                        layout:
+                          type: flex
+                          flex_flow: COLUMN
+                          flex_align_main: space_between
+                          flex_align_cross: start
+                        widgets:
+                          - obj:
+                              id: speaker_top_10
+                              width: 160
+                              height: SIZE_CONTENT
+                              bg_opa: 0%
+                              border_width: 0
+                              pad_all: 0
+                              scrollable: false
+                              clickable: false
+                              on_click:
+                                - script.execute:
+                                    id: speaker_toggle
+                                    slot: 10
+                              layout:
+                                type: flex
+                                flex_flow: COLUMN
+                                pad_row: 7
+                              widgets:
+                                - label:
+                                    id: speaker_name_10
+                                    text: ""
+                                    text_font: roboto30_font
+                                    text_color: 0xFFFFFF
+                                    width: 150
+                                - label:
+                                    id: speaker_vol_label_10
+                                    text: ""
+                                    text_font: roboto19_font
+                                    text_color: 0xFFFFFF
+                                    text_opa: 80%
+                          - obj:
+                              id: speaker_btns_10
+                              width: 122
+                              height: 48
+                              radius: 24
+                              bg_color: 0x373737
+                              bg_opa: 100%
+                              border_width: 0
+                              pad_all: 0
+                              scrollable: false
+                              clickable: false
+                              layout:
+                                type: flex
+                                flex_flow: ROW
+                                pad_column: 0
+                              widgets:
+                                - button:
+                                    width: 60
+                                    height: 48
+                                    radius: 0
+                                    bg_opa: 0%
+                                    border_width: 0
+                                    shadow_width: 0
+                                    pad_all: 0
+                                    on_click:
+                                      - script.execute:
+                                          id: speaker_volume_change
+                                          slot: 10
+                                          direction: -1
+                                    widgets:
+                                      - label:
+                                          text: "${icon_minus}"
+                                          text_font: icon_font_small
+                                          text_color: 0xFFFFFF
+                                          align: center
+                                - obj:
+                                    width: 2
+                                    height: 48
+                                    bg_color: 0x212121
+                                    bg_opa: 100%
+                                    radius: 0
+                                    border_width: 0
+                                    pad_all: 0
+                                    align: center
+                                    clickable: false
+                                - button:
+                                    width: 60
+                                    height: 48
+                                    radius: 0
+                                    bg_opa: 0%
+                                    border_width: 0
+                                    shadow_width: 0
+                                    pad_all: 0
+                                    on_click:
+                                      - script.execute:
+                                          id: speaker_volume_change
+                                          slot: 10
+                                          direction: 1
+                                    widgets:
+                                      - label:
+                                          text: "${icon_plus}"
+                                          text_font: icon_font_small
+                                          text_color: 0xFFFFFF
+                                          align: center
+
+                    # --- Card 11 ---
+                    - obj:
+                        id: speaker_card_11
+                        width: 212
+                        height: 210
+                        radius: 24
+                        bg_color: 0x000000
+                        bg_opa: 100%
+                        border_width: 2
+                        border_color: 0x373737
+                        pad_left: 20
+                        pad_right: 20
+                        pad_top: 20
+                        pad_bottom: 20
+                        scrollable: false
+                        hidden: true
+                        clickable: true
+                        on_click:
+                          - script.execute:
+                              id: speaker_toggle
+                              slot: 11
+                        layout:
+                          type: flex
+                          flex_flow: COLUMN
+                          flex_align_main: space_between
+                          flex_align_cross: start
+                        widgets:
+                          - obj:
+                              id: speaker_top_11
+                              width: 160
+                              height: SIZE_CONTENT
+                              bg_opa: 0%
+                              border_width: 0
+                              pad_all: 0
+                              scrollable: false
+                              clickable: false
+                              on_click:
+                                - script.execute:
+                                    id: speaker_toggle
+                                    slot: 11
+                              layout:
+                                type: flex
+                                flex_flow: COLUMN
+                                pad_row: 7
+                              widgets:
+                                - label:
+                                    id: speaker_name_11
+                                    text: ""
+                                    text_font: roboto30_font
+                                    text_color: 0xFFFFFF
+                                    width: 150
+                                - label:
+                                    id: speaker_vol_label_11
+                                    text: ""
+                                    text_font: roboto19_font
+                                    text_color: 0xFFFFFF
+                                    text_opa: 80%
+                          - obj:
+                              id: speaker_btns_11
+                              width: 122
+                              height: 48
+                              radius: 24
+                              bg_color: 0x373737
+                              bg_opa: 100%
+                              border_width: 0
+                              pad_all: 0
+                              scrollable: false
+                              clickable: false
+                              layout:
+                                type: flex
+                                flex_flow: ROW
+                                pad_column: 0
+                              widgets:
+                                - button:
+                                    width: 60
+                                    height: 48
+                                    radius: 0
+                                    bg_opa: 0%
+                                    border_width: 0
+                                    shadow_width: 0
+                                    pad_all: 0
+                                    on_click:
+                                      - script.execute:
+                                          id: speaker_volume_change
+                                          slot: 11
+                                          direction: -1
+                                    widgets:
+                                      - label:
+                                          text: "${icon_minus}"
+                                          text_font: icon_font_small
+                                          text_color: 0xFFFFFF
+                                          align: center
+                                - obj:
+                                    width: 2
+                                    height: 48
+                                    bg_color: 0x212121
+                                    bg_opa: 100%
+                                    radius: 0
+                                    border_width: 0
+                                    pad_all: 0
+                                    align: center
+                                    clickable: false
+                                - button:
+                                    width: 60
+                                    height: 48
+                                    radius: 0
+                                    bg_opa: 0%
+                                    border_width: 0
+                                    shadow_width: 0
+                                    pad_all: 0
+                                    on_click:
+                                      - script.execute:
+                                          id: speaker_volume_change
+                                          slot: 11
+                                          direction: 1
+                                    widgets:
+                                      - label:
+                                          text: "${icon_plus}"
+                                          text_font: icon_font_small
+                                          text_color: 0xFFFFFF
+                                          align: center
+
+                    # --- Card 12 ---
+                    - obj:
+                        id: speaker_card_12
+                        width: 212
+                        height: 210
+                        radius: 24
+                        bg_color: 0x000000
+                        bg_opa: 100%
+                        border_width: 2
+                        border_color: 0x373737
+                        pad_left: 20
+                        pad_right: 20
+                        pad_top: 20
+                        pad_bottom: 20
+                        scrollable: false
+                        hidden: true
+                        clickable: true
+                        on_click:
+                          - script.execute:
+                              id: speaker_toggle
+                              slot: 12
+                        layout:
+                          type: flex
+                          flex_flow: COLUMN
+                          flex_align_main: space_between
+                          flex_align_cross: start
+                        widgets:
+                          - obj:
+                              id: speaker_top_12
+                              width: 160
+                              height: SIZE_CONTENT
+                              bg_opa: 0%
+                              border_width: 0
+                              pad_all: 0
+                              scrollable: false
+                              clickable: false
+                              on_click:
+                                - script.execute:
+                                    id: speaker_toggle
+                                    slot: 12
+                              layout:
+                                type: flex
+                                flex_flow: COLUMN
+                                pad_row: 7
+                              widgets:
+                                - label:
+                                    id: speaker_name_12
+                                    text: ""
+                                    text_font: roboto30_font
+                                    text_color: 0xFFFFFF
+                                    width: 150
+                                - label:
+                                    id: speaker_vol_label_12
+                                    text: ""
+                                    text_font: roboto19_font
+                                    text_color: 0xFFFFFF
+                                    text_opa: 80%
+                          - obj:
+                              id: speaker_btns_12
+                              width: 122
+                              height: 48
+                              radius: 24
+                              bg_color: 0x373737
+                              bg_opa: 100%
+                              border_width: 0
+                              pad_all: 0
+                              scrollable: false
+                              clickable: false
+                              layout:
+                                type: flex
+                                flex_flow: ROW
+                                pad_column: 0
+                              widgets:
+                                - button:
+                                    width: 60
+                                    height: 48
+                                    radius: 0
+                                    bg_opa: 0%
+                                    border_width: 0
+                                    shadow_width: 0
+                                    pad_all: 0
+                                    on_click:
+                                      - script.execute:
+                                          id: speaker_volume_change
+                                          slot: 12
+                                          direction: -1
+                                    widgets:
+                                      - label:
+                                          text: "${icon_minus}"
+                                          text_font: icon_font_small
+                                          text_color: 0xFFFFFF
+                                          align: center
+                                - obj:
+                                    width: 2
+                                    height: 48
+                                    bg_color: 0x212121
+                                    bg_opa: 100%
+                                    radius: 0
+                                    border_width: 0
+                                    pad_all: 0
+                                    align: center
+                                    clickable: false
+                                - button:
+                                    width: 60
+                                    height: 48
+                                    radius: 0
+                                    bg_opa: 0%
+                                    border_width: 0
+                                    shadow_width: 0
+                                    pad_all: 0
+                                    on_click:
+                                      - script.execute:
+                                          id: speaker_volume_change
+                                          slot: 12
+                                          direction: 1
+                                    widgets:
+                                      - label:
+                                          text: "${icon_plus}"
+                                          text_font: icon_font_small
+                                          text_color: 0xFFFFFF
+                                          align: center
+
+                    # --- Card 13 ---
+                    - obj:
+                        id: speaker_card_13
+                        width: 212
+                        height: 210
+                        radius: 24
+                        bg_color: 0x000000
+                        bg_opa: 100%
+                        border_width: 2
+                        border_color: 0x373737
+                        pad_left: 20
+                        pad_right: 20
+                        pad_top: 20
+                        pad_bottom: 20
+                        scrollable: false
+                        hidden: true
+                        clickable: true
+                        on_click:
+                          - script.execute:
+                              id: speaker_toggle
+                              slot: 13
+                        layout:
+                          type: flex
+                          flex_flow: COLUMN
+                          flex_align_main: space_between
+                          flex_align_cross: start
+                        widgets:
+                          - obj:
+                              id: speaker_top_13
+                              width: 160
+                              height: SIZE_CONTENT
+                              bg_opa: 0%
+                              border_width: 0
+                              pad_all: 0
+                              scrollable: false
+                              clickable: false
+                              on_click:
+                                - script.execute:
+                                    id: speaker_toggle
+                                    slot: 13
+                              layout:
+                                type: flex
+                                flex_flow: COLUMN
+                                pad_row: 7
+                              widgets:
+                                - label:
+                                    id: speaker_name_13
+                                    text: ""
+                                    text_font: roboto30_font
+                                    text_color: 0xFFFFFF
+                                    width: 150
+                                - label:
+                                    id: speaker_vol_label_13
+                                    text: ""
+                                    text_font: roboto19_font
+                                    text_color: 0xFFFFFF
+                                    text_opa: 80%
+                          - obj:
+                              id: speaker_btns_13
+                              width: 122
+                              height: 48
+                              radius: 24
+                              bg_color: 0x373737
+                              bg_opa: 100%
+                              border_width: 0
+                              pad_all: 0
+                              scrollable: false
+                              clickable: false
+                              layout:
+                                type: flex
+                                flex_flow: ROW
+                                pad_column: 0
+                              widgets:
+                                - button:
+                                    width: 60
+                                    height: 48
+                                    radius: 0
+                                    bg_opa: 0%
+                                    border_width: 0
+                                    shadow_width: 0
+                                    pad_all: 0
+                                    on_click:
+                                      - script.execute:
+                                          id: speaker_volume_change
+                                          slot: 13
+                                          direction: -1
+                                    widgets:
+                                      - label:
+                                          text: "${icon_minus}"
+                                          text_font: icon_font_small
+                                          text_color: 0xFFFFFF
+                                          align: center
+                                - obj:
+                                    width: 2
+                                    height: 48
+                                    bg_color: 0x212121
+                                    bg_opa: 100%
+                                    radius: 0
+                                    border_width: 0
+                                    pad_all: 0
+                                    align: center
+                                    clickable: false
+                                - button:
+                                    width: 60
+                                    height: 48
+                                    radius: 0
+                                    bg_opa: 0%
+                                    border_width: 0
+                                    shadow_width: 0
+                                    pad_all: 0
+                                    on_click:
+                                      - script.execute:
+                                          id: speaker_volume_change
+                                          slot: 13
+                                          direction: 1
+                                    widgets:
+                                      - label:
+                                          text: "${icon_plus}"
+                                          text_font: icon_font_small
+                                          text_color: 0xFFFFFF
+                                          align: center
+
+                    # --- Card 14 ---
+                    - obj:
+                        id: speaker_card_14
+                        width: 212
+                        height: 210
+                        radius: 24
+                        bg_color: 0x000000
+                        bg_opa: 100%
+                        border_width: 2
+                        border_color: 0x373737
+                        pad_left: 20
+                        pad_right: 20
+                        pad_top: 20
+                        pad_bottom: 20
+                        scrollable: false
+                        hidden: true
+                        clickable: true
+                        on_click:
+                          - script.execute:
+                              id: speaker_toggle
+                              slot: 14
+                        layout:
+                          type: flex
+                          flex_flow: COLUMN
+                          flex_align_main: space_between
+                          flex_align_cross: start
+                        widgets:
+                          - obj:
+                              id: speaker_top_14
+                              width: 160
+                              height: SIZE_CONTENT
+                              bg_opa: 0%
+                              border_width: 0
+                              pad_all: 0
+                              scrollable: false
+                              clickable: false
+                              on_click:
+                                - script.execute:
+                                    id: speaker_toggle
+                                    slot: 14
+                              layout:
+                                type: flex
+                                flex_flow: COLUMN
+                                pad_row: 7
+                              widgets:
+                                - label:
+                                    id: speaker_name_14
+                                    text: ""
+                                    text_font: roboto30_font
+                                    text_color: 0xFFFFFF
+                                    width: 150
+                                - label:
+                                    id: speaker_vol_label_14
+                                    text: ""
+                                    text_font: roboto19_font
+                                    text_color: 0xFFFFFF
+                                    text_opa: 80%
+                          - obj:
+                              id: speaker_btns_14
+                              width: 122
+                              height: 48
+                              radius: 24
+                              bg_color: 0x373737
+                              bg_opa: 100%
+                              border_width: 0
+                              pad_all: 0
+                              scrollable: false
+                              clickable: false
+                              layout:
+                                type: flex
+                                flex_flow: ROW
+                                pad_column: 0
+                              widgets:
+                                - button:
+                                    width: 60
+                                    height: 48
+                                    radius: 0
+                                    bg_opa: 0%
+                                    border_width: 0
+                                    shadow_width: 0
+                                    pad_all: 0
+                                    on_click:
+                                      - script.execute:
+                                          id: speaker_volume_change
+                                          slot: 14
+                                          direction: -1
+                                    widgets:
+                                      - label:
+                                          text: "${icon_minus}"
+                                          text_font: icon_font_small
+                                          text_color: 0xFFFFFF
+                                          align: center
+                                - obj:
+                                    width: 2
+                                    height: 48
+                                    bg_color: 0x212121
+                                    bg_opa: 100%
+                                    radius: 0
+                                    border_width: 0
+                                    pad_all: 0
+                                    align: center
+                                    clickable: false
+                                - button:
+                                    width: 60
+                                    height: 48
+                                    radius: 0
+                                    bg_opa: 0%
+                                    border_width: 0
+                                    shadow_width: 0
+                                    pad_all: 0
+                                    on_click:
+                                      - script.execute:
+                                          id: speaker_volume_change
+                                          slot: 14
+                                          direction: 1
+                                    widgets:
+                                      - label:
+                                          text: "${icon_plus}"
+                                          text_font: icon_font_small
+                                          text_color: 0xFFFFFF
+                                          align: center
+
+                    # --- Card 15 ---
+                    - obj:
+                        id: speaker_card_15
+                        width: 212
+                        height: 210
+                        radius: 24
+                        bg_color: 0x000000
+                        bg_opa: 100%
+                        border_width: 2
+                        border_color: 0x373737
+                        pad_left: 20
+                        pad_right: 20
+                        pad_top: 20
+                        pad_bottom: 20
+                        scrollable: false
+                        hidden: true
+                        clickable: true
+                        on_click:
+                          - script.execute:
+                              id: speaker_toggle
+                              slot: 15
+                        layout:
+                          type: flex
+                          flex_flow: COLUMN
+                          flex_align_main: space_between
+                          flex_align_cross: start
+                        widgets:
+                          - obj:
+                              id: speaker_top_15
+                              width: 160
+                              height: SIZE_CONTENT
+                              bg_opa: 0%
+                              border_width: 0
+                              pad_all: 0
+                              scrollable: false
+                              clickable: false
+                              on_click:
+                                - script.execute:
+                                    id: speaker_toggle
+                                    slot: 15
+                              layout:
+                                type: flex
+                                flex_flow: COLUMN
+                                pad_row: 7
+                              widgets:
+                                - label:
+                                    id: speaker_name_15
+                                    text: ""
+                                    text_font: roboto30_font
+                                    text_color: 0xFFFFFF
+                                    width: 150
+                                - label:
+                                    id: speaker_vol_label_15
+                                    text: ""
+                                    text_font: roboto19_font
+                                    text_color: 0xFFFFFF
+                                    text_opa: 80%
+                          - obj:
+                              id: speaker_btns_15
+                              width: 122
+                              height: 48
+                              radius: 24
+                              bg_color: 0x373737
+                              bg_opa: 100%
+                              border_width: 0
+                              pad_all: 0
+                              scrollable: false
+                              clickable: false
+                              layout:
+                                type: flex
+                                flex_flow: ROW
+                                pad_column: 0
+                              widgets:
+                                - button:
+                                    width: 60
+                                    height: 48
+                                    radius: 0
+                                    bg_opa: 0%
+                                    border_width: 0
+                                    shadow_width: 0
+                                    pad_all: 0
+                                    on_click:
+                                      - script.execute:
+                                          id: speaker_volume_change
+                                          slot: 15
+                                          direction: -1
+                                    widgets:
+                                      - label:
+                                          text: "${icon_minus}"
+                                          text_font: icon_font_small
+                                          text_color: 0xFFFFFF
+                                          align: center
+                                - obj:
+                                    width: 2
+                                    height: 48
+                                    bg_color: 0x212121
+                                    bg_opa: 100%
+                                    radius: 0
+                                    border_width: 0
+                                    pad_all: 0
+                                    align: center
+                                    clickable: false
+                                - button:
+                                    width: 60
+                                    height: 48
+                                    radius: 0
+                                    bg_opa: 0%
+                                    border_width: 0
+                                    shadow_width: 0
+                                    pad_all: 0
+                                    on_click:
+                                      - script.execute:
+                                          id: speaker_volume_change
+                                          slot: 15
+                                          direction: 1
+                                    widgets:
+                                      - label:
+                                          text: "${icon_plus}"
+                                          text_font: icon_font_small
+                                          text_color: 0xFFFFFF
+                                          align: center
+
+              # Close button (floating, rendered last for z-order + touch priority)
+              - button:
+                  id: speakers_close_button
+                  align: top_right
+                  x: -12
+                  y: 16
+                  width: 64px
+                  height: 64px
+                  radius: 32
+                  bg_color: 0x262626
+                  bg_opa: 100%
+                  border_width: 0
+                  shadow_width: 0
+                  pad_all: 0
+                  widgets:
+                    - label:
+                        text_font: $icon_font
+                        align: center
+                        text: $icon_close
+                        text_color: 0xFFFFFF
+                  on_press:
+                    - script.execute: close_settings_panel
+
+        - !include ../setup/ha_setup_prompt.yaml
+        - !include ../setup/wifi_setup_prompt.yaml
+        - !include ../setup/loading_screen.yaml
+
+        # ---------------------------------------------------------------
+        # CLOCK SCREENSAVER
+        # ---------------------------------------------------------------
+        # Full-screen black overlay with a large time label. Hidden by
+        # default; shown by backlight.yaml when the clock screensaver is
+        # enabled and the idle timeout fires. The label is positioned
+        # absolutely so the interval can drift it for burn-in prevention.
+        # ---------------------------------------------------------------
+        - obj:
+            id: clock_screensaver
+            x: 0
+            y: 0
+            width: 480
+            height: 800
+            bg_color: 0x000000
+            bg_opa: 100%
+            radius: 0
+            border_width: 0
+            pad_all: 0
+            scrollable: false
+            scrollbar_mode: "off"
+            hidden: true
+            widgets:
+              - label:
+                  id: clock_label
+                  text_font: roboto_thin160_font
+                  text_color: 0xFFFFFF
+                  text: "00:00"

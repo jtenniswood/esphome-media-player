@@ -1,6 +1,6 @@
 # ESPHome Media Controller for Home Assistant
 
-A touchscreen media controller that shows album art and track info and lets you control play, pause, skip, and volume from any Home Assistant media player. Supports **4"** and **10.1"** panels. Built with [ESPHome](https://esphome.io/) and [LVGL](https://lvgl.io/); tested with Google and Sonos speakers.
+A touchscreen media controller that shows album art and track info and lets you control play, pause, skip, and volume from any Home Assistant media player. Supports **4"**, **4.3"**, and **10.1"** panels. Built with [ESPHome](https://esphome.io/) and [LVGL](https://lvgl.io/); tested with Google and Sonos speakers.
 
 ![guition-esp32-s3-4848s040](docs/images/guition-esp32-s3-4848s040-example1.jpg)
 
@@ -27,6 +27,7 @@ A touchscreen media controller that shows album art and track info and lets you 
 |--------|------|-----|
 | [Guition ESP32-S3 4848S040](https://jtenniswood.github.io/esphome-media-player/devices/esp32-s3-4848s040) | 4" (480×480) | [AliExpress](https://s.click.aliexpress.com/e/_c3sIhvBv) |
 | [ESP32-P4 86 Panel](https://jtenniswood.github.io/esphome-media-player/devices/esp32-p4-86-panel) | 4" (720×720) | [Waveshare](https://www.waveshare.com/esp32-p4-wifi6-touch-lcd-4b.htm) |
+| [Guition ESP32-P4 JC4880P443](https://jtenniswood.github.io/esphome-media-player/devices/esp32-p4-jc4880p443) | 4.3" (480×800) | [AliExpress](https://www.aliexpress.com/item/1005009618259341.html) |
 | [Guition ESP32-P4 JC8012P4A1](https://jtenniswood.github.io/esphome-media-player/devices/esp32-p4-jc8012p4a1) | 10.1" (1280×800) | [AliExpress](https://s.click.aliexpress.com/e/_c3wsnU43) |
 
 ---

@@ -70,6 +70,8 @@ jobs:
         include:
           - slug: jc8012p4a1
             config: guition-esp32-p4-jc8012p4a1
+          - slug: jc4880p443
+            config: guition-esp32-p4-jc4880p443
           - slug: p4-86-panel
             config: esp32-p4-86-panel
     steps:
