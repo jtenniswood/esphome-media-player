@@ -4,7 +4,7 @@ substitutions:
   friendly_name: "Music Dashboard 4.3inch"
   # ha_host: "homeassistant.local"  # Home Assistant hostname or IP (change if HA runs on a different host)
   # ha_port: "8123"  # Home Assistant port (change if HA runs on a non-standard port)
-  # Display rotation in degrees: 0, 90, 180, or 270
+  # Display rotation in degrees. Use packages-90.yaml for 90-degree landscape.
   # display_rotation: "180"
 
 # Wifi Setup

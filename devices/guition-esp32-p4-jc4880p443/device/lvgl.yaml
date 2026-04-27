@@ -42,10 +42,10 @@ lvgl:
         # Colored backdrop behind artwork (visible for non-square TV art)
         - obj:
             id: artwork_bg_panel
-            x: 0
-            y: 0
-            width: 480px
-            height: 480px
+            x: ${layout_artwork_x}
+            y: ${layout_artwork_y}
+            width: ${layout_artwork_size}px
+            height: ${layout_artwork_size}px
             bg_color: 0x000000
             bg_opa: 100%
             radius: 0
@@ -56,10 +56,10 @@ lvgl:
         # Top artwork
         - image:
             id: album_art_background_widget
-            x: 0
-            y: 0
-            width: 480px
-            height: 480px
+            x: ${layout_artwork_x}
+            y: ${layout_artwork_y}
+            width: ${layout_artwork_size}px
+            height: ${layout_artwork_size}px
             src: album_art_background
             opa: 100%
 
@@ -67,9 +67,9 @@ lvgl:
         - label:
             id: artwork_error_label
             text: "Artwork unavailable"
-            x: 90
-            y: 225
-            width: 300px
+            x: ${layout_artwork_error_x}
+            y: ${layout_artwork_error_y}
+            width: ${layout_artwork_error_width}px
             height: 30px
             text_font: roboto19_font
             text_color: 0x888888
@@ -79,10 +79,10 @@ lvgl:
         # Accent color background behind permanent track info
         - obj:
             id: accent_overlay
-            x: 0
-            y: 480
-            width: 480
-            height: 320
+            x: ${layout_accent_x}
+            y: ${layout_accent_y}
+            width: ${layout_accent_width}
+            height: ${layout_accent_height}
             bg_color: 0x000000
             bg_opa: 100%
             radius: 0
@@ -95,10 +95,10 @@ lvgl:
         # Track info text (always visible in the accent panel)
         - obj:
             id: track_info_text
-            x: 24
-            y: 514
-            width: 432
-            height: 262
+            x: ${layout_track_x}
+            y: ${layout_track_y}
+            width: ${layout_track_width}
+            height: ${layout_track_height}
             bg_opa: 0%
             radius: 0
             border_width: 0
@@ -115,7 +115,7 @@ lvgl:
                   id: media_title_label
                   text: "—"
                   width: 100%
-                  max_height: 130px
+                  max_height: ${layout_title_max_height}
                   long_mode: wrap
                   text_font: roboto_light59_font
                   text_color: 0xFFFFFF
@@ -189,7 +189,7 @@ lvgl:
             id: media_progress_bar
             align: bottom_mid
             y: 0
-            width: 480
+            width: ${layout_progress_width}
             height: 4
             bg_color: 0x000000
             bg_opa: 50%
@@ -214,8 +214,8 @@ lvgl:
             id: settings_panel
             x: 0
             y: 0
-            width: 480
-            height: 800
+            width: ${layout_settings_width}
+            height: ${layout_settings_height}
             bg_color: 0x000000
             bg_opa: 100%
             radius: 0
@@ -2457,8 +2457,8 @@ lvgl:
             id: clock_screensaver
             x: 0
             y: 0
-            width: 480
-            height: 800
+            width: ${layout_clock_width}
+            height: ${layout_clock_height}
             bg_color: 0x000000
             bg_opa: 100%
             radius: 0

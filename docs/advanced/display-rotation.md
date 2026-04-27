@@ -113,7 +113,7 @@ packages:
 
 ## ESP32-P4 JC4880P443
 
-The 480x800 portrait display defaults to portrait orientation. Use `"180"` if you want the portrait layout flipped upside down.
+The 480x800 portrait display defaults to portrait orientation. Use `"180"` if you want the portrait layout flipped upside down. For a 90-degree landscape mount, use the dedicated rotated package so the layout changes to 800x480 instead of clipping the portrait UI.
 
 | `display_rotation` |
 | ------------------- |
@@ -136,6 +136,25 @@ packages:
   music_dashboard:
     url: https://github.com/jtenniswood/esphome-media-player
     files: [devices/guition-esp32-p4-jc4880p443/packages.yaml]
+    ref: main
+    refresh: 1s
+```
+
+### Example: 90-degree landscape rotation
+
+```yaml
+substitutions:
+  name: "music-dashboard-43inch"
+  friendly_name: "Music Dashboard 4.3inch"
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+packages:
+  music_dashboard:
+    url: https://github.com/jtenniswood/esphome-media-player
+    files: [devices/guition-esp32-p4-jc4880p443/packages-90.yaml]
     ref: main
     refresh: 1s
 ```

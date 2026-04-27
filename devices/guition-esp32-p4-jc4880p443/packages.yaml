@@ -38,6 +38,28 @@ substitutions:
   loading_bar_radius: "3"
   loading_bar_pad_top: "24"
 
+  # Main layout
+  layout_artwork_x: "0"
+  layout_artwork_y: "0"
+  layout_artwork_size: "480"
+  layout_artwork_error_x: "90"
+  layout_artwork_error_y: "225"
+  layout_artwork_error_width: "300"
+  layout_accent_x: "0"
+  layout_accent_y: "480"
+  layout_accent_width: "480"
+  layout_accent_height: "320"
+  layout_track_x: "24"
+  layout_track_y: "514"
+  layout_track_width: "432"
+  layout_track_height: "262"
+  layout_title_max_height: "130px"
+  layout_progress_width: "480"
+  layout_settings_width: "480"
+  layout_settings_height: "800"
+  layout_clock_width: "480"
+  layout_clock_height: "800"
+
 packages:
   # Common
   base: !include ../../common/device/base.yaml

@@ -1,0 +1,43 @@
+substitutions:
+  # 90-degree landscape layout for side-mounted JC4880P443 installs.
+  display_rotation: "90"
+
+  # Device profile
+  screen_width: "800"
+  screen_height: "480"
+  artwork_size: "480"
+  artwork_display_size: "480"
+  clock_cx: "400"
+  clock_cy: "240"
+
+  # Setup screens
+  setup_content_width: "560"
+  setup_pad_row: "14"
+  setup_instructions_pad_top: "8"
+  loading_pad_row: "14"
+  loading_bar_pad_top: "18"
+
+  # Main layout: artwork left, accent track panel right.
+  layout_artwork_x: "0"
+  layout_artwork_y: "0"
+  layout_artwork_size: "480"
+  layout_artwork_error_x: "90"
+  layout_artwork_error_y: "225"
+  layout_artwork_error_width: "300"
+  layout_accent_x: "480"
+  layout_accent_y: "0"
+  layout_accent_width: "320"
+  layout_accent_height: "480"
+  layout_track_x: "504"
+  layout_track_y: "34"
+  layout_track_width: "272"
+  layout_track_height: "258"
+  layout_title_max_height: "150px"
+  layout_progress_width: "800"
+  layout_settings_width: "800"
+  layout_settings_height: "480"
+  layout_clock_width: "800"
+  layout_clock_height: "480"
+
+packages:
+  portrait: !include packages.yaml
