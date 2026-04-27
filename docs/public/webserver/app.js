@@ -358,7 +358,6 @@
     body.appendChild(toggleField("Night Screen Saver", "night_screen_saver"));
     body.appendChild(toggleField("Clock Screen Saver", "clock_screensaver"));
     body.appendChild(rangeField("Clock Brightness", "clock_brightness"));
-    body.appendChild(selectField("Timezone", "clock_timezone"));
     return card("Screen Saver", body, true, badge);
   }
 
@@ -435,8 +434,15 @@
     body.appendChild(statusRow("WiFi Strength", S.wifi_strength == null ? "Unknown" : Math.round(S.wifi_strength) + "%"));
     body.appendChild(statusRow("IP Address", S.ip_address || "Unknown"));
     wrap.appendChild(card("Device", body, false));
+    wrap.appendChild(clockCard());
     if (supportsScreenRotation()) wrap.appendChild(rotationCard());
     wrap.appendChild(firmwareCard());
+  }
+
+  function clockCard() {
+    var body = el("div");
+    body.appendChild(selectField("Timezone", "clock_timezone"));
+    return card("Clock", body, true);
   }
 
   function rotationCard() {
