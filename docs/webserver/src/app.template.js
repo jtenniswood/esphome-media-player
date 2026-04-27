@@ -311,7 +311,6 @@
 
     content.appendChild(setupCard());
     content.appendChild(playbackCard());
-    content.appendChild(screenSaverTimersCard());
     content.appendChild(clockScreenSaverCard());
     content.appendChild(screenBrightnessCard());
     content.appendChild(dayNightCard());
@@ -343,29 +342,36 @@
     return S.device_profile === "esp32-p4-86-panel" || S.device_profile === "guition-esp32-s3-4848s040";
   }
 
-  function screenSaverTimersCard() {
-    var body = el("div");
-    body.appendChild(numberField("Paused Dimming", "dim_timeout"));
-    body.appendChild(numberField("Screen Saver Timer", "screen_saver_timeout"));
-    return card("Screen Saver Timers", body, true);
-  }
-
   function clockScreenSaverCard() {
     var body = el("div");
     body.appendChild(toggleField("Clock Screen Saver", "clock_screensaver"));
+    body.appendChild(numberField("Screen Saver Timer", "screen_saver_timeout"));
     body.appendChild(rangeField("Clock Brightness", "clock_brightness"));
     return card("Clock Screen Saver", body, true, badgeFor(S.clock_screensaver));
   }
 
   function screenBrightnessCard() {
     var body = el("div");
-    var brightnessGrid = el("div", "grid-2");
-    brightnessGrid.appendChild(rangeField("Day Active Brightness", "day_active_brightness"));
-    brightnessGrid.appendChild(rangeField("Night Active Brightness", "night_active_brightness"));
-    brightnessGrid.appendChild(rangeField("Day Dim Brightness", "day_dim_brightness"));
-    brightnessGrid.appendChild(rangeField("Night Dim Brightness", "night_dim_brightness"));
-    body.appendChild(brightnessGrid);
+    body.appendChild(sectionTitle("Daytime"));
+    body.appendChild(rangeField("Active Brightness", "day_active_brightness"));
+    body.appendChild(rangeField("Dimmed Brightness", "day_dim_brightness"));
+    body.appendChild(divider());
+    body.appendChild(sectionTitle("Nighttime"));
+    body.appendChild(rangeField("Active Brightness", "night_active_brightness"));
+    body.appendChild(rangeField("Dimmed Brightness", "night_dim_brightness"));
+    body.appendChild(divider());
+    body.appendChild(numberField("Paused Dimming", "dim_timeout"));
     return card("Screen Brightness", body, true);
+  }
+
+  function sectionTitle(text) {
+    var title = el("div", "section-title");
+    title.textContent = text;
+    return title;
+  }
+
+  function divider() {
+    return el("div", "setting-divider");
   }
 
   function dayNightCard() {
