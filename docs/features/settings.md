@@ -44,13 +44,13 @@ Shifts album art toward warmer colors (reduced blue, slight red boost) for a mor
 
 ## Device
 
-The browser Device tab contains device status, clock settings, supported rotation controls, and firmware update controls.
+The browser Device tab contains clock settings, supported rotation controls, and firmware update controls.
 
 ![Firmware update controls](../images/ha-firmware.png)
 
 | Setting | Description |
 |---------|-------------|
-| **Clock: Timezone** | City-based timezone for the clock screen saver. Select the nearest city to your location from the dropdown — DST is handled automatically. Defaults to UTC. |
+| **Screen: Timezone** | IANA-style timezone for the clock and scheduled screen-off controls. The browser shows the current GMT offset. Defaults to UTC. |
 | **Screen Rotation** | Rotation control shown only on devices that support changing orientation from the browser UI. |
 | **Auto Update** | When enabled, firmware updates are installed automatically when detected. Default: on. |
 | **Update Frequency** | How often the device checks for updates: Hourly, Daily (default), or Weekly. |

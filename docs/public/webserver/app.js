@@ -36,8 +36,8 @@
     clock_screensaver: true,
     screen_warmth_day: 30,
     screen_warmth_night: 60,
-    clock_timezone: "UTC",
-    clock_timezone_options: ["UTC"],
+    clock_timezone: "UTC (GMT+0)",
+    clock_timezone_options: ["UTC (GMT+0)"],
     screen_rotation: "0",
     screen_rotation_options: ["0", "90", "180", "270"],
     auto_update: true,
@@ -77,7 +77,7 @@
     clock_screensaver: { domain: "switch", name: "Screen Saver: Clock", bool: true },
     screen_warmth_day: { domain: "number", name: "Day: Screen Warmth", number: true },
     screen_warmth_night: { domain: "number", name: "Night: Screen Warmth", number: true },
-    clock_timezone: { domain: "select", name: "Clock: Timezone", optionsKey: "clock_timezone_options" },
+    clock_timezone: { domain: "select", name: "Screen: Timezone", optionsKey: "clock_timezone_options" },
     screen_rotation: { domain: "select", name: "Screen Rotation", optionsKey: "screen_rotation_options" },
     auto_update: { domain: "switch", name: "Auto Update", bool: true },
     update_frequency: { domain: "select", name: "Update Frequency", optionsKey: "update_frequency_options" },
@@ -720,7 +720,7 @@
     options.forEach(function (option) {
       var opt = document.createElement("option");
       opt.value = option;
-      opt.textContent = option;
+      opt.textContent = key === "clock_timezone" ? formatTimezoneOption(option) : option;
       if (option === S[key]) opt.selected = true;
       select.appendChild(opt);
     });
@@ -730,6 +730,56 @@
     };
     f.appendChild(select);
     return f;
+  }
+
+  function timezoneId(option) {
+    var idx = String(option || "").indexOf(" (");
+    return idx > 0 ? option.substring(0, idx) : String(option || "");
+  }
+
+  function formatGmtOffset(minutes) {
+    var sign = minutes >= 0 ? "+" : "-";
+    var abs = Math.abs(minutes);
+    var h = Math.floor(abs / 60);
+    var m = abs % 60;
+    return "GMT" + sign + h + (m ? ":" + String(m).padStart(2, "0") : "");
+  }
+
+  function timezoneOffsetMinutes(tzId, date) {
+    try {
+      var parts = new Intl.DateTimeFormat("en-US", {
+        timeZone: tzId,
+        hourCycle: "h23",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit"
+      }).formatToParts(date);
+      var values = {};
+      parts.forEach(function (part) {
+        if (part.type !== "literal") values[part.type] = part.value;
+      });
+      var localAsUtc = Date.UTC(
+        Number(values.year),
+        Number(values.month) - 1,
+        Number(values.day),
+        Number(values.hour),
+        Number(values.minute),
+        Number(values.second)
+      );
+      return Math.round((localAsUtc - date.getTime()) / 60000);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function formatTimezoneOption(option) {
+    var tzId = timezoneId(option);
+    var offset = timezoneOffsetMinutes(tzId, new Date());
+    if (offset == null || !isFinite(offset)) return option;
+    return tzId + " (" + formatGmtOffset(offset) + ")";
   }
 
   function statusRow(label, value, dotClass) {

@@ -62,7 +62,7 @@ This is useful when you want day/night to depend on more than just the sun — f
 |---------|-------------|---------|
 | **Screen Saver: Clock** | Enable the clock screen saver. When on, a 24-hour clock (`HH:MM`) is shown instead of turning the screen off. | On |
 | **Screen Saver: Clock Brightness** | Backlight level for the clock screen saver. | 35% |
-| **Clock: Timezone** | City-based timezone for the clock display. Select the nearest city to your location — DST is handled automatically for cities that observe it. | UTC |
+| **Screen: Timezone** | IANA-style timezone for the clock and scheduled screen-off controls. The browser shows the current GMT offset. | UTC |
 
 ### Night Schedule
 
