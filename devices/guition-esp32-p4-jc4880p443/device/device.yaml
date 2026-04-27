@@ -345,13 +345,27 @@ touchscreen:
       - lambda: |-
           int dx = id(touch_x_end) - id(touch_x_start);
           int dy = id(touch_y_end) - id(touch_y_start);
-          ESP_LOGD("touch", "Swipe dx=%d dy=%d start=(%d,%d) end=(%d,%d)",
-                   dx, dy, id(touch_x_start), id(touch_y_start),
+          int view_dx = dx;
+          int view_dy = dy;
+          const std::string rotation = id(screen_rotation_select).current_option();
+          if (rotation == "90") {
+            view_dx = dy;
+            view_dy = -dx;
+          } else if (rotation == "180") {
+            view_dx = -dx;
+            view_dy = -dy;
+          } else if (rotation == "270") {
+            view_dx = -dy;
+            view_dy = dx;
+          }
+
+          ESP_LOGD("touch", "Swipe raw=(%d,%d) view=(%d,%d) rotation=%s start=(%d,%d) end=(%d,%d)",
+                   dx, dy, view_dx, view_dy, rotation.c_str(), id(touch_x_start), id(touch_y_start),
                    id(touch_x_end), id(touch_y_end));
 
           // --- Dismiss actions prompt on tap ---
           if (!lv_obj_has_flag(id(actions_prompt), LV_OBJ_FLAG_HIDDEN)) {
-            if (abs(dx) < 20 && abs(dy) < 20) {
+            if (abs(view_dx) < 20 && abs(view_dy) < 20) {
               lv_obj_add_flag(id(actions_prompt), LV_OBJ_FLAG_HIDDEN);
               id(actions_prompt_acked) = true;
               id(device_has_been_setup) = true;
@@ -361,7 +375,7 @@ touchscreen:
           }
 
           // --- Long press (5 s): turn off display ---
-          if (abs(dx) < 20 && abs(dy) < 20 && !id(was_screen_dimmed)
+          if (abs(view_dx) < 20 && abs(view_dy) < 20 && !id(was_screen_dimmed)
               && (millis() - id(touch_start_time) >= 5000)) {
             id(turn_off_display).execute();
             return;
@@ -369,12 +383,12 @@ touchscreen:
 
           // --- Vertical swipe: settings panel open/close ---
           // Swipe down to open: 30px+ downward movement, panel closed
-          if (dy > 20 && abs(dy) > abs(dx) * 2 && !id(is_panel_open)) {
+          if (view_dy > 20 && abs(view_dy) > abs(view_dx) * 2 && !id(is_panel_open)) {
             id(open_settings_panel).execute();
             return;
           }
           // Swipe up to close: panel is open, but not when multi-speaker list is scrollable
-          if (dy < -60 && abs(dy) > abs(dx) * 2 && id(is_panel_open)
+          if (view_dy < -60 && abs(view_dy) > abs(view_dx) * 2 && id(is_panel_open)
               && (lv_obj_has_flag(id(speakers_container), LV_OBJ_FLAG_HIDDEN) || id(speaker_count) <= 1)) {
             id(close_settings_panel).execute();
             return;
@@ -387,7 +401,7 @@ touchscreen:
           }
 
           // --- Horizontal swipe: track navigation (works when playing or paused) ---
-          if (abs(dx) > 80 && abs(dx) > abs(dy) * 2) {
+          if (abs(view_dx) > 80 && abs(view_dx) > abs(view_dy) * 2) {
             bool can_skip = false;
             if (id(is_tv_mode)) {
               std::string e = id(linked_media_player_entity).state;
@@ -405,7 +419,7 @@ touchscreen:
               }
             }
             if (can_skip) {
-              if (dx > 0) {
+              if (view_dx > 0) {
                 id(swipe_previous_track).execute();
               } else {
                 id(swipe_next_track).execute();
