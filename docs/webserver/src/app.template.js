@@ -34,6 +34,8 @@
     screen_warmth_night: 60,
     clock_timezone: "UTC",
     clock_timezone_options: ["UTC"],
+    screen_rotation: "0",
+    screen_rotation_options: ["0", "90", "180", "270"],
     auto_update: true,
     update_frequency: "Daily",
     update_frequency_options: ["Hourly", "Daily", "Weekly"],
@@ -68,6 +70,7 @@
     screen_warmth_day: { domain: "number", name: "Day: Screen Warmth", number: true },
     screen_warmth_night: { domain: "number", name: "Night: Screen Warmth", number: true },
     clock_timezone: { domain: "select", name: "Clock: Timezone", optionsKey: "clock_timezone_options" },
+    screen_rotation: { domain: "select", name: "Screen Rotation", optionsKey: "screen_rotation_options" },
     auto_update: { domain: "switch", name: "Auto Update", bool: true },
     update_frequency: { domain: "select", name: "Update Frequency", optionsKey: "update_frequency_options" },
     firmware_update: { domain: "update", name: "Firmware Update", update: true },
@@ -436,9 +439,14 @@
     body.appendChild(statusRow("Online", S.online ? "Connected" : "Disconnected", S.online ? "green" : "red"));
     body.appendChild(statusRow("WiFi Strength", S.wifi_strength == null ? "Unknown" : Math.round(S.wifi_strength) + "%"));
     body.appendChild(statusRow("IP Address", S.ip_address || "Unknown"));
+    if (supportsScreenRotation()) body.appendChild(selectField("Screen Rotation", "screen_rotation"));
     wrap.appendChild(card("Device", body, false));
     wrap.appendChild(clockCard());
     wrap.appendChild(firmwareCard());
+  }
+
+  function supportsScreenRotation() {
+    return S.device_profile === "guition-esp32-p4-jc4880p443";
   }
 
   function textField(label, key, placeholder, validator) {
