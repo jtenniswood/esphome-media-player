@@ -308,7 +308,6 @@
     content.appendChild(playbackCard());
     content.appendChild(screenSaverCard());
     content.appendChild(screenToneCard());
-    content.appendChild(firmwareCard());
 
     wrap.appendChild(content);
   }
@@ -333,7 +332,7 @@
   }
 
   function screenSaverCard() {
-    var badge = badgeFor(S.day_screen_saver || S.night_screen_saver || S.clock_screensaver);
+    var badge = badgeFor(S.day_screen_saver || S.night_screen_saver);
     var body = el("div");
     body.appendChild(textField("Day-Night Sensor", "day_night_sensor", "binary_sensor.daytime", validateDayNightSensor));
     body.appendChild(el("div", "spacer-8"));
@@ -346,12 +345,17 @@
     body.appendChild(el("div", "spacer-8"));
     body.appendChild(numberField("Paused Dimming", "dim_timeout"));
     body.appendChild(numberField("Screen Saver Timer", "screen_saver_timeout"));
-    body.appendChild(rangeField("Clock Brightness", "clock_brightness"));
     body.appendChild(toggleField("Day Screen Saver", "day_screen_saver"));
     body.appendChild(toggleField("Night Screen Saver", "night_screen_saver"));
-    body.appendChild(toggleField("Clock Screen Saver", "clock_screensaver"));
-    body.appendChild(selectField("Timezone", "clock_timezone"));
     return card("Screen Saver", body, true, badge);
+  }
+
+  function clockCard() {
+    var body = el("div");
+    body.appendChild(toggleField("Clock Screen Saver", "clock_screensaver"));
+    body.appendChild(rangeField("Clock Brightness", "clock_brightness"));
+    body.appendChild(selectField("Timezone", "clock_timezone"));
+    return card("Clock", body, true, badgeFor(S.clock_screensaver));
   }
 
   function screenToneCard() {
@@ -427,6 +431,8 @@
     body.appendChild(statusRow("WiFi Strength", S.wifi_strength == null ? "Unknown" : Math.round(S.wifi_strength) + "%"));
     body.appendChild(statusRow("IP Address", S.ip_address || "Unknown"));
     wrap.appendChild(card("Device", body, false));
+    wrap.appendChild(clockCard());
+    wrap.appendChild(firmwareCard());
   }
 
   function textField(label, key, placeholder, validator) {
