@@ -19,22 +19,21 @@ All settings are available on the device page in Home Assistant (**Settings → 
 
 | Setting | Description |
 |---------|-------------|
-| **Auto Update** | When enabled, firmware updates are installed automatically as soon as they are detected. When disabled, updates are reported but not installed. Default: on. |
-| **Update Frequency** | How often the device checks for updates: **Hourly**, **Daily** (default), or **Weekly**. |
-| **Firmware Update** | Shows the current and latest firmware versions. When an update is available, a standard Home Assistant update card appears with an **Install** button and progress bar. |
-| **Check Latest Firmware** | Manually checks for a newer firmware version without installing it. |
-| **Install Latest Firmware** | Manually triggers an update check and install. Useful when you want to install immediately without waiting for the next scheduled check. |
+| **Firmware: Auto Update** | When enabled, firmware updates are installed automatically as soon as they are detected. When disabled, updates are reported but not installed. Default: on. |
+| **Firmware: Update Frequency** | How often the device checks for updates: **Hourly**, **Daily** (default), or **Weekly**. |
+| **Firmware: Update** | Installs a checked update when one is available. |
+| **Firmware: Check for Update** | Manually checks for a newer public firmware version without installing it. |
 
 ## Updating manually
 
 If auto-update is disabled, you can update at any time:
 
 1. Open the device page in Home Assistant.
-2. Press the **Check Latest Firmware** button to check for the latest version.
-3. If an update is available, the **Firmware Update** entity will show the new version.
-4. Click **Install** to apply it.
+2. Press **Check for Update** to check public releases.
+3. If an update is available, the button changes to **Install Update** and shows the latest version.
+4. Click **Install Update** to apply it.
 
-Pressing **Install Latest Firmware** begins the update immediately on the device. Clicking **Install** on the **Firmware Update** entity does the same. The screen may flicker during the download and installation — this is normal and typically lasts 1–2 minutes depending on your network speed. The device will reboot automatically once complete.
+Installing an update may make the screen flicker during the download and installation — this is normal and typically lasts 1–2 minutes depending on your network speed. The device will reboot automatically once complete.
 
 ::: warning
 Do not interrupt or power down the device during a firmware update. If something goes wrong, use the [web installer](/installation) to reset the device back to factory default.

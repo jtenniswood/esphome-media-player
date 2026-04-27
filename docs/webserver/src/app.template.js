@@ -46,6 +46,8 @@
     firmware_state: "",
     installed_version: "",
     latest_version: "",
+    firmware_release_url: "",
+    firmware_checking: false,
     update_available: false,
     device_profile: "",
     online: false,
@@ -79,11 +81,10 @@
     screen_warmth_night: { domain: "number", name: "Night: Screen Warmth", number: true },
     clock_timezone: { domain: "select", name: "Screen: Timezone", optionsKey: "clock_timezone_options" },
     screen_rotation: { domain: "select", name: "Screen Rotation", optionsKey: "screen_rotation_options" },
-    auto_update: { domain: "switch", name: "Auto Update", bool: true },
-    update_frequency: { domain: "select", name: "Update Frequency", optionsKey: "update_frequency_options" },
-    firmware_update: { domain: "update", name: "Firmware Update", update: true },
-    check_latest: { domain: "button", name: "Check Latest Firmware", skipFetch: true },
-    install_latest: { domain: "button", name: "Install Latest Firmware", skipFetch: true },
+    auto_update: { domain: "switch", name: "Firmware: Auto Update", bool: true },
+    update_frequency: { domain: "select", name: "Firmware: Update Frequency", optionsKey: "update_frequency_options" },
+    firmware_update: { domain: "update", name: "Firmware: Update", update: true },
+    check_latest: { domain: "button", name: "Firmware: Check for Update", skipFetch: true },
     device_profile: { domain: "text_sensor", name: "Device Profile" },
     online: { domain: "binary_sensor", name: "Online", bool: true },
     wifi_strength: { domain: "sensor", name: "Wifi Strength", number: true },
@@ -185,13 +186,15 @@
     if (!spec || !data) return;
 
     if (spec.update) {
-      S.firmware_state = data.state || "";
+      S.firmware_state = String(data.state || "").trim().toUpperCase();
       S.installed_version = data.current_version || data.current || "";
       S.latest_version = data.latest_version || data.value || "";
+      S.firmware_release_url = data.release_url || S.firmware_release_url || "";
       S.update_available = !!(
         (S.installed_version && S.latest_version && S.installed_version !== S.latest_version) ||
-        data.state === "UPDATE AVAILABLE"
+        S.firmware_state === "UPDATE AVAILABLE"
       );
+      if (S.firmware_state) S.firmware_checking = false;
       return;
     }
 
@@ -422,56 +425,48 @@
     var versionRow = el("div", "fw-row");
     var version = el("span", "fw-label");
     var installed = displayVersion(S.installed_version || "");
-    var latest = displayVersion(S.latest_version || "");
-    version.innerHTML = '<span style="color:var(--text2)">Installed</span> ' + esc(installed || "Unknown");
-    var latestRow = el("div", "fw-row");
-    var latestLabel = el("span", "fw-label");
-    latestLabel.innerHTML = '<span style="color:var(--text2)">Latest</span> ' + esc(latest || "Unknown");
+    version.innerHTML = '<span style="color:var(--text2)">Installed </span>' + esc(installed || "Dev");
     var checkWrap = el("div", "check-wrap");
     var status = el("span", "fw-status");
-    status.textContent = firmwareStatusText();
+    status.innerHTML = firmwareInlineStatusText();
     var check = el("button", "btn btn-secondary btn-sm");
-    check.textContent = "Check";
+    check.textContent = firmwareButtonText();
+    check.disabled = S.firmware_checking || S.firmware_state === "INSTALLING";
     check.onclick = function () {
-      check.disabled = true;
-      check.textContent = "Checking...";
-      post(endpoint("check_latest") + "/press")
-        .then(function () {
-          return new Promise(function (resolve) { setTimeout(resolve, 16000); });
-        })
-        .then(function () { return fetchEntity("firmware_update"); })
-        .then(function () {
-          check.disabled = false;
-          check.textContent = "Check";
-          renderAll();
-        });
+      if (firmwareUpdateAvailable()) {
+        S.firmware_state = "INSTALLING";
+        renderAll();
+        post(endpoint("firmware_update") + "/install");
+        return;
+      }
+      S.firmware_checking = true;
+      renderAll();
+      post(endpoint("check_latest") + "/press");
+      setTimeout(function () {
+        S.firmware_checking = false;
+        fetchEntity("firmware_update").then(renderAll);
+      }, 10000);
     };
     checkWrap.appendChild(status);
     checkWrap.appendChild(check);
     versionRow.appendChild(version);
     versionRow.appendChild(checkWrap);
     body.appendChild(versionRow);
-    latestRow.appendChild(latestLabel);
-    body.appendChild(latestRow);
 
-    if (S.update_available) {
-      var updateRow = el("div", "fw-row");
-      var label = el("span", "fw-label");
-      label.textContent = "Update available";
-      var install = el("button", "btn btn-primary btn-sm");
-      install.textContent = "Install";
-      install.onclick = function () {
-        install.disabled = true;
-        install.textContent = "Installing...";
-        post(endpoint("firmware_update") + "/install");
-      };
-      updateRow.appendChild(label);
-      updateRow.appendChild(install);
-      body.appendChild(updateRow);
+    var detail = firmwareDetailText();
+    if (detail) {
+      var detailNode = el("div", "fw-status");
+      detailNode.innerHTML = detail;
+      body.appendChild(detailNode);
     }
 
-    body.appendChild(toggleField("Auto Update", "auto_update"));
-    body.appendChild(selectField("Update Frequency", "update_frequency"));
+    var frequencyWrap = el("div");
+    frequencyWrap.style.display = S.auto_update ? "" : "none";
+    body.appendChild(toggleField("Auto Update", "auto_update", null, null, function (enabled) {
+      frequencyWrap.style.display = enabled ? "" : "none";
+    }));
+    frequencyWrap.appendChild(selectField("Update Frequency", "update_frequency"));
+    body.appendChild(frequencyWrap);
     return card("Firmware", body, true);
   }
 
@@ -841,17 +836,51 @@
     return n;
   }
 
-  function firmwareStatusText() {
-    if (S.update_available) return "Update available";
+  function isSpecificFirmwareVersion(version) {
+    var value = String(version == null ? "" : version).trim().toLowerCase();
+    return !!value && value !== "dev" && value !== "0.0.0";
+  }
+
+  function firmwareUpdateAvailable() {
+    return S.firmware_state === "UPDATE AVAILABLE" && isSpecificFirmwareVersion(S.latest_version);
+  }
+
+  function firmwareInlineStatusText() {
+    if (S.firmware_state === "INSTALLING") return "Installing...";
+    if (S.firmware_checking) return "Checking...";
+    if (firmwareUpdateAvailable()) return "";
     if (S.firmware_state === "NO UPDATE" || S.firmware_state === "UP_TO_DATE") return "Up to date";
     if (S.latest_version && S.installed_version && S.latest_version === S.installed_version) return "Up to date";
-    return S.firmware_state || "";
+    return "";
+  }
+
+  function firmwareDetailText() {
+    if (S.firmware_state === "INSTALLING") return "Installing update...";
+    if (firmwareUpdateAvailable()) {
+      var text = "Latest public version: " + esc(displayVersion(S.latest_version));
+      if (S.firmware_release_url) {
+        text += ' <a href="' + escAttr(S.firmware_release_url) + '" target="_blank" rel="noopener">release notes</a>';
+      }
+      return text;
+    }
+    if (S.firmware_checking) return "Checking public firmware...";
+    return "";
+  }
+
+  function firmwareButtonText() {
+    if (S.firmware_state === "INSTALLING") return "Installing...";
+    if (firmwareUpdateAvailable()) return "Install Update";
+    return S.firmware_checking ? "Checking..." : "Check for Update";
   }
 
   function displayVersion(value) {
     var v = String(value || "").trim();
     if (!v) return "";
     return v.toLowerCase() === "dev" ? "Dev" : v;
+  }
+
+  function escAttr(s) {
+    return esc(s).replace(/"/g, "&quot;");
   }
 
   function isEditingSetting() {

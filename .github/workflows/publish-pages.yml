@@ -141,21 +141,41 @@ jobs:
           jq '{name: .name, version: .version, home_assistant_domain: .home_assistant_domain, new_install_prompt_erase: .new_install_prompt_erase, builds: [.builds[] | select(.chipFamily == "ESP32-S3")]}' \
             "$MANIFEST" > "${FW}/media-player-4848s040.manifest.json"
           echo "Created media-player-4848s040.manifest.json"
+          mkdir -p "${FW}/4848s040"
+          cp "${FW}/media-player-4848s040.manifest.json" "${FW}/4848s040/manifest.json"
+          cp "${FW}/media-player-4848s040.factory.bin" "${FW}/4848s040/" 2>/dev/null || true
+          cp "${FW}/media-player-4848s040.ota.bin" "${FW}/4848s040/" 2>/dev/null || true
+          echo "Created firmware/4848s040/manifest.json"
 
           # P4 device manifest (JC8012P4A1) — extract the matching ESP32-P4 build entry
           jq '{name: .name, version: .version, home_assistant_domain: .home_assistant_domain, new_install_prompt_erase: .new_install_prompt_erase, builds: [.builds[] | select(any(.parts[]; .path == "media-player-jc8012p4a1.factory.bin"))]}' \
             "$MANIFEST" > "${FW}/media-player-jc8012p4a1.manifest.json"
           echo "Created media-player-jc8012p4a1.manifest.json"
+          mkdir -p "${FW}/jc8012p4a1"
+          cp "${FW}/media-player-jc8012p4a1.manifest.json" "${FW}/jc8012p4a1/manifest.json"
+          cp "${FW}/media-player-jc8012p4a1.factory.bin" "${FW}/jc8012p4a1/" 2>/dev/null || true
+          cp "${FW}/media-player-jc8012p4a1.ota.bin" "${FW}/jc8012p4a1/" 2>/dev/null || true
+          echo "Created firmware/jc8012p4a1/manifest.json"
 
           # P4 device manifest (JC4880P443) — extract the matching ESP32-P4 build entry
           jq '{name: .name, version: .version, home_assistant_domain: .home_assistant_domain, new_install_prompt_erase: .new_install_prompt_erase, builds: [.builds[] | select(any(.parts[]; .path == "media-player-jc4880p443.factory.bin"))]}' \
             "$MANIFEST" > "${FW}/media-player-jc4880p443.manifest.json"
           echo "Created media-player-jc4880p443.manifest.json"
+          mkdir -p "${FW}/jc4880p443"
+          cp "${FW}/media-player-jc4880p443.manifest.json" "${FW}/jc4880p443/manifest.json"
+          cp "${FW}/media-player-jc4880p443.factory.bin" "${FW}/jc4880p443/" 2>/dev/null || true
+          cp "${FW}/media-player-jc4880p443.ota.bin" "${FW}/jc4880p443/" 2>/dev/null || true
+          echo "Created firmware/jc4880p443/manifest.json"
 
           # P4 device manifest (Waveshare 86 Panel) — extract the matching ESP32-P4 build entry
           jq '{name: .name, version: .version, home_assistant_domain: .home_assistant_domain, new_install_prompt_erase: .new_install_prompt_erase, builds: [.builds[] | select(any(.parts[]; .path == "media-player-p4-86-panel.factory.bin"))]}' \
             "$MANIFEST" > "${FW}/media-player-p4-86-panel.manifest.json"
           echo "Created media-player-p4-86-panel.manifest.json"
+          mkdir -p "${FW}/p4-86-panel"
+          cp "${FW}/media-player-p4-86-panel.manifest.json" "${FW}/p4-86-panel/manifest.json"
+          cp "${FW}/media-player-p4-86-panel.factory.bin" "${FW}/p4-86-panel/" 2>/dev/null || true
+          cp "${FW}/media-player-p4-86-panel.ota.bin" "${FW}/p4-86-panel/" 2>/dev/null || true
+          echo "Created firmware/p4-86-panel/manifest.json"
       - uses: actions/upload-pages-artifact@v5
         with:
           path: docs/.vitepress/dist

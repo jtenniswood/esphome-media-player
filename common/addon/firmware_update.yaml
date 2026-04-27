@@ -2,6 +2,8 @@ ota:
   - platform: http_request
     on_begin:
       - lvgl.pause
+      - artwork_image.release: album_art_background
+      - artwork_image.release: tv_art_background
       - light.turn_off:
           id: backlight
           transition_length: 0s
@@ -15,37 +17,39 @@ ota:
 globals:
   - id: update_check_counter
     type: int
-    initial_value: '0'
-  - id: manual_update_check_only
+    initial_value: '1'
+  - id: manual_check_only
     type: bool
     initial_value: 'false'
 
 update:
   - platform: http_request
     id: firmware_update
-    name: Firmware Update
-    source: https://jtenniswood.github.io/esphome-media-player/firmware/media-player-${firmware_manifest_slug}.manifest.json
+    name: "Firmware: Update"
+    source: https://jtenniswood.github.io/esphome-media-player/firmware/${firmware_manifest_slug}/manifest.json
     update_interval: never
     on_update_available:
       then:
         - if:
             condition:
-              lambda: 'return id(auto_update_switch).state && !id(manual_update_check_only);'
+              lambda: 'return id(auto_update_switch).state && !id(manual_check_only);'
             then:
               - update.perform: firmware_update
 
 switch:
   - platform: template
-    name: "Auto Update"
+    name: "Firmware: Auto Update"
     id: auto_update_switch
+    entity_category: config
     icon: "mdi:update"
     optimistic: true
     restore_mode: RESTORE_DEFAULT_ON
 
 select:
   - platform: template
-    name: "Update Frequency"
+    name: "Firmware: Update Frequency"
     id: update_frequency_select
+    entity_category: config
     icon: "mdi:timer-outline"
     options:
       - "Hourly"
@@ -66,50 +70,17 @@ interval:
           if (freq == "Hourly") threshold = 1;
           else if (freq == "Weekly") threshold = 168;
           if (counter % threshold == 0) {
-            id(check_firmware_update).execute();
+            id(firmware_update).update();
           }
           id(update_check_counter) = counter + 1;
 
 button:
   - platform: template
-    name: Check Latest Firmware
+    name: "Firmware: Check for Update"
+    entity_category: config
     icon: "mdi:update"
     on_press:
-      - script.execute: check_firmware_update_only
-
-  - platform: template
-    name: Install Latest Firmware
-    icon: "mdi:update"
-    on_press:
-      - script.execute: check_firmware_update
-
-script:
-  - id: check_firmware_update_only
-    mode: single
-    then:
-      - lambda: 'id(manual_update_check_only) = true;'
-      - component.update: firmware_update
-      - delay: 60s
-      - lambda: 'id(manual_update_check_only) = false;'
-
-  - id: check_firmware_update
-    mode: single
-    then:
-      - light.turn_off:
-          id: backlight
-          transition_length: 0s
-      - lvgl.pause
-      - artwork_image.release: album_art_background
-      - artwork_image.release: tv_art_background
-      - delay: 500ms
+      - lambda: 'id(manual_check_only) = true;'
       - component.update: firmware_update
       - delay: 15s
-      - lvgl.resume
-      - script.execute: backlight_wake_timeout
-      - lambda: |-
-          const std::string &url = id(is_tv_mode) ? id(last_tv_artwork_url) : id(last_artwork_url);
-          if (!url.empty()) {
-            auto *img = id(is_tv_mode) ? id(tv_art_background) : id(album_art_background);
-            img->set_url(url);
-            img->update();
-          }
+      - lambda: 'id(manual_check_only) = false;'

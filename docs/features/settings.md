@@ -34,6 +34,8 @@ Shifts album art toward warmer colors (reduced blue, slight red boost) for a mor
 | Setting | Description |
 |---------|-------------|
 | **Speakers: Auto-Close Timeout** | Time without any touch interaction before the speaker panel automatically closes and returns to the now-playing view. Set to 0 to disable (panel stays open until manually closed). Default: 15 seconds. |
+| **Source Input Media Player** | (Optional) Entity ID of a media player connected to the speaker's TV or Line-in input. See [Source Inputs](/features/source-inputs). Leave empty to disable. |
+| **Speaker Group Sensor** | (Optional) Entity ID of the template sensor for [Speaker Grouping](/features/speaker-grouping). Leave empty to disable. |
 
 ## Playback
 
@@ -52,12 +54,9 @@ The browser Device tab contains clock settings, supported rotation controls, and
 |---------|-------------|
 | **Screen: Timezone** | IANA-style timezone for the clock and scheduled screen-off controls. The browser shows the current GMT offset. Defaults to UTC. |
 | **Screen Rotation** | Rotation control shown only on devices that support changing orientation from the browser UI. |
-| **Auto Update** | When enabled, firmware updates are installed automatically when detected. Default: on. |
-| **Update Frequency** | How often the device checks for updates: Hourly, Daily (default), or Weekly. |
-| **Firmware Update** | Shows current and latest firmware versions with an install button when an update is available. |
-| **Check Latest Firmware** | Manually checks for updates without installing them. |
-| **Install Latest Firmware** | Manually triggers an update check and install. |
+| **Firmware: Auto Update** | When enabled, firmware updates are installed automatically when detected. Default: on. |
+| **Firmware: Update Frequency** | How often the device checks for updates: Hourly, Daily (default), or Weekly. |
+| **Firmware: Update** | Installs a checked update when one is available. |
+| **Firmware: Check for Update** | Checks public releases without installing. The same browser button changes to **Install Update** after a newer version is found. |
 
 See [Firmware Updates](/features/firmware-updates) for full details.
-| **Source Input Media Player** | (Optional) Entity ID of a media player connected to the speaker's TV or Line-in input. See [Source Inputs](/features/source-inputs). Leave empty to disable. |
-| **Speaker Group Sensor** | (Optional) Entity ID of the template sensor for [Speaker Grouping](/features/speaker-grouping). Leave empty to disable. |
