@@ -485,11 +485,6 @@
   function renderDevice() {
     var wrap = els.deviceWrap;
     wrap.innerHTML = "";
-    var body = el("div", "status-list");
-    body.appendChild(statusRow("Online", S.online ? "Connected" : "Disconnected", S.online ? "green" : "red"));
-    body.appendChild(statusRow("WiFi Strength", S.wifi_strength == null ? "Unknown" : Math.round(S.wifi_strength) + "%"));
-    body.appendChild(statusRow("IP Address", S.ip_address || "Unknown"));
-    wrap.appendChild(card("Device", body, false));
     wrap.appendChild(clockCard());
     if (supportsScreenRotation()) wrap.appendChild(rotationCard());
     wrap.appendChild(firmwareCard());
