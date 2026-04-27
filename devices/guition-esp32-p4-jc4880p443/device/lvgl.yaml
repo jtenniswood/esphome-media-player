@@ -115,19 +115,19 @@ lvgl:
                   id: media_title_label
                   text: "—"
                   width: 100%
-                  max_height: 165px
+                  max_height: 149px
                   long_mode: wrap
-                  text_font: roboto_light60_font
+                  text_font: roboto_light54_font
                   text_color: 0xFFFFFF
                   text_align: left
                   text_line_space: 0
               - label:
                   id: media_artist_label
                   text: ""
-                  pad_top: 9
+                  pad_top: 8
                   width: 100%
                   long_mode: dot
-                  text_font: roboto45_font
+                  text_font: roboto41_font
                   text_color: 0xFFFFFF
                   text_opa: 80%
                   text_align: left
@@ -135,9 +135,9 @@ lvgl:
               - label:
                   id: media_time_label
                   text: "0:00  /  0:00"
-                  pad_top: 15
+                  pad_top: 14
                   width: 100%
-                  text_font: roboto30_font
+                  text_font: roboto27_font
                   text_color: 0xFFFFFF
                   text_opa: 80%
                   text_align: left

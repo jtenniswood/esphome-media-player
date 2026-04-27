@@ -407,31 +407,6 @@ touchscreen:
 # mode: restart – cancels the in-progress run and starts fresh
 # -----------------------------------------------------------------------------
 script:
-  # -- Full-height portrait crop for square album art --
-  - id: apply_portrait_artwork_crop
-    mode: restart
-    then:
-      - lambda: |-
-          auto *img = id(is_tv_mode) ? id(tv_art_background) : id(album_art_background);
-          int iw = img->get_width();
-          int ih = img->get_height();
-          if (iw <= 0 || ih <= 0) return;
-
-          constexpr int screen_w = 480;
-          constexpr int screen_h = 800;
-          constexpr int target_h = 880;  // 800px full height plus 10% overscan.
-          int zoom = (256 * target_h + ih - 1) / ih;
-          int scaled_w = (iw * zoom) / 256;
-          int scaled_h = (ih * zoom) / 256;
-
-          auto *w = id(album_art_background_widget);
-          lv_img_set_zoom(w, zoom);
-          lv_img_set_offset_x(w, 0);
-          lv_img_set_offset_y(w, 0);
-          lv_obj_set_size(w, iw, ih);
-          lv_obj_set_pos(w, (screen_w - scaled_w) / 2, (screen_h - scaled_h) / 2);
-      - script.execute: apply_warm_tones
-
   # -- Keep now-playing panel visible (portrait layout has permanent track data) --
   - id: toggle_ui
     mode: restart
@@ -586,7 +561,6 @@ script:
             - lvgl.widget.update:
                 id: album_art_background_widget
                 opa: 50%
-            - script.execute: apply_portrait_artwork_crop
             - if:
                 condition:
                   lambda: |-
@@ -633,6 +607,8 @@ script:
           id(is_tv_mode) = false;
           id(is_tv_idle) = false;
           lv_obj_set_style_bg_color(id(artwork_bg_panel), lv_color_make(0, 0, 0), 0);
+          lv_obj_set_size(id(album_art_background_widget), 480, 480);
+          lv_obj_set_pos(id(album_art_background_widget), 0, 0);
       - lvgl.widget.show: media_play_pause_button
       - lvgl.widget.show: media_time_label
       - lvgl.label.update:
@@ -673,7 +649,6 @@ script:
       - lvgl.widget.update:
           id: album_art_background_widget
           opa: 100%
-      - script.execute: apply_portrait_artwork_crop
       - lvgl.widget.hide: artwork_error_label
       - if:
           condition:
