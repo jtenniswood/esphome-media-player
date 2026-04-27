@@ -481,7 +481,8 @@ script:
             lv_obj_set_pos(id(accent_overlay), 480, 0);
             lv_obj_set_size(id(accent_overlay), 320, 480);
             lv_obj_set_pos(id(track_info_text), 504, 34);
-            lv_obj_set_size(id(track_info_text), 272, 258);
+            lv_obj_set_size(id(track_info_text), 272, 300);
+            lv_obj_set_style_max_height(id(media_title_label), 190, 0);
             lv_obj_set_width(id(media_progress_bar), 800);
             lv_obj_set_size(id(settings_panel), 800, 480);
             lv_obj_set_size(id(clock_screensaver), 800, 480);
@@ -497,6 +498,7 @@ script:
             lv_obj_set_size(id(accent_overlay), 480, 320);
             lv_obj_set_pos(id(track_info_text), 24, 514);
             lv_obj_set_size(id(track_info_text), 432, 262);
+            lv_obj_set_style_max_height(id(media_title_label), 130, 0);
             lv_obj_set_width(id(media_progress_bar), 480);
             lv_obj_set_size(id(settings_panel), 480, 800);
             lv_obj_set_size(id(clock_screensaver), 480, 800);
