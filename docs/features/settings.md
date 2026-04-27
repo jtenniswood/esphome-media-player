@@ -29,11 +29,12 @@ Shifts album art toward warmer colors (reduced blue, slight red boost) for a mor
 | **Day: Screen Warmth** | Warmth applied to album art during the day. 0% = no tint, 100% = maximum warmth. Default: 30%. |
 | **Night: Screen Warmth** | Warmth applied to album art at night. 0% = no tint, 100% = maximum warmth. Default: 60%. |
 
-## Speakers
+## Volume
 
 | Setting | Description |
 |---------|-------------|
-| **Speakers: Auto-Close Timeout** | Time without any touch interaction before the speaker panel automatically closes and returns to the now-playing view. Set to 0 to disable (panel stays open until manually closed). Default: 15 seconds. |
+| **Speaker Panel Auto-Close** | Turns automatic closing of the volume/speaker panel on or off. Default: on. |
+| **Speaker Panel Auto-Close Timer** | Time without any touch interaction before the speaker panel automatically closes and returns to the now-playing view. Hidden in the browser when auto-close is off. Default: 15 seconds. |
 | **Source Input Media Player** | (Optional) Entity ID of a media player connected to the speaker's TV or Line-in input. See [Source Inputs](/features/source-inputs). Leave empty to disable. |
 | **Speaker Group Sensor** | (Optional) Entity ID of the template sensor for [Speaker Grouping](/features/speaker-grouping). Leave empty to disable. |
 

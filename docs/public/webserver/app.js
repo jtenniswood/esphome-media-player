@@ -113,6 +113,7 @@
   var renderTimer = null;
   var evtSource = null;
   var cardCollapsed = {};
+  var lastSpeakerPanelTimeout = 15;
 
   function eid(domain, name) {
     return "/" + domain + "/" + encodeURIComponent(name);
@@ -207,7 +208,10 @@
       S[key] = v === true || v === "ON";
     } else if (spec.number) {
       var n = Number(v);
-      if (!isNaN(n)) S[key] = n;
+      if (!isNaN(n)) {
+        S[key] = n;
+        if (key === "speaker_panel_timeout" && n > 0) lastSpeakerPanelTimeout = n;
+      }
     } else if (v != null) {
       S[key] = String(v);
     }
@@ -318,6 +322,7 @@
 
     content.appendChild(setupCard());
     content.appendChild(playbackCard());
+    content.appendChild(volumeCard());
     content.appendChild(clockScreenSaverCard());
     content.appendChild(nightScheduleCard());
     content.appendChild(screenBrightnessCard());
@@ -342,8 +347,23 @@
     body.appendChild(toggleField("Track Clock", "show_remaining_time", null, trackClockModeText));
     body.appendChild(toggleField("Show Progress Bar", "show_progress_bar"));
     if (supportsTrackInfoDuration()) body.appendChild(numberField("Track Info Duration", "track_info_duration"));
-    body.appendChild(numberField("Speaker Panel Auto-Close", "speaker_panel_timeout"));
     return card("Playback", body, true);
+  }
+
+  function volumeCard() {
+    var body = el("div");
+    var timerWrap = el("div");
+    var enabled = Number(S.speaker_panel_timeout) > 0;
+    timerWrap.style.display = enabled ? "" : "none";
+    body.appendChild(localToggleField("Speaker Panel Auto-Close", enabled, function (next) {
+      var value = next ? lastSpeakerPanelTimeout || 15 : 0;
+      S.speaker_panel_timeout = value;
+      if (value > 0) lastSpeakerPanelTimeout = value;
+      post(endpoint("speaker_panel_timeout") + "/set", { value: value }).then(renderAll);
+    }));
+    timerWrap.appendChild(numberField("Timer", "speaker_panel_timeout"));
+    body.appendChild(timerWrap);
+    return card("Volume", body, true);
   }
 
   function trackClockModeText() {
@@ -570,6 +590,23 @@
     return f;
   }
 
+  function localToggleField(label, enabled, onChange) {
+    var f = field("");
+    var row = el("div", "toggle-row");
+    var text = el("span");
+    text.textContent = label;
+    var tog = el("div", enabled ? "toggle on" : "toggle");
+    tog.onclick = function () {
+      enabled = !enabled;
+      tog.className = enabled ? "toggle on" : "toggle";
+      onChange(enabled);
+    };
+    row.appendChild(text);
+    row.appendChild(tog);
+    f.appendChild(row);
+    return f;
+  }
+
   function hourSelectField(label, key) {
     var f = field(label);
     f.appendChild(selectFromOptions(hourOptions(), clampNumber(Math.round(S[key]), 0, 23), function (value) {
@@ -689,6 +726,7 @@
       }
       error.textContent = "";
       S[key] = value;
+      if (key === "speaker_panel_timeout" && value > 0) lastSpeakerPanelTimeout = value;
       post(endpoint(key) + "/set", { value: value });
     };
     row.appendChild(input);
