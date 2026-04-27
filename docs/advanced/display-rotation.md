@@ -3,7 +3,7 @@
 Supported devices can rotate the display for different mounting orientations (for example to change which side the power cable exits from). Set `display_rotation` to rotate both the screen and touch input.
 
 ::: warning
-ESPHome 2026.4 and newer handle touch rotation through LVGL. Older examples that set `touch_swap_xy`, `touch_mirror_x`, or `touch_mirror_y` are no longer needed.
+ESPHome 2026.4 and newer handle rotation through LVGL (`lvgl.rotation`), including touch input. Older examples that set `touch_swap_xy`, `touch_mirror_x`, or `touch_mirror_y` are no longer needed.
 :::
 
 ## ESP32-S3 4848S040
@@ -113,7 +113,7 @@ packages:
 
 ## ESP32-P4 JC4880P443
 
-The 480x800 portrait display defaults to portrait orientation. Use `"180"` if you want the portrait layout flipped upside down. For a 90-degree landscape mount, use the dedicated rotated package so the layout changes to 800x480 instead of clipping the portrait UI.
+The 480x800 portrait display defaults to portrait orientation. Use `"180"` if you want the portrait layout flipped upside down. For a 90-degree landscape mount, use the dedicated layout preset below. It still uses ESPHome 2026.4's native LVGL rotation; the preset just changes the layout values to 800x480 so the portrait UI is not clipped.
 
 | `display_rotation` |
 | ------------------- |

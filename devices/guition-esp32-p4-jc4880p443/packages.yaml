@@ -1,5 +1,6 @@
 substitutions:
-  # Display rotation in degrees: 0, 90, 180, or 270
+  # Native LVGL display rotation in degrees. ESPHome 2026.4 rotates touch input
+  # through LVGL too, so no GT911 transform is needed for normal rotation.
   # Default is portrait with the artwork at the top.
   display_rotation: "0"
 
@@ -64,6 +65,7 @@ packages:
   # Common
   base: !include ../../common/device/base.yaml
   warm_tones: !include ../../common/addon/warm_tones.yaml
+  web_settings: !include ../../common/addon/web_settings.yaml
 
   # Device-specific
   device: !include device/device.yaml

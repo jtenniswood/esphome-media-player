@@ -1,5 +1,6 @@
 substitutions:
-  # 90-degree landscape layout for side-mounted JC4880P443 installs.
+  # 90-degree landscape layout preset for side-mounted JC4880P443 installs.
+  # Rotation itself is handled by native LVGL rotation in ESPHome 2026.4.
   display_rotation: "90"
 
   # Device profile
