@@ -149,7 +149,7 @@ lvgl:
             id: media_play_pause_button
             align: bottom_right
             x: -24
-            y: -24
+            y: -40
             width: 95px
             height: 95px
             radius: 48
