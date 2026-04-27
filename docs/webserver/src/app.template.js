@@ -331,11 +331,15 @@
 
   function playbackCard() {
     var body = el("div");
-    body.appendChild(toggleField("Track Clock", "show_remaining_time", "On: time remaining. Off: track length."));
+    body.appendChild(toggleField("Track Clock", "show_remaining_time", null, trackClockModeText));
     body.appendChild(toggleField("Show Progress Bar", "show_progress_bar"));
     if (supportsTrackInfoDuration()) body.appendChild(numberField("Track Info Duration", "track_info_duration"));
     body.appendChild(numberField("Speaker Panel Auto-Close", "speaker_panel_timeout"));
     return card("Playback", body, true);
+  }
+
+  function trackClockModeText() {
+    return S.show_remaining_time ? "Time remaining" : "Track length";
   }
 
   function supportsTrackInfoDuration() {
@@ -525,19 +529,25 @@
     return "Use a binary_sensor or input_boolean entity.";
   }
 
-  function toggleField(label, key, hint) {
+  function toggleField(label, key, hint, modeText) {
     var f = field("");
     var row = el("div", "toggle-row");
     var text = el("span");
     text.textContent = label;
     var tog = el("div", S[key] ? "toggle on" : "toggle");
+    var control = el("div", "toggle-control");
+    var mode = modeText ? el("span", "toggle-mode") : null;
+    if (mode) mode.textContent = modeText();
     tog.onclick = function () {
       S[key] = !S[key];
       tog.className = S[key] ? "toggle on" : "toggle";
+      if (mode) mode.textContent = modeText();
       post(endpoint(key) + (S[key] ? "/turn_on" : "/turn_off"));
     };
     row.appendChild(text);
-    row.appendChild(tog);
+    if (mode) control.appendChild(mode);
+    control.appendChild(tog);
+    row.appendChild(control);
     f.appendChild(row);
     if (hint) {
       var help = el("div", "field-hint");
