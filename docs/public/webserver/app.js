@@ -434,9 +434,15 @@
     body.appendChild(statusRow("Online", S.online ? "Connected" : "Disconnected", S.online ? "green" : "red"));
     body.appendChild(statusRow("WiFi Strength", S.wifi_strength == null ? "Unknown" : Math.round(S.wifi_strength) + "%"));
     body.appendChild(statusRow("IP Address", S.ip_address || "Unknown"));
-    if (supportsScreenRotation()) body.appendChild(selectField("Screen Rotation", "screen_rotation"));
     wrap.appendChild(card("Device", body, false));
+    if (supportsScreenRotation()) wrap.appendChild(rotationCard());
     wrap.appendChild(firmwareCard());
+  }
+
+  function rotationCard() {
+    var body = el("div");
+    body.appendChild(selectField("Screen Rotation", "screen_rotation"));
+    return card("Rotation", body, true);
   }
 
   function supportsScreenRotation() {
