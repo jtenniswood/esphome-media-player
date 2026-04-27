@@ -319,7 +319,7 @@
     var hint = el("div", "field-hint");
     hint.textContent = "Changing media-player fields can reboot the device so Home Assistant subscriptions refresh.";
     body.appendChild(hint);
-    return card("Setup", body, false);
+    return card("Home Assistant Media Player", body, false);
   }
 
   function playbackCard() {
