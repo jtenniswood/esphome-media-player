@@ -137,7 +137,7 @@ lvgl:
                   text: "0:00  /  0:00"
                   pad_top: 14
                   width: 100%
-                  text_font: roboto30_font
+                  text_font: roboto27_font
                   text_color: 0xFFFFFF
                   text_opa: 80%
                   text_align: left
