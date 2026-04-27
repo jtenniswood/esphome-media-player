@@ -27,6 +27,10 @@
     dim_timeout: 60,
     screen_saver_timeout: 300,
     clock_brightness: 35,
+    schedule_enabled: false,
+    schedule_on_hour: 6,
+    schedule_off_hour: 20,
+    schedule_wake_timeout: 60,
     day_screen_saver: true,
     night_screen_saver: true,
     clock_screensaver: true,
@@ -64,6 +68,10 @@
     dim_timeout: { domain: "number", name: "Screen Saver: Paused Dimming", number: true },
     screen_saver_timeout: { domain: "number", name: "Screen Saver: Timer", number: true },
     clock_brightness: { domain: "number", name: "Screen Saver: Clock Brightness", number: true },
+    schedule_enabled: { domain: "switch", name: "Screen: Schedule Enabled", bool: true },
+    schedule_on_hour: { domain: "number", name: "Screen: Schedule On Hour", number: true },
+    schedule_off_hour: { domain: "number", name: "Screen: Schedule Off Hour", number: true },
+    schedule_wake_timeout: { domain: "number", name: "Screen: Schedule Wake Timeout", number: true },
     day_screen_saver: { domain: "switch", name: "Day: Screen Saver", bool: true },
     night_screen_saver: { domain: "switch", name: "Night: Screen Saver", bool: true },
     clock_screensaver: { domain: "switch", name: "Screen Saver: Clock", bool: true },
@@ -92,6 +100,9 @@
     dim_timeout: { min: 1, max: 300, step: 1, suffix: "s" },
     screen_saver_timeout: { min: 1, max: 600, step: 1, suffix: "s" },
     clock_brightness: { min: 1, max: 100, step: 1, suffix: "%" },
+    schedule_on_hour: { min: 0, max: 23, step: 1, suffix: "h" },
+    schedule_off_hour: { min: 0, max: 23, step: 1, suffix: "h" },
+    schedule_wake_timeout: { min: 10, max: 3600, step: 10, suffix: "s" },
     screen_warmth_day: { min: 0, max: 100, step: 5, suffix: "%" },
     screen_warmth_night: { min: 0, max: 100, step: 5, suffix: "%" }
   };
@@ -312,6 +323,7 @@
     content.appendChild(setupCard());
     content.appendChild(playbackCard());
     content.appendChild(clockScreenSaverCard());
+    content.appendChild(nightScheduleCard());
     content.appendChild(screenBrightnessCard());
     content.appendChild(dayNightCard());
     content.appendChild(screenToneCard());
@@ -352,6 +364,23 @@
     body.appendChild(numberField("Screen Saver Timer", "screen_saver_timeout"));
     body.appendChild(rangeField("Clock Brightness", "clock_brightness"));
     return card("Clock Screen Saver", body, true, badgeFor(S.clock_screensaver));
+  }
+
+  function nightScheduleCard() {
+    var badge = badgeFor(S.schedule_enabled);
+    var body = el("div");
+    body.appendChild(toggleField("Schedule Screen Off", "schedule_enabled", null, null, function (enabled) {
+      details.style.display = enabled ? "" : "none";
+      badge.className = "on-badge" + (enabled ? " active" : "");
+    }));
+
+    var details = el("div");
+    details.style.display = S.schedule_enabled ? "" : "none";
+    details.appendChild(hourSelectField("On Time", "schedule_on_hour"));
+    details.appendChild(hourSelectField("Off Time", "schedule_off_hour"));
+    details.appendChild(durationSelectField("When Woken, Idle Time To Screen Off", "schedule_wake_timeout"));
+    body.appendChild(details);
+    return card("Night Schedule", body, true, badge);
   }
 
   function screenBrightnessCard() {
@@ -529,7 +558,7 @@
     return "Use a binary_sensor or input_boolean entity.";
   }
 
-  function toggleField(label, key, hint, modeText) {
+  function toggleField(label, key, hint, modeText, onChange) {
     var f = field("");
     var row = el("div", "toggle-row");
     var text = el("span");
@@ -542,6 +571,7 @@
       S[key] = !S[key];
       tog.className = S[key] ? "toggle on" : "toggle";
       if (mode) mode.textContent = modeText();
+      if (onChange) onChange(S[key]);
       post(endpoint(key) + (S[key] ? "/turn_on" : "/turn_off"));
     };
     row.appendChild(text);
@@ -555,6 +585,79 @@
       f.appendChild(help);
     }
     return f;
+  }
+
+  function hourSelectField(label, key) {
+    var f = field(label);
+    f.appendChild(selectFromOptions(hourOptions(), clampNumber(Math.round(S[key]), 0, 23), function (value) {
+      S[key] = Number(value);
+      post(endpoint(key) + "/set", { value: S[key] });
+    }, formatHour));
+    return f;
+  }
+
+  function durationSelectField(label, key) {
+    var options = [10, 30, 60, 120, 300, 600, 1800, 3600];
+    var value = normalizeDurationOption(S[key], options, 60);
+    var f = field(label);
+    f.appendChild(selectFromOptions(options, value, function (next) {
+      S[key] = Number(next);
+      post(endpoint(key) + "/set", { value: S[key] });
+    }, formatDurationSeconds));
+    return f;
+  }
+
+  function selectFromOptions(options, selected, onChange, formatter) {
+    var select = document.createElement("select");
+    select.className = "select";
+    options.forEach(function (value) {
+      var opt = document.createElement("option");
+      opt.value = value;
+      opt.textContent = formatter ? formatter(value) : value;
+      if (Number(value) === Number(selected) || value === selected) opt.selected = true;
+      select.appendChild(opt);
+    });
+    select.onchange = function () {
+      onChange(select.value);
+    };
+    return select;
+  }
+
+  function hourOptions() {
+    var options = [];
+    for (var h = 0; h < 24; h++) options.push(h);
+    return options;
+  }
+
+  function formatHour(value) {
+    var h = Number(value);
+    var suffix = h >= 12 ? "PM" : "AM";
+    var hour = h % 12;
+    if (hour === 0) hour = 12;
+    return hour + ":00 " + suffix;
+  }
+
+  function normalizeDurationOption(value, options, fallback) {
+    var n = Number(value);
+    if (isNaN(n)) return fallback;
+    var best = options[0];
+    var bestDelta = Math.abs(n - best);
+    options.forEach(function (option) {
+      var delta = Math.abs(n - option);
+      if (delta < bestDelta) {
+        best = option;
+        bestDelta = delta;
+      }
+    });
+    return best;
+  }
+
+  function formatDurationSeconds(value) {
+    var n = Number(value);
+    if (n < 60) return n + " seconds";
+    if (n === 60) return "1 minute";
+    if (n < 3600) return Math.round(n / 60) + " minutes";
+    return "1 hour";
   }
 
   function rangeField(label, key) {

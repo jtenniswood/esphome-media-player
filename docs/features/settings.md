@@ -13,6 +13,7 @@ The browser Settings tab groups screen saver controls into clock screen saver, b
 | **Screen Saver: Clock** | Enable the clock screen saver. |
 | **Screen Saver: Timer** | Time after dimming before the screen saver activates. |
 | **Screen Saver: Clock Brightness** | Backlight level for the clock screen saver. |
+| **Night Schedule** | Optional daily schedule that turns the screen off outside the selected on/off hours. |
 | **Day/Night: Active Brightness** | Brightness during active use for day and night. |
 | **Day/Night: Dim Brightness** | Brightness after the paused dimming timer for day and night. |
 | **Screen Saver: Paused Dimming** | Time after playback pauses before the screen dims. |

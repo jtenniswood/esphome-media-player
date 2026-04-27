@@ -14,3 +14,4 @@ time:
               : id(ha_time).now().timestamp;
           }
           id(apply_timezone).execute();
+          id(screen_schedule_check).execute();

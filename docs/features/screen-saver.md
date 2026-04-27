@@ -18,6 +18,12 @@ An optional clock screen saver displays the current time in large, thin digits o
 
 The clock position drifts subtly each minute across a small region to prevent burn-in. Brightness is controlled independently via **Screen Saver: Clock Brightness** (default: 35%).
 
+## Night Schedule
+
+**Night Schedule** can turn the display fully off outside a daily time window. For example, an **On Time** of 6:00 AM and an **Off Time** of 8:00 PM keeps the screen available during the day and turns it off overnight.
+
+Touching the screen during the off period wakes it temporarily. **When Woken, Idle Time To Screen Off** controls how long it stays awake before returning to scheduled screen-off.
+
 ## Day/Night awareness
 
 Brightness levels and screen saver behavior adapt automatically based on whether it is currently "day" or "night":
@@ -57,6 +63,15 @@ This is useful when you want day/night to depend on more than just the sun — f
 | **Screen Saver: Clock** | Enable the clock screen saver. When on, a 24-hour clock (`HH:MM`) is shown instead of turning the screen off. | On |
 | **Screen Saver: Clock Brightness** | Backlight level for the clock screen saver. | 35% |
 | **Clock: Timezone** | City-based timezone for the clock display. Select the nearest city to your location — DST is handled automatically for cities that observe it. | UTC |
+
+### Night Schedule
+
+| Setting | Description | Default |
+|---------|-------------|---------|
+| **Screen: Schedule Enabled** | Enable the daily screen-off schedule. | Off |
+| **Screen: Schedule On Hour** | Hour when the screen becomes available again. | 6 |
+| **Screen: Schedule Off Hour** | Hour when the screen turns off for the schedule. | 20 |
+| **Screen: Schedule Wake Timeout** | Temporary wake duration during scheduled off hours. | 60 s |
 
 ### Brightness
 

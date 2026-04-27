@@ -26,6 +26,12 @@ globals:
   - id: day_night_subscription_gen
     type: int
     initial_value: '0'
+  - id: screen_schedule_asleep
+    type: bool
+    initial_value: 'false'
+  - id: screen_schedule_manual_wake_ms
+    type: uint32_t
+    initial_value: '0'
 
 
 # -----------------------------------------------------------------------------
@@ -197,11 +203,85 @@ number:
     icon: "mdi:clock-outline"
     entity_category: config
 
+  - platform: template
+    name: "Screen: Schedule On Hour"
+    id: schedule_on_hour
+    internal: ${screen_schedule_internal}
+    min_value: 0
+    max_value: 23
+    step: 1
+    initial_value: 6
+    optimistic: true
+    restore_value: true
+    unit_of_measurement: "h"
+    icon: "mdi:weather-sunset-up"
+    entity_category: config
+    on_value:
+      - script.execute: screen_schedule_check
+
+  - platform: template
+    name: "Screen: Schedule Off Hour"
+    id: schedule_off_hour
+    internal: ${screen_schedule_internal}
+    min_value: 0
+    max_value: 23
+    step: 1
+    initial_value: 20
+    optimistic: true
+    restore_value: true
+    unit_of_measurement: "h"
+    icon: "mdi:weather-night"
+    entity_category: config
+    on_value:
+      - script.execute: screen_schedule_check
+
+  - platform: template
+    name: "Screen: Schedule Wake Timeout"
+    id: schedule_wake_timeout
+    internal: ${screen_schedule_internal}
+    min_value: 10
+    max_value: 3600
+    step: 10
+    initial_value: 60
+    optimistic: true
+    restore_value: true
+    unit_of_measurement: "s"
+    icon: "mdi:timer-outline"
+    entity_category: config
+    on_value:
+      - if:
+          condition:
+            lambda: 'return id(screen_schedule_manual_wake_ms) != 0;'
+          then:
+            - script.execute: screen_schedule_wake_timeout_check
+
 
 # -----------------------------------------------------------------------------
 # SCREENSAVER ENABLE/DISABLE (exposed to Home Assistant)
 # -----------------------------------------------------------------------------
 switch:
+  - platform: template
+    name: "Screen: Schedule Enabled"
+    id: schedule_enabled
+    internal: ${screen_schedule_internal}
+    optimistic: true
+    restore_mode: RESTORE_DEFAULT_OFF
+    icon: "mdi:calendar-clock"
+    entity_category: config
+    on_turn_on:
+      then:
+        - script.execute: screen_schedule_check
+    on_turn_off:
+      then:
+        - script.stop: screen_schedule_wake_timeout_check
+        - globals.set:
+            id: screen_schedule_asleep
+            value: 'false'
+        - globals.set:
+            id: screen_schedule_manual_wake_ms
+            value: '0'
+        - script.execute: backlight_wake_timeout
+
   - platform: template
     name: "Day: Screen Saver"
     id: backlight_day_screen_off
@@ -231,6 +311,102 @@ switch:
 # BACKLIGHT WAKE / DIM / OFF SCRIPT
 # -----------------------------------------------------------------------------
 script:
+  - id: screen_schedule_check
+    mode: restart
+    then:
+      - lambda: |-
+          if (!id(schedule_enabled).state) {
+            id(screen_schedule_asleep) = false;
+            id(screen_schedule_manual_wake_ms) = 0;
+            return;
+          }
+
+          setenv("TZ", id(tz_posix).c_str(), 1);
+          tzset();
+          auto now = id(ha_time).now();
+          if (!now.is_valid()) return;
+
+          int on_hour = (int) id(schedule_on_hour).state;
+          int off_hour = (int) id(schedule_off_hour).state;
+          if (on_hour < 0) on_hour = 0;
+          if (on_hour > 23) on_hour = 23;
+          if (off_hour < 0) off_hour = 0;
+          if (off_hour > 23) off_hour = 23;
+
+          bool in_window = true;
+          if (on_hour < off_hour) {
+            in_window = now.hour >= on_hour && now.hour < off_hour;
+          } else if (on_hour > off_hour) {
+            in_window = now.hour >= on_hour || now.hour < off_hour;
+          }
+
+          if (in_window) {
+            id(screen_schedule_manual_wake_ms) = 0;
+            if (id(screen_schedule_asleep)) {
+              id(screen_schedule_asleep) = false;
+              id(backlight_wake_timeout).execute();
+            }
+            return;
+          }
+
+          if (id(screen_schedule_manual_wake_ms) != 0) {
+            uint32_t elapsed = (uint32_t) (millis() - id(screen_schedule_manual_wake_ms));
+            float timeout_s = id(schedule_wake_timeout).state;
+            if (!(timeout_s > 0)) timeout_s = 60;
+            if (timeout_s < 10) timeout_s = 10;
+            if (timeout_s > 3600) timeout_s = 3600;
+            uint32_t timeout_ms = (uint32_t) (timeout_s * 1000.0f);
+            if (elapsed < timeout_ms) return;
+            id(screen_schedule_manual_wake_ms) = 0;
+          }
+
+          if (!id(screen_schedule_asleep)) {
+            id(screen_schedule_asleep) = true;
+            id(hide_clock_view).execute();
+          }
+          id(turn_off_display).execute();
+
+  - id: screen_schedule_wake_timeout_check
+    mode: restart
+    then:
+      - delay: !lambda |-
+          float timeout_s = id(schedule_wake_timeout).state;
+          if (!(timeout_s > 0)) timeout_s = 60;
+          if (timeout_s < 10) timeout_s = 10;
+          if (timeout_s > 3600) timeout_s = 3600;
+          return (uint32_t) (timeout_s * 1000.0f);
+      - lambda: |-
+          if (!id(schedule_enabled).state || id(screen_schedule_manual_wake_ms) == 0) return;
+
+          setenv("TZ", id(tz_posix).c_str(), 1);
+          tzset();
+          auto now = id(ha_time).now();
+          if (!now.is_valid()) return;
+
+          int on_hour = (int) id(schedule_on_hour).state;
+          int off_hour = (int) id(schedule_off_hour).state;
+          if (on_hour < 0) on_hour = 0;
+          if (on_hour > 23) on_hour = 23;
+          if (off_hour < 0) off_hour = 0;
+          if (off_hour > 23) off_hour = 23;
+
+          bool in_window = true;
+          if (on_hour < off_hour) {
+            in_window = now.hour >= on_hour && now.hour < off_hour;
+          } else if (on_hour > off_hour) {
+            in_window = now.hour >= on_hour || now.hour < off_hour;
+          }
+
+          if (in_window) {
+            id(screen_schedule_manual_wake_ms) = 0;
+            return;
+          }
+
+          id(screen_schedule_manual_wake_ms) = 0;
+          id(screen_schedule_asleep) = true;
+          id(hide_clock_view).execute();
+          id(turn_off_display).execute();
+
   - id: apply_day_night_backlight
     mode: restart
     then:
@@ -262,6 +438,33 @@ script:
   - id: backlight_wake_timeout
     mode: restart
     then:
+      - lambda: |-
+          if (!id(schedule_enabled).state) return;
+
+          setenv("TZ", id(tz_posix).c_str(), 1);
+          tzset();
+          auto now = id(ha_time).now();
+          if (!now.is_valid()) return;
+
+          int on_hour = (int) id(schedule_on_hour).state;
+          int off_hour = (int) id(schedule_off_hour).state;
+          if (on_hour < 0) on_hour = 0;
+          if (on_hour > 23) on_hour = 23;
+          if (off_hour < 0) off_hour = 0;
+          if (off_hour > 23) off_hour = 23;
+
+          bool in_window = true;
+          if (on_hour < off_hour) {
+            in_window = now.hour >= on_hour && now.hour < off_hour;
+          } else if (on_hour > off_hour) {
+            in_window = now.hour >= on_hour || now.hour < off_hour;
+          }
+
+          if (!in_window) {
+            id(screen_schedule_asleep) = false;
+            id(screen_schedule_manual_wake_ms) = millis();
+            id(screen_schedule_wake_timeout_check).execute();
+          }
       - lambda: |-
           id(was_screen_dimmed) = id(is_screen_dimmed);
           id(is_screen_dimmed) = false;
@@ -444,6 +647,10 @@ script:
 # CLOCK UPDATE INTERVAL
 # -----------------------------------------------------------------------------
 interval:
+  - interval: 60s
+    then:
+      - script.execute: screen_schedule_check
+
   - interval: 30s
     then:
       - lambda: |-
