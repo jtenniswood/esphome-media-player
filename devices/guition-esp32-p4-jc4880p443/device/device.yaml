@@ -345,22 +345,17 @@ touchscreen:
       - lambda: |-
           int dx = id(touch_x_end) - id(touch_x_start);
           int dy = id(touch_y_end) - id(touch_y_start);
-          int view_dx = dx;
-          int view_dy = dy;
-          const std::string rotation = id(screen_rotation_select).current_option();
-          if (rotation == "90") {
-            view_dx = dy;
-            view_dy = -dx;
-          } else if (rotation == "180") {
-            view_dx = -dx;
-            view_dy = -dy;
-          } else if (rotation == "270") {
-            view_dx = -dy;
-            view_dy = dx;
-          }
+          int32_t view_x_start = id(touch_x_start);
+          int32_t view_y_start = id(touch_y_start);
+          int32_t view_x_end = id(touch_x_end);
+          int32_t view_y_end = id(touch_y_end);
+          id(main_lvgl).rotate_coordinates(view_x_start, view_y_start);
+          id(main_lvgl).rotate_coordinates(view_x_end, view_y_end);
+          int view_dx = view_x_end - view_x_start;
+          int view_dy = view_y_end - view_y_start;
 
           ESP_LOGD("touch", "Swipe raw=(%d,%d) view=(%d,%d) rotation=%s start=(%d,%d) end=(%d,%d)",
-                   dx, dy, view_dx, view_dy, rotation.c_str(), id(touch_x_start), id(touch_y_start),
+                   dx, dy, view_dx, view_dy, id(screen_rotation_select).current_option().c_str(), id(touch_x_start), id(touch_y_start),
                    id(touch_x_end), id(touch_y_end));
 
           // --- Dismiss actions prompt on tap ---
