@@ -11,6 +11,7 @@ See [Screen Saver](/features/screen-saver) for all brightness, timer, clock, and
 | Setting | Description |
 |---------|-------------|
 | **Day-Night Sensor** | (Optional) Entity ID of a `binary_sensor` or `input_boolean` to control day/night mode (`on` = day, `off` = night). Leave empty to use `sun.sun` (default). See [Screen Saver](/features/screen-saver#custom-day-night-sensor). |
+| **Clock: Timezone** | City-based timezone for the clock screen saver. Select the nearest city to your location from the dropdown — DST is handled automatically. Defaults to UTC. |
 
 ## Screen Tone <Badge type="info" text="ESP32-P4 only" />
 
@@ -20,12 +21,6 @@ Shifts album art toward warmer colors (reduced blue, slight red boost) for a mor
 |---------|-------------|
 | **Day: Screen Warmth** | Warmth applied to album art during the day. 0% = no tint, 100% = maximum warmth. Default: 30%. |
 | **Night: Screen Warmth** | Warmth applied to album art at night. 0% = no tint, 100% = maximum warmth. Default: 60%. |
-
-## Clock
-
-| Setting | Description |
-|---------|-------------|
-| **Clock: Timezone** | City-based timezone for the clock screen saver. Select the nearest city to your location from the dropdown — DST is handled automatically. Defaults to UTC. |
 
 ## Speakers
 

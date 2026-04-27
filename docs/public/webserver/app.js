@@ -308,7 +308,6 @@
     content.appendChild(playbackCard());
     content.appendChild(screenSaverCard());
     content.appendChild(screenToneCard());
-    content.appendChild(clockCard());
     content.appendChild(firmwareCard());
 
     wrap.appendChild(content);
@@ -350,6 +349,7 @@
     body.appendChild(toggleField("Day Screen Saver", "day_screen_saver"));
     body.appendChild(toggleField("Night Screen Saver", "night_screen_saver"));
     body.appendChild(toggleField("Clock Screen Saver", "clock_screensaver"));
+    body.appendChild(selectField("Timezone", "clock_timezone"));
     return card("Screen Saver", body, true, badge);
   }
 
@@ -358,12 +358,6 @@
     body.appendChild(rangeField("Day Screen Warmth", "screen_warmth_day"));
     body.appendChild(rangeField("Night Screen Warmth", "screen_warmth_night"));
     return card("Screen Tone", body, true);
-  }
-
-  function clockCard() {
-    var body = el("div");
-    body.appendChild(selectField("Timezone", "clock_timezone"));
-    return card("Clock", body, true);
   }
 
   function firmwareCard() {
