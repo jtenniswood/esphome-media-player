@@ -317,7 +317,6 @@
     var body = el("div");
     body.appendChild(textField("Media Player", "media_player", "media_player.living_room", validateMediaPlayer));
     body.appendChild(textField("Linked Media Player", "linked_media_player", "media_player.apple_tv", validateMediaPlayer));
-    body.appendChild(textField("Day-Night Sensor", "day_night_sensor", "binary_sensor.daytime", validateDayNightSensor));
     var hint = el("div", "field-hint");
     hint.textContent = "Changing media-player fields can reboot the device so Home Assistant subscriptions refresh.";
     body.appendChild(hint);
@@ -336,6 +335,8 @@
   function screenSaverCard() {
     var badge = badgeFor(S.day_screen_saver || S.night_screen_saver || S.clock_screensaver);
     var body = el("div");
+    body.appendChild(textField("Day-Night Sensor", "day_night_sensor", "binary_sensor.daytime", validateDayNightSensor));
+    body.appendChild(el("div", "spacer-8"));
     var brightnessGrid = el("div", "grid-2");
     brightnessGrid.appendChild(rangeField("Day Active Brightness", "day_active_brightness"));
     brightnessGrid.appendChild(rangeField("Night Active Brightness", "night_active_brightness"));
