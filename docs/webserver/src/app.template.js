@@ -341,7 +341,7 @@
   }
 
   function screenSaverCard() {
-    var badge = badgeFor(S.day_screen_saver || S.night_screen_saver);
+    var badge = badgeFor(S.day_screen_saver || S.night_screen_saver || S.clock_screensaver);
     var body = el("div");
     body.appendChild(textField("Day-Night Sensor", "day_night_sensor", "binary_sensor.daytime", validateDayNightSensor));
     body.appendChild(el("div", "spacer-8"));
@@ -356,15 +356,10 @@
     body.appendChild(numberField("Screen Saver Timer", "screen_saver_timeout"));
     body.appendChild(toggleField("Day Screen Saver", "day_screen_saver"));
     body.appendChild(toggleField("Night Screen Saver", "night_screen_saver"));
-    return card("Screen Saver", body, true, badge);
-  }
-
-  function clockCard() {
-    var body = el("div");
     body.appendChild(toggleField("Clock Screen Saver", "clock_screensaver"));
     body.appendChild(rangeField("Clock Brightness", "clock_brightness"));
     body.appendChild(selectField("Timezone", "clock_timezone"));
-    return card("Clock", body, true, badgeFor(S.clock_screensaver));
+    return card("Screen Saver", body, true, badge);
   }
 
   function screenToneCard() {
@@ -441,7 +436,6 @@
     body.appendChild(statusRow("IP Address", S.ip_address || "Unknown"));
     if (supportsScreenRotation()) body.appendChild(selectField("Screen Rotation", "screen_rotation"));
     wrap.appendChild(card("Device", body, false));
-    wrap.appendChild(clockCard());
     wrap.appendChild(firmwareCard());
   }
 

@@ -6,11 +6,14 @@ Most settings are configurable from the device page in Home Assistant (**Setting
 
 ## Screen Saver
 
-See [Screen Saver](/features/screen-saver) for all brightness, timer, and day/night screen saver settings.
+See [Screen Saver](/features/screen-saver) for all brightness, timer, clock, and day/night screen saver settings.
 
 | Setting | Description |
 |---------|-------------|
 | **Day-Night Sensor** | (Optional) Entity ID of a `binary_sensor` or `input_boolean` to control day/night mode (`on` = day, `off` = night). Leave empty to use `sun.sun` (default). See [Screen Saver](/features/screen-saver#custom-day-night-sensor). |
+| **Screen Saver: Clock** | Enable the clock screen saver. |
+| **Screen Saver: Clock Brightness** | Backlight level for the clock screen saver. |
+| **Clock: Timezone** | City-based timezone for the clock screen saver. Select the nearest city to your location from the dropdown — DST is handled automatically. Defaults to UTC. |
 
 ## Screen Tone <Badge type="info" text="ESP32-P4 only" />
 
@@ -36,15 +39,12 @@ Shifts album art toward warmer colors (reduced blue, slight red boost) for a mor
 
 ## Device
 
-The browser Device tab contains device status, clock screen saver settings, and firmware update controls.
+The browser Device tab contains device status and firmware update controls.
 
 ![Firmware update controls](../images/ha-firmware.png)
 
 | Setting | Description |
 |---------|-------------|
-| **Screen Saver: Clock** | Enable the clock screen saver. |
-| **Screen Saver: Clock Brightness** | Backlight level for the clock screen saver. |
-| **Clock: Timezone** | City-based timezone for the clock screen saver. Select the nearest city to your location from the dropdown — DST is handled automatically. Defaults to UTC. |
 | **Auto Update** | When enabled, firmware updates are installed automatically when detected. Default: on. |
 | **Update Frequency** | How often the device checks for updates: Hourly, Daily (default), or Weekly. |
 | **Firmware Update** | Shows current and latest firmware versions with an install button when an update is available. |
