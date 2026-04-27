@@ -321,6 +321,7 @@
     var content = el("div");
 
     content.appendChild(setupCard());
+    content.appendChild(advancedCard());
     content.appendChild(playbackCard());
     content.appendChild(volumeCard());
     content.appendChild(clockScreenSaverCard());
@@ -335,11 +336,22 @@
   function setupCard() {
     var body = el("div");
     body.appendChild(textField("Media Player", "media_player", "media_player.living_room", validateMediaPlayer));
-    body.appendChild(textField("Linked Media Player", "linked_media_player", "media_player.apple_tv", validateMediaPlayer));
     var hint = el("div", "field-hint");
-    hint.textContent = "Changing media-player fields can reboot the device so Home Assistant subscriptions refresh.";
+    hint.textContent = "Changing the media player can reboot the device so Home Assistant subscriptions refresh.";
     body.appendChild(hint);
     return card("Home Assistant Media Player", body, false);
+  }
+
+  function advancedCard() {
+    var body = el("div");
+    var linkedHint = el("div", "field-hint");
+    linkedHint.textContent = "Optional. Use a linked media player when the main speaker switches to a TV or Line-in source, so the screen can show now-playing details from that related player instead.";
+    body.appendChild(linkedHint);
+    body.appendChild(textField("Linked Media Player", "linked_media_player", "media_player.apple_tv", validateMediaPlayer));
+    var rebootHint = el("div", "field-hint");
+    rebootHint.textContent = "Changing this can reboot the device so Home Assistant subscriptions refresh.";
+    body.appendChild(rebootHint);
+    return card("Advanced", body, true);
   }
 
   function playbackCard() {

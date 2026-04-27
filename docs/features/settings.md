@@ -45,6 +45,12 @@ Shifts album art toward warmer colors (reduced blue, slight red boost) for a mor
 | **Track Clock** | Browser setting for the now-playing time label. On shows time remaining; off shows the track length. Tap the time label on the device to toggle this at any time. |
 | **Media Player Entity** | The `media_player` entity to control. |
 
+## Advanced
+
+| Setting | Description |
+|---------|-------------|
+| **Linked Media Player** | Optional `media_player` entity used when the main speaker switches to a TV or Line-in source. The screen can show now-playing details from this related player instead of the main speaker. |
+
 ## Device
 
 The browser Device tab contains clock settings, supported rotation controls, and firmware update controls.
