@@ -124,7 +124,7 @@ lvgl:
               - label:
                   id: media_artist_label
                   text: ""
-                  pad_top: 14
+                  pad_top: 10
                   width: 100%
                   long_mode: dot
                   text_font: roboto_light40_font
