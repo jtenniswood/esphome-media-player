@@ -94,6 +94,7 @@
   var currentTab = "settings";
   var renderTimer = null;
   var evtSource = null;
+  var cardCollapsed = {};
 
   function eid(domain, name) {
     return "/" + domain + "/" + encodeURIComponent(name);
@@ -595,6 +596,7 @@
 
   function card(title, bodyElement, defaultCollapsed, badge) {
     var c = el("div", "card");
+    var cardKey = slug(title);
     var header = el("div", "card-header");
     var h = document.createElement("h3");
     h.textContent = title;
@@ -609,10 +611,12 @@
     body.appendChild(bodyElement);
     c.appendChild(header);
     c.appendChild(body);
-    if (defaultCollapsed) c.classList.add("collapsed");
+    var collapsed = cardCollapsed.hasOwnProperty(cardKey) ? cardCollapsed[cardKey] : defaultCollapsed;
+    if (collapsed) c.classList.add("collapsed");
     header.onclick = function (ev) {
       if (/^(INPUT|SELECT|TEXTAREA|BUTTON)$/.test(ev.target.tagName)) return;
       c.classList.toggle("collapsed");
+      cardCollapsed[cardKey] = c.classList.contains("collapsed");
     };
     return c;
   }
