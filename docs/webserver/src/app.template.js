@@ -236,7 +236,6 @@
     buildHeader(root);
     buildPage(root, "settings");
     buildPage(root, "device");
-    buildLogsPage(root);
 
     var espApp = document.querySelector("esp-app");
     if (espApp) espApp.parentNode.insertBefore(root, espApp);
@@ -253,17 +252,26 @@
     header.appendChild(brand);
 
     var nav = el("nav", "mp-nav");
+    nav.setAttribute("aria-label", "Primary");
     [
       { id: "settings", label: "Settings" },
-      { id: "device", label: "Device" },
-      { id: "logs", label: "Logs" }
+      { id: "device", label: "Device" }
     ].forEach(function (tab) {
       var node = el("div", "mp-tab");
+      node.setAttribute("role", "tab");
+      node.setAttribute("aria-selected", "false");
       node.textContent = tab.label;
       node.onclick = function () { switchTab(tab.id); };
       nav.appendChild(node);
       els["tab_" + tab.id] = node;
     });
+    var docs = document.createElement("a");
+    docs.className = "mp-tab mp-tab-docs";
+    docs.href = "https://jtenniswood.github.io/esphome-media-player/";
+    docs.target = "_blank";
+    docs.rel = "noopener";
+    docs.innerHTML = 'Docs <span class="mp-docs-icon">&#8599;</span>';
+    nav.appendChild(docs);
     header.appendChild(nav);
     parent.appendChild(header);
   }
@@ -278,26 +286,11 @@
     els[id + "Wrap"] = wrap;
   }
 
-  function buildLogsPage(parent) {
-    var page = el("div", "mp-page");
-    page.id = "mp-logs";
-    var toolbar = el("div", "log-toolbar");
-    var clear = el("button", "btn btn-secondary btn-sm");
-    clear.textContent = "Clear";
-    clear.onclick = function () { els.logOutput.innerHTML = ""; };
-    toolbar.appendChild(clear);
-    page.appendChild(toolbar);
-    var output = el("div", "log-output");
-    page.appendChild(output);
-    parent.appendChild(page);
-    els.logsPage = page;
-    els.logOutput = output;
-  }
-
   function switchTab(tab) {
     currentTab = tab;
-    ["settings", "device", "logs"].forEach(function (id) {
+    ["settings", "device"].forEach(function (id) {
       els["tab_" + id].className = "mp-tab" + (id === tab ? " active" : "");
+      els["tab_" + id].setAttribute("aria-selected", id === tab ? "true" : "false");
       els[id + "Page"].className = "mp-page" + (id === tab ? " active" : "");
     });
   }
