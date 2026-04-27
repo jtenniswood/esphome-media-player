@@ -12,7 +12,7 @@ substitutions:
   clock_cy: "400"
   device_slug: "guition-esp32-p4-jc4880p443"
   firmware_manifest_slug: "jc4880p443"
-  post_artwork_script: "apply_warm_tones"
+  post_artwork_script: "apply_portrait_artwork_crop"
   warm_tone_post_script: "warm_tones_done"
   warm_tone_red_boost: "0.11f"
   warm_tone_green_reduce: "0.22f"
