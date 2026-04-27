@@ -32,7 +32,7 @@ Shifts album art toward warmer colors (reduced blue, slight red boost) for a mor
 
 | Setting | Description |
 |---------|-------------|
-| **Playback: Show Remaining Time** | When enabled, the time label shows elapsed and remaining time. When disabled, it shows elapsed and total duration. Tap the time label on the device to toggle this at any time. |
+| **Track Clock** | Browser setting for the now-playing time label. On shows time remaining; off shows the track length. Tap the time label on the device to toggle this at any time. |
 | **Media Player Entity** | The `media_player` entity to control. |
 
 ## Firmware Updates

@@ -36,7 +36,7 @@ Full-screen album art is loaded from your Home Assistant instance. When a new tr
 
 ### Now playing info
 
-The screen shows song title, artist, elapsed and remaining time, and a progress bar. The bar updates every second with smooth interpolation between position updates from Home Assistant. Tap the time label to toggle between elapsed/remaining and elapsed/total duration display. The default mode is set by the **Playback: Show Remaining Time** switch in [Settings](/features/settings).
+The screen shows song title, artist, elapsed and remaining time, and a progress bar. The bar updates every second with smooth interpolation between position updates from Home Assistant. Tap the time label to toggle between elapsed/remaining and elapsed/total duration display. The default mode is set by the **Track Clock** setting in [Settings](/features/settings).
 
 ### Linked media player (optional)
 

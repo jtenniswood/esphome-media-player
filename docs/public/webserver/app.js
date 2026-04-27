@@ -326,7 +326,7 @@
 
   function playbackCard() {
     var body = el("div");
-    body.appendChild(toggleField("Show Remaining Time", "show_remaining_time"));
+    body.appendChild(toggleField("Track Clock", "show_remaining_time", "On: time remaining. Off: track length."));
     body.appendChild(toggleField("Show Progress Bar", "show_progress_bar"));
     body.appendChild(numberField("Track Info Duration", "track_info_duration"));
     body.appendChild(numberField("Speaker Panel Auto-Close", "speaker_panel_timeout"));
@@ -475,7 +475,7 @@
     return "Use a binary_sensor or input_boolean entity.";
   }
 
-  function toggleField(label, key) {
+  function toggleField(label, key, hint) {
     var f = field("");
     var row = el("div", "toggle-row");
     var text = el("span");
@@ -489,6 +489,11 @@
     row.appendChild(text);
     row.appendChild(tog);
     f.appendChild(row);
+    if (hint) {
+      var help = el("div", "field-hint");
+      help.textContent = hint;
+      f.appendChild(help);
+    }
     return f;
   }
 
