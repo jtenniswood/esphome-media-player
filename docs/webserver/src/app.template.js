@@ -375,11 +375,18 @@
   }
 
   function clockScreenSaverCard() {
+    var badge = badgeFor(S.clock_screensaver);
     var body = el("div");
-    body.appendChild(toggleField("Clock Screen Saver", "clock_screensaver"));
-    body.appendChild(numberField("Screen Saver Timer", "screen_saver_timeout"));
-    body.appendChild(rangeField("Clock Brightness", "clock_brightness"));
-    return card("Clock Screen Saver", body, true, badgeFor(S.clock_screensaver));
+    var details = el("div");
+    details.style.display = S.clock_screensaver ? "" : "none";
+    body.appendChild(toggleField("Clock Screen Saver", "clock_screensaver", null, null, function (enabled) {
+      details.style.display = enabled ? "" : "none";
+      badge.className = "on-badge" + (enabled ? " active" : "");
+    }));
+    details.appendChild(numberField("Screen Saver Timer", "screen_saver_timeout"));
+    details.appendChild(rangeField("Clock Brightness", "clock_brightness"));
+    body.appendChild(details);
+    return card("Clock Screen Saver", body, true, badge);
   }
 
   function nightScheduleCard() {
