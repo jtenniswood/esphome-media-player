@@ -7,6 +7,15 @@
 
 json:
 
+text_sensor:
+  - platform: template
+    name: "Device Profile"
+    id: web_device_profile
+    lambda: 'return {"${device_slug}"};'
+    entity_category: diagnostic
+    internal: true
+    update_interval: 60s
+
 web_server:
   port: 80
   version: 3

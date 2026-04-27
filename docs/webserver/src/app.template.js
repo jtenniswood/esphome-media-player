@@ -41,6 +41,7 @@
     installed_version: "",
     latest_version: "",
     update_available: false,
+    device_profile: "",
     online: false,
     wifi_strength: null,
     ip_address: ""
@@ -72,6 +73,7 @@
     firmware_update: { domain: "update", name: "Firmware Update", update: true },
     check_latest: { domain: "button", name: "Check Latest Firmware", skipFetch: true },
     install_latest: { domain: "button", name: "Install Latest Firmware", skipFetch: true },
+    device_profile: { domain: "text_sensor", name: "Device Profile" },
     online: { domain: "binary_sensor", name: "Online", bool: true },
     wifi_strength: { domain: "sensor", name: "Wifi Strength", number: true },
     ip_address: { domain: "text_sensor", name: "IP Address" }
@@ -326,9 +328,13 @@
     var body = el("div");
     body.appendChild(toggleField("Track Clock", "show_remaining_time", "On: time remaining. Off: track length."));
     body.appendChild(toggleField("Show Progress Bar", "show_progress_bar"));
-    body.appendChild(numberField("Track Info Duration", "track_info_duration"));
+    if (supportsTrackInfoDuration()) body.appendChild(numberField("Track Info Duration", "track_info_duration"));
     body.appendChild(numberField("Speaker Panel Auto-Close", "speaker_panel_timeout"));
     return card("Playback", body, true);
+  }
+
+  function supportsTrackInfoDuration() {
+    return S.device_profile === "esp32-p4-86-panel" || S.device_profile === "guition-esp32-s3-4848s040";
   }
 
   function screenSaverCard() {
