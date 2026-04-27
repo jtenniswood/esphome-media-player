@@ -70,6 +70,7 @@
     auto_update: { domain: "switch", name: "Auto Update", bool: true },
     update_frequency: { domain: "select", name: "Update Frequency", optionsKey: "update_frequency_options" },
     firmware_update: { domain: "update", name: "Firmware Update", update: true },
+    check_latest: { domain: "button", name: "Check Latest Firmware", skipFetch: true },
     install_latest: { domain: "button", name: "Install Latest Firmware", skipFetch: true },
     online: { domain: "binary_sensor", name: "Online", bool: true },
     wifi_strength: { domain: "sensor", name: "Wifi Strength", number: true },
@@ -372,6 +373,9 @@
     var installed = displayVersion(S.installed_version || "");
     var latest = displayVersion(S.latest_version || "");
     version.innerHTML = '<span style="color:var(--text2)">Installed</span> ' + esc(installed || "Unknown");
+    var latestRow = el("div", "fw-row");
+    var latestLabel = el("span", "fw-label");
+    latestLabel.innerHTML = '<span style="color:var(--text2)">Latest</span> ' + esc(latest || "Unknown");
     var checkWrap = el("div", "check-wrap");
     var status = el("span", "fw-status");
     status.textContent = firmwareStatusText();
@@ -380,7 +384,7 @@
     check.onclick = function () {
       check.disabled = true;
       check.textContent = "Checking...";
-      post(endpoint("install_latest") + "/press")
+      post(endpoint("check_latest") + "/press")
         .then(function () {
           return new Promise(function (resolve) { setTimeout(resolve, 16000); });
         })
@@ -396,11 +400,13 @@
     versionRow.appendChild(version);
     versionRow.appendChild(checkWrap);
     body.appendChild(versionRow);
+    latestRow.appendChild(latestLabel);
+    body.appendChild(latestRow);
 
     if (S.update_available) {
       var updateRow = el("div", "fw-row");
       var label = el("span", "fw-label");
-      label.innerHTML = '<span style="color:var(--text2)">Latest</span> ' + esc(latest || "Available");
+      label.textContent = "Update available";
       var install = el("button", "btn btn-primary btn-sm");
       install.textContent = "Install";
       install.onclick = function () {

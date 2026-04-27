@@ -16,6 +16,9 @@ globals:
   - id: update_check_counter
     type: int
     initial_value: '0'
+  - id: manual_update_check_only
+    type: bool
+    initial_value: 'false'
 
 update:
   - platform: http_request
@@ -27,7 +30,7 @@ update:
       then:
         - if:
             condition:
-              lambda: 'return id(auto_update_switch).state;'
+              lambda: 'return id(auto_update_switch).state && !id(manual_update_check_only);'
             then:
               - update.perform: firmware_update
 
@@ -69,12 +72,26 @@ interval:
 
 button:
   - platform: template
+    name: Check Latest Firmware
+    icon: "mdi:update"
+    on_press:
+      - script.execute: check_firmware_update_only
+
+  - platform: template
     name: Install Latest Firmware
     icon: "mdi:update"
     on_press:
       - script.execute: check_firmware_update
 
 script:
+  - id: check_firmware_update_only
+    mode: single
+    then:
+      - lambda: 'id(manual_update_check_only) = true;'
+      - component.update: firmware_update
+      - delay: 60s
+      - lambda: 'id(manual_update_check_only) = false;'
+
   - id: check_firmware_update
     mode: single
     then:

@@ -49,6 +49,7 @@ Shifts album art toward warmer colors (reduced blue, slight red boost) for a mor
 | **Auto Update** | When enabled, firmware updates are installed automatically when detected. Default: on. |
 | **Update Frequency** | How often the device checks for updates: Hourly, Daily (default), or Weekly. |
 | **Firmware Update** | Shows current and latest firmware versions with an install button when an update is available. |
+| **Check Latest Firmware** | Manually checks for updates without installing them. |
 | **Install Latest Firmware** | Manually triggers an update check and install. |
 
 See [Firmware Updates](/features/firmware-updates) for full details.
