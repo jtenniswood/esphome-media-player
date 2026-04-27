@@ -23,6 +23,7 @@ substitutions:
   track_info_duration_default: "0"
   pause_lvgl_on_screen_off: "true"
   clock_screensaver_supported: "true"
+  idle_action_default: "Show Clock"
   screen_schedule_internal: "false"
 
   # Setup screens

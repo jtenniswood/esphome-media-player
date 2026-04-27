@@ -6,19 +6,19 @@ Most settings are configurable from the device page in Home Assistant (**Setting
 
 ## Screen Saver
 
-The browser Settings tab groups screen saver controls into clock screen saver, brightness, and day/night behavior. See [Screen Saver](/features/screen-saver) for the full behavior details.
+The browser Settings tab groups screen saver controls into idle screen behavior, brightness, and day/night behavior. See [Screen Saver](/features/screen-saver) for the full behavior details.
 
 | Setting | Description |
 |---------|-------------|
-| **Screen Saver: Clock** | Enable the clock screen saver. |
-| **Screen Saver: Timer** | Time after dimming before the screen saver activates. |
-| **Screen Saver: Clock Brightness** | Backlight level for the clock screen saver. |
+| **Dim After** | Time after playback pauses before the screen dims. |
+| **Then After** | Time after dimming before the idle action runs. |
+| **Day Action** | What happens during the day: show clock, turn screen off, or stay dimmed. |
+| **Night Action** | What happens at night: show clock, turn screen off, or stay dimmed. |
+| **Clock Brightness** | Backlight level for the clock idle screen. |
 | **Night Schedule** | Optional daily schedule that turns the screen off outside the selected on/off hours. |
 | **Day/Night: Active Brightness** | Brightness during active use for day and night. |
 | **Day/Night: Dim Brightness** | Brightness after the paused dimming timer for day and night. |
-| **Screen Saver: Paused Dimming** | Time after playback pauses before the screen dims. |
-| **Day-Night Sensor** | (Optional) Entity ID of a `binary_sensor` or `input_boolean` to control day/night mode (`on` = day, `off` = night). Leave empty to use `sun.sun` (default). See [Screen Saver](/features/screen-saver#custom-day-night-sensor). |
-| **Day/Night: Screen Saver** | Controls whether the screen turns off after the screen saver timer for day and night. |
+| **Day/Night Source** | (Optional) Entity ID of a `binary_sensor` or `input_boolean` to control day/night mode (`on` = day, `off` = night). Leave empty to use `sun.sun` (default). See [Screen Saver](/features/screen-saver#custom-day-night-sensor). |
 
 ## Screen Tone <Badge type="info" text="ESP32-P4 only" />
 

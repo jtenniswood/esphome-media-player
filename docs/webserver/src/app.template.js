@@ -27,13 +27,12 @@
     dim_timeout: 60,
     screen_saver_timeout: 300,
     clock_brightness: 35,
+    day_idle_action: "Show Clock",
+    night_idle_action: "Show Clock",
     schedule_enabled: false,
     schedule_on_hour: 6,
     schedule_off_hour: 20,
     schedule_wake_timeout: 60,
-    day_screen_saver: true,
-    night_screen_saver: true,
-    clock_screensaver: true,
     screen_warmth_day: 30,
     screen_warmth_night: 60,
     clock_timezone: "UTC (GMT+0)",
@@ -70,13 +69,12 @@
     dim_timeout: { domain: "number", name: "Screen Saver: Paused Dimming", number: true },
     screen_saver_timeout: { domain: "number", name: "Screen Saver: Timer", number: true },
     clock_brightness: { domain: "number", name: "Screen Saver: Clock Brightness", number: true },
+    day_idle_action: { domain: "select", name: "Screen: Day Idle Action", optionsKey: "idle_action_options" },
+    night_idle_action: { domain: "select", name: "Screen: Night Idle Action", optionsKey: "idle_action_options" },
     schedule_enabled: { domain: "switch", name: "Screen: Schedule Enabled", bool: true },
     schedule_on_hour: { domain: "number", name: "Screen: Schedule On Hour", number: true },
     schedule_off_hour: { domain: "number", name: "Screen: Schedule Off Hour", number: true },
     schedule_wake_timeout: { domain: "number", name: "Screen: Schedule Wake Timeout", number: true },
-    day_screen_saver: { domain: "switch", name: "Day: Screen Saver", bool: true },
-    night_screen_saver: { domain: "switch", name: "Night: Screen Saver", bool: true },
-    clock_screensaver: { domain: "switch", name: "Screen Saver: Clock", bool: true },
     screen_warmth_day: { domain: "number", name: "Day: Screen Warmth", number: true },
     screen_warmth_night: { domain: "number", name: "Night: Screen Warmth", number: true },
     clock_timezone: { domain: "select", name: "Screen: Timezone", optionsKey: "clock_timezone_options" },
@@ -324,7 +322,7 @@
     content.appendChild(advancedCard());
     content.appendChild(playbackCard());
     content.appendChild(volumeCard());
-    content.appendChild(clockScreenSaverCard());
+    content.appendChild(idleScreenCard());
     content.appendChild(nightScheduleCard());
     content.appendChild(screenBrightnessCard());
     content.appendChild(dayNightCard());
@@ -386,19 +384,25 @@
     return S.device_profile === "esp32-p4-86-panel" || S.device_profile === "guition-esp32-s3-4848s040";
   }
 
-  function clockScreenSaverCard() {
-    var badge = badgeFor(S.clock_screensaver);
+  function idleScreenCard() {
+    var badge = badgeFor(true, idleSummary());
     var body = el("div");
-    var details = el("div");
-    details.style.display = S.clock_screensaver ? "" : "none";
-    body.appendChild(toggleField("Clock Screen Saver", "clock_screensaver", null, null, function (enabled) {
-      details.style.display = enabled ? "" : "none";
-      badge.className = "on-badge" + (enabled ? " active" : "");
+    body.appendChild(numberField("Dim After", "dim_timeout"));
+    body.appendChild(numberField("Then After", "screen_saver_timeout"));
+    body.appendChild(divider());
+    body.appendChild(idleActionField("Day Action", "day_idle_action", function () {
+      badge.textContent = idleSummary();
+      renderAll();
     }));
-    details.appendChild(numberField("Screen Saver Timer", "screen_saver_timeout"));
+    body.appendChild(idleActionField("Night Action", "night_idle_action", function () {
+      badge.textContent = idleSummary();
+      renderAll();
+    }));
+    var details = el("div");
+    details.style.display = usesClockAction() ? "" : "none";
     details.appendChild(rangeField("Clock Brightness", "clock_brightness"));
     body.appendChild(details);
-    return card("Clock Screen Saver", body, true, badge);
+    return card("Idle Screen", body, true, badge);
   }
 
   function nightScheduleCard() {
@@ -427,8 +431,6 @@
     body.appendChild(sectionTitle("Nighttime"));
     body.appendChild(rangeField("Active Brightness", "night_active_brightness"));
     body.appendChild(rangeField("Dimmed Brightness", "night_dim_brightness"));
-    body.appendChild(divider());
-    body.appendChild(numberField("Paused Dimming", "dim_timeout"));
     return card("Screen Brightness", body, true);
   }
 
@@ -443,13 +445,9 @@
   }
 
   function dayNightCard() {
-    var badge = badgeFor(S.day_screen_saver || S.night_screen_saver);
     var body = el("div");
-    body.appendChild(textField("Day-Night Sensor", "day_night_sensor", "binary_sensor.daytime", validateDayNightSensor));
-    body.appendChild(el("div", "spacer-8"));
-    body.appendChild(toggleField("Day Screen Saver", "day_screen_saver"));
-    body.appendChild(toggleField("Night Screen Saver", "night_screen_saver"));
-    return card("Day/Night Screen Saver", body, true, badge);
+    body.appendChild(textField("Day/Night Source", "day_night_sensor", "binary_sensor.daytime", validateDayNightSensor));
+    return card("Day/Night", body, true);
   }
 
   function screenToneCard() {
@@ -531,6 +529,10 @@
 
   function supportsScreenRotation() {
     return S.device_profile === "guition-esp32-p4-jc4880p443";
+  }
+
+  function supportsClockScreenSaver() {
+    return S.device_profile !== "guition-esp32-p4-jc8012p4a1";
   }
 
   function textField(label, key, placeholder, validator) {
@@ -646,6 +648,19 @@
     return f;
   }
 
+  function idleActionField(label, key, onChange) {
+    return selectField(label, key, onChange);
+  }
+
+  function usesClockAction() {
+    return S.day_idle_action === "Show Clock" || S.night_idle_action === "Show Clock";
+  }
+
+  function idleSummary() {
+    if (S.day_idle_action === S.night_idle_action) return S.day_idle_action;
+    return "Mixed";
+  }
+
   function selectFromOptions(options, selected, onChange, formatter) {
     var select = document.createElement("select");
     select.className = "select";
@@ -755,9 +770,13 @@
     return f;
   }
 
-  function selectField(label, key) {
+  function selectField(label, key, onChange) {
     var f = field(label);
     var options = (S[key + "_options"] || []).slice();
+    if ((key === "day_idle_action" || key === "night_idle_action") && !supportsClockScreenSaver()) {
+      options = options.filter(function (option) { return option !== "Show Clock"; });
+      if (S[key] === "Show Clock") S[key] = "Turn Screen Off";
+    }
     if (options.indexOf(S[key]) === -1 && S[key]) options.unshift(S[key]);
     if (!options.length) options.push(S[key] || "");
     var select = document.createElement("select");
@@ -772,6 +791,7 @@
     select.onchange = function () {
       S[key] = select.value;
       post(endpoint(key) + "/set", { option: select.value });
+      if (onChange) onChange(select.value);
     };
     f.appendChild(select);
     return f;
@@ -879,9 +899,9 @@
     return c;
   }
 
-  function badgeFor(active) {
+  function badgeFor(active, text) {
     var b = el("span", "on-badge" + (active ? " active" : ""));
-    b.textContent = "On";
+    b.textContent = text || "On";
     return b;
   }
 

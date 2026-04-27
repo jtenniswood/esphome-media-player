@@ -3,7 +3,8 @@
 # =============================================================================
 # Two-stage screensaver with day/night awareness:
 #   1. After dim_timeout seconds of inactivity → dim to day or night brightness
-#   2. After a further screen_saver_timeout seconds → show clock or turn off
+#   2. After a further screen_saver_timeout seconds → show clock, turn off,
+#      or stay dimmed based on the day/night idle action
 #   Any touch or media-stop event restarts the cycle at 100%.
 #
 # All settings (brightness levels, timeouts) are exposed to Home Assistant
@@ -257,7 +258,7 @@ number:
 
 
 # -----------------------------------------------------------------------------
-# SCREENSAVER ENABLE/DISABLE (exposed to Home Assistant)
+# IDLE SCREEN ACTIONS (exposed to Home Assistant)
 # -----------------------------------------------------------------------------
 switch:
   - platform: template
@@ -282,29 +283,32 @@ switch:
             value: '0'
         - script.execute: backlight_wake_timeout
 
+select:
   - platform: template
-    name: "Day: Screen Saver"
-    id: backlight_day_screen_off
-    optimistic: true
-    restore_mode: RESTORE_DEFAULT_ON
-    icon: "mdi:monitor-off"
+    name: "Screen: Day Idle Action"
+    id: day_idle_action
+    icon: "mdi:theme-light-dark"
     entity_category: config
+    optimistic: true
+    restore_value: true
+    initial_option: "${idle_action_default}"
+    options:
+      - "Show Clock"
+      - "Turn Screen Off"
+      - "Stay Dimmed"
 
   - platform: template
-    name: "Night: Screen Saver"
-    id: backlight_night_screen_off
-    optimistic: true
-    restore_mode: RESTORE_DEFAULT_ON
-    icon: "mdi:monitor-off"
+    name: "Screen: Night Idle Action"
+    id: night_idle_action
+    icon: "mdi:weather-night"
     entity_category: config
-
-  - platform: template
-    name: "Screen Saver: Clock"
-    id: clock_screensaver_enabled
     optimistic: true
-    restore_mode: RESTORE_DEFAULT_ON
-    icon: "mdi:clock-outline"
-    entity_category: config
+    restore_value: true
+    initial_option: "${idle_action_default}"
+    options:
+      - "Show Clock"
+      - "Turn Screen Off"
+      - "Stay Dimmed"
 
 
 # -----------------------------------------------------------------------------
@@ -525,7 +529,14 @@ script:
                 then:
                   - if:
                       condition:
-                        lambda: 'return ${clock_screensaver_supported} && id(clock_screensaver_enabled).state;'
+                        lambda: |-
+                          bool is_day = id(day_night_sensor_entity).state.empty()
+                              ? (id(sun_state_sensor).has_state() && id(sun_state_sensor).state == "above_horizon")
+                              : id(custom_day_night_is_day);
+                          std::string action = is_day
+                            ? id(day_idle_action).current_option()
+                            : id(night_idle_action).current_option();
+                          return ${clock_screensaver_supported} && action == "Show Clock";
                       then:
                         - script.execute: show_clock_view
                       else:
@@ -535,9 +546,10 @@ script:
                                 bool is_day = id(day_night_sensor_entity).state.empty()
                                     ? (id(sun_state_sensor).has_state() && id(sun_state_sensor).state == "above_horizon")
                                     : id(custom_day_night_is_day);
-                                return is_day
-                                  ? id(backlight_day_screen_off).state
-                                  : id(backlight_night_screen_off).state;
+                                std::string action = is_day
+                                  ? id(day_idle_action).current_option()
+                                  : id(night_idle_action).current_option();
+                                return action == "Turn Screen Off" || (!${clock_screensaver_supported} && action == "Show Clock");
                             then:
                               - light.turn_off:
                                   id: backlight
