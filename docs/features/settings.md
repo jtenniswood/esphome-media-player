@@ -6,13 +6,18 @@ Most settings are configurable from the device page in Home Assistant (**Setting
 
 ## Screen Saver
 
-See [Screen Saver](/features/screen-saver) for all brightness, timer, and day/night screen saver settings.
+The browser Settings tab groups screen saver controls into timers, clock screen saver, brightness, and day/night behavior. See [Screen Saver](/features/screen-saver) for the full behavior details.
 
 | Setting | Description |
 |---------|-------------|
-| **Day-Night Sensor** | (Optional) Entity ID of a `binary_sensor` or `input_boolean` to control day/night mode (`on` = day, `off` = night). Leave empty to use `sun.sun` (default). See [Screen Saver](/features/screen-saver#custom-day-night-sensor). |
+| **Screen Saver: Paused Dimming** | Time after playback pauses before the screen dims. |
+| **Screen Saver: Timer** | Time after dimming before the screen saver activates. |
 | **Screen Saver: Clock** | Enable the clock screen saver. |
 | **Screen Saver: Clock Brightness** | Backlight level for the clock screen saver. |
+| **Day/Night: Active Brightness** | Brightness during active use for day and night. |
+| **Day/Night: Dim Brightness** | Brightness after the paused dimming timer for day and night. |
+| **Day-Night Sensor** | (Optional) Entity ID of a `binary_sensor` or `input_boolean` to control day/night mode (`on` = day, `off` = night). Leave empty to use `sun.sun` (default). See [Screen Saver](/features/screen-saver#custom-day-night-sensor). |
+| **Day/Night: Screen Saver** | Controls whether the screen turns off after the screen saver timer for day and night. |
 
 ## Screen Tone <Badge type="info" text="ESP32-P4 only" />
 

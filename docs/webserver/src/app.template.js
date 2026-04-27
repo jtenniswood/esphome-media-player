@@ -311,7 +311,10 @@
 
     content.appendChild(setupCard());
     content.appendChild(playbackCard());
-    content.appendChild(screenSaverCard());
+    content.appendChild(screenSaverTimersCard());
+    content.appendChild(clockScreenSaverCard());
+    content.appendChild(screenBrightnessCard());
+    content.appendChild(dayNightCard());
     content.appendChild(screenToneCard());
 
     wrap.appendChild(content);
@@ -340,25 +343,39 @@
     return S.device_profile === "esp32-p4-86-panel" || S.device_profile === "guition-esp32-s3-4848s040";
   }
 
-  function screenSaverCard() {
-    var badge = badgeFor(S.day_screen_saver || S.night_screen_saver || S.clock_screensaver);
+  function screenSaverTimersCard() {
     var body = el("div");
-    body.appendChild(textField("Day-Night Sensor", "day_night_sensor", "binary_sensor.daytime", validateDayNightSensor));
-    body.appendChild(el("div", "spacer-8"));
+    body.appendChild(numberField("Paused Dimming", "dim_timeout"));
+    body.appendChild(numberField("Screen Saver Timer", "screen_saver_timeout"));
+    return card("Screen Saver Timers", body, true);
+  }
+
+  function clockScreenSaverCard() {
+    var body = el("div");
+    body.appendChild(toggleField("Clock Screen Saver", "clock_screensaver"));
+    body.appendChild(rangeField("Clock Brightness", "clock_brightness"));
+    return card("Clock Screen Saver", body, true, badgeFor(S.clock_screensaver));
+  }
+
+  function screenBrightnessCard() {
+    var body = el("div");
     var brightnessGrid = el("div", "grid-2");
     brightnessGrid.appendChild(rangeField("Day Active Brightness", "day_active_brightness"));
     brightnessGrid.appendChild(rangeField("Night Active Brightness", "night_active_brightness"));
     brightnessGrid.appendChild(rangeField("Day Dim Brightness", "day_dim_brightness"));
     brightnessGrid.appendChild(rangeField("Night Dim Brightness", "night_dim_brightness"));
     body.appendChild(brightnessGrid);
+    return card("Screen Brightness", body, true);
+  }
+
+  function dayNightCard() {
+    var badge = badgeFor(S.day_screen_saver || S.night_screen_saver);
+    var body = el("div");
+    body.appendChild(textField("Day-Night Sensor", "day_night_sensor", "binary_sensor.daytime", validateDayNightSensor));
     body.appendChild(el("div", "spacer-8"));
-    body.appendChild(numberField("Paused Dimming", "dim_timeout"));
-    body.appendChild(numberField("Screen Saver Timer", "screen_saver_timeout"));
     body.appendChild(toggleField("Day Screen Saver", "day_screen_saver"));
     body.appendChild(toggleField("Night Screen Saver", "night_screen_saver"));
-    body.appendChild(toggleField("Clock Screen Saver", "clock_screensaver"));
-    body.appendChild(rangeField("Clock Brightness", "clock_brightness"));
-    return card("Screen Saver", body, true, badge);
+    return card("Day/Night Screen Saver", body, true, badge);
   }
 
   function screenToneCard() {
