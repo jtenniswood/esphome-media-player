@@ -28,7 +28,7 @@ font:
       - "\U000F0374"  # mdi-minus
   - file: 'https://github.com/Templarian/MaterialDesign-Webfont/raw/v7.4.47/fonts/materialdesignicons-webfont.ttf'
     id: icon_font_large
-    size: 56
+    size: 62
     bpp: 4
     glyphs:
       - "\U000F040A"  # mdi-play

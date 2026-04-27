@@ -115,9 +115,9 @@ lvgl:
                   id: media_title_label
                   text: "—"
                   width: 100%
-                  max_height: 149px
+                  max_height: 130px
                   long_mode: wrap
-                  text_font: roboto_light54_font
+                  text_font: roboto_light59_font
                   text_color: 0xFFFFFF
                   text_align: left
                   text_line_space: 0
@@ -127,7 +127,7 @@ lvgl:
                   pad_top: 8
                   width: 100%
                   long_mode: dot
-                  text_font: roboto_light41_font
+                  text_font: roboto_light45_font
                   text_color: 0xFFFFFF
                   text_opa: 80%
                   text_align: left
@@ -137,7 +137,7 @@ lvgl:
                   text: "0:00  /  0:00"
                   pad_top: 14
                   width: 100%
-                  text_font: roboto27_font
+                  text_font: roboto30_font
                   text_color: 0xFFFFFF
                   text_opa: 80%
                   text_align: left
@@ -150,9 +150,9 @@ lvgl:
             align: bottom_right
             x: -24
             y: -24
-            width: 86px
-            height: 86px
-            radius: 43
+            width: 95px
+            height: 95px
+            radius: 48
             styles: control_round
             widgets:
               - label:
