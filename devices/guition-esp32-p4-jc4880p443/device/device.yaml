@@ -456,6 +456,43 @@ script:
             lambda: 'return id(screen_rotation_select).current_option() == "270";'
           then:
             - lvgl.display.set_rotation: 270
+      - lambda: |-
+          const bool landscape =
+            id(screen_rotation_select).current_option() == "90" ||
+            id(screen_rotation_select).current_option() == "270";
+
+          if (landscape) {
+            lv_obj_set_pos(id(artwork_bg_panel), 0, 0);
+            lv_obj_set_size(id(artwork_bg_panel), 480, 480);
+            lv_obj_set_pos(id(album_art_background_widget), 0, 0);
+            lv_obj_set_size(id(album_art_background_widget), 480, 480);
+            lv_obj_set_pos(id(artwork_error_label), 90, 225);
+            lv_obj_set_width(id(artwork_error_label), 300);
+
+            lv_obj_set_pos(id(accent_overlay), 480, 0);
+            lv_obj_set_size(id(accent_overlay), 320, 480);
+            lv_obj_set_pos(id(track_info_text), 504, 34);
+            lv_obj_set_size(id(track_info_text), 272, 258);
+            lv_obj_set_width(id(media_progress_bar), 800);
+            lv_obj_set_size(id(settings_panel), 800, 480);
+            lv_obj_set_size(id(clock_screensaver), 800, 480);
+          } else {
+            lv_obj_set_pos(id(artwork_bg_panel), 0, 0);
+            lv_obj_set_size(id(artwork_bg_panel), 480, 480);
+            lv_obj_set_pos(id(album_art_background_widget), 0, 0);
+            lv_obj_set_size(id(album_art_background_widget), 480, 480);
+            lv_obj_set_pos(id(artwork_error_label), 90, 225);
+            lv_obj_set_width(id(artwork_error_label), 300);
+
+            lv_obj_set_pos(id(accent_overlay), 0, 480);
+            lv_obj_set_size(id(accent_overlay), 480, 320);
+            lv_obj_set_pos(id(track_info_text), 24, 514);
+            lv_obj_set_size(id(track_info_text), 432, 262);
+            lv_obj_set_width(id(media_progress_bar), 480);
+            lv_obj_set_size(id(settings_panel), 480, 800);
+            lv_obj_set_size(id(clock_screensaver), 480, 800);
+          }
+          lv_obj_update_layout(lv_scr_act());
 
   # -- Keep now-playing panel visible (portrait layout has permanent track data) --
   - id: toggle_ui
