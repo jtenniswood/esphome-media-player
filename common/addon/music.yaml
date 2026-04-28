@@ -11,11 +11,7 @@ globals:
     initial_value: 'false'
 
 external_components:
-  - source:
-      type: git
-      url: https://github.com/jtenniswood/esphome-media-player
-      ref: main
-      path: components
+  - source: github://jtenniswood/esphome-media-player@main
     components: [artwork_image]
     refresh: 1s
 

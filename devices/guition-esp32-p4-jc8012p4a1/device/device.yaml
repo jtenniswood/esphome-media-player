@@ -127,11 +127,7 @@ logger:
 
 
 external_components:
-  - source:
-      type: git
-      url: https://github.com/jtenniswood/esphome-media-player
-      ref: main
-      path: components
+  - source: github://jtenniswood/esphome-media-player@main
     components: [gsl3680]
     refresh: 1s
 
