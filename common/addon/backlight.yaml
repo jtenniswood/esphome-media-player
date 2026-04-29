@@ -707,8 +707,8 @@ script:
           lv_coord_t w = lv_obj_get_width(id(clock_label));
           lv_coord_t h = lv_obj_get_height(id(clock_label));
           int cx = ${clock_cx}, cy = ${clock_cy};
-          int ox = (minute * 7) % 61 - 30;
-          int oy = (minute * 13) % 41 - 20;
+          int ox = (minute * 7) % 25 - 12;
+          int oy = (minute * 13) % 17 - 8;
           lv_obj_set_pos(id(clock_label), cx + ox - w/2, cy + oy - h/2);
           lv_obj_invalidate(id(clock_screensaver));
           lv_obj_invalidate(id(clock_label));
@@ -788,6 +788,6 @@ interval:
           lv_coord_t w = lv_obj_get_width(id(clock_label));
           lv_coord_t h = lv_obj_get_height(id(clock_label));
           int cx = ${clock_cx}, cy = ${clock_cy};
-          int ox = (time.minute * 7) % 61 - 30;
-          int oy = (time.minute * 13) % 41 - 20;
+          int ox = (time.minute * 7) % 25 - 12;
+          int oy = (time.minute * 13) % 17 - 8;
           lv_obj_set_pos(id(clock_label), cx + ox - w/2, cy + oy - h/2);
