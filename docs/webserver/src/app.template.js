@@ -389,7 +389,7 @@
   function setupCard() {
     var body = el("div");
     body.appendChild(textField("Media Player", "media_player", "media_player.living_room", validateMediaPlayer));
-    return card("Home Assistant Media Player", body, false);
+    return card("Media Player", body, false);
   }
 
   function advancedCard() {
