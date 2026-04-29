@@ -742,7 +742,7 @@
   }
 
   function screenSaverActionField(label, key, onChange) {
-    var options = supportsClockScreenSaver() ? ["Clock", "Screen Off"] : ["Screen Off"];
+    var options = supportsClockScreenSaver() ? ["Clock", "Screen Off", "Disabled"] : ["Screen Off", "Disabled"];
     var selected = normalizeScreenSaverAction(S[key]);
     if (options.indexOf(selected) === -1) selected = "Screen Off";
     var f = field(label);
@@ -776,6 +776,7 @@
   function normalizeScreenSaverAction(value) {
     if (value === "Show Clock" || value === "Clock" || value === "On") return "Clock";
     if (value === "Turn Screen Off" || value === "Screen Off" || value === "Off") return "Screen Off";
+    if (value === "Disabled") return "Disabled";
     return "Screen Off";
   }
 

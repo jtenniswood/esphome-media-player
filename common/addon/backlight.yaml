@@ -395,6 +395,7 @@ select:
     options:
       - "Clock"
       - "Screen Off"
+      - "Disabled"
 
   - platform: template
     name: "Screen: Night Idle Action"
@@ -408,6 +409,7 @@ select:
     options:
       - "Clock"
       - "Screen Off"
+      - "Disabled"
 
 
 # -----------------------------------------------------------------------------

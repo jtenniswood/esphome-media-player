@@ -8,6 +8,7 @@ When playback is paused and paused dimming is enabled, the device uses a two-sta
 2. **Idle action** — If **Screen Saver: Enabled** is on, after **Screen Saver: Timer** elapses (default: 300 s), the selected day or evening screen saver runs:
    - **Clock** shows a large `HH:MM` clock.
    - **Screen Off** turns the display fully off.
+   - **Disabled** leaves the display at the dimmed level.
 
 If **Screen Saver: Enabled** is off, the screen saver options are hidden and the display stays at the dimmed level after the dimming stage.
 
@@ -63,8 +64,8 @@ This is useful when you want day/night to depend on more than just the sun — f
 
 | Setting | Description | Default |
 |---------|-------------|---------|
-| **Daytime Screen Saver** | What happens after the idle timer during the day: Clock or Screen Off. | Clock |
-| **Evening Screen Saver** | What happens after the idle timer in the evening: Clock or Screen Off. | Clock |
+| **Daytime Screen Saver** | What happens after the idle timer during the day: Clock, Screen Off, or Disabled. | Clock |
+| **Evening Screen Saver** | What happens after the idle timer in the evening: Clock, Screen Off, or Disabled. | Clock |
 | **Day Clock Brightness** | Backlight level for the daytime clock screen saver. | 35% |
 | **Evening Clock Brightness** | Backlight level for the evening clock screen saver. | 35% |
 | **Screen: Timezone** | IANA-style timezone for the clock and scheduled screen-off controls. The browser shows the current GMT offset. | UTC |
@@ -91,5 +92,5 @@ This is useful when you want day/night to depend on more than just the sun — f
 
 | Setting | Description | Default |
 |---------|-------------|---------|
-| **Daytime Screen Saver** | Daytime action after dimming and the idle timer. | Clock |
-| **Evening Screen Saver** | Evening action after dimming and the idle timer. | Clock |
+| **Daytime Screen Saver** | Daytime action after dimming and the idle timer. Options: Clock, Screen Off, or Disabled. | Clock |
+| **Evening Screen Saver** | Evening action after dimming and the idle timer. Options: Clock, Screen Off, or Disabled. | Clock |
