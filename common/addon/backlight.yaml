@@ -4,8 +4,8 @@
 # Two-stage screensaver with day/night awareness:
 #   1. If paused dimming is enabled, after dim_timeout seconds of inactivity
 #      → dim to day or night brightness
-#   2. After a further screen_saver_timeout seconds → show clock or turn off
-#      based on the day/evening screen saver action
+#   2. If enabled, after a further screen_saver_timeout seconds → show clock
+#      or turn off based on the day/evening screen saver action
 #   Any touch or media-stop event restarts the cycle at 100%.
 #
 # All settings (brightness levels, timeouts) are exposed to Home Assistant
@@ -313,6 +313,43 @@ switch:
               - script.execute: backlight_wake_timeout
 
   - platform: template
+    name: "Screen Saver: Enabled"
+    id: screen_saver_enabled
+    optimistic: true
+    restore_mode: RESTORE_DEFAULT_ON
+    icon: "mdi:monitor"
+    entity_category: config
+    on_turn_on:
+      then:
+        - if:
+            condition:
+              lambda: |-
+                std::string state = "";
+                if (id(is_tv_mode)) {
+                  if (id(tv_media_player_state_sensor).has_state()) state = id(tv_media_player_state_sensor).state;
+                } else if (id(media_player_state_sensor).has_state()) {
+                  state = id(media_player_state_sensor).state;
+                }
+                return state == "paused";
+            then:
+              - script.execute: backlight_wake_timeout
+    on_turn_off:
+      then:
+        - if:
+            condition:
+              lambda: |-
+                std::string state = "";
+                if (id(is_tv_mode)) {
+                  if (id(tv_media_player_state_sensor).has_state()) state = id(tv_media_player_state_sensor).state;
+                } else if (id(media_player_state_sensor).has_state()) {
+                  state = id(media_player_state_sensor).state;
+                }
+                return state == "paused";
+            then:
+              - script.stop: backlight_wake_timeout
+              - script.execute: backlight_wake_timeout
+
+  - platform: template
     name: "Screen: Schedule Enabled"
     id: schedule_enabled
     internal: ${screen_schedule_internal}
@@ -586,6 +623,7 @@ script:
                     }
                     if (state == "playing") return false;
                     if (state == "paused" && !id(backlight_dim_when_paused).state) return false;
+                    if (!id(screen_saver_enabled).state) return false;
                     return true;
                 then:
                   - if:

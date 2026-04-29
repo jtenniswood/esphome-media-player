@@ -5,9 +5,11 @@ When playback is paused and paused dimming is enabled, the device uses a two-sta
 ## How it works
 
 1. **Dimming** — If **Screen Saver: Dim When Paused** is on, after **Screen Saver: Paused Dimming** elapses (default: 60 s), the screen dims to the **Day/Night: Dim Brightness** level.
-2. **Idle action** — After **Screen Saver: Timer** elapses (default: 300 s), the selected day or evening screen saver runs:
+2. **Idle action** — If **Screen Saver: Enabled** is on, after **Screen Saver: Timer** elapses (default: 300 s), the selected day or evening screen saver runs:
    - **Clock** shows a large `HH:MM` clock.
    - **Off** turns the display fully off.
+
+If **Screen Saver: Enabled** is off, the screen saver options are hidden and the display stays at the dimmed level after the dimming stage.
 
 Any touch or new media playback instantly returns the display to full active brightness.
 
@@ -54,6 +56,7 @@ This is useful when you want day/night to depend on more than just the sun — f
 |---------|-------------|---------|
 | **Screen Saver: Dim When Paused** | Enables screen dimming when playback is paused. | On |
 | **Screen Saver: Paused Dimming** | Time after playback pauses before the screen dims. | 60 s |
+| **Screen Saver: Enabled** | Enables the clock/off screen saver step after dimming. | On |
 | **Screen Saver: Timer** | Time after dimming before the screen saver activates. | 300 s |
 
 ### Clock

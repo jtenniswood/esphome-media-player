@@ -26,6 +26,7 @@
     night_dim_brightness: 25,
     paused_dimming_enabled: true,
     dim_timeout: 60,
+    screen_saver_enabled: true,
     screen_saver_timeout: 300,
     day_clock_brightness: 35,
     evening_clock_brightness: 35,
@@ -70,6 +71,7 @@
     night_dim_brightness: { domain: "number", name: "Night: Dim Brightness", number: true },
     paused_dimming_enabled: { domain: "switch", name: "Screen Saver: Dim When Paused", bool: true },
     dim_timeout: { domain: "number", name: "Screen Saver: Paused Dimming", number: true },
+    screen_saver_enabled: { domain: "switch", name: "Screen Saver: Enabled", bool: true },
     screen_saver_timeout: { domain: "number", name: "Screen Saver: Timer", number: true },
     day_clock_brightness: { domain: "number", name: "Screen Saver: Clock Brightness", number: true },
     evening_clock_brightness: { domain: "number", name: "Screen Saver: Evening Clock Brightness", number: true },
@@ -404,26 +406,33 @@
   }
 
   function screenSaverCard() {
-    var badge = badgeFor(true, idleSummary());
+    var badge = badgeFor(S.screen_saver_enabled, idleSummary());
     var body = el("div");
-    body.appendChild(durationSelectField("Then After", "screen_saver_timeout", [10, 30, 60, 120, 300, 600, 1800], formatCompactDurationSeconds));
-    body.appendChild(divider());
-    body.appendChild(screenSaverActionField("Daytime Screen Saver", "day_idle_action", function () {
+    var details = el("div");
+    details.style.display = S.screen_saver_enabled ? "" : "none";
+    body.appendChild(toggleField("Screen Saver", "screen_saver_enabled", null, null, function (enabled) {
+      details.style.display = enabled ? "" : "none";
+      badge.className = "on-badge" + (enabled ? " active" : "");
+    }));
+    details.appendChild(durationSelectField("Then After", "screen_saver_timeout", [10, 30, 60, 120, 300, 600, 1800], formatCompactDurationSeconds));
+    details.appendChild(divider());
+    details.appendChild(screenSaverActionField("Daytime Screen Saver", "day_idle_action", function () {
       badge.textContent = idleSummary();
       renderAll();
     }));
     var dayDetails = el("div");
     dayDetails.style.display = usesDayClockAction() ? "" : "none";
     dayDetails.appendChild(rangeField("Day Clock Brightness", "day_clock_brightness"));
-    body.appendChild(dayDetails);
-    body.appendChild(screenSaverActionField("Evening Screen Saver", "night_idle_action", function () {
+    details.appendChild(dayDetails);
+    details.appendChild(screenSaverActionField("Evening Screen Saver", "night_idle_action", function () {
       badge.textContent = idleSummary();
       renderAll();
     }));
     var eveningDetails = el("div");
     eveningDetails.style.display = usesEveningClockAction() ? "" : "none";
     eveningDetails.appendChild(rangeField("Evening Clock Brightness", "evening_clock_brightness"));
-    body.appendChild(eveningDetails);
+    details.appendChild(eveningDetails);
+    body.appendChild(details);
     return card("Screen Saver", body, true, badge);
   }
 
