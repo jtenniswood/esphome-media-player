@@ -381,8 +381,8 @@ select:
     restore_value: true
     initial_option: "${idle_action_default}"
     options:
-      - "Show Clock"
-      - "Turn Screen Off"
+      - "Clock"
+      - "Screen Off"
 
   - platform: template
     name: "Screen: Night Idle Action"
@@ -393,8 +393,8 @@ select:
     restore_value: true
     initial_option: "${idle_action_default}"
     options:
-      - "Show Clock"
-      - "Turn Screen Off"
+      - "Clock"
+      - "Screen Off"
 
 
 # -----------------------------------------------------------------------------
@@ -635,7 +635,7 @@ script:
                           std::string action = is_day
                             ? id(day_idle_action).current_option()
                             : id(night_idle_action).current_option();
-                          return ${clock_screensaver_supported} && action == "Show Clock";
+                          return ${clock_screensaver_supported} && (action == "Clock" || action == "Show Clock" || action == "On");
                       then:
                         - script.execute: show_clock_view
                       else:
@@ -648,7 +648,7 @@ script:
                                 std::string action = is_day
                                   ? id(day_idle_action).current_option()
                                   : id(night_idle_action).current_option();
-                                return action == "Turn Screen Off" || (!${clock_screensaver_supported} && action == "Show Clock");
+                                return action == "Screen Off" || action == "Turn Screen Off" || action == "Off" || (!${clock_screensaver_supported} && (action == "Clock" || action == "Show Clock" || action == "On"));
                             then:
                               - light.turn_off:
                                   id: backlight

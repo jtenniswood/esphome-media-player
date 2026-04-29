@@ -7,7 +7,7 @@ When playback is paused and paused dimming is enabled, the device uses a two-sta
 1. **Dimming** — If **Screen Saver: Dim When Paused** is on, after **Screen Saver: Paused Dimming** elapses (default: 60 s), the screen dims to the **Day/Night: Dim Brightness** level.
 2. **Idle action** — If **Screen Saver: Enabled** is on, after **Screen Saver: Timer** elapses (default: 300 s), the selected day or evening screen saver runs:
    - **Clock** shows a large `HH:MM` clock.
-   - **Off** turns the display fully off.
+   - **Screen Off** turns the display fully off.
 
 If **Screen Saver: Enabled** is off, the screen saver options are hidden and the display stays at the dimmed level after the dimming stage.
 
@@ -63,8 +63,8 @@ This is useful when you want day/night to depend on more than just the sun — f
 
 | Setting | Description | Default |
 |---------|-------------|---------|
-| **Daytime Screen Saver** | What happens after the idle timer during the day: clock or off. | Clock |
-| **Evening Screen Saver** | What happens after the idle timer in the evening: clock or off. | Clock |
+| **Daytime Screen Saver** | What happens after the idle timer during the day: Clock or Screen Off. | Clock |
+| **Evening Screen Saver** | What happens after the idle timer in the evening: Clock or Screen Off. | Clock |
 | **Day Clock Brightness** | Backlight level for the daytime clock screen saver. | 35% |
 | **Evening Clock Brightness** | Backlight level for the evening clock screen saver. | 35% |
 | **Screen: Timezone** | IANA-style timezone for the clock and scheduled screen-off controls. The browser shows the current GMT offset. | UTC |

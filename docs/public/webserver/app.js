@@ -33,8 +33,8 @@
     screen_saver_timeout: 300,
     day_clock_brightness: 35,
     evening_clock_brightness: 35,
-    day_idle_action: "Show Clock",
-    night_idle_action: "Show Clock",
+    day_idle_action: "Clock",
+    night_idle_action: "Clock",
     schedule_enabled: false,
     schedule_on_hour: 6,
     schedule_off_hour: 20,
@@ -400,7 +400,7 @@
     var details = el("div");
     details.style.display = S.paused_dimming_enabled ? "" : "none";
     body.appendChild(sectionDescription("When playback is paused."));
-    body.appendChild(toggleField("Dim Screen When Paused", "paused_dimming_enabled", null, null, function (enabled) {
+    body.appendChild(toggleField("Dim when idle", "paused_dimming_enabled", null, null, function (enabled) {
       details.style.display = enabled ? "" : "none";
       badge.className = "on-badge" + (enabled ? " active" : "");
     }));
@@ -421,7 +421,7 @@
       details.style.display = enabled ? "" : "none";
       badge.className = "on-badge" + (enabled ? " active" : "");
     }));
-    details.appendChild(durationSelectField("Start Screen Saver After", "screen_saver_timeout", [10, 30, 60, 120, 300, 600, 1800], formatCompactDurationSeconds));
+    details.appendChild(durationSelectField("Start Screen Saver After", "screen_saver_timeout", [10, 30, 60, 120, 300, 600, 1800]));
     details.appendChild(screenSaverActionField("Daytime Screen Saver", "day_idle_action", function () {
       badge.textContent = idleSummary();
       renderAll();
@@ -697,9 +697,9 @@
   }
 
   function screenSaverActionField(label, key, onChange) {
-    var options = supportsClockScreenSaver() ? ["Show Clock", "Turn Screen Off"] : ["Turn Screen Off"];
+    var options = supportsClockScreenSaver() ? ["Clock", "Screen Off"] : ["Screen Off"];
     var selected = normalizeScreenSaverAction(S[key]);
-    if (options.indexOf(selected) === -1) selected = "Turn Screen Off";
+    if (options.indexOf(selected) === -1) selected = "Screen Off";
     var f = field(label);
     f.appendChild(selectFromOptions(options, selected, function (next) {
       S[key] = next;
@@ -714,11 +714,11 @@
   }
 
   function usesDayClockAction() {
-    return normalizeScreenSaverAction(S.day_idle_action) === "Show Clock";
+    return normalizeScreenSaverAction(S.day_idle_action) === "Clock";
   }
 
   function usesEveningClockAction() {
-    return normalizeScreenSaverAction(S.night_idle_action) === "Show Clock";
+    return normalizeScreenSaverAction(S.night_idle_action) === "Clock";
   }
 
   function idleSummary() {
@@ -729,13 +729,13 @@
   }
 
   function normalizeScreenSaverAction(value) {
-    if (value === "Show Clock" || value === "Clock" || value === "On") return "Show Clock";
-    if (value === "Turn Screen Off" || value === "Off") return "Turn Screen Off";
-    return "Turn Screen Off";
+    if (value === "Show Clock" || value === "Clock" || value === "On") return "Clock";
+    if (value === "Turn Screen Off" || value === "Screen Off" || value === "Off") return "Screen Off";
+    return "Screen Off";
   }
 
   function screenSaverActionLabel(value) {
-    return normalizeScreenSaverAction(value) === "Show Clock" ? "On" : "Off";
+    return normalizeScreenSaverAction(value);
   }
 
   function selectFromOptions(options, selected, onChange, formatter) {
@@ -789,12 +789,6 @@
     if (n === 60) return "1 minute";
     if (n < 3600) return Math.round(n / 60) + " minutes";
     return "1 hour";
-  }
-
-  function formatCompactDurationSeconds(value) {
-    var n = Number(value);
-    if (n < 60) return n + " sec";
-    return Math.round(n / 60) + " min";
   }
 
   function rangeField(label, key) {
@@ -857,8 +851,8 @@
     var f = field(label);
     var options = (S[key + "_options"] || []).slice();
     if ((key === "day_idle_action" || key === "night_idle_action") && !supportsClockScreenSaver()) {
-      options = options.filter(function (option) { return option !== "Show Clock"; });
-      if (S[key] === "Show Clock") S[key] = "Turn Screen Off";
+      options = options.filter(function (option) { return normalizeScreenSaverAction(option) !== "Clock"; });
+      if (normalizeScreenSaverAction(S[key]) === "Clock") S[key] = "Screen Off";
     }
     if (options.indexOf(S[key]) === -1 && S[key]) options.unshift(S[key]);
     if (!options.length) options.push(S[key] || "");

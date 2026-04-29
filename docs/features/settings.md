@@ -10,13 +10,13 @@ The browser Settings tab groups screen saver controls into idle screen dimming, 
 
 | Setting | Description |
 |---------|-------------|
-| **Dim Screen When Paused** | Turns paused-player screen dimming on or off. |
+| **Dim when idle** | Turns idle screen dimming on or off. |
 | **Dim After** | Time after playback pauses before the screen dims. |
 | **Day/Night: Dim Brightness** | Brightness after the paused dimming timer for day and night. |
 | **Screen Saver** | Turns the clock/off screen saver step on or off. When off, the browser hides the screen saver options. |
 | **Start Screen Saver After** | Time after dimming before the idle action runs. |
-| **Daytime Screen Saver** | What happens during the day: show the clock or turn the screen off. |
-| **Evening Screen Saver** | What happens in the evening: show the clock or turn the screen off. |
+| **Daytime Screen Saver** | What happens during the day: Clock or Screen Off. |
+| **Evening Screen Saver** | What happens in the evening: Clock or Screen Off. |
 | **Day Clock Brightness** | Backlight level for the daytime clock screen saver. |
 | **Evening Clock Brightness** | Backlight level for the evening clock screen saver. |
 | **Night Schedule** | Optional daily schedule that turns the screen off outside the selected on/off hours. |
