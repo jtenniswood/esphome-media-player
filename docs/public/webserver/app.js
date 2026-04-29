@@ -399,6 +399,7 @@
     var body = el("div");
     var details = el("div");
     details.style.display = S.paused_dimming_enabled ? "" : "none";
+    body.appendChild(sectionDescription("When playback is paused."));
     body.appendChild(toggleField("Dim Screen When Paused", "paused_dimming_enabled", null, null, function (enabled) {
       details.style.display = enabled ? "" : "none";
       badge.className = "on-badge" + (enabled ? " active" : "");
@@ -415,6 +416,7 @@
     var body = el("div");
     var details = el("div");
     details.style.display = S.screen_saver_enabled ? "" : "none";
+    body.appendChild(sectionDescription("When playback is paused and the device has been idle for a while."));
     body.appendChild(toggleField("Screen Saver", "screen_saver_enabled", null, null, function (enabled) {
       details.style.display = enabled ? "" : "none";
       badge.className = "on-badge" + (enabled ? " active" : "");
@@ -444,6 +446,7 @@
   function nightScheduleCard() {
     var badge = badgeFor(S.schedule_enabled);
     var body = el("div");
+    body.appendChild(sectionDescription("Configure overnight device behaviour."));
     body.appendChild(toggleField("Schedule Screen Off", "schedule_enabled", null, null, function (enabled) {
       details.style.display = enabled ? "" : "none";
       badge.className = "on-badge" + (enabled ? " active" : "");
@@ -469,6 +472,16 @@
     var title = el("div", "section-title");
     title.textContent = text;
     return title;
+  }
+
+  function sectionDescription(text) {
+    var description = el("p", "field-hint");
+    description.style.fontSize = ".9rem";
+    description.style.lineHeight = "1.45";
+    description.style.marginTop = "-2px";
+    description.style.marginBottom = "18px";
+    description.textContent = text;
+    return description;
   }
 
   function divider() {
