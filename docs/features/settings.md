@@ -12,6 +12,7 @@ The browser Settings tab groups screen saver controls into idle screen dimming, 
 |---------|-------------|
 | **Dim Screen When Paused** | Turns paused-player screen dimming on or off. |
 | **Dim After** | Time after playback pauses before the screen dims. |
+| **Day/Night: Dim Brightness** | Brightness after the paused dimming timer for day and night. |
 | **Then After** | Time after dimming before the idle action runs. |
 | **Daytime Screen Saver** | What happens during the day: show the clock or turn the screen off. |
 | **Evening Screen Saver** | What happens in the evening: show the clock or turn the screen off. |
@@ -52,7 +53,7 @@ Shifts album art toward warmer colors (reduced blue, slight red boost) for a mor
 
 ## Device
 
-The browser Device tab contains clock settings, day/night source, screen brightness, screen tone, supported rotation controls, and firmware update controls.
+The browser Device tab contains clock settings, day/night source, active screen brightness, screen tone, supported rotation controls, and firmware update controls.
 
 ![Firmware update controls](../images/ha-firmware.png)
 
@@ -61,7 +62,6 @@ The browser Device tab contains clock settings, day/night source, screen brightn
 | **Screen: Timezone** | IANA-style timezone for the clock and scheduled screen-off controls. The browser shows the current GMT offset. Defaults to UTC. |
 | **Day/Night Source** | (Optional) Entity ID of a `binary_sensor` or `input_boolean` to control day/night mode (`on` = day, `off` = night). Leave empty to use `sun.sun` (default). See [Screen Saver](/features/screen-saver#custom-day-night-sensor). |
 | **Day/Night: Active Brightness** | Brightness during active use for day and night. |
-| **Day/Night: Dim Brightness** | Brightness after the paused dimming timer for day and night. |
 | **Screen Rotation** | Rotation control shown only on devices that support changing orientation from the browser UI. |
 | **Firmware: Auto Update** | When enabled, firmware updates are installed automatically when detected. Default: on. |
 | **Firmware: Update Frequency** | How often the device checks for updates: Hourly, Daily (default), or Weekly. |
