@@ -97,7 +97,7 @@
     day_dim_brightness: { min: 0, max: 100, step: 5, suffix: "%" },
     night_dim_brightness: { min: 0, max: 100, step: 5, suffix: "%" },
     dim_timeout: { min: 1, max: 300, step: 1, suffix: "s" },
-    screen_saver_timeout: { min: 1, max: 600, step: 1, suffix: "s" },
+    screen_saver_timeout: { min: 1, max: 1800, step: 1, suffix: "s" },
     clock_brightness: { min: 1, max: 100, step: 1, suffix: "%" },
     schedule_on_hour: { min: 0, max: 23, step: 1, suffix: "h" },
     schedule_off_hour: { min: 0, max: 23, step: 1, suffix: "h" },
@@ -394,7 +394,7 @@
   function screenSaverCard() {
     var badge = badgeFor(true, idleSummary());
     var body = el("div");
-    body.appendChild(numberField("Then After", "screen_saver_timeout"));
+    body.appendChild(durationSelectField("Then After", "screen_saver_timeout", [10, 30, 60, 120, 300, 600, 1800], formatCompactDurationSeconds));
     body.appendChild(divider());
     body.appendChild(idleActionField("Day Action", "day_idle_action", function () {
       badge.textContent = idleSummary();
@@ -643,14 +643,14 @@
     return f;
   }
 
-  function durationSelectField(label, key) {
-    var options = [10, 30, 60, 120, 300, 600, 1800, 3600];
+  function durationSelectField(label, key, options, formatter) {
+    options = options || [10, 30, 60, 120, 300, 600, 1800, 3600];
     var value = normalizeDurationOption(S[key], options, 60);
     var f = field(label);
     f.appendChild(selectFromOptions(options, value, function (next) {
       S[key] = Number(next);
       post(endpoint(key) + "/set", { value: S[key] });
-    }, formatDurationSeconds));
+    }, formatter || formatDurationSeconds));
     return f;
   }
 
@@ -718,6 +718,12 @@
     if (n === 60) return "1 minute";
     if (n < 3600) return Math.round(n / 60) + " minutes";
     return "1 hour";
+  }
+
+  function formatCompactDurationSeconds(value) {
+    var n = Number(value);
+    if (n < 60) return n + " sec";
+    return Math.round(n / 60) + " min";
   }
 
   function rangeField(label, key) {

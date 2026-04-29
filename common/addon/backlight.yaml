@@ -182,7 +182,7 @@ number:
     name: "Screen Saver: Timer"
     id: backlight_off_timeout
     min_value: 1
-    max_value: 600
+    max_value: 1800
     step: 1
     initial_value: 300
     optimistic: true
