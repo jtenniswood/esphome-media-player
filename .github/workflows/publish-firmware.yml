@@ -10,7 +10,7 @@ permissions:
 jobs:
   build-firmware:
     name: Build S3 Firmware
-    uses: esphome/workflows/.github/workflows/build.yml@2026.4.0
+    uses: esphome/workflows/.github/workflows/build.yml@2026.4.1
     with:
       files: builds/guition-esp32-s3-4848s040.factory.yaml
       esphome-version: 2026.4.1
@@ -21,7 +21,7 @@ jobs:
 
   upload-to-release:
     name: Upload S3 to Release
-    uses: esphome/workflows/.github/workflows/upload-to-gh-release.yml@2026.4.0
+    uses: esphome/workflows/.github/workflows/upload-to-gh-release.yml@2026.4.1
     needs: build-firmware
     with:
       version: ${{ github.event.release.tag_name }}
