@@ -26,6 +26,8 @@ lvgl:
         #else
         if (indev) indev->driver->scroll_limit = 20;
         #endif
+    - lambda: 'id(lvgl_ready) = true;'
+    - script.execute: apply_screen_rotation
 
   pages:
     - id: main_page

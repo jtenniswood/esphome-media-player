@@ -51,7 +51,6 @@ esphome:
           brightness: 100%
           transition_length: 500ms
       - script.execute: backlight_wake_timeout
-      - script.execute: apply_screen_rotation
   platformio_options:
     board_build.flash_mode: dio
     build_flags:
@@ -168,7 +167,11 @@ select:
       - "180"
       - "270"
     on_value:
-      - script.execute: apply_screen_rotation
+      - if:
+          condition:
+            lambda: 'return id(lvgl_ready);'
+          then:
+            - script.execute: apply_screen_rotation
 
 
 # -----------------------------------------------------------------------------
@@ -301,6 +304,9 @@ globals:
   - id: device_has_been_setup
     type: bool
     restore_value: true
+    initial_value: 'false'
+  - id: lvgl_ready
+    type: bool
     initial_value: 'false'
 
 
@@ -472,6 +478,9 @@ script:
             id(screen_rotation_select).current_option() == "270";
 
           auto resize_fullscreen_overlay = [](lv_obj_t *obj, lv_coord_t width, lv_coord_t height) {
+            if (obj == nullptr) {
+              return;
+            }
             lv_obj_set_pos(obj, 0, 0);
             lv_obj_set_size(obj, width, height);
 
