@@ -45,6 +45,7 @@ export default {
       {
         text: 'Features',
         items: [
+          { text: 'Webserver Setup', link: '/features/webserver' },
           { text: 'Settings', link: '/features/settings' },
           { text: 'Screen Saver', link: '/features/screen-saver' },
           { text: 'Speaker Grouping', link: '/features/speaker-grouping' },

@@ -1,6 +1,6 @@
 # Settings
 
-Most settings are configurable from the device's built-in web settings page — no YAML or reflashing needed. Open it by visiting the device IP address directly in a browser on the same network, or go to the device in Home Assistant under **Settings → Devices & Services → ESPHome** and click **Visit**.
+Most settings are configurable from the device's built-in web settings page — no YAML or reflashing needed. See [Webserver Setup](/features/webserver) for how to open it, or go to the device in Home Assistant under **Settings → Devices & Services → ESPHome** and click **Visit**.
 
 The web settings page runs on the device's ESPHome web server on port `80`. It uses the project's hosted web UI bundle, so the device needs internet access the first time the browser loads the page. On the 4" ESP32-S3 display, opening the web settings page also shows a **Web settings active** screen on the device while the browser is connected.
 

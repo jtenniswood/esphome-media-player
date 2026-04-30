@@ -19,6 +19,7 @@ A touchscreen media controller for Home Assistant: album art, track info, and to
 ## Learn more
 
 - [Installation](/installation) — flash, connect, and configure your device
+- [Webserver Setup](/features/webserver) — configure the device from its IP address
 - [Firmware Updates](/features/firmware-updates) — automatic over-the-air updates
 - [Speaker Grouping](/features/speaker-grouping) — multi-room speaker control
 - [Screen Saver](/features/screen-saver) — dimming, clock, and day/night brightness
@@ -28,7 +29,7 @@ A touchscreen media controller for Home Assistant: album art, track info, and to
 
 ## Features
 
-Overview of what the media controller does. Many features are user-configurable from the device's web settings page — no YAML or reflashing needed. You can open it by visiting the device IP address directly in your browser, or from the device in Home Assistant under **Settings → Devices & Services → ESPHome** by clicking **Visit**. See [Settings](/features/settings) for the full reference.
+Overview of what the media controller does. Many features are user-configurable from the device's web settings page — no YAML or reflashing needed. You can open it by visiting the device IP address directly in your browser, or from the device in Home Assistant under **Settings → Devices & Services → ESPHome** by clicking **Visit**. See [Webserver Setup](/features/webserver) for how to open it and [Settings](/features/settings) for the full reference.
 
 ### Album art display
 
