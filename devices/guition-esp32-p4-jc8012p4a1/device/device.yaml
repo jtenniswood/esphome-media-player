@@ -16,7 +16,6 @@ esp32:
   engineering_sample: true
   framework:
     type: esp-idf
-    version: 5.5.3.1
     sdkconfig_options:
       CONFIG_HTTPD_MAX_URI_LEN: "128"
       CONFIG_LV_DRAW_SW_SUPPORT_RGB565: "y"
