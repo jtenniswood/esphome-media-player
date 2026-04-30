@@ -20,7 +20,9 @@ substitutions:
   artwork_contrast_boost: "0.04f"
   artwork_saturation_boost: "0.10f"
   track_info_duration_default: "5"
-  pause_lvgl_on_screen_off: "true"
+  # Keep LVGL running when the screensaver turns the backlight off.
+  # The Waveshare P4 MIPI DSI path can fail to redraw cleanly after LVGL pause/resume.
+  pause_lvgl_on_screen_off: "false"
   clock_screensaver_supported: "true"
   idle_action_default: "Clock"
   screen_schedule_internal: "true"
