@@ -156,6 +156,8 @@ number:
     icon: "mdi:brightness-5"
     entity_category: config
     internal: ${ha_config_internal}
+    on_value:
+      - script.execute: apply_day_night_backlight
 
   - platform: template
     name: "Night: Dim Brightness"
@@ -170,6 +172,8 @@ number:
     icon: "mdi:brightness-3"
     entity_category: config
     internal: ${ha_config_internal}
+    on_value:
+      - script.execute: apply_day_night_backlight
 
   - platform: template
     name: "Screen Saver: Paused Dimming"
@@ -184,6 +188,8 @@ number:
     icon: "mdi:timer-outline"
     entity_category: config
     internal: ${ha_config_internal}
+    on_value:
+      - script.execute: refresh_idle_screen_timer
 
   - platform: template
     name: "Screen Saver: Timer"
@@ -198,6 +204,8 @@ number:
     icon: "mdi:timer-off-outline"
     entity_category: config
     internal: ${ha_config_internal}
+    on_value:
+      - script.execute: refresh_idle_screen_timer
 
   - platform: template
     name: "Screen Saver: Clock Brightness"
@@ -212,6 +220,8 @@ number:
     icon: "mdi:clock-outline"
     entity_category: config
     internal: ${ha_config_internal}
+    on_value:
+      - script.execute: apply_day_night_backlight
 
   - platform: template
     name: "Screen Saver: Evening Clock Brightness"
@@ -226,6 +236,8 @@ number:
     icon: "mdi:clock-outline"
     entity_category: config
     internal: ${ha_config_internal}
+    on_value:
+      - script.execute: apply_day_night_backlight
 
   - platform: template
     name: "Screen: Schedule On Hour"
@@ -294,33 +306,10 @@ switch:
     internal: ${ha_config_internal}
     on_turn_on:
       then:
-        - if:
-            condition:
-              lambda: |-
-                std::string state = "";
-                if (id(is_tv_mode)) {
-                  if (id(tv_media_player_state_sensor).has_state()) state = id(tv_media_player_state_sensor).state;
-                } else if (id(media_player_state_sensor).has_state()) {
-                  state = id(media_player_state_sensor).state;
-                }
-                return state == "paused";
-            then:
-              - script.execute: backlight_wake_timeout
+        - script.execute: refresh_idle_screen_timer
     on_turn_off:
       then:
-        - if:
-            condition:
-              lambda: |-
-                std::string state = "";
-                if (id(is_tv_mode)) {
-                  if (id(tv_media_player_state_sensor).has_state()) state = id(tv_media_player_state_sensor).state;
-                } else if (id(media_player_state_sensor).has_state()) {
-                  state = id(media_player_state_sensor).state;
-                }
-                return state == "paused";
-            then:
-              - script.stop: backlight_wake_timeout
-              - script.execute: backlight_wake_timeout
+        - script.execute: refresh_idle_screen_timer
 
   - platform: template
     name: "Screen Saver: Enabled"
@@ -332,33 +321,10 @@ switch:
     internal: ${ha_config_internal}
     on_turn_on:
       then:
-        - if:
-            condition:
-              lambda: |-
-                std::string state = "";
-                if (id(is_tv_mode)) {
-                  if (id(tv_media_player_state_sensor).has_state()) state = id(tv_media_player_state_sensor).state;
-                } else if (id(media_player_state_sensor).has_state()) {
-                  state = id(media_player_state_sensor).state;
-                }
-                return state == "paused";
-            then:
-              - script.execute: backlight_wake_timeout
+        - script.execute: refresh_idle_screen_timer
     on_turn_off:
       then:
-        - if:
-            condition:
-              lambda: |-
-                std::string state = "";
-                if (id(is_tv_mode)) {
-                  if (id(tv_media_player_state_sensor).has_state()) state = id(tv_media_player_state_sensor).state;
-                } else if (id(media_player_state_sensor).has_state()) {
-                  state = id(media_player_state_sensor).state;
-                }
-                return state == "paused";
-            then:
-              - script.stop: backlight_wake_timeout
-              - script.execute: backlight_wake_timeout
+        - script.execute: refresh_idle_screen_timer
 
   - platform: template
     name: "Screen: Schedule Enabled"
@@ -396,6 +362,8 @@ select:
       - "Clock"
       - "Screen Off"
       - "Disabled"
+    on_value:
+      - script.execute: refresh_idle_screen_timer
 
   - platform: template
     name: "Screen: Night Idle Action"
@@ -410,12 +378,33 @@ select:
       - "Clock"
       - "Screen Off"
       - "Disabled"
+    on_value:
+      - script.execute: refresh_idle_screen_timer
 
 
 # -----------------------------------------------------------------------------
 # BACKLIGHT WAKE / DIM / OFF SCRIPT
 # -----------------------------------------------------------------------------
 script:
+  - id: refresh_idle_screen_timer
+    mode: restart
+    then:
+      - if:
+          condition:
+            lambda: |-
+              std::string state = "";
+              if (id(is_tv_mode)) {
+                if (id(tv_media_player_state_sensor).has_state()) state = id(tv_media_player_state_sensor).state;
+              } else if (id(media_player_state_sensor).has_state()) {
+                state = id(media_player_state_sensor).state;
+              }
+              if (state.empty() || state == "playing") return false;
+              if (state == "paused" && !id(backlight_dim_when_paused).state) return false;
+              return true;
+          then:
+            - script.stop: backlight_wake_timeout
+            - script.execute: backlight_wake_timeout
+
   - id: screen_schedule_check
     mode: restart
     then:
