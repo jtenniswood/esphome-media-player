@@ -38,7 +38,7 @@ except ImportError:
     def add_metadata(*args, **kwargs):
         pass
 
-AUTO_LOAD = ["image"]
+AUTO_LOAD = ["image", "socket"]
 DEPENDENCIES = ["display", "http_request"]
 CODEOWNERS = ["@jtenniswood"]
 MULTI_CONF = True
@@ -180,9 +180,25 @@ ARTWORK_IMAGE_SCHEMA = (
     .extend(cv.polling_component_schema("never"))
 )
 
+
+def _consume_sockets(config):
+    """Reserve one outbound HTTP socket for each artwork image instance."""
+    try:
+        from esphome.components import socket
+    except ImportError:
+        return config
+
+    consume_sockets = getattr(socket, "consume_sockets", None)
+    if consume_sockets is not None:
+        image_id = getattr(config[CONF_ID], "id", str(config[CONF_ID]))
+        consume_sockets(1, f"artwork_image_{image_id}")(config)
+    return config
+
+
 CONFIG_SCHEMA = cv.Schema(
     cv.All(
         ARTWORK_IMAGE_SCHEMA,
+        _consume_sockets,
         cv.require_framework_version(
             # esp8266 not supported yet; if enabled in the future, minimum version of 2.7.0 is needed
             # esp8266_arduino=cv.Version(2, 7, 0),
