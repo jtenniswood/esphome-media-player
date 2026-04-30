@@ -2,7 +2,6 @@
 
 The device checks for firmware updates automatically and can install them over-the-air — no USB cable or reflashing needed. Update behavior is fully controllable from the device's web settings page at `http://<device-ip>`.
 
-![Auto Update Controls](../images/ha-auto-update.png)
 
 ## How it works
 
