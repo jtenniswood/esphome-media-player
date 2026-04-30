@@ -117,6 +117,7 @@ api:
           }
         }
     - lvgl.widget.hide: ha_setup_prompt
+    - script.execute: apply_timezone
     - lambda: |-
         std::string old_val = id(tv_media_player_entity).state;
         if (!old_val.empty() && id(linked_media_player_entity).state.empty()) {

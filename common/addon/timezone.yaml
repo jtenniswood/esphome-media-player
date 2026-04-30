@@ -10,15 +10,9 @@
 globals:
   - id: tz_posix
     type: std::string
+    restore_value: true
+    max_restore_data_length: 64
     initial_value: '"UTC0"'
-
-
-esphome:
-  on_boot:
-    priority: -100
-    then:
-      - delay: 2s
-      - script.execute: apply_timezone
 
 
 select:
@@ -170,7 +164,7 @@ select:
 
 script:
   - id: apply_timezone
-    mode: single
+    mode: restart
     then:
       - lambda: |-
           static const char* const tz_table[][2] = {

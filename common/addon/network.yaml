@@ -43,6 +43,8 @@ esphome:
             lv_label_set_text(id(ha_setup_instructions), ha_text.c_str());
             std::string actions_text = "In Home Assistant, go to\nSettings > Devices > ESPHome\nFind '" + name + "' and enable\n'Allow the device to perform\nHome Assistant actions'";
             lv_label_set_text(id(actions_instructions), actions_text.c_str());
+        - delay: 2s
+        - script.execute: apply_timezone
         - delay: 10s
         - lambda: 'id(boot_grace_period) = false;'
         - lvgl.widget.hide: loading_screen
