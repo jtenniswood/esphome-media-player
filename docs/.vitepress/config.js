@@ -3,6 +3,9 @@ export default {
   title: 'EspMedia',
   description: 'A media controller for Home Assistant',
   ignoreDeadLinks: true,
+  head: [
+    ['link', { rel: 'icon', type: 'image/svg+xml', href: '/esphome-media-player/favicon.svg' }],
+  ],
   themeConfig: {
     socialLinks: [
       { icon: 'github', link: 'https://github.com/jtenniswood/esphome-media-player' },
