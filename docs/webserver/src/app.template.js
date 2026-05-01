@@ -314,7 +314,7 @@
     link.href = "https://www.buymeacoffee.com/jtenniswood";
     link.target = "_blank";
     link.rel = "noopener";
-    link.innerHTML = '<img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" height="50">';
+    link.innerHTML = '<img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" height="50" style="border-radius:999px;">';
     return link;
   }
 
