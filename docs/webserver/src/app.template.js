@@ -9,7 +9,7 @@
 
   var fonts = document.createElement("link");
   fonts.rel = "stylesheet";
-  fonts.href = "https://fonts.googleapis.com/css2?family=Cookie&family=Inter:wght@400;500;600;700&display=swap";
+  fonts.href = "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap";
   document.head.appendChild(fonts);
 
   var DEFAULT_SPEAKER_PANEL_TIMEOUT = 10;
@@ -310,7 +310,7 @@
 
   function buildSupportButton() {
     var link = document.createElement("a");
-    link.className = "mp-support-btn";
+    link.className = "sp-support-btn";
     link.href = "https://www.buymeacoffee.com/jtenniswood";
     link.target = "_blank";
     link.rel = "noopener";
