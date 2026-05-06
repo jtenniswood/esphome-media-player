@@ -28,8 +28,7 @@ wifi:
         condition:
           lambda: 'return !id(device_has_been_setup);'
         then:
-          - lvgl.widget.hide: loading_screen
-          - lvgl.widget.show: wifi_setup_prompt
+          - script.execute: show_wifi_setup_prompt
     - lvgl.widget.hide: ha_setup_prompt
 
 esphome:
@@ -53,8 +52,7 @@ esphome:
                 - not:
                     wifi.connected:
             then:
-              - lvgl.widget.hide: loading_screen
-              - lvgl.widget.show: wifi_setup_prompt
+              - script.execute: show_wifi_setup_prompt
         - delay: 10s
         - lambda: 'id(boot_grace_period) = false;'
         - lvgl.widget.hide: loading_screen
@@ -65,7 +63,7 @@ esphome:
                 - not:
                     wifi.connected:
             then:
-              - lvgl.widget.show: wifi_setup_prompt
+              - script.execute: show_wifi_setup_prompt
         - if:
             condition:
               and:
@@ -78,7 +76,27 @@ esphome:
               - script.execute: update_setup_ip_label
               - lvgl.widget.show: setup_prompt
 
+interval:
+  - interval: 2s
+    then:
+      - if:
+          condition:
+            and:
+              - wifi.ap_active:
+              - not:
+                  wifi.connected:
+          then:
+            - script.execute: show_wifi_setup_prompt
+
 script:
+  - id: show_wifi_setup_prompt
+    mode: restart
+    then:
+      - lvgl.widget.hide: setup_prompt
+      - lvgl.widget.hide: loading_screen
+      - lvgl.widget.hide: ha_setup_prompt
+      - lvgl.widget.show: wifi_setup_prompt
+      - lambda: 'lv_obj_move_foreground(id(wifi_setup_prompt));'
   - id: update_setup_ip_label
     mode: restart
     then:
