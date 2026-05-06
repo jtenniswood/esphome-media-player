@@ -529,6 +529,17 @@ script:
             - lambda: 'id(is_panel_open) = false;'
       - if:
           condition:
+            lambda: 'return !id(auto_show_track_info).state;'
+          then:
+            - script.stop: toggle_ui
+            - lambda: 'id(is_ui_hidden) = true;'
+            - lvgl.widget.hide: accent_overlay
+            - lvgl.widget.hide: track_info_text
+            - lvgl.widget.hide: media_play_pause_button
+            - lvgl.widget.hide: media_artist_label
+            - script.stop: show_track_view
+      - if:
+          condition:
             lambda: 'return id(is_ui_hidden);'
           then:
             - script.stop: toggle_ui

@@ -32,6 +32,7 @@
     day_night_sensor: "",
     show_remaining_time: true,
     show_progress_bar: true,
+    auto_show_track_info: true,
     track_info_duration: 5,
     speaker_panel_timeout: DEFAULT_SPEAKER_PANEL_TIMEOUT,
     day_active_brightness: 100,
@@ -80,6 +81,7 @@
     day_night_sensor: { domain: "text", name: "Day-Night Sensor" },
     show_remaining_time: { domain: "switch", name: "Playback: Show Remaining Time", bool: true },
     show_progress_bar: { domain: "switch", name: "Playback: Show Progress Bar", bool: true },
+    auto_show_track_info: { domain: "switch", name: "Playback: Auto-Show Track Info", bool: true },
     track_info_duration: { domain: "number", name: "Playback: Track Info Duration", number: true },
     speaker_panel_timeout: { domain: "number", name: "Speakers: Auto-Close Timeout", number: true },
     day_active_brightness: { domain: "number", name: "Day: Active Brightness", number: true },
@@ -470,7 +472,10 @@
     var body = el("div");
     body.appendChild(toggleField("Track Clock", "show_remaining_time", null, trackClockModeText));
     body.appendChild(toggleField("Show Progress Bar", "show_progress_bar"));
-    if (supportsTrackInfoDuration()) body.appendChild(numberField("Track Info Duration", "track_info_duration"));
+    if (supportsTrackInfoDuration()) {
+      body.appendChild(toggleField("Auto-Show Track Info", "auto_show_track_info"));
+      body.appendChild(numberField("Track Info Duration", "track_info_duration"));
+    }
     return card("Playback", body, true);
   }
 
