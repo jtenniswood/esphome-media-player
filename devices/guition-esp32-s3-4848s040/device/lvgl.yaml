@@ -184,12 +184,12 @@ lvgl:
                         }
               - logger.log: "Media: play_pause"
 
-        # Progress bar: full screen width, at the very bottom of the screen
+        # Progress bar: centered at the very bottom of the screen
         - bar:
             id: media_progress_bar
             align: bottom_mid
             y: 0
-            width: 480
+            width: 360
             height: 4
             bg_color: 0x000000
             bg_opa: 50%
