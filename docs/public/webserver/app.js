@@ -186,18 +186,18 @@
 
   function post(url, params) {
     var fullUrl = params ? url + "?" + new URLSearchParams(params).toString() : url;
-    return fetch(fullUrl, { method: "POST" }).then(function (r) {
+    return fetch(fullUrl, { method: "POST", credentials: "same-origin", headers: { "X-Requested-With": "XMLHttpRequest" } }).then(function (r) {
       if (!r.ok) throw new Error("HTTP " + r.status);
       return r;
     }).catch(function (err) {
-      console.error("POST " + fullUrl + " failed:", err);
+      console.error("POST failed:", fullUrl, err);
       showBanner("Failed to save setting", "error");
       return null;
     });
   }
 
   function postQuiet(url) {
-    return fetch(url, { method: "POST", keepalive: true }).catch(function () {
+    return fetch(url, { method: "POST", keepalive: true, credentials: "same-origin", headers: { "X-Requested-With": "XMLHttpRequest" } }).catch(function () {
       return null;
     });
   }
@@ -247,13 +247,14 @@
     body.set("value", value == null ? "" : String(value));
     return fetch(url, {
       method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      credentials: "same-origin",
+      headers: { "Content-Type": "application/x-www-form-urlencoded", "X-Requested-With": "XMLHttpRequest" },
       body: body.toString()
     }).then(function (r) {
       if (!r.ok) throw new Error("HTTP " + r.status);
       return r;
     }).catch(function (err) {
-      console.error("POST " + url + " failed:", err);
+      console.error("POST failed:", url, err);
       showBanner("Failed to save setting", "error");
       return null;
     });
