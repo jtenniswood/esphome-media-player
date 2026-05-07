@@ -18,6 +18,8 @@ In the ESPHome dashboard, create a new YAML configuration for your device. Use o
 
 These examples import the complete per-device entry config from this repository. That imported file provides the `esphome:` section and uses your ESPHome `wifi_ssid` / `wifi_password` secrets for Wi-Fi.
 
+If ESPHome reports `'esphome' section missing`, check that your local YAML imports the `esphome.yaml` file, not `packages.yaml`, and that `packages:` starts at the far left of the file.
+
 ### ESP32-S3 4848S040 (4")
 
 ```yaml
