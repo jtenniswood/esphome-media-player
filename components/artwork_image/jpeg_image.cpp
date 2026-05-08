@@ -5,6 +5,7 @@
 #include "esphome/core/application.h"
 #include "esphome/core/helpers.h"
 #include "esphome/core/log.h"
+#include "esp_heap_caps.h"
 
 #include "artwork_image.h"
 static const char *const TAG = "artwork_image.jpeg";
@@ -130,7 +131,7 @@ int HOT JpegDecoder::decode(uint8_t *buffer, size_t size) {
 
   // Allocate row buffers (raw pointers — safe across longjmp)
   size_t row_stride = static_cast<size_t>(out_w) * 3;
-  row_buffer = static_cast<uint8_t *>(malloc(row_stride));
+  row_buffer = static_cast<uint8_t *>(heap_caps_malloc(row_stride, MALLOC_CAP_8BIT));
   if (row_buffer == nullptr) {
     ESP_LOGE(TAG, "JPEG row buffer allocation failed: %zu bytes", row_stride);
     jpeg_destroy_decompress(&cinfo);
