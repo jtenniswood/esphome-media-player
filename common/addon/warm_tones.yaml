@@ -120,6 +120,10 @@ script:
             int nv = (int)(v * b_undo * b_apply);
             b_lut[i] = (uint8_t)((nv > 255 ? 255 : (nv < 0 ? 0 : nv)) >> 3);
           }
+          const bool apply_contrast = !retint && contrast_boost > 0.001f;
+          const bool apply_saturation = !retint && saturation_boost > 0.001f;
+          const int contrast_q8 = apply_contrast ? (int)((1.0f + contrast_boost) * 256.0f + 0.5f) : 256;
+          const int saturation_q8 = apply_saturation ? (int)((1.0f + saturation_boost) * 256.0f + 0.5f) : 256;
 
           auto *img = id(is_tv_mode) ? id(tv_art_background) : id(album_art_background);
           if (!img) return;
@@ -139,18 +143,16 @@ script:
             int r = ((int)r_lut[(px >> 11) & 0x1F] << 3);
             int g = ((int)g_lut[(px >> 5) & 0x3F] << 2);
             int b = ((int)b_lut[px & 0x1F] << 3);
-            if (!retint && contrast_boost > 0.001f) {
-              float c = 1.0f + contrast_boost;
-              r = (int)((r - 128) * c + 128);
-              g = (int)((g - 128) * c + 128);
-              b = (int)((b - 128) * c + 128);
+            if (apply_contrast) {
+              r = ((r - 128) * contrast_q8) / 256 + 128;
+              g = ((g - 128) * contrast_q8) / 256 + 128;
+              b = ((b - 128) * contrast_q8) / 256 + 128;
             }
-            if (!retint && saturation_boost > 0.001f) {
-              float s = 1.0f + saturation_boost;
+            if (apply_saturation) {
               int gray = (r * 77 + g * 150 + b * 29) >> 8;
-              r = (int)((r - gray) * s + gray);
-              g = (int)((g - gray) * s + gray);
-              b = (int)((b - gray) * s + gray);
+              r = ((r - gray) * saturation_q8) / 256 + gray;
+              g = ((g - gray) * saturation_q8) / 256 + gray;
+              b = ((b - gray) * saturation_q8) / 256 + gray;
             }
             if (r > 255) r = 255; else if (r < 0) r = 0;
             if (g > 255) g = 255; else if (g < 0) g = 0;

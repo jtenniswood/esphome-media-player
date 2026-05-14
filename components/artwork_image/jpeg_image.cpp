@@ -94,24 +94,23 @@ int HOT JpegDecoder::decode(uint8_t *buffer, size_t size) {
   int target_w = this->image_->get_fixed_width();
   int target_h = this->image_->get_fixed_height();
   if (target_w > 0 && target_h > 0) {
-    // libjpeg supports scale_num/scale_denom ratios: 1/1, 1/2, 1/4, 1/8
-    // Accept output >= 83% of target — LVGL zoom handles the remaining upscale.
-    // This avoids decoding at full resolution when a slightly-smaller IDCT step
-    // is available (e.g. 800→400 via 1/2 instead of 800→800 via 1/1 for a 480 target).
-    int thresh_w = target_w * 5 / 6;
-    int thresh_h = target_h * 5 / 6;
+    // Use the smallest IDCT downscale that is still at least the configured
+    // target size. Decoding slightly smaller saves work once, but makes LVGL
+    // rescale the artwork on every redraw, which hurts full-screen updates.
+    int min_w = target_w;
+    int min_h = target_h;
     constexpr unsigned int denoms[] = {8, 4, 2, 1};
     for (unsigned int denom : denoms) {
       cinfo.scale_num = 1;
       cinfo.scale_denom = denom;
       jpeg_calc_output_dimensions(&cinfo);
-      if (static_cast<int>(cinfo.output_width) >= thresh_w &&
-          static_cast<int>(cinfo.output_height) >= thresh_h) {
+      if (static_cast<int>(cinfo.output_width) >= min_w &&
+          static_cast<int>(cinfo.output_height) >= min_h) {
         break;
       }
     }
-    if (static_cast<int>(cinfo.output_width) < thresh_w ||
-        static_cast<int>(cinfo.output_height) < thresh_h) {
+    if (static_cast<int>(cinfo.output_width) < min_w ||
+        static_cast<int>(cinfo.output_height) < min_h) {
       cinfo.scale_num = 1;
       cinfo.scale_denom = 1;
       jpeg_calc_output_dimensions(&cinfo);

@@ -9,7 +9,7 @@
 
 lvgl:
   id: main_lvgl
-  buffer_size: 25%
+  buffer_size: 50%
   byte_order: little_endian
   rotation: ${display_rotation}
   on_boot:
