@@ -479,7 +479,8 @@ script:
             lv_obj_set_style_transform_scale_y(obj, compensate_vertical ? ${horizontal_adjustment_scale_x} : 256, 0);
           };
 
-          apply_adjustment(id(album_art_background_widget), true);
+          // Avoid transforming the 600x600 artwork. LVGL redraws transformed
+          // images through a slow software path, which makes full-screen changes lag.
           apply_adjustment(id(media_title_label), true);
           apply_adjustment(id(media_artist_label), true);
           apply_adjustment(id(media_time_label), true);
