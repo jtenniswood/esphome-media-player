@@ -548,11 +548,11 @@ script:
             lv_obj_set_size(id(track_info_text), 377, 430);
             lv_obj_set_style_max_height(id(media_title_label), 340, 0);
           } else {
-            lv_obj_set_pos(id(accent_overlay), 0, 600);
-            lv_obj_set_size(id(accent_overlay), 600, 424);
-            lv_obj_set_pos(id(track_info_text), 40, 608);
-            lv_obj_set_size(id(track_info_text), 520, 388);
-            lv_obj_set_style_max_height(id(media_title_label), 270, 0);
+            lv_obj_set_pos(id(accent_overlay), 0, 584);
+            lv_obj_set_size(id(accent_overlay), 600, 440);
+            lv_obj_set_pos(id(track_info_text), 40, 592);
+            lv_obj_set_size(id(track_info_text), 520, 412);
+            lv_obj_set_style_max_height(id(media_title_label), 292, 0);
           }
 
           lv_obj_set_width(id(media_progress_bar), screen_w);
