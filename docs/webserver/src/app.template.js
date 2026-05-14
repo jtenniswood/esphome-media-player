@@ -3,6 +3,14 @@
 
   var CSS = __MEDIA_PLAYER_CSS__;
 
+  var viewport = document.querySelector('meta[name="viewport"]');
+  if (!viewport) {
+    viewport = document.createElement("meta");
+    viewport.name = "viewport";
+    document.head.appendChild(viewport);
+  }
+  viewport.content = "width=device-width, initial-scale=1";
+
   var style = document.createElement("style");
   style.textContent = CSS;
   document.head.appendChild(style);
