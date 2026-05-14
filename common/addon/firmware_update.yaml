@@ -1,3 +1,17 @@
+substitutions:
+  firmware_version: "dev"
+
+esphome:
+  project:
+    name: jtenniswood.media-player
+    version: "${firmware_version}"
+  on_boot:
+    - priority: 200
+      then:
+        - text_sensor.template.publish:
+            id: firmware_version_sensor
+            state: "${firmware_version}"
+
 ota:
   - platform: http_request
     on_begin:
@@ -22,6 +36,15 @@ globals:
   - id: manual_check_only
     type: bool
     initial_value: 'false'
+
+text_sensor:
+  - platform: template
+    name: "Firmware: Version"
+    id: firmware_version_sensor
+    entity_category: diagnostic
+    icon: "mdi:tag"
+    update_interval: never
+    lambda: 'return {"${firmware_version}"};'
 
 update:
   - platform: http_request

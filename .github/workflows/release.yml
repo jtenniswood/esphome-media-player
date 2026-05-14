@@ -1,0 +1,204 @@
+name: Build Release
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Full version for a test build, for example v2.0.3-test.1
+        required: true
+        default: v0.0.0-test.1
+
+permissions:
+  contents: write
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  ESPHOME_VERSION: 2026.4.5
+
+jobs:
+  release-notes:
+    name: Update Release Notes
+    if: github.event_name == 'release'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Build detailed changelog
+        env:
+          VERSION: ${{ github.event.release.tag_name }}
+        run: python3 scripts/release_changelog.py "$VERSION" --output "$RUNNER_TEMP/release-notes.md"
+
+      - name: Update GitHub release notes
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          VERSION: ${{ github.event.release.tag_name }}
+        run: gh release edit "$VERSION" --notes-file "$RUNNER_TEMP/release-notes.md"
+
+  build-firmware:
+    name: Build ${{ matrix.asset_slug }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - asset_slug: media-player-jc8012p4a1
+            config: guition-esp32-p4-jc8012p4a1
+            chip: ESP32-P4
+          - asset_slug: media-player-jc1060p470
+            config: guition-esp32-p4-jc1060p470
+            chip: ESP32-P4
+          - asset_slug: media-player-jc4880p443
+            config: guition-esp32-p4-jc4880p443
+            chip: ESP32-P4
+          - asset_slug: media-player-p4-86-panel
+            config: esp32-p4-86-panel
+            chip: ESP32-P4
+          - asset_slug: media-player-4848s040
+            config: guition-esp32-s3-4848s040
+            chip: ESP32-S3
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Cache ESPHome build
+        uses: actions/cache@v5
+        with:
+          path: builds/.esphome
+          key: esphome-${{ matrix.asset_slug }}-${{ hashFiles('builds/*.yaml', 'common/**', 'components/**', 'devices/**') }}
+          restore-keys: |
+            esphome-${{ matrix.asset_slug }}-
+
+      - name: Download ESP32-C6 co-processor firmware
+        if: matrix.chip == 'ESP32-P4'
+        run: |
+          curl -sSL -o builds/network_adapter_esp32c6.bin \
+            "https://esphome.github.io/esp-hosted-firmware/v2.11.5/network_adapter_esp32c6.bin"
+          echo "3ccfbc4feb0be29c7f5dbe50b0c5a7f0862f0b0c30fb28e5f5a4e1c2891c53f4  builds/network_adapter_esp32c6.bin" | sha256sum --check
+
+      - name: Compile firmware
+        env:
+          VERSION: ${{ github.event.release.tag_name || inputs.version }}
+        run: |
+          python3 scripts/firmware_release.py inject \
+            --slug "${{ matrix.asset_slug }}" \
+            --version "$VERSION"
+
+          docker run --rm \
+            -v "${PWD}:/config" \
+            ghcr.io/esphome/esphome:${ESPHOME_VERSION} \
+            compile /config/builds/${{ matrix.config }}.factory.yaml
+
+      - name: Fix ESPHome cache permissions
+        if: always()
+        run: |
+          if [ -d builds/.esphome ]; then
+            sudo chown -R "$USER:$USER" builds/.esphome
+            chmod -R u+rwX builds/.esphome
+          fi
+
+      - name: Collect firmware files and generate manifest
+        env:
+          VERSION: ${{ github.event.release.tag_name || inputs.version }}
+          RELEASE_SUMMARY: ${{ github.event.release.body || '' }}
+        run: |
+          BUILD_DIR=$(dirname "$(find builds/.esphome/build -path '*/.pioenvs/*/firmware.factory.bin' -print -quit)")
+          mkdir -p output
+
+          if [ ! -f "${BUILD_DIR}/firmware.factory.bin" ]; then
+            echo "::error::Firmware compilation failed - factory binary not found"
+            exit 1
+          fi
+
+          OTA_IMAGE="${BUILD_DIR}/firmware.ota.bin"
+          if [ ! -f "$OTA_IMAGE" ]; then
+            OTA_IMAGE="${BUILD_DIR}/firmware.bin"
+          fi
+          if [ ! -f "$OTA_IMAGE" ]; then
+            echo "::error::Firmware compilation failed - OTA binary not found"
+            exit 1
+          fi
+
+          sudo cp "${BUILD_DIR}/firmware.factory.bin" "output/${{ matrix.asset_slug }}.factory.bin"
+          sudo cp "$OTA_IMAGE" "output/${{ matrix.asset_slug }}.ota.bin"
+          sudo chown "$USER:$USER" output/*
+
+          python3 scripts/firmware_release.py manifest \
+            --slug "${{ matrix.asset_slug }}" \
+            --chip "${{ matrix.chip }}" \
+            --version "$VERSION" \
+            --factory "output/${{ matrix.asset_slug }}.factory.bin" \
+            --ota "output/${{ matrix.asset_slug }}.ota.bin" \
+            --out "output/${{ matrix.asset_slug }}.manifest.json" \
+            --summary "$RELEASE_SUMMARY"
+
+          python3 scripts/firmware_release.py verify-files \
+            --slug "${{ matrix.asset_slug }}" \
+            --version "$VERSION" \
+            --manifest "output/${{ matrix.asset_slug }}.manifest.json" \
+            --factory "output/${{ matrix.asset_slug }}.factory.bin" \
+            --ota "output/${{ matrix.asset_slug }}.ota.bin"
+
+      - name: Upload firmware artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: firmware-${{ matrix.asset_slug }}
+          path: output/
+
+  publish:
+    name: Publish to Release
+    if: github.event_name == 'release'
+    needs: [release-notes, build-firmware]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout: scripts/firmware_release.py
+          sparse-checkout-cone-mode: false
+
+      - name: Set release metadata
+        env:
+          VERSION: ${{ github.event.release.tag_name }}
+        run: |
+          echo "VERSION=${VERSION}" >> "$GITHUB_ENV"
+          echo "DEVICE_SLUGS=$(python3 scripts/firmware_release.py list-slugs)" >> "$GITHUB_ENV"
+
+      - name: Download all firmware artifacts
+        uses: actions/download-artifact@v8
+        with:
+          pattern: firmware-*
+          merge-multiple: true
+          path: firmware
+
+      - name: Verify firmware before upload
+        run: >-
+          python3 scripts/firmware_release.py verify-directory
+          --version "$VERSION"
+          --dir firmware
+          --slugs $DEVICE_SLUGS
+
+      - name: Upload firmware to release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: gh release upload "$VERSION" firmware/* --clobber
+
+      - name: Verify uploaded release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          mkdir -p published
+          gh release download "$VERSION" \
+            --pattern "*.manifest.json" \
+            --pattern "*.factory.bin" \
+            --pattern "*.ota.bin" \
+            --dir published
+          python3 scripts/firmware_release.py verify-directory \
+            --version "$VERSION" \
+            --dir published \
+            --slugs $DEVICE_SLUGS

@@ -1,10 +1,13 @@
+substitutions:
+  firmware_version: "0.0.0"
+
 packages:
   core: !include guition-esp32-s3-4848s040.yaml
 
 esphome:
   project:
     name: jtenniswood.media-player
-    version: dev
+    version: "${firmware_version}"
 
 dashboard_import:
   package_import_url: github://jtenniswood/esphome-media-player/devices/guition-esp32-s3-4848s040/esphome.yaml@main

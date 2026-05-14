@@ -5,6 +5,10 @@
   "scripts": {
     "webserver:build": "python3 scripts/generate_webserver.py",
     "check:generated": "python3 scripts/generate_webserver.py --check",
+    "check:firmware-release": "python3 scripts/check_firmware_release.py",
+    "check:release-changelog": "python3 scripts/check_release_changelog.py",
+    "check:all": "npm run check:firmware-release && npm run check:release-changelog && npm run check:generated && npm run docs:build",
+    "changelog:release": "python3 scripts/release_changelog.py",
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs"
   },

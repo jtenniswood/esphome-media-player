@@ -1,0 +1,158 @@
+name: Deploy Docs
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "docs/**"
+      - "scripts/firmware_release.py"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/pages.yml"
+  workflow_run:
+    workflows: ["Build Release"]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  build-docs:
+    name: Build Docs
+    if: >-
+      github.event_name != 'workflow_run' ||
+      github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: "npm"
+
+      - run: npm ci
+      - run: npm run docs:build
+
+      - name: Upload docs artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: docs-dist
+          path: docs/.vitepress/dist
+
+  download-firmware:
+    name: Download Firmware
+    if: >-
+      github.event_name != 'workflow_run' ||
+      github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    outputs:
+      release_tag: ${{ steps.release-meta.outputs.release_tag }}
+      device_slugs: ${{ steps.release-meta.outputs.device_slugs }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout: scripts/firmware_release.py
+          sparse-checkout-cone-mode: false
+
+      - name: Set release metadata
+        id: release-meta
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          RELEASE_TAG=$(gh release view --json tagName -q .tagName)
+          DEVICE_SLUGS=$(python3 scripts/firmware_release.py list-slugs)
+          echo "RELEASE_TAG=${RELEASE_TAG}" >> "$GITHUB_ENV"
+          echo "DEVICE_SLUGS=${DEVICE_SLUGS}" >> "$GITHUB_ENV"
+          echo "release_tag=${RELEASE_TAG}" >> "$GITHUB_OUTPUT"
+          echo "device_slugs=${DEVICE_SLUGS}" >> "$GITHUB_OUTPUT"
+
+      - name: Download firmware from latest release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          mkdir -p release-assets
+          gh release download "$RELEASE_TAG" \
+            --pattern "*.manifest.json" \
+            --pattern "*.factory.bin" \
+            --pattern "*.ota.bin" \
+            --dir release-assets
+
+      - name: Prepare public firmware folders
+        run: >-
+          python3 scripts/firmware_release.py prepare-pages
+          --version "$RELEASE_TAG"
+          --release-dir release-assets
+          --out firmware
+          --slugs $DEVICE_SLUGS
+
+      - name: Verify firmware assets
+        run: >-
+          python3 scripts/firmware_release.py verify-directory
+          --version "$RELEASE_TAG"
+          --dir firmware
+          --slugs $DEVICE_SLUGS
+
+      - name: Upload firmware artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: firmware
+          path: firmware/
+
+  deploy:
+    name: Deploy to Pages
+    needs: [build-docs, download-firmware]
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout: scripts/firmware_release.py
+          sparse-checkout-cone-mode: false
+
+      - name: Download docs artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: docs-dist
+          path: dist
+
+      - name: Clear bundled firmware placeholders
+        run: rm -rf dist/firmware
+
+      - name: Download firmware artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: firmware
+          path: dist/firmware
+
+      - name: Upload pages artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: dist
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
+
+      - name: Verify public firmware
+        run: >-
+          python3 scripts/firmware_release.py verify-pages
+          --version "${{ needs.download-firmware.outputs.release_tag }}"
+          --base-url "${{ steps.deployment.outputs.page_url }}"
+          --slugs ${{ needs.download-firmware.outputs.device_slugs }}
+          --retries 10
+          --delay 15
