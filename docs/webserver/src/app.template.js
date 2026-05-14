@@ -25,6 +25,14 @@
   var WEB_ACTIVITY_HEARTBEAT_MS = 10000;
   var FIRMWARE_INSTALL_REFRESH_MS = 5000;
   var FIRMWARE_INSTALL_REFRESH_TIMEOUT_MS = 300000;
+  var FIRMWARE_PUBLIC_MANIFEST_BASE = "https://jtenniswood.github.io/esphome-media-player/firmware/";
+  var FIRMWARE_MANIFEST_SLUGS = {
+    "esp32-p4-86-panel": "p4-86-panel",
+    "guition-esp32-p4-jc1060p470": "jc1060p470",
+    "guition-esp32-p4-jc4880p443": "jc4880p443",
+    "guition-esp32-p4-jc8012p4a1": "jc8012p4a1",
+    "guition-esp32-s3-4848s040": "4848s040"
+  };
 
   var S = {
     media_player: "",
@@ -151,6 +159,7 @@
   var webActivityClosed = false;
   var firmwareInstallRefreshTimer = null;
   var firmwareInstallRefreshStarted = 0;
+  var lastPublicFirmwareProfile = "";
 
   function eid(domain, name) {
     return "/" + domain + "/" + encodeURIComponent(name);
@@ -235,6 +244,7 @@
     if (!value) return;
     if (isSpecificFirmwareVersion(S.installed_version) && !isSpecificFirmwareVersion(value)) return;
     S.installed_version = value;
+    S.update_available = firmwareUpdateAvailable();
   }
 
   function postQuiet(url) {
@@ -314,10 +324,7 @@
       setInstalledVersion(data.current_version || data.current || "");
       S.latest_version = data.latest_version || data.value || "";
       S.firmware_release_url = data.release_url || S.firmware_release_url || "";
-      S.update_available = !!(
-        (S.installed_version && S.latest_version && S.installed_version !== S.latest_version) ||
-        S.firmware_state === "UPDATE AVAILABLE"
-      );
+      S.update_available = firmwareUpdateAvailable();
       if (S.firmware_state) S.firmware_checking = false;
       return;
     }
@@ -341,7 +348,13 @@
       S[key] = String(v);
     }
 
-    if (key === "device_profile") startWebActivityHeartbeat();
+    if (key === "device_profile") {
+      startWebActivityHeartbeat();
+      if (S.device_profile !== lastPublicFirmwareProfile) {
+        lastPublicFirmwareProfile = S.device_profile;
+        refreshPublicFirmwareState().then(scheduleRender);
+      }
+    }
   }
 
   function fetchEntity(key) {
@@ -358,8 +371,9 @@
   }
 
   function refreshFirmwareState() {
-    return fetchEntity("firmware_update").then(function (data) {
-      if (!data) return;
+    return Promise.all([fetchEntity("firmware_update"), refreshPublicFirmwareState()]).then(function (results) {
+      var data = results[0];
+      if (!data && !results[1]) return;
       if (S.firmware_state !== "INSTALLING") stopFirmwareInstallRefresh();
       scheduleRender();
     });
@@ -679,18 +693,16 @@
     check.disabled = S.firmware_checking || S.firmware_state === "INSTALLING";
     check.onclick = function () {
       if (firmwareUpdateAvailable()) {
-        S.firmware_state = "INSTALLING";
-        renderAll();
-        startFirmwareInstallRefresh();
-        post(endpoint("firmware_update") + "/install");
+        installFirmwareUpdate();
         return;
       }
       S.firmware_checking = true;
       renderAll();
       post(endpoint("check_latest") + "/press");
+      refreshPublicFirmwareState();
       setTimeout(function () {
         S.firmware_checking = false;
-        fetchEntity("firmware_update").then(renderAll);
+        refreshFirmwareState().then(renderAll);
       }, 10000);
     };
     checkWrap.appendChild(status);
@@ -1184,8 +1196,99 @@
     return !!value && value !== "dev" && value !== "0.0.0";
   }
 
-  function firmwareUpdateAvailable() {
+  function firmwareVersionsSame(a, b) {
+    return String(a == null ? "" : a).trim().toLowerCase() ===
+      String(b == null ? "" : b).trim().toLowerCase();
+  }
+
+  function firmwareManifestSlug() {
+    var profile = String(S.device_profile || "").trim();
+    return FIRMWARE_MANIFEST_SLUGS[profile] || "";
+  }
+
+  function publicFirmwareManifestUrl() {
+    var manifestSlug = firmwareManifestSlug();
+    return manifestSlug ? FIRMWARE_PUBLIC_MANIFEST_BASE + encodeURIComponent(manifestSlug) + "/manifest.json" : "";
+  }
+
+  function firmwareInfoFromPublicManifest(data) {
+    if (!data || typeof data !== "object") return null;
+    var version = String(data.version || "").trim();
+    if (!isSpecificFirmwareVersion(version)) return null;
+    var builds = Array.isArray(data.builds) ? data.builds : [];
+    for (var i = 0; i < builds.length; i++) {
+      var ota = (builds[i] || {}).ota || {};
+      if (!ota.path) continue;
+      return {
+        latest_version: version,
+        release_url: String(ota.release_url || "").trim()
+      };
+    }
+    return null;
+  }
+
+  function setPublicFirmwareInfo(info) {
+    if (!info) return false;
+    var latest = String(info.latest_version || "").trim();
+    if (!isSpecificFirmwareVersion(latest)) return false;
+    S.latest_version = latest;
+    if (info.release_url) S.firmware_release_url = info.release_url;
+    S.update_available = firmwareUpdateAvailable();
+    return true;
+  }
+
+  function refreshPublicFirmwareState() {
+    var url = publicFirmwareManifestUrl();
+    if (!url) return Promise.resolve(false);
+    return safeGet(url).then(function (data) {
+      return setPublicFirmwareInfo(firmwareInfoFromPublicManifest(data));
+    });
+  }
+
+  function installedFirmwareMatchesPublicRelease() {
+    return isSpecificFirmwareVersion(S.installed_version) &&
+      isSpecificFirmwareVersion(S.latest_version) &&
+      firmwareVersionsSame(S.installed_version, S.latest_version);
+  }
+
+  function publicFirmwareUpdateAvailable() {
+    return isSpecificFirmwareVersion(S.latest_version) && !installedFirmwareMatchesPublicRelease();
+  }
+
+  function deviceFirmwareUpdateAvailable() {
     return S.firmware_state === "UPDATE AVAILABLE" && isSpecificFirmwareVersion(S.latest_version);
+  }
+
+  function firmwareUpdateAvailable() {
+    return deviceFirmwareUpdateAvailable() || publicFirmwareUpdateAvailable();
+  }
+
+  function installFirmwareUpdate() {
+    if (deviceFirmwareUpdateAvailable()) {
+      S.firmware_state = "INSTALLING";
+      renderAll();
+      startFirmwareInstallRefresh();
+      post(endpoint("firmware_update") + "/install");
+      return;
+    }
+
+    S.firmware_checking = true;
+    renderAll();
+    post(endpoint("check_latest") + "/press");
+    refreshPublicFirmwareState();
+    setTimeout(function () {
+      S.firmware_checking = false;
+      fetchEntity("firmware_update").then(function () {
+        if (deviceFirmwareUpdateAvailable()) {
+          S.firmware_state = "INSTALLING";
+          renderAll();
+          startFirmwareInstallRefresh();
+          post(endpoint("firmware_update") + "/install");
+          return;
+        }
+        renderAll();
+      });
+    }, 10000);
   }
 
   function firmwareInlineStatusText() {
@@ -1193,7 +1296,7 @@
     if (S.firmware_checking) return "Checking...";
     if (firmwareUpdateAvailable()) return "";
     if (S.firmware_state === "NO UPDATE" || S.firmware_state === "UP_TO_DATE") return "Up to date";
-    if (S.latest_version && S.installed_version && S.latest_version === S.installed_version) return "Up to date";
+    if (installedFirmwareMatchesPublicRelease()) return "Up to date";
     return "";
   }
 
@@ -1315,6 +1418,8 @@
   buildUI();
   renderAll();
   fetchAllState().then(function () {
+    return refreshPublicFirmwareState();
+  }).then(function () {
     renderAll();
     startWebActivityHeartbeat();
   });
