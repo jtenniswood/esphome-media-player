@@ -480,6 +480,9 @@ script:
           };
 
           apply_adjustment(id(album_art_background_widget), true);
+          apply_adjustment(id(media_title_label), true);
+          apply_adjustment(id(media_artist_label), true);
+          apply_adjustment(id(media_time_label), true);
           apply_adjustment(id(media_play_pause_button));
           apply_adjustment(id(media_play_icon));
           apply_adjustment(id(media_pause_icon));
@@ -541,7 +544,7 @@ script:
           if (landscape) {
             lv_obj_set_pos(id(accent_overlay), 585, 0);
             lv_obj_set_size(id(accent_overlay), 439, 600);
-            lv_obj_set_pos(id(track_info_text), 615, 34);
+            lv_obj_set_pos(id(track_info_text), 615, 20);
             lv_obj_set_size(id(track_info_text), 377, 430);
             lv_obj_set_style_max_height(id(media_title_label), 340, 0);
           } else {

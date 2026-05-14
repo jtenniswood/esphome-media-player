@@ -55,7 +55,7 @@ substitutions:
   layout_accent_width: "439"
   layout_accent_height: "600"
   layout_track_x: "615"
-  layout_track_y: "34"
+  layout_track_y: "20"
   layout_track_width: "377"
   layout_track_height: "430"
   layout_title_max_height: "340px"
