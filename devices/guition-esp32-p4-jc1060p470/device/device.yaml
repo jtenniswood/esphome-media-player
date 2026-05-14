@@ -550,8 +550,8 @@ script:
           } else {
             lv_obj_set_pos(id(accent_overlay), 0, 600);
             lv_obj_set_size(id(accent_overlay), 600, 424);
-            lv_obj_set_pos(id(track_info_text), 40, 620);
-            lv_obj_set_size(id(track_info_text), 520, 300);
+            lv_obj_set_pos(id(track_info_text), 40, 608);
+            lv_obj_set_size(id(track_info_text), 520, 312);
             lv_obj_set_style_max_height(id(media_title_label), 170, 0);
           }
 
