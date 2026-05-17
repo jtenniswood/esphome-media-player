@@ -1,18 +1,9 @@
 name: Deploy Docs
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - "docs/**"
-      - "scripts/firmware_release.py"
-      - "package.json"
-      - "package-lock.json"
-      - ".github/workflows/pages.yml"
   workflow_run:
     workflows: ["Build Release"]
     types: [completed]
-  workflow_dispatch:
 
 permissions:
   contents: read
@@ -30,8 +21,8 @@ jobs:
   build-docs:
     name: Build Docs
     if: >-
-      github.event_name != 'workflow_run' ||
-      github.event.workflow_run.conclusion == 'success'
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'release'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -53,8 +44,8 @@ jobs:
   download-firmware:
     name: Download Firmware
     if: >-
-      github.event_name != 'workflow_run' ||
-      github.event.workflow_run.conclusion == 'success'
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'release'
     runs-on: ubuntu-latest
     outputs:
       release_tag: ${{ steps.release-meta.outputs.release_tag }}
