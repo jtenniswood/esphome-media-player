@@ -10,9 +10,7 @@ esphome:
   friendly_name: ${friendly_name}
 
 # Wifi Setup
-wifi:
-  ssid: !secret wifi_ssid
-  password: !secret wifi_password
+improv_serial:
 
 # Packages
 packages:
