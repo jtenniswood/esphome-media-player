@@ -828,16 +828,3 @@ script:
                 id(apply_day_night_backlight).execute();
               }));
           ESP_LOGI("backlight", "Subscribed to day/night sensor '%s'", entity.c_str());
-
-
-# -----------------------------------------------------------------------------
-# CLOCK UPDATE INTERVAL
-# -----------------------------------------------------------------------------
-interval:
-  - interval: 60s
-    then:
-      - script.execute: screen_schedule_check
-
-  - interval: 30s
-    then:
-      - script.execute: refresh_clock_label

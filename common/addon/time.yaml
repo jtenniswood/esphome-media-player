@@ -3,6 +3,12 @@ time:
   - platform: homeassistant
     id: ha_time
     timezone: UTC0
+    on_time:
+      - seconds: 0
+        minutes: '*'
+        then:
+          - script.execute: screen_schedule_check
+          - script.execute: refresh_clock_label
     on_time_sync:
       - lambda: |-
           // After reboot, HA may push media_position before time syncs.
