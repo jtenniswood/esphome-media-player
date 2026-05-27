@@ -21,6 +21,10 @@
 esp32:
   board: esp32-s3-devkitc-1
   flash_size: 16MB
+  # ESPHome 2026.5 tightened the ESP32 idle/watchdog timing. This display can
+  # briefly block while LVGL and artwork buffers are busy, so keep watchdog
+  # protection enabled but allow the same 15s window ESPHome uses for OTA.
+  watchdog_timeout: 15s
   framework:
     type: esp-idf
 
