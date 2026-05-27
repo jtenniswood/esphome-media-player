@@ -57,6 +57,7 @@ text:
                 level: INFO
                 tag: media_select
                 format: "Rebooting to apply new media player subscription"
+            - lambda: 'global_preferences->sync();'
             - delay: 200ms
             - lambda: 'App.safe_reboot();'
 
@@ -101,6 +102,7 @@ text:
                 level: INFO
                 tag: media_select
                 format: "Rebooting to apply new linked media player subscription"
+            - lambda: 'global_preferences->sync();'
             - delay: 200ms
             - lambda: 'App.safe_reboot();'
 
