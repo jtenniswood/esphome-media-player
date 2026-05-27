@@ -15,7 +15,7 @@ permissions:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-  ESPHOME_VERSION: 2026.4.5
+  ESPHOME_VERSION: 2026.5.1
 
 jobs:
   release-notes:
