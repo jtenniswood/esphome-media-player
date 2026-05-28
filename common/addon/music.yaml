@@ -95,13 +95,15 @@ script:
                    id(is_tv_mode) ? "tv" : "music", iw, ih);
           auto *w = id(album_art_background_widget);
           constexpr int display_size = ${artwork_display_size};
-          if (!id(is_tv_mode) && iw == ih && iw > 0 && iw < display_size) {
-            int zoom = (256 * display_size + iw - 1) / iw;
+          int dim = (iw < ih) ? iw : ih;
+          if (!id(is_tv_mode) && dim > 0 && dim < display_size) {
+            int zoom = (256 * display_size + dim - 1) / dim;
             lv_img_set_zoom(w, zoom);
             lv_img_set_offset_x(w, 0);
             lv_img_set_offset_y(w, 0);
             lv_obj_set_size(w, iw, ih);
-            lv_obj_set_pos(w, (display_size - iw) / 2, (display_size - ih) / 2);
+            int offset = (display_size - dim) / 2;
+            lv_obj_set_pos(w, offset, offset);
           } else {
             lv_img_set_zoom(w, 256);
             lv_img_set_offset_x(w, 0);
