@@ -125,7 +125,7 @@ interval:
                     return std::string(buf);
       - if:
           condition:
-            lambda: 'return !id(web_settings_active) && ${playback_live_position_enabled};'
+            lambda: 'return !id(web_settings_active);'
           then:
             - lambda: |-
                 bool should_show = id(show_progress_bar).state && !id(is_tv_idle);
@@ -148,7 +148,11 @@ interval:
                     id(last_media_progress_percent) = -1;
                   }
                 }
-
+      - if:
+          condition:
+            lambda: 'return !id(web_settings_active) && ${playback_live_position_enabled} && id(show_progress_bar).state && !id(is_tv_idle);'
+          then:
+            - lambda: |-
                 float pos = id(is_tv_mode) ? id(last_tv_media_position) : id(last_media_position);
                 float dur;
                 if (id(is_tv_mode)) {
