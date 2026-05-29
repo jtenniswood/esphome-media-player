@@ -151,6 +151,7 @@ script:
           id(title_received_once) = false;
           id(last_media_position) = 0.0f;
           id(last_media_progress_percent) = -1;
+          id(last_progress_draw_ms) = 0;
           id(ha_position_epoch) = 0;
           id(last_position_timestamp) = 0;
 
@@ -251,6 +252,7 @@ script:
           id(tv_title_received_once) = false;
           id(last_tv_media_position) = 0.0f;
           id(last_tv_progress_percent) = -1;
+          id(last_progress_draw_ms) = 0;
           id(tv_ha_position_epoch) = 0;
           id(last_tv_position_timestamp) = 0;
 

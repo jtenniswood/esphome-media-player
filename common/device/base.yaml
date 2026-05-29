@@ -14,6 +14,7 @@ substitutions:
   playback_refresh_interval: "1s"
   playback_live_time_enabled: "true"
   playback_live_position_enabled: "true"
+  playback_live_position_min_interval_ms: "0"
   rgb565_read_expr: "data[pos] | (data[pos + 1] << 8)"
   backlight_min_visible_level: "0.0f"
   screen_schedule_internal: "true"

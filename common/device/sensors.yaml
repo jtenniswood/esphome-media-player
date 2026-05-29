@@ -20,6 +20,9 @@ globals:
   - id: last_media_progress_percent
     type: int
     initial_value: '-1'
+  - id: last_progress_draw_ms
+    type: uint32_t
+    initial_value: '0'
   - id: last_position_timestamp
     type: int
     initial_value: '0'
@@ -137,11 +140,13 @@ interval:
                   }
                   id(last_media_progress_percent) = -1;
                   id(last_tv_progress_percent) = -1;
+                  id(last_progress_draw_ms) = 0;
                   return;
                 }
 
                 if (is_hidden) {
                   lv_obj_clear_flag(id(media_progress_bar), LV_OBJ_FLAG_HIDDEN);
+                  id(last_progress_draw_ms) = 0;
                   if (id(is_tv_mode)) {
                     id(last_tv_progress_percent) = -1;
                   } else {
@@ -168,6 +173,13 @@ interval:
                 if (percent < 0) percent = 0;
                 if (percent > 100) percent = 100;
 
+                const uint32_t min_interval_ms = ${playback_live_position_min_interval_ms};
+                const uint32_t now = millis();
+                if (min_interval_ms > 0 && id(last_progress_draw_ms) != 0 &&
+                    (uint32_t)(now - id(last_progress_draw_ms)) < min_interval_ms) {
+                  return;
+                }
+
                 if (id(is_tv_mode)) {
                   if (percent == id(last_tv_progress_percent)) return;
                   id(last_tv_progress_percent) = percent;
@@ -176,6 +188,7 @@ interval:
                   id(last_media_progress_percent) = percent;
                 }
 
+                id(last_progress_draw_ms) = now;
                 lv_bar_set_value(id(media_progress_bar), percent, LV_ANIM_OFF);
 
 script:
@@ -306,6 +319,7 @@ text_sensor:
                   - lambda: |-
                       id(last_media_position) = 0.0f;
                       id(last_media_progress_percent) = -1;
+                      id(last_progress_draw_ms) = 0;
                       id(ha_position_epoch) = 0;
                       auto t = id(ha_time).now();
                       if (t.is_valid()) {

@@ -52,6 +52,7 @@ text_sensor:
                   - lambda: |-
                       id(last_tv_media_position) = 0.0f;
                       id(last_tv_progress_percent) = -1;
+                      id(last_progress_draw_ms) = 0;
                       id(tv_ha_position_epoch) = 0;
                       auto t = id(ha_time).now();
                       if (t.is_valid()) {
@@ -183,6 +184,7 @@ text_sensor:
                       id(last_tv_artwork_url) = "";
                       id(last_tv_media_position) = 0.0f;
                       id(last_tv_progress_percent) = -1;
+                      id(last_progress_draw_ms) = 0;
                       id(tv_ha_position_epoch) = 0;
                       id(last_tv_position_timestamp) = 0;
                       lv_obj_set_style_bg_color(id(accent_overlay), lv_color_make(0, 0, 0), 0);
