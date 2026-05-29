@@ -102,8 +102,7 @@ script:
             lv_img_set_offset_x(w, 0);
             lv_img_set_offset_y(w, 0);
             lv_obj_set_size(w, iw, ih);
-            int offset = (display_size - dim) / 2;
-            lv_obj_set_pos(w, offset, offset);
+            lv_obj_set_pos(w, (display_size - iw) / 2, (display_size - ih) / 2);
           } else {
             lv_img_set_zoom(w, 256);
             lv_img_set_offset_x(w, 0);
@@ -111,6 +110,7 @@ script:
             lv_obj_set_size(w, iw, ih);
             lv_obj_set_pos(w, (display_size - iw) / 2, (display_size - ih) / 2);
           }
+          lv_obj_align(id(media_progress_bar), LV_ALIGN_BOTTOM_MID, 0, 0);
       - if:
           condition:
             lambda: 'return id(is_tv_mode);'
