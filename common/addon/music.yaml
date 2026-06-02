@@ -15,6 +15,9 @@ globals:
   - id: artwork_download_stagger_ms
     type: int
     initial_value: '-1'
+  - id: artwork_retry_stagger_ms
+    type: int
+    initial_value: '-1'
 
 external_components:
   - source: github://jtenniswood/esphome-media-player@main
@@ -71,20 +74,29 @@ script:
             lambda: 'return id(artwork_download_stagger_ms) < 0;'
           then:
             - lambda: |-
-                const uint32_t window_ms = ${artwork_download_spread_ms};
-                uint32_t stagger_ms = 0;
-                if (window_ms > 0) {
-                  uint8_t mac[6] = {0, 0, 0, 0, 0, 0};
-                  esphome::get_mac_address_raw(mac);
-                  uint32_t hash = 2166136261UL;
-                  for (uint8_t byte : mac) {
-                    hash ^= byte;
-                    hash *= 16777619UL;
-                  }
-                  stagger_ms = hash % window_ms;
+                const uint32_t download_window_ms = ${artwork_download_spread_ms};
+                const uint32_t retry_window_ms = ${artwork_retry_spread_ms};
+                uint32_t download_stagger_ms = 0;
+                uint32_t retry_stagger_ms = 0;
+                uint8_t mac[6] = {0, 0, 0, 0, 0, 0};
+                esphome::get_mac_address_raw(mac);
+                uint32_t hash = 2166136261UL;
+                for (uint8_t byte : mac) {
+                  hash ^= byte;
+                  hash *= 16777619UL;
                 }
-                id(artwork_download_stagger_ms) = static_cast<int>(stagger_ms);
-                ESP_LOGD("artwork", "Artwork download stagger: %u ms", static_cast<unsigned>(stagger_ms));
+                if (download_window_ms > 0) {
+                  download_stagger_ms = hash % download_window_ms;
+                }
+                hash ^= 0x9e3779b9UL;
+                hash *= 16777619UL;
+                if (retry_window_ms > 0) {
+                  retry_stagger_ms = hash % retry_window_ms;
+                }
+                id(artwork_download_stagger_ms) = static_cast<int>(download_stagger_ms);
+                id(artwork_retry_stagger_ms) = static_cast<int>(retry_stagger_ms);
+                ESP_LOGD("artwork", "Artwork stagger: download=%u ms retry=%u ms",
+                         static_cast<unsigned>(download_stagger_ms), static_cast<unsigned>(retry_stagger_ms));
 
   - id: apply_downloaded_artwork
     mode: queued
@@ -160,7 +172,7 @@ script:
                 else if (attempt == 3) backoff_ms = 8000;
                 else if (attempt == 4) backoff_ms = 15000;
                 else if (attempt >= 5) backoff_ms = 30000;
-                uint32_t device_spread_ms = static_cast<uint32_t>(id(artwork_download_stagger_ms));
+                uint32_t device_spread_ms = static_cast<uint32_t>(id(artwork_retry_stagger_ms));
                 return static_cast<uint32_t>(backoff_ms + (device_spread_ms * attempt));
             - lambda: |-
                 auto *img = id(is_tv_mode) ? id(tv_art_background) : id(album_art_background);
