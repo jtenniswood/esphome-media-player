@@ -155,24 +155,24 @@ packages:
 
 ## ESP32-P4 JC4880P443
 
-The 480x800 portrait display defaults to portrait orientation and supports all four rotations. Use `"180"` if you want the portrait layout flipped upside down. For landscape mounts, use the dedicated `packages-90.yaml` layout preset. It still uses ESPHome 2026.4's native LVGL rotation; the preset just changes the layout values to 800x480 so the portrait UI is not clipped.
+The 4.3-inch display defaults to the landscape layout package, using an 800x480 canvas with artwork on the left and track details on the right. Use `"270"` if you want the same landscape layout flipped upside down. For portrait mounts, use `packages.yaml` instead of `packages-90.yaml`.
 
 | `display_rotation` |
 | ------------------- |
-| `"0"` (default)     |
-| `"90"`              |
+| `"90"` (default)    |
 | `"180"`             |
 | `"270"`             |
+| `"0"`               |
 
 The device also exposes **Screen Rotation** in Home Assistant as a dropdown with `0`, `90`, `180`, and `270` options.
 
-### Example: 180-degree rotation
+### Example: landscape package
 
 ```yaml
 substitutions:
   name: "music-dashboard-43inch"
   friendly_name: "Music Dashboard 4.3inch"
-  display_rotation: "180"
+  display_rotation: "90"
 
 wifi:
   ssid: !secret wifi_ssid
@@ -181,7 +181,7 @@ wifi:
 packages:
   music_dashboard:
     url: https://github.com/jtenniswood/esphome-media-player
-    files: [devices/guition-esp32-p4-jc4880p443/packages.yaml]
+    files: [devices/guition-esp32-p4-jc4880p443/packages-90.yaml]
     ref: main
     refresh: 1s
 ```

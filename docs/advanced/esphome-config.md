@@ -89,7 +89,7 @@ wifi:
 packages:
   music_dashboard:
     url: https://github.com/jtenniswood/esphome-media-player
-    files: [devices/guition-esp32-p4-jc4880p443/packages.yaml]
+    files: [devices/guition-esp32-p4-jc4880p443/packages-90.yaml]
     ref: main
     refresh: 1s
 ```
@@ -129,4 +129,4 @@ These substitutions can be added to the `substitutions:` block in your configura
 | `ha_verify_ssl`   | `"true"`                | Verify SSL certificate — set to `"false"` for self-signed or local CA certs |
 | `allow_insecure_local_artwork` | `"false"` | Allow local/private HTTPS artwork URLs with self-signed certificates, such as Wiim artwork |
 | `artwork_download_spread_ms` | `"2000"` | Spread artwork downloads and retries across this many milliseconds per device; set to `"0"` to disable |
-| `display_rotation` | `"0"` (S3 / P4 86 Panel / JC4880P443) / `"90"` (10.1" P4) | Display rotation in degrees. See [Display Rotation](/advanced/display-rotation).  |
+| `display_rotation` | `"0"` (S3 / P4 86 Panel) / `"90"` (10.1" P4 / JC4880P443) | Display rotation in degrees. See [Display Rotation](/advanced/display-rotation).  |
