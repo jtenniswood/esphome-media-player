@@ -149,7 +149,7 @@ psram:
 # The display backlight is controlled via PWM (pulse width modulation).
 # This allows dimming the screen brightness from 0-100%.
 # - pin: GPIO38 controls the backlight
-# - frequency: 150Hz PWM frequency (fast enough to avoid flicker)
+# - frequency: 20kHz PWM frequency (above visible flicker range)
 # - min_power: Minimum brightness level (1% - prevents fully dark)
 # - zero_means_zero: When set to 0, backlight turns completely off
 #
@@ -159,7 +159,7 @@ output:
   - platform: ledc
     id: backlight_output
     pin: GPIO38
-    frequency: 150Hz
+    frequency: 20kHz
     min_power: 0.01
     zero_means_zero: true
 
@@ -746,10 +746,10 @@ display:
     model: GUITION-4848S040
     id: my_display
     color_order: RGB
-    # 6 MHz pixel clock gives the bounce buffer more headroom during LVGL
-    # full-screen flushes (e.g. new artwork). 8 MHz still works but leaves
-    # less margin and produces brief tearing marks on heavy redraws.
-    pclk_frequency: 6MHz
+    # 12 MHz is the panel vendor default and keeps the RGB refresh high enough
+    # to avoid visible shimmer. Lower clocks give more DMA margin, but can make
+    # the display look like it is pulsing, especially on static screens.
+    pclk_frequency: 12MHz
     update_interval: never
     auto_clear_enabled: False
     transform:
