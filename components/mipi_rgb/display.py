@@ -94,6 +94,11 @@ for module_info in pkgutil.iter_modules(models.__path__):
 MODELS = DriverChip.get_models()
 
 
+def model_dimensions(config, model):
+    dimensions = model.get_dimensions(config)
+    return dimensions[0], dimensions[1]
+
+
 def data_pin_validate(value):
     """
     It is safe to use strapping pins as RGB output data bits, as they are outputs only,
@@ -256,7 +261,7 @@ FINAL_VALIDATE_SCHEMA = _final_validate
 
 async def to_code(config):
     model = MODELS[config[CONF_MODEL].upper()]
-    width, height, _offset_width, _offset_height = model.get_dimensions(config)
+    width, height = model_dimensions(config, model)
     var = cg.new_Pvariable(config[CONF_ID], width, height)
     cg.add(var.set_model(model.name))
     if enable_pin := config.get(CONF_ENABLE_PIN):
