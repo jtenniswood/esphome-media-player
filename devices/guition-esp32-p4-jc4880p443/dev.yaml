@@ -14,5 +14,5 @@ packages:
 external_components:
   - source:
       type: local
-      path: ../components
-    components: [artwork_image]
+      path: ../../components
+    components: [artwork_image, mipi_rgb]
