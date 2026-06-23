@@ -19,7 +19,7 @@ void GSL3680::setup() {
 
     auto err = this->init();
     if (err != esphome::i2c::ERROR_OK) {
-        this->mark_failed("I2C init error");
+        this->mark_failed(LOG_STR("I2C init error"));
         return;
     }
 
