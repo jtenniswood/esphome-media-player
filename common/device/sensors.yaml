@@ -302,12 +302,8 @@ text_sensor:
           condition:
             lambda: 'return !id(web_settings_active) && !id(is_tv_mode) && !x.empty();'
           then:
-            - if:
-                condition:
-                  lambda: 'return id(track_info_duration).state > 0 || !id(auto_show_track_info).state;'
-                then:
-                  - script.execute: show_track_view
-                  - script.stop: start_hide_track_info_timer
+            - script.execute: show_track_view
+            - script.stop: start_hide_track_info_timer
             - lvgl.widget.hide: artwork_error_label
             - lvgl.label.update:
                 id: media_title_label
@@ -575,7 +571,7 @@ sensor:
 # USER-CONFIGURABLE SETTINGS (exposed to Home Assistant)
 # -----------------------------------------------------------------------------
 # How long track info stays visible after artwork has loaded (or playback
-# starts) before auto-hiding. 0 = never show on new track, no auto-hide timer.
+# starts) before auto-hiding. 0 = always show on new track, no auto-hide timer.
 # Tap to show again after auto-hide; then hides only on tap or new track.
 # Auto-show controls whether square displays reveal the track overlay when
 # new playback information arrives; tapping still toggles it manually.

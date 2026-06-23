@@ -29,6 +29,7 @@
 
   var DEFAULT_SPEAKER_PANEL_TIMEOUT = 10;
   var SPEAKER_PANEL_TIMEOUT_OPTIONS = [5, 10, 20, 30, 60];
+  var TRACK_INFO_DURATION_OPTIONS = [0, 3, 5, 10, 15, 20, 30, 60];
   var S3_DEVICE_PROFILE = "guition-esp32-s3-4848s040";
   var WEB_ACTIVITY_HEARTBEAT_MS = 10000;
   var FIRMWARE_INSTALL_REFRESH_MS = 5000;
@@ -540,7 +541,7 @@
     body.appendChild(toggleField("Show Progress Bar", "show_progress_bar"));
     if (supportsTrackInfoDuration()) {
       body.appendChild(toggleField("Auto-Show Track Info", "auto_show_track_info"));
-      body.appendChild(numberField("Track Info Duration", "track_info_duration"));
+      body.appendChild(durationSelectField("Track Info Duration", "track_info_duration", TRACK_INFO_DURATION_OPTIONS, formatTrackInfoDuration));
     }
     return card("Playback", body, true);
   }
@@ -969,6 +970,11 @@
     if (n === 60) return "1 minute";
     if (n < 3600) return Math.round(n / 60) + " minutes";
     return "1 hour";
+  }
+
+  function formatTrackInfoDuration(value) {
+    var n = Number(value);
+    return n === 0 ? "Always" : formatDurationSeconds(n);
   }
 
   function rangeField(label, key) {

@@ -30,7 +30,7 @@ Some configuration entities may also appear on the Home Assistant device page, d
 | **Track Clock** | On shows time remaining; off shows the track length. Tap the time label on the device to toggle this at any time. |
 | **Show Progress Bar** | Shows or hides the playback progress bar. |
 | **Auto-Show Track Info** | Shows track title and artist automatically when new playback information arrives. Turn this off to keep square screens focused on artwork and the progress bar; tap the screen to show or hide the info manually. Shown on the ESP32-S3 4848S040 and ESP32-P4 86 Panel. |
-| **Track Info Duration** | How long track info stays visible after artwork loads or playback starts. `0` means it does not auto-show on a new track. Shown on the ESP32-S3 4848S040 and ESP32-P4 86 Panel. |
+| **Track Info Duration** | How long track info stays visible after artwork loads or playback starts. Choose **Always** to keep track info visible and never auto-hide it. Options: Always, 3 seconds, 5 seconds, 10 seconds, 15 seconds, 20 seconds, 30 seconds, or 1 minute. Shown on the ESP32-S3 4848S040 and ESP32-P4 86 Panel. |
 
 ## Volume
 

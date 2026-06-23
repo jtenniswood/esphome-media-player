@@ -35,12 +35,8 @@ text_sensor:
           condition:
             lambda: 'return !id(web_settings_active) && id(is_tv_mode);'
           then:
-            - if:
-                condition:
-                  lambda: 'return id(track_info_duration).state > 0 || !id(auto_show_track_info).state;'
-                then:
-                  - script.execute: show_track_view
-                  - script.stop: start_hide_track_info_timer
+            - script.execute: show_track_view
+            - script.stop: start_hide_track_info_timer
             - lvgl.widget.hide: artwork_error_label
             - lvgl.label.update:
                 id: media_title_label
