@@ -126,7 +126,7 @@ api:
 # -----------------------------------------------------------------------------
 # SCREEN ROTATION SELECT
 # -----------------------------------------------------------------------------
-# Exposes ESPHome 2026.4 native LVGL display rotation to Home Assistant.
+# Exposes native ESPHome LVGL display rotation to Home Assistant.
 # LVGL handles the screen transform and touch input rotation together.
 # -----------------------------------------------------------------------------
 select:

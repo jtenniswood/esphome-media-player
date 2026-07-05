@@ -9,7 +9,7 @@ Install the media player firmware via the ESPHome dashboard instead of the web i
 
 ## Prerequisites
 
-- [ESPHome](https://esphome.io/) 2026.4 or newer running (as a Home Assistant add-on or standalone)
+- [ESPHome](https://esphome.io/) 2026.6.4 or newer running (as a Home Assistant add-on or standalone)
 - Your device connected via USB for the first flash (OTA updates work after that)
 
 ## Create a configuration

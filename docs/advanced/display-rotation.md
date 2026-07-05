@@ -8,7 +8,7 @@ description: Rotate supported ESPHome Media Player touchscreen displays and touc
 Supported devices can rotate the display for different mounting orientations (for example to change which side the power cable exits from). Set `display_rotation` to rotate both the screen and touch input.
 
 ::: warning
-ESPHome 2026.4 and newer handle rotation through LVGL (`lvgl.rotation`), including touch input. Older examples that set `touch_swap_xy`, `touch_mirror_x`, or `touch_mirror_y` are no longer needed.
+Current ESPHome releases handle rotation through LVGL (`lvgl.rotation`), including touch input. Older examples that set `touch_swap_xy`, `touch_mirror_x`, or `touch_mirror_y` are no longer needed.
 :::
 
 ## ESP32-S3 4848S040
