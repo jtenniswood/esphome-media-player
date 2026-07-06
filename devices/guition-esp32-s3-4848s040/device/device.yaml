@@ -27,6 +27,10 @@ esp32:
   watchdog_timeout: 15s
   framework:
     type: esp-idf
+    sdkconfig_options:
+      # The S3 RGB panel scans from PSRAM while LVGL and artwork decoding also
+      # use PSRAM. Recover the LCD DMA at VSYNC if that stream stalls.
+      CONFIG_LCD_RGB_RESTART_IN_VSYNC: "y"
 
 
 # -----------------------------------------------------------------------------
@@ -746,9 +750,9 @@ display:
     model: GUITION-4848S040
     id: my_display
     color_order: RGB
-    # 16 MHz puts the panel refresh near 60 Hz with these timings, which avoids
-    # the subtle low-refresh shimmer visible at 6-12 MHz on some panels.
-    pclk_frequency: 16MHz
+    # 12 MHz is the Guition model default and leaves more DMA margin during
+    # touch-triggered LVGL redraws on ESPHome 2026.6.
+    pclk_frequency: 12MHz
     update_interval: never
     auto_clear_enabled: False
     transform:
