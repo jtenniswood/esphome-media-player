@@ -88,7 +88,6 @@ export default {
       {
         text: 'Support',
         items: [
-          { text: 'Roadmap', link: '/roadmap' },
           { text: 'Troubleshooting', link: '/advanced/troubleshooting' },
           { text: 'Raising an Issue', link: '/advanced/raising-an-issue' },
         ],
