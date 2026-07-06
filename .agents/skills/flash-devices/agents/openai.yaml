@@ -1,0 +1,4 @@
+interface:
+  display_name: "Flash Devices"
+  short_description: "Flash ESPHome firmware to test devices"
+  default_prompt: "Use $flash-devices to flash the S3 test device over IP, or over USB when requested."
