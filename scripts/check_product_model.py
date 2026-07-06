@@ -51,6 +51,34 @@ def firmware_yaml_paths() -> list[Path]:
     )
 
 
+def check_dev_config(device_asset_slug: str, dev_config: dict[str, Any]) -> None:
+    if not isinstance(dev_config, dict):
+        fail(f"{device_asset_slug} dev config must be an object in product/devices.json")
+    for key in ("name", "friendly_name"):
+        if not isinstance(dev_config.get(key), str) or not dev_config[key].strip():
+            fail(f"{device_asset_slug} is missing dev.{key} in product/devices.json")
+
+    display_rotation = dev_config.get("display_rotation")
+    if display_rotation is not None:
+        if not isinstance(display_rotation, str) or display_rotation not in {"0", "90", "180", "270"}:
+            fail(f"{device_asset_slug} dev.display_rotation must be one of 0, 90, 180, or 270")
+        if not isinstance(dev_config.get("rotation_comment"), str) or not dev_config["rotation_comment"].strip():
+            fail(f"{device_asset_slug} dev.rotation_comment must describe the local dev rotation")
+    elif "rotation_comment" in dev_config:
+        fail(f"{device_asset_slug} dev.rotation_comment requires dev.display_rotation")
+
+    local_components = dev_config.get("local_components")
+    if not isinstance(local_components, list) or not local_components:
+        fail(f"{device_asset_slug} dev.local_components must be a non-empty list")
+    assert_unique((str(component) for component in local_components), f"{device_asset_slug} local dev components")
+    for component in local_components:
+        if not isinstance(component, str) or not component.strip():
+            fail(f"{device_asset_slug} dev.local_components entries must be non-empty strings")
+        component_dir = ROOT / "components" / component
+        if not component_dir.is_dir():
+            fail(f"{device_asset_slug} dev.local_components references missing component {component!r}")
+
+
 def check_devices() -> None:
     devices = load_devices()
     assert_unique((device.profile for device in devices), "device profiles")
@@ -111,6 +139,8 @@ def check_devices() -> None:
             not isinstance(esphome_config["rotation_example"], str) or not esphome_config["rotation_example"].strip()
         ):
             fail(f"{device.asset_slug} esphome.rotation_example must be a non-empty string")
+
+        check_dev_config(device.asset_slug, device.dev)
 
         base_package = ROOT / "devices" / device.config / "packages.yaml"
         package_text = read(base_package)

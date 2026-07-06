@@ -7,6 +7,17 @@
       "config": "guition-esp32-p4-jc8012p4a1",
       "chip": "ESP32-P4",
       "package_path": "devices/guition-esp32-p4-jc8012p4a1/packages.yaml",
+      "dev": {
+        "name": "music-dashboard-dev",
+        "friendly_name": "Music Dashboard Dev",
+        "rotation_comment": "270\u00b0 landscape (flipped); see docs/advanced/display-rotation.md",
+        "display_rotation": "270",
+        "local_components": [
+          "artwork_image",
+          "gsl3680",
+          "mipi_rgb"
+        ]
+      },
       "esphome": {
         "title": "Guition ESP32-P4-JC8012P4A1 Music Dashboard",
         "name": "music-dashboard-10inch",
@@ -56,6 +67,16 @@
       "config": "guition-esp32-p4-jc1060p470",
       "chip": "ESP32-P4",
       "package_path": "devices/guition-esp32-p4-jc1060p470/packages.yaml",
+      "dev": {
+        "name": "music-dashboard-dev",
+        "friendly_name": "Music Dashboard Dev",
+        "rotation_comment": "Landscape by default; see docs/advanced/display-rotation.md",
+        "display_rotation": "0",
+        "local_components": [
+          "artwork_image",
+          "mipi_rgb"
+        ]
+      },
       "esphome": {
         "title": "Guition ESP32-P4-JC1060P470 Music Dashboard",
         "name": "music-dashboard-7inch",
@@ -102,6 +123,16 @@
       "alternate_package_paths": [
         "devices/guition-esp32-p4-jc4880p443/packages.yaml"
       ],
+      "dev": {
+        "name": "music-dashboard-dev",
+        "friendly_name": "Music Dashboard Dev",
+        "rotation_comment": "Portrait by default; see docs/advanced/display-rotation.md",
+        "display_rotation": "0",
+        "local_components": [
+          "artwork_image",
+          "mipi_rgb"
+        ]
+      },
       "esphome": {
         "title": "Guition ESP32-P4-JC4880P443 Music Dashboard",
         "name": "music-dashboard-43inch",
@@ -149,6 +180,14 @@
       "config": "esp32-p4-86-panel",
       "chip": "ESP32-P4",
       "package_path": "devices/esp32-p4-86-panel/packages.yaml",
+      "dev": {
+        "name": "music-dashboard-dev",
+        "friendly_name": "Music Dashboard Dev",
+        "local_components": [
+          "artwork_image",
+          "mipi_rgb"
+        ]
+      },
       "esphome": {
         "title": "Waveshare ESP32-P4 86 Panel Music Dashboard",
         "name": "music-dashboard",
@@ -194,6 +233,14 @@
       "config": "guition-esp32-s3-4848s040",
       "chip": "ESP32-S3",
       "package_path": "devices/guition-esp32-s3-4848s040/packages.yaml",
+      "dev": {
+        "name": "music-dashboard-dev",
+        "friendly_name": "Music Dashboard Dev",
+        "local_components": [
+          "artwork_image",
+          "mipi_rgb"
+        ]
+      },
       "esphome": {
         "title": "Guition ESP32-S3-4848S040 Music Dashboard",
         "name": "music-dashboard",

@@ -34,6 +34,7 @@ class Device:
     purchase: dict[str, Any]
     display: dict[str, Any]
     installer: dict[str, Any]
+    dev: dict[str, Any]
     alternate_package_paths: list[str] | None = None
     build_aliases: list[str] | None = None
 
