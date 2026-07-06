@@ -8,7 +8,6 @@
 lvgl:
   id: main_lvgl
   buffer_size: 25%
-  full_refresh: true
   draw_rounding: 4
   rotation: ${display_rotation}
   on_boot:
