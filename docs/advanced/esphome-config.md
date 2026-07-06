@@ -56,25 +56,6 @@ packages:
     refresh: 1s
 ```
 
-### ESP32-P4 JC1060P470 (7")
-
-```yaml
-substitutions:
-  name: "music-dashboard-7inch"
-  friendly_name: "Music Dashboard 7inch"
-
-wifi:
-  ssid: !secret wifi_ssid
-  password: !secret wifi_password
-
-packages:
-  music_dashboard:
-    url: https://github.com/jtenniswood/esphome-media-player
-    files: [devices/guition-esp32-p4-jc1060p470/packages.yaml]
-    ref: main
-    refresh: 1s
-```
-
 ### ESP32-P4 JC4880P443 (4.3")
 
 ```yaml

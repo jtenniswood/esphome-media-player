@@ -15,7 +15,6 @@ If you want to compile and install the firmware yourself, use the [ESPHome Confi
 
 - **A supported device:**
   - **[Guition ESP32-P4 JC8012P4A1](/devices/esp32-p4-jc8012p4a1)** — 10.1-inch, 1280 x 800, landscape
-  - **[Guition ESP32-P4 JC1060P470](/devices/esp32-p4-jc1060p470)** — 7-inch, 1024 x 600, landscape
   - **[ESP32-P4 86 Panel](/devices/esp32-p4-86-panel)** — 4-inch, 720 x 720, square
   - **[Guition ESP32-P4 JC4880P443](/devices/esp32-p4-jc4880p443)** — 4.3-inch, 800 x 480, landscape
   - **[Guition ESP32-S3 4848S040](/devices/esp32-s3-4848s040)** — 4-inch, 480 x 480, square

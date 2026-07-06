@@ -37,7 +37,6 @@
   var FIRMWARE_PUBLIC_MANIFEST_BASE = "https://jtenniswood.github.io/esphome-media-player/firmware/";
   var FIRMWARE_MANIFEST_SLUGS = {
     "esp32-p4-86-panel": "p4-86-panel",
-    "guition-esp32-p4-jc1060p470": "jc1060p470",
     "guition-esp32-p4-jc4880p443": "jc4880p443",
     "guition-esp32-p4-jc8012p4a1": "jc8012p4a1",
     "guition-esp32-s3-4848s040": "4848s040"
@@ -762,7 +761,7 @@
   }
 
   function supportsScreenRotation() {
-    return S.device_profile === "esp32-p4-86-panel" || S.device_profile === "guition-esp32-p4-jc4880p443" || S.device_profile === "guition-esp32-p4-jc1060p470" || S.device_profile === "guition-esp32-p4-jc8012p4a1" || S.device_profile === "guition-esp32-s3-4848s040";
+    return S.device_profile === "esp32-p4-86-panel" || S.device_profile === "guition-esp32-p4-jc4880p443" || S.device_profile === "guition-esp32-p4-jc8012p4a1" || S.device_profile === "guition-esp32-s3-4848s040";
   }
 
   function supportsClockScreenSaver() {

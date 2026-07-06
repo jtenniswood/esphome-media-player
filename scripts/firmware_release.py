@@ -53,12 +53,6 @@ DEVICES = (
         chip="ESP32-P4",
     ),
     Device(
-        asset_slug="media-player-jc1060p470",
-        web_slug="jc1060p470",
-        config="guition-esp32-p4-jc1060p470",
-        chip="ESP32-P4",
-    ),
-    Device(
         asset_slug="media-player-jc4880p443",
         web_slug="jc4880p443",
         config="guition-esp32-p4-jc4880p443",

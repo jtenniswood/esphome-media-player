@@ -22,7 +22,6 @@ Each release should publish these files:
 |---|---|---|
 | Guition ESP32-S3 4848S040 | `media-player-4848s040` | `firmware/4848s040/` |
 | Guition ESP32-P4 JC8012P4A1 | `media-player-jc8012p4a1` | `firmware/jc8012p4a1/` |
-| Guition ESP32-P4 JC1060P470 | `media-player-jc1060p470` | `firmware/jc1060p470/` |
 | Guition ESP32-P4 JC4880P443 | `media-player-jc4880p443` | `firmware/jc4880p443/` |
 | ESP32-P4 86 Panel | `media-player-p4-86-panel` | `firmware/p4-86-panel/` |
 

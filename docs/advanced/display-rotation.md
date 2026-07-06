@@ -124,39 +124,6 @@ packages:
     refresh: 1s
 ```
 
-## ESP32-P4 JC1060P470
-
-The 1024x600 display defaults to landscape orientation. Use `"180"` if you want the same landscape layout flipped upside down. Use `"90"` or `"270"` for portrait mounting.
-
-| `display_rotation` |
-| ------------------- |
-| `"0"` (default)     |
-| `"90"`              |
-| `"180"`             |
-| `"270"`             |
-
-The device also exposes **Screen Rotation** in Home Assistant as a dropdown with `0`, `90`, `180`, and `270` options.
-
-### Example: 180-degree rotation
-
-```yaml
-substitutions:
-  name: "music-dashboard-7inch"
-  friendly_name: "Music Dashboard 7inch"
-  display_rotation: "180"
-
-wifi:
-  ssid: !secret wifi_ssid
-  password: !secret wifi_password
-
-packages:
-  music_dashboard:
-    url: https://github.com/jtenniswood/esphome-media-player
-    files: [devices/guition-esp32-p4-jc1060p470/packages.yaml]
-    ref: main
-    refresh: 1s
-```
-
 ## ESP32-P4 JC4880P443
 
 The 4.3-inch display defaults to the landscape layout package, using an 800x480 canvas with artwork on the left and track details on the right. Use `"270"` if you want the same landscape layout flipped upside down. For portrait mounts, use `packages.yaml` instead of `packages-90.yaml`.
