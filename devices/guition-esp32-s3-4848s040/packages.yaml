@@ -17,6 +17,9 @@ substitutions:
   pause_lvgl_on_screen_off: "true"
   clock_screensaver_supported: "true"
   idle_action_default: "Clock"
+  button_control_radius: "48px"
+  button_arc_width: "12"
+  button_knob_radius: "14"
 
   # Setup screens
   setup_content_width: "420"
@@ -44,4 +47,4 @@ packages:
   lvgl: !include device/lvgl.yaml
   fonts: !include assets/fonts.yaml
   icons: !include assets/icons.yaml
-  button: !include theme/button.yaml
+  button: !include ../../common/theme/button.yaml

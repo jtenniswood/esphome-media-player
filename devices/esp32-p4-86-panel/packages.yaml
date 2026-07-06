@@ -32,6 +32,10 @@ substitutions:
   idle_action_default: "Clock"
   screen_schedule_internal: "true"
   ha_config_internal: "true"
+  radius: "12px"
+  button_control_radius: "72px"
+  button_arc_width: "18"
+  button_knob_radius: "21"
 
   # Setup screens
   setup_content_width: "630"
@@ -59,4 +63,4 @@ packages:
   lvgl: !include device/lvgl.yaml
   fonts: !include assets/fonts.yaml
   icons: !include assets/icons.yaml
-  button: !include theme/button.yaml
+  button: !include ../../common/theme/button.yaml

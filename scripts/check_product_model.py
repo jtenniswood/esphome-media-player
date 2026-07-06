@@ -208,6 +208,24 @@ def check_devices() -> None:
     if device_setup_includes:
         fail(f"Device LVGL files must include shared setup screens directly from common/setup: {device_setup_includes}")
 
+    theme_button = read(ROOT / "common" / "theme" / "button.yaml")
+    for required_token in ("button_control_radius", "button_arc_width", "button_knob_radius"):
+        if required_token not in theme_button:
+            fail(f"common/theme/button.yaml must expose shared {required_token} substitution")
+    device_theme_files = sorted((ROOT / "devices").glob("*/theme/button.yaml"))
+    if device_theme_files:
+        fail(
+            "Button theme must stay shared in common/theme/button.yaml; remove per-device copies in "
+            f"{[str(path.relative_to(ROOT)) for path in device_theme_files]}"
+        )
+    device_button_includes = [
+        str(path.relative_to(ROOT))
+        for path in (ROOT / "devices").glob("*/packages*.yaml")
+        if "!include theme/button.yaml" in read(path)
+    ]
+    if device_button_includes:
+        fail(f"Device packages must include the shared button theme from common/theme: {device_button_includes}")
+
     release_yml = read(ROOT / ".github" / "workflows" / "release.yml")
     if "python3 scripts/product_model.py release-matrix" not in release_yml:
         fail("release.yml must build its device matrix from product/devices.json")

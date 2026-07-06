@@ -5,12 +5,17 @@ substitutions:
   button_text_color: "0xFFFFFF"
   button_control_color: "0x313131"
   padding: 12px
-  radius: 12px
+  radius: 8px
+  button_control_radius: 48px
+  button_arc_width: "12"
+  button_knob_radius: "14"
+
 lvgl:
   style_definitions:
     - id: control_round
       bg_color: $button_control_color
-      radius: 72px
+      radius: $button_control_radius
+
   theme:
     button:
       text_font: $text_font
@@ -24,13 +29,13 @@ lvgl:
         text_color: $button_text_color
     arc:
       arc_color: 0x333333
-      arc_width: 18
+      arc_width: $button_arc_width
       indicator:
         arc_color: 0x999999
-        arc_width: 18
+        arc_width: $button_arc_width
       knob:
         bg_color: 0xFFFFFF
-        radius: 21
+        radius: $button_knob_radius
     bar:
       indicator:
         bg_color: 0xFFFFFF
