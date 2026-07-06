@@ -12,6 +12,10 @@
         "order": 5,
         "sidebar": "ESP32-P4 JC8012P4A1 (10.1\")"
       },
+      "purchase": {
+        "label": "AliExpress",
+        "url": "https://s.click.aliexpress.com/e/_c3wsnU43"
+      },
       "display": {
         "name": "Guition ESP32-P4 JC8012P4A1",
         "label": "JC8012P4A1",
@@ -40,6 +44,10 @@
       "docs": {
         "order": 4,
         "sidebar": "ESP32-P4 JC1060P470 (7\")"
+      },
+      "purchase": {
+        "label": "AliExpress",
+        "url": "https://s.click.aliexpress.com/e/_c4LLo3rH"
       },
       "display": {
         "name": "Guition ESP32-P4 JC1060P470",
@@ -70,6 +78,10 @@
         "order": 3,
         "sidebar": "ESP32-P4 JC4880P443 (4.3\")"
       },
+      "purchase": {
+        "label": "AliExpress",
+        "url": "https://www.aliexpress.com/item/1005009618259341.html"
+      },
       "display": {
         "name": "Guition ESP32-P4 JC4880P443",
         "label": "JC4880P443",
@@ -99,6 +111,10 @@
         "order": 2,
         "sidebar": "ESP32-P4 86 Panel (4\")"
       },
+      "purchase": {
+        "label": "Waveshare",
+        "url": "https://www.waveshare.com/esp32-p4-wifi6-touch-lcd-4b.htm"
+      },
       "display": {
         "name": "ESP32-P4 86 Panel",
         "label": "P4 86 Panel",
@@ -127,6 +143,10 @@
       "docs": {
         "order": 1,
         "sidebar": "ESP32-S3 4848S040 (4\")"
+      },
+      "purchase": {
+        "label": "AliExpress",
+        "url": "https://s.click.aliexpress.com/e/_c3sIhvBv"
       },
       "display": {
         "name": "Guition ESP32-S3 4848S040",

@@ -30,6 +30,7 @@ class Device:
     package_path: str
     docs_path: str
     docs: dict[str, Any]
+    purchase: dict[str, str]
     display: dict[str, Any]
     installer: dict[str, Any]
 
@@ -108,6 +109,30 @@ def install_devices() -> list[dict[str, Any]]:
         }
         for device in devices
     ]
+
+
+def display_layout_label(device: Device) -> str:
+    layout = str(device.display.get("layout", ""))
+    if layout.startswith("landscape"):
+        return "landscape"
+    if layout.startswith("portrait"):
+        return "portrait"
+    return "square" if device.display.get("shape") == "square" else str(device.display.get("shape", ""))
+
+
+def display_dimensions(device: Device) -> tuple[int, int]:
+    width = device.width
+    height = device.height
+    layout = display_layout_label(device)
+    if layout == "landscape":
+        return max(width, height), min(width, height)
+    if layout == "portrait":
+        return min(width, height), max(width, height)
+    return width, height
+
+
+def devices_by_docs_order() -> list[Device]:
+    return sorted(load_devices(), key=lambda device: int(device.docs["order"]))
 
 
 def web_settings_state() -> dict[str, Any]:

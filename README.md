@@ -56,13 +56,15 @@ From that settings page you can choose the Home Assistant media player to contro
 
 ## Supported screens
 
+<!-- generated:supported-screens:start -->
 | Device | Size | Buy |
 |--------|------|-----|
-| [Guition ESP32-S3 4848S040](https://jtenniswood.github.io/esphome-media-player/devices/esp32-s3-4848s040) | 4" (480 x 480) | [AliExpress](https://s.click.aliexpress.com/e/_c3sIhvBv) |
-| [ESP32-P4 86 Panel](https://jtenniswood.github.io/esphome-media-player/devices/esp32-p4-86-panel) | 4" (720 x 720) | [Waveshare](https://www.waveshare.com/esp32-p4-wifi6-touch-lcd-4b.htm) |
-| [Guition ESP32-P4 JC4880P443](https://jtenniswood.github.io/esphome-media-player/devices/esp32-p4-jc4880p443) | 4.3" (480 x 800) | [AliExpress](https://www.aliexpress.com/item/1005009618259341.html) |
-| [Guition ESP32-P4 JC1060P470](https://jtenniswood.github.io/esphome-media-player/devices/esp32-p4-jc1060p470) | 7" (1024 x 600) | [AliExpress](https://s.click.aliexpress.com/e/_c4LLo3rH) |
-| [Guition ESP32-P4 JC8012P4A1](https://jtenniswood.github.io/esphome-media-player/devices/esp32-p4-jc8012p4a1) | 10.1" (1280 x 800) | [AliExpress](https://s.click.aliexpress.com/e/_c3wsnU43) |
+| [Guition ESP32-S3 4848S040](https://jtenniswood.github.io/esphome-media-player/devices/esp32-s3-4848s040) | 4 in (480 x 480) | [AliExpress](https://s.click.aliexpress.com/e/_c3sIhvBv) |
+| [ESP32-P4 86 Panel](https://jtenniswood.github.io/esphome-media-player/devices/esp32-p4-86-panel) | 4 in (720 x 720) | [Waveshare](https://www.waveshare.com/esp32-p4-wifi6-touch-lcd-4b.htm) |
+| [Guition ESP32-P4 JC4880P443](https://jtenniswood.github.io/esphome-media-player/devices/esp32-p4-jc4880p443) | 4.3 in (800 x 480) | [AliExpress](https://www.aliexpress.com/item/1005009618259341.html) |
+| [Guition ESP32-P4 JC1060P470](https://jtenniswood.github.io/esphome-media-player/devices/esp32-p4-jc1060p470) | 7 in (1024 x 600) | [AliExpress](https://s.click.aliexpress.com/e/_c4LLo3rH) |
+| [Guition ESP32-P4 JC8012P4A1](https://jtenniswood.github.io/esphome-media-player/devices/esp32-p4-jc8012p4a1) | 10.1 in (1280 x 800) | [AliExpress](https://s.click.aliexpress.com/e/_c3wsnU43) |
+<!-- generated:supported-screens:end -->
 
 ## Works with Home Assistant
 

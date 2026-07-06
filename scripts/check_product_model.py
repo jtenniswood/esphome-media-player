@@ -74,6 +74,14 @@ def check_devices() -> None:
             fail(f"{device.asset_slug} docs page is missing: {docs_path.relative_to(ROOT)}")
         if not str(device.docs.get("sidebar", "")).strip():
             fail(f"{device.asset_slug} is missing docs.sidebar in product/devices.json")
+        if not str(device.purchase.get("label", "")).strip():
+            fail(f"{device.asset_slug} is missing purchase.label in product/devices.json")
+        if not str(device.purchase.get("url", "")).strip():
+            fail(f"{device.asset_slug} is missing purchase.url in product/devices.json")
+        docs_text = read(docs_path)
+        purchase_link = f"[{device.purchase['label']}]({device.purchase['url']})"
+        if purchase_link not in docs_text:
+            fail(f"{docs_path.relative_to(ROOT)} panel purchase link does not match product/devices.json")
 
     vitepress_config = read(ROOT / "docs" / ".vitepress" / "config.js")
     if "deviceSidebarItems" not in vitepress_config or "product/devices.json" not in vitepress_config:
