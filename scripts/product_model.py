@@ -10,6 +10,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 import json
 from pathlib import Path
+import sys
 from typing import Any
 
 
@@ -134,3 +135,29 @@ def web_settings_number_limits() -> dict[str, dict[str, Any]]:
         for setting in catalog["settings"]
         if "limits" in setting
     }
+
+
+def release_matrix() -> dict[str, list[dict[str, str]]]:
+    return {
+        "include": [
+            {
+                "asset_slug": device.asset_slug,
+                "config": device.config,
+                "chip": device.chip,
+            }
+            for device in load_devices()
+        ]
+    }
+
+
+def main(argv: list[str] | None = None) -> int:
+    args = argv if argv is not None else sys.argv[1:]
+    if args == ["release-matrix"]:
+        print(json.dumps(release_matrix(), separators=(",", ":")))
+        return 0
+    print("Usage: product_model.py release-matrix", file=sys.stderr)
+    return 2
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

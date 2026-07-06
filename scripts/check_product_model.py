@@ -73,23 +73,13 @@ def check_devices() -> None:
             fail(f"{device.asset_slug} docs page is missing: {docs_path.relative_to(ROOT)}")
 
     release_yml = read(ROOT / ".github" / "workflows" / "release.yml")
-    release_entries = {
-        (asset_slug, config, chip)
-        for asset_slug, config, chip in re.findall(
-            r"- asset_slug: ([^\n]+)\n\s+config: ([^\n]+)\n\s+chip: ([^\n]+)",
-            release_yml,
-        )
-    }
-    catalog_entries = {(device.asset_slug, device.config, device.chip) for device in devices}
-    if release_entries != catalog_entries:
-        missing = catalog_entries - release_entries
-        extra = release_entries - catalog_entries
-        detail = []
-        if missing:
-            detail.append(f"missing from release.yml: {sorted(missing)}")
-        if extra:
-            detail.append(f"extra in release.yml: {sorted(extra)}")
-        fail("; ".join(detail))
+    if "python3 scripts/product_model.py release-matrix" not in release_yml:
+        fail("release.yml must build its device matrix from product/devices.json")
+    if "fromJson(needs.release-matrix.outputs.matrix)" not in release_yml:
+        fail("release.yml build-firmware matrix must use the product model output")
+    hardcoded_entries = re.findall(r"- asset_slug: ([^\n]+)", release_yml)
+    if hardcoded_entries:
+        fail(f"release.yml contains hard-coded device entries: {hardcoded_entries}")
 
 
 def name_patterns(name: str) -> tuple[str, str]:

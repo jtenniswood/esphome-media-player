@@ -9,9 +9,10 @@ Public firmware releases use the GitHub Release tag as the single version source
 For a stable release, use a full semantic version tag such as `v2.0.3`. Short
 tags such as `v2.1` should be normalized to `v2.1.0` before publishing.
 
-Device identity now starts in `product/devices.json`. That catalog feeds release
-helpers and the web installer, and `npm run check:product-model` catches drift
-while the remaining workflow and documentation references are migrated.
+Device identity now starts in `product/devices.json`. That catalog feeds the
+release build matrix, release helpers, and the web installer, while
+`npm run check:product-model` catches drift as the remaining documentation
+references are migrated.
 
 The factory build YAML files keep `firmware_version: "0.0.0"` for day-to-day
 work. The release workflow replaces that placeholder with the release tag before

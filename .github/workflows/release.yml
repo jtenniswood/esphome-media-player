@@ -42,29 +42,31 @@ jobs:
           VERSION: ${{ github.event.release.tag_name }}
         run: gh release edit "$VERSION" --notes-file "$RUNNER_TEMP/release-notes.md"
 
+  release-matrix:
+    name: Prepare Device Matrix
+    runs-on: self-hosted
+    outputs:
+      matrix: ${{ steps.device-matrix.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          sparse-checkout: |
+            scripts/product_model.py
+            product/devices.json
+          sparse-checkout-cone-mode: false
+
+      - name: Build device matrix
+        id: device-matrix
+        run: echo "matrix=$(python3 scripts/product_model.py release-matrix)" >> "$GITHUB_OUTPUT"
+
   build-firmware:
     name: Build ${{ matrix.asset_slug }}
+    needs: release-matrix
     runs-on: self-hosted
     strategy:
       fail-fast: false
       max-parallel: 6
-      matrix:
-        include:
-          - asset_slug: media-player-jc8012p4a1
-            config: guition-esp32-p4-jc8012p4a1
-            chip: ESP32-P4
-          - asset_slug: media-player-jc1060p470
-            config: guition-esp32-p4-jc1060p470
-            chip: ESP32-P4
-          - asset_slug: media-player-jc4880p443
-            config: guition-esp32-p4-jc4880p443
-            chip: ESP32-P4
-          - asset_slug: media-player-p4-86-panel
-            config: esp32-p4-86-panel
-            chip: ESP32-P4
-          - asset_slug: media-player-4848s040
-            config: guition-esp32-s3-4848s040
-            chip: ESP32-S3
+      matrix: ${{ fromJson(needs.release-matrix.outputs.matrix) }}
     steps:
       - uses: actions/checkout@v7
         with:
