@@ -7,6 +7,10 @@ description: Build a Home Assistant touchscreen media controller with ESPHome, a
 
 A touchscreen media controller for Home Assistant: album art, track info, and touch controls for any media player in your smart home. Built with [ESPHome](https://esphome.io/) and [LVGL](https://lvgl.io/).
 
+::: info Recommended: switch to EspControl
+This project has moved on to [EspControl](https://jtenniswood.github.io/espcontrol/), which now supports media cover art plus richer controls for devices and playlists. New and existing users should use EspControl for the latest media controller experience.
+:::
+
 ![Guition ESP32-P4 JC8012P4A1 touchscreen media controller showing album art](./images/guition-esp32-p4-jc8012p4a1-example1.jpg)
 
 [Guition ESP32-P4 JC8012P4A1 (10.1")](/devices/esp32-p4-jc8012p4a1)
