@@ -1,9 +1,11 @@
 {
+  "schema_version": 1,
   "settings": [
     {
       "key": "media_player",
       "default": "",
       "entity": { "domain": "text", "name": "Media Player" },
+      "firmware": { "initial_value": "${media_player}" },
       "docs": {
         "section": "Media Player",
         "order": 10,
@@ -15,6 +17,7 @@
       "key": "linked_media_player",
       "default": "",
       "entity": { "domain": "text", "name": "Linked Media Player" },
+      "firmware": { "initial_value": "${linked_media_player}" },
       "docs": {
         "section": "Advanced",
         "order": 10,
@@ -70,6 +73,7 @@
       "key": "track_info_duration",
       "default": 5,
       "entity": { "domain": "number", "name": "Playback: Track Info Duration", "number": true },
+      "firmware": { "initial_value": "${track_info_duration_default}" },
       "options": [0, 3, 5, 10, 15, 20, 30, 60],
       "limits": { "min": 0, "max": 60, "step": 1, "suffix": "s" },
       "docs": {
@@ -224,6 +228,7 @@
       "key": "day_idle_action",
       "default": "Clock",
       "entity": { "domain": "select", "name": "Screen: Day Idle Action", "optionsKey": "idle_action_options" },
+      "firmware": { "initial_option": "${idle_action_default}" },
       "docs": {
         "section": "Screen Saver",
         "order": 30,
@@ -235,6 +240,7 @@
       "key": "night_idle_action",
       "default": "Clock",
       "entity": { "domain": "select", "name": "Screen: Night Idle Action", "optionsKey": "idle_action_options" },
+      "firmware": { "initial_option": "${idle_action_default}" },
       "docs": {
         "section": "Screen Saver",
         "order": 50,
@@ -341,6 +347,7 @@
       "key": "screen_rotation",
       "default": "0",
       "entity": { "domain": "select", "name": "Screen Rotation", "optionsKey": "screen_rotation_options" },
+      "firmware": { "initial_option": "${display_rotation}" },
       "docs": {
         "section": "Rotation",
         "order": 10,
@@ -427,6 +434,7 @@
     }
   ],
   "browser_state": {
+    "idle_action_options": ["Clock", "Screen Off", "Disabled"],
     "clock_time_format_options": ["24 Hour", "12 Hour"],
     "clock_timezone_options": ["UTC (GMT+0)"],
     "screen_rotation_options": ["0", "90", "180", "270"],

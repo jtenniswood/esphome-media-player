@@ -6,7 +6,7 @@ from __future__ import annotations
 import re
 import sys
 from pathlib import Path
-from typing import Iterable
+from typing import Any, Iterable
 
 from product_model import ROOT, load_devices, load_settings_catalog
 
@@ -40,6 +40,15 @@ def assert_unique(values: Iterable[str], label: str) -> None:
 def docs_file_for_route(route: str) -> Path:
     route = route.strip("/")
     return ROOT / "docs" / f"{route}.md"
+
+
+def firmware_yaml_paths() -> list[Path]:
+    return sorted(
+        path
+        for base in (ROOT / "common", ROOT / "devices")
+        for path in base.rglob("*.yaml")
+        if ".esphome" not in path.parts
+    )
 
 
 def check_devices() -> None:
@@ -129,8 +138,177 @@ def name_patterns(name: str) -> tuple[str, str]:
     return (f'name: "{name}"', f"name: {name}")
 
 
+TRACKED_FIRMWARE_DOMAINS = {
+    "binary_sensor",
+    "button",
+    "number",
+    "select",
+    "sensor",
+    "switch",
+    "text",
+    "text_sensor",
+    "update",
+}
+SCHEMA_CHECK_DOMAINS = {"number", "select", "switch", "text"}
+ROOT_KEY_RE = re.compile(r"^([A-Za-z_][A-Za-z0-9_]*):\s*(?:#.*)?$")
+
+
+def strip_yaml_scalar(value: str) -> str:
+    value = value.strip()
+    if "#" in value and not value.startswith(("'", '"')):
+        value = value.split("#", 1)[0].strip()
+    if len(value) >= 2 and value[0] == value[-1] and value[0] in ("'", '"'):
+        return value[1:-1]
+    return value
+
+
+def block_value(block: str, key: str) -> str | None:
+    match = re.search(rf"^\s+{re.escape(key)}:\s*(.+?)\s*$", block, re.MULTILINE)
+    return strip_yaml_scalar(match.group(1)) if match else None
+
+
+def block_list_values(block: str, key: str) -> list[str]:
+    lines = block.splitlines()
+    for index, line in enumerate(lines):
+        if not re.match(rf"^\s+{re.escape(key)}:\s*$", line):
+            continue
+        key_indent = len(line) - len(line.lstrip())
+        values: list[str] = []
+        for option_line in lines[index + 1 :]:
+            if not option_line.strip():
+                continue
+            indent = len(option_line) - len(option_line.lstrip())
+            if indent <= key_indent:
+                break
+            stripped = option_line.strip()
+            if stripped.startswith("- "):
+                values.append(strip_yaml_scalar(stripped[2:]))
+        return values
+    return []
+
+
+def collect_firmware_entity_blocks(paths: Iterable[Path]) -> dict[tuple[str, str], list[dict[str, Any]]]:
+    blocks: dict[tuple[str, str], list[dict[str, Any]]] = {}
+
+    for path in paths:
+        domain: str | None = None
+        current: list[str] = []
+
+        def flush() -> None:
+            if not domain or not current:
+                return
+            text = "\n".join(current)
+            name = block_value(text, "name")
+            if name:
+                blocks.setdefault((domain, name), []).append({"path": path, "text": text})
+
+        for line in read(path).splitlines():
+            root_match = ROOT_KEY_RE.match(line)
+            if root_match:
+                flush()
+                root_key = root_match.group(1)
+                domain = root_key if root_key in TRACKED_FIRMWARE_DOMAINS else None
+                current = []
+                continue
+
+            if domain and line.startswith("  - "):
+                flush()
+                current = [line]
+            elif domain and current:
+                current.append(line)
+
+        flush()
+
+    return blocks
+
+
+def expected_firmware_value(setting: dict[str, Any], field: str) -> Any:
+    firmware = setting.get("firmware", {})
+    if field in firmware:
+        return firmware[field]
+    return setting.get("default")
+
+
+def assert_scalar(setting_key: str, block: dict[str, Any], field: str, expected: Any) -> None:
+    actual = block_value(block["text"], field)
+    if actual is None:
+        fail(f"{block['path'].relative_to(ROOT)} {setting_key} is missing {field}")
+    if str(actual) != str(expected):
+        fail(
+            f"{block['path'].relative_to(ROOT)} {setting_key} {field} is {actual!r}; "
+            f"product/settings.json expects {expected!r}"
+        )
+
+
+def assert_number(setting_key: str, block: dict[str, Any], field: str, expected: int | float) -> None:
+    actual = block_value(block["text"], field)
+    if actual is None:
+        fail(f"{block['path'].relative_to(ROOT)} {setting_key} is missing {field}")
+    try:
+        actual_number = float(actual)
+    except ValueError as exc:
+        raise ProductModelError(f"{block['path'].relative_to(ROOT)} {setting_key} {field} is not numeric: {actual!r}") from exc
+    if actual_number != float(expected):
+        fail(
+            f"{block['path'].relative_to(ROOT)} {setting_key} {field} is {actual!r}; "
+            f"product/settings.json expects {expected!r}"
+        )
+
+
+def validate_firmware_setting(
+    setting: dict[str, Any],
+    catalog: dict[str, Any],
+    firmware_blocks: dict[tuple[str, str], list[dict[str, Any]]],
+) -> None:
+    entity = setting.get("entity")
+    if not entity or entity["domain"] not in SCHEMA_CHECK_DOMAINS:
+        return
+
+    domain = entity["domain"]
+    name = entity["name"]
+    blocks = firmware_blocks.get((domain, name), [])
+    if not blocks:
+        fail(f"Setting entity {name!r} was not found as a {domain} in firmware YAML")
+
+    for block in blocks:
+        if domain == "number":
+            limits = setting.get("limits")
+            if not limits:
+                fail(f"Setting {setting['key']} is a number but has no limits in product/settings.json")
+            assert_number(setting["key"], block, "min_value", limits["min"])
+            assert_number(setting["key"], block, "max_value", limits["max"])
+            assert_number(setting["key"], block, "step", limits["step"])
+            assert_scalar(setting["key"], block, "initial_value", expected_firmware_value(setting, "initial_value"))
+
+        elif domain == "select":
+            expected_options = setting.get("options")
+            options_key = entity.get("optionsKey")
+            if expected_options is None and options_key:
+                expected_options = catalog.get("browser_state", {}).get(options_key)
+            if expected_options and len(expected_options) > 1:
+                actual_options = block_list_values(block["text"], "options")
+                if actual_options != [str(option) for option in expected_options]:
+                    fail(
+                        f"{block['path'].relative_to(ROOT)} {setting['key']} options are {actual_options!r}; "
+                        f"product/settings.json expects {expected_options!r}"
+                    )
+            assert_scalar(setting["key"], block, "initial_option", expected_firmware_value(setting, "initial_option"))
+
+        elif domain == "switch" and "default" in setting:
+            expected = "RESTORE_DEFAULT_ON" if setting["default"] else "RESTORE_DEFAULT_OFF"
+            firmware = setting.get("firmware", {})
+            assert_scalar(setting["key"], block, "restore_mode", firmware.get("restore_mode", expected))
+
+        elif domain == "text" and "default" in setting:
+            assert_scalar(setting["key"], block, "initial_value", expected_firmware_value(setting, "initial_value"))
+
+
 def check_settings() -> None:
     catalog = load_settings_catalog()
+    schema_version = catalog.get("schema_version")
+    if not isinstance(schema_version, int) or schema_version < 1:
+        fail("product/settings.json must define a positive schema_version")
+
     settings = catalog["settings"]
     assert_unique((setting["key"] for setting in settings), "setting keys")
     docs_sections = catalog.get("docs_sections", [])
@@ -139,12 +317,9 @@ def check_settings() -> None:
     assert_unique((section["title"] for section in docs_sections), "settings docs sections")
     docs_section_titles = {section["title"] for section in docs_sections}
 
-    firmware_yaml = "\n".join(
-        path.read_text()
-        for base in (ROOT / "common", ROOT / "devices")
-        for path in base.rglob("*.yaml")
-        if ".esphome" not in path.parts
-    )
+    paths = firmware_yaml_paths()
+    firmware_yaml = "\n".join(path.read_text() for path in paths)
+    firmware_blocks = collect_firmware_entity_blocks(paths)
 
     for setting in settings:
         docs = setting.get("docs")
@@ -162,6 +337,7 @@ def check_settings() -> None:
         name = entity["name"]
         if not any(pattern in firmware_yaml for pattern in name_patterns(name)):
             fail(f"Setting entity {name!r} from product/settings.json was not found in firmware YAML")
+        validate_firmware_setting(setting, catalog, firmware_blocks)
 
         limits = setting.get("limits")
         if limits and entity.get("domain") != "number":
