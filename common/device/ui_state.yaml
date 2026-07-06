@@ -1,0 +1,69 @@
+# =============================================================================
+# DASHBOARD UI STATE
+# =============================================================================
+# Shared state used across touch handling, gesture detection, UI visibility,
+# setup flow, and linked media-player mode.
+# =============================================================================
+
+globals:
+  # -- Touch tracking (swipe gesture detection) --
+  - id: touch_x_start            # X coordinate when finger first touches
+    type: int
+    initial_value: '0'
+  - id: touch_y_start            # Y coordinate when finger first touches
+    type: int
+    initial_value: '0'
+  - id: touch_x_end              # X coordinate updated as finger moves
+    type: int
+    initial_value: '0'
+  - id: touch_y_end              # Y coordinate updated as finger moves
+    type: int
+    initial_value: '0'
+  - id: touch_start_time          # millis() when finger first touches (for long-press)
+    type: uint32_t
+    initial_value: '0'
+
+  # -- UI overlay visibility --
+  - id: is_ui_hidden             # True when title/artist/play button are hidden
+    type: bool
+    initial_value: 'false'
+  - id: is_screen_dimmed         # True when backlight is in dimmed/idle state
+    type: bool
+    initial_value: 'false'
+  - id: was_screen_dimmed        # Snapshot at touch-start; prevents toggle on wake
+    type: bool
+    initial_value: 'false'
+  - id: is_clock_showing         # True when clock screensaver overlay is visible
+    type: bool
+    initial_value: 'false'
+
+  # -- Settings panel state --
+  - id: is_panel_open            # True when the swipe-down settings panel is visible
+    type: bool
+    initial_value: 'false'
+  - id: was_panel_open           # Snapshot at touch-start; blocks bleed-through taps
+    type: bool
+    initial_value: 'false'
+
+  # -- TV source mode --
+  - id: is_tv_mode
+    type: bool
+    initial_value: 'false'
+  - id: is_tv_idle
+    type: bool
+    initial_value: 'false'
+
+  # -- Setup flow --
+  - id: actions_prompt_acked
+    type: bool
+    restore_value: true
+    initial_value: 'false'
+  # True after first successful setup (WiFi + HA + media entity); suppresses
+  # WiFi/HA/actions setup prompts on restart so user sees loading/main UI instead.
+  - id: device_has_been_setup
+    type: bool
+    restore_value: true
+    initial_value: 'false'
+  - id: lvgl_ready
+    type: bool
+    initial_value: 'false'

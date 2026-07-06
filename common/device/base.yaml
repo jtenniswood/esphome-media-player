@@ -39,6 +39,7 @@ globals:
     initial_value: 'false'
 
 packages:
+  ui_state: !include ui_state.yaml
   time_sync: !include ../addon/time.yaml
   timezone: !include ../addon/timezone.yaml
   esphome_ota: !include ../addon/esphome_ota.yaml

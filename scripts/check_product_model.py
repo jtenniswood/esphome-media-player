@@ -157,6 +157,43 @@ def check_devices() -> None:
     if duplicated_lifecycle_files:
         fail(f"OTA/API lifecycle behavior must stay shared; remove duplicated device definitions in {duplicated_lifecycle_files}")
 
+    if "ui_state: !include ui_state.yaml" not in base_yaml:
+        fail("common/device/base.yaml must include the shared UI state definitions")
+    ui_state_yaml = read(ROOT / "common" / "device" / "ui_state.yaml")
+    if "globals:" not in ui_state_yaml:
+        fail("common/device/ui_state.yaml must define shared dashboard globals")
+    shared_ui_state_ids = (
+        "touch_x_start",
+        "touch_y_start",
+        "touch_x_end",
+        "touch_y_end",
+        "touch_start_time",
+        "is_ui_hidden",
+        "is_screen_dimmed",
+        "was_screen_dimmed",
+        "is_clock_showing",
+        "is_panel_open",
+        "was_panel_open",
+        "is_tv_mode",
+        "is_tv_idle",
+        "actions_prompt_acked",
+        "device_has_been_setup",
+        "lvgl_ready",
+    )
+    for global_id in shared_ui_state_ids:
+        if not re.search(rf"^\s*-\s+id:\s*{re.escape(global_id)}(?:\s|#|$)", ui_state_yaml, re.MULTILINE):
+            fail(f"common/device/ui_state.yaml must define shared global {global_id}")
+    duplicated_ui_state_files = [
+        str(path.relative_to(ROOT))
+        for path in (ROOT / "devices").glob("*/device/device.yaml")
+        if any(
+            re.search(rf"^\s*-\s+id:\s*{re.escape(global_id)}(?:\s|#|$)", read(path), re.MULTILINE)
+            for global_id in shared_ui_state_ids
+        )
+    ]
+    if duplicated_ui_state_files:
+        fail(f"Dashboard UI state globals must stay shared; remove duplicated device definitions in {duplicated_ui_state_files}")
+
     release_yml = read(ROOT / ".github" / "workflows" / "release.yml")
     if "python3 scripts/product_model.py release-matrix" not in release_yml:
         fail("release.yml must build its device matrix from product/devices.json")
