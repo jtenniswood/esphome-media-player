@@ -9,7 +9,7 @@ import sys
 from pathlib import Path
 from typing import Any, Iterable
 
-from product_model import ROOT, load_devices, load_settings_catalog
+from product_model import ROOT, load_device_catalog, load_devices, load_settings_catalog
 
 
 class ProductModelError(RuntimeError):
@@ -81,6 +81,7 @@ def check_dev_config(device_asset_slug: str, dev_config: dict[str, Any]) -> None
 
 
 def check_devices() -> None:
+    catalog = load_device_catalog()
     devices = load_devices()
     assert_unique((device.profile for device in devices), "device profiles")
     assert_unique((device.asset_slug for device in devices), "asset slugs")
@@ -187,6 +188,13 @@ def check_devices() -> None:
     vitepress_config = read(ROOT / "docs" / ".vitepress" / "config.js")
     if "deviceSidebarItems" not in vitepress_config or "product/devices.json" not in vitepress_config:
         fail("docs/.vitepress/config.js must build the device sidebar from product/devices.json")
+    social_image = catalog.get("social_image")
+    if not isinstance(social_image, str) or not social_image.strip():
+        fail("product/devices.json must define social_image")
+    if not (ROOT / social_image).is_file():
+        fail(f"product/devices.json social_image is missing: {social_image}")
+    if "deviceCatalog.social_image" not in vitepress_config:
+        fail("docs/.vitepress/config.js must read the social image from product/devices.json")
 
     theme_index = read(ROOT / "docs" / ".vitepress" / "theme" / "index.js")
     purchase_links = read(ROOT / "docs" / ".vitepress" / "theme" / "components" / "PurchaseLinks.vue")
