@@ -12,6 +12,7 @@ export default {
   },
   enhanceApp({ app }) {
     app.component('InstallButton', defineAsyncComponent(() => import('./components/InstallButton.vue')))
+    app.component('PurchaseLinks', defineAsyncComponent(() => import('./components/PurchaseLinks.vue')))
     app.component('SettingsReference', defineAsyncComponent(() => import('./components/SettingsReference.vue')))
     app.component('SupportedDevices', defineAsyncComponent(() => import('./components/SupportedDevices.vue')))
   },

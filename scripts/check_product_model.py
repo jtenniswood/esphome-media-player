@@ -78,19 +78,34 @@ def check_devices() -> None:
             fail(f"{device.asset_slug} is missing purchase.label in product/devices.json")
         if not str(device.purchase.get("url", "")).strip():
             fail(f"{device.asset_slug} is missing purchase.url in product/devices.json")
+        accessories = device.purchase.get("accessories", [])
+        if not isinstance(accessories, list):
+            fail(f"{device.asset_slug} purchase.accessories must be a list in product/devices.json")
+        for index, accessory in enumerate(accessories, start=1):
+            if not str(accessory.get("label", "")).strip():
+                fail(f"{device.asset_slug} purchase accessory {index} is missing label")
+            if not str(accessory.get("source", "")).strip():
+                fail(f"{device.asset_slug} purchase accessory {index} is missing source")
+            if not str(accessory.get("url", "")).strip():
+                fail(f"{device.asset_slug} purchase accessory {index} is missing url")
         docs_text = read(docs_path)
-        purchase_link = f"[{device.purchase['label']}]({device.purchase['url']})"
-        if purchase_link not in docs_text:
-            fail(f"{docs_path.relative_to(ROOT)} panel purchase link does not match product/devices.json")
+        purchase_component = f'<PurchaseLinks device="{device.web_slug}" />'
+        if purchase_component not in docs_text:
+            fail(f"{docs_path.relative_to(ROOT)} must render purchase links from product/devices.json")
 
     vitepress_config = read(ROOT / "docs" / ".vitepress" / "config.js")
     if "deviceSidebarItems" not in vitepress_config or "product/devices.json" not in vitepress_config:
         fail("docs/.vitepress/config.js must build the device sidebar from product/devices.json")
 
     theme_index = read(ROOT / "docs" / ".vitepress" / "theme" / "index.js")
+    purchase_links = read(ROOT / "docs" / ".vitepress" / "theme" / "components" / "PurchaseLinks.vue")
     supported_devices = read(ROOT / "docs" / ".vitepress" / "theme" / "components" / "SupportedDevices.vue")
     installation_md = read(ROOT / "docs" / "installation.md")
     release_docs = read(ROOT / "docs" / "development" / "release-versioning-improvements.md")
+    if "PurchaseLinks" not in theme_index:
+        fail("docs/.vitepress/theme/index.js must register PurchaseLinks")
+    if "product/devices.json" not in purchase_links:
+        fail("PurchaseLinks.vue must render from product/devices.json")
     if "SupportedDevices" not in theme_index:
         fail("docs/.vitepress/theme/index.js must register SupportedDevices")
     if "product/devices.json" not in supported_devices:

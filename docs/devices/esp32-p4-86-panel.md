@@ -25,5 +25,4 @@ Use **Screen Rotation** in the device web settings page to rotate the display an
 
 ## Where to Buy
 
-- **Panel:** [Waveshare](https://www.waveshare.com/esp32-p4-wifi6-touch-lcd-4b.htm)
-- **Desktop stand (3D printable):** [MakerWorld](https://makerworld.com/en/models/2720366-waveshare-esp32-p4-smart-86-box-screen-desk-stand#profileId-3013481)
+<PurchaseLinks device="p4-86-panel" />

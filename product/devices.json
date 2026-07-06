@@ -14,7 +14,14 @@
       },
       "purchase": {
         "label": "AliExpress",
-        "url": "https://s.click.aliexpress.com/e/_c3wsnU43"
+        "url": "https://s.click.aliexpress.com/e/_c3wsnU43",
+        "accessories": [
+          {
+            "label": "Desktop stand (3D printable)",
+            "source": "MakerWorld",
+            "url": "https://makerworld.com/en/models/2490049-guition-p4-10inch-screen-stand#profileId-2736046"
+          }
+        ]
       },
       "display": {
         "name": "Guition ESP32-P4 JC8012P4A1",
@@ -47,7 +54,8 @@
       },
       "purchase": {
         "label": "AliExpress",
-        "url": "https://s.click.aliexpress.com/e/_c4LLo3rH"
+        "url": "https://s.click.aliexpress.com/e/_c4LLo3rH",
+        "accessories": []
       },
       "display": {
         "name": "Guition ESP32-P4 JC1060P470",
@@ -80,7 +88,8 @@
       },
       "purchase": {
         "label": "AliExpress",
-        "url": "https://www.aliexpress.com/item/1005009618259341.html"
+        "url": "https://www.aliexpress.com/item/1005009618259341.html",
+        "accessories": []
       },
       "display": {
         "name": "Guition ESP32-P4 JC4880P443",
@@ -113,7 +122,14 @@
       },
       "purchase": {
         "label": "Waveshare",
-        "url": "https://www.waveshare.com/esp32-p4-wifi6-touch-lcd-4b.htm"
+        "url": "https://www.waveshare.com/esp32-p4-wifi6-touch-lcd-4b.htm",
+        "accessories": [
+          {
+            "label": "Desktop stand (3D printable)",
+            "source": "MakerWorld",
+            "url": "https://makerworld.com/en/models/2720366-waveshare-esp32-p4-smart-86-box-screen-desk-stand#profileId-3013481"
+          }
+        ]
       },
       "display": {
         "name": "ESP32-P4 86 Panel",
@@ -146,7 +162,15 @@
       },
       "purchase": {
         "label": "AliExpress",
-        "url": "https://s.click.aliexpress.com/e/_c3sIhvBv"
+        "url": "https://s.click.aliexpress.com/e/_c3sIhvBv",
+        "note": "(~£16)",
+        "accessories": [
+          {
+            "label": "Desktop stand (3D printable)",
+            "source": "MakerWorld",
+            "url": "https://makerworld.com/en/models/2327976-touch-screen-desktop-stand-for-guition-4848s040#profileId-2543111"
+          }
+        ]
       },
       "display": {
         "name": "Guition ESP32-S3 4848S040",
