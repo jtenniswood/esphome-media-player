@@ -15,4 +15,4 @@ external_components:
   - source:
       type: local
       path: ../../components
-    components: [artwork_image, mipi_rgb]
+    components: [artwork_image, gsl3680, mipi_rgb]

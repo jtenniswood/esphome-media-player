@@ -40,6 +40,7 @@ class GSL3680 : public touchscreen::Touchscreen, public i2c::I2CDevice {
         esphome::i2c::ErrorCode load_firmware();
         esphome::i2c::ErrorCode start();
         esphome::i2c::ErrorCode read_ram();
+        void power_cycle();
 };
 
 }

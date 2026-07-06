@@ -35,13 +35,37 @@ esphome::i2c::ErrorCode GSL3680::init() {
     auto err = esphome::i2c::ERROR_OK;
 
     STOP_ON_I2C_ERROR(err, this->read_configuration());
-    STOP_ON_I2C_ERROR(err, this->clear_registers());
-    STOP_ON_I2C_ERROR(err, this->reset());
-    STOP_ON_I2C_ERROR(err, this->load_firmware());
-    STOP_ON_I2C_ERROR(err, this->start());
-    STOP_ON_I2C_ERROR(err, this->read_ram());
+
+    for (uint8_t attempt = 1; attempt <= 2; attempt++) {
+        STOP_ON_I2C_ERROR(err, this->clear_registers());
+        STOP_ON_I2C_ERROR(err, this->reset());
+        STOP_ON_I2C_ERROR(err, this->load_firmware());
+        STOP_ON_I2C_ERROR(err, this->start());
+
+        err = this->read_ram();
+        if (err == esphome::i2c::ERROR_OK) {
+            return err;
+        }
+
+        if (attempt < 2) {
+            ESP_LOGW(TAG, "Startup status check failed; power-cycling touchscreen and retrying firmware load");
+            this->power_cycle();
+        }
+    }
 
     return err;
+}
+
+void GSL3680::power_cycle() {
+    this->reset_pin_->digital_write(false);
+    esphome::delay(50);
+    this->reset_pin_->digital_write(true);
+    esphome::delay(30);
+    this->reset_pin_->digital_write(false);
+    esphome::delay(5);
+    this->reset_pin_->digital_write(true);
+    esphome::delay(20);
+    ESP_LOGD(TAG, "Power cycle complete");
 }
 
 esphome::i2c::ErrorCode GSL3680::reset() {
@@ -95,8 +119,8 @@ esphome::i2c::ErrorCode GSL3680::read_configuration() {
 }
 
 esphome::i2c::ErrorCode GSL3680::clear_registers() {
-    uint8_t clear_reg_regs[4] = {0xe0, 0x88, 0xe4, 0xe0};
-    uint8_t clear_reg_data[4] = {0x88, 0x01, 0x04, 0x00};
+    uint8_t clear_reg_regs[4] = {0xe0, 0x80, 0xe4, 0xe0};
+    uint8_t clear_reg_data[4] = {0x88, TOUCH_MAX_POINTS, 0x04, 0x00};
 
     auto err = esphome::i2c::ERROR_OK;
 
