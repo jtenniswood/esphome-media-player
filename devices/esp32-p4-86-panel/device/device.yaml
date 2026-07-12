@@ -244,30 +244,24 @@ touchscreen:
             }
           }
           // Tap: minimal movement anywhere on screen — toggle UI visibility
-          // Excludes the play/pause button area (x:390-462, y:356-428).
+          // Excludes the play/pause button area (button bounds: 540→684, 531→675).
           // If screen was dimmed, just wake it (don't hide the UI).
           // Only allow hiding the UI when media is actively playing.
           else if (abs(view_dx) < 30 && abs(view_dy) < 30) {
             int sx = view_x_start;
             int sy = view_y_start;
-            // Ignore taps on the play/pause button
-            if (sx >= 578 && sx <= 701 && sy >= 527 && sy <= 650) {
+            // Ignore taps on the play/pause button (144px round, bottom-right)
+            if (sx >= 540 && sx <= 684 && sy >= 531 && sy <= 675) {
               return;
             }
             if (id(was_screen_dimmed)) {
-              // Screen was dimmed — wake only, don't toggle
+              // Screen was dimmed — wake and ensure track overlay is visible
+              if (id(is_ui_hidden)) id(toggle_ui).execute();
             } else if (id(is_ui_hidden)) {
               // UI is hidden — always allow showing it
               id(toggle_ui).execute();
-            } else {
-              bool playing;
-              if (id(is_tv_mode)) {
-                playing = id(tv_media_player_state_sensor).has_state() && id(tv_media_player_state_sensor).state == "playing";
-              } else {
-                playing = id(media_player_state_sensor).has_state() && id(media_player_state_sensor).state == "playing";
-              }
-              if (playing) id(toggle_ui).execute();
             }
+            // If overlay is already visible, do nothing — never hide on tap
           }
 
 

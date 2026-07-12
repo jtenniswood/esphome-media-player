@@ -13,7 +13,7 @@ substitutions:
   device_slug: "guition-esp32-s3-4848s040"
   firmware_manifest_slug: "4848s040"
   post_artwork_script: "start_hide_track_info_timer"
-  track_info_duration_default: "5"
+  track_info_duration_default: "0"
   pause_lvgl_on_screen_off: "true"
   clock_screensaver_supported: "true"
   idle_action_default: "Clock"
