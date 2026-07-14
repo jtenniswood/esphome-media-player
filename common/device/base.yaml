@@ -28,6 +28,10 @@ preferences:
   # is running; explicit sync calls still save critical setup changes.
   flash_write_interval: never
 
+esphome:
+  includes:
+    - ../../common/addon/speaker_group_helpers.h
+
 safe_mode:
   # Safe mode marks a boot successful after 60s, which also writes to flash.
   # On display-heavy builds this can collide with active LVGL/PSRAM traffic.

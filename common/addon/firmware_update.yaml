@@ -68,7 +68,11 @@ switch:
     internal: ${ha_config_internal}
     icon: "mdi:update"
     optimistic: true
-    restore_mode: RESTORE_DEFAULT_ON
+    restore_mode: RESTORE_DEFAULT_OFF
+    on_turn_on:
+      - lambda: 'global_preferences->sync();'
+    on_turn_off:
+      - lambda: 'global_preferences->sync();'
 
 select:
   - platform: template
