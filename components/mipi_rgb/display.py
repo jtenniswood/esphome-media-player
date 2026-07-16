@@ -123,16 +123,19 @@ def data_pin_set(length):
 
 def model_schema(config):
     model = MODELS[config[CONF_MODEL].upper()]
-    transform = cv.Any(
-        cv.Schema(
-            {
-                cv.Required(CONF_MIRROR_X): cv.boolean,
-                cv.Required(CONF_MIRROR_Y): cv.boolean,
-                **model.swap_xy_schema(),
-            }
-        ),
-        cv.one_of(CONF_DISABLED, lower=True),
-    )
+    if hasattr(model, "transform_schema"):
+        transform = model.transform_schema()
+    else:
+        transform = cv.Any(
+            cv.Schema(
+                {
+                    cv.Required(CONF_MIRROR_X): cv.boolean,
+                    cv.Required(CONF_MIRROR_Y): cv.boolean,
+                    **model.swap_xy_schema(),
+                }
+            ),
+            cv.one_of(CONF_DISABLED, lower=True),
+        )
     # RPI model does not use an init sequence, indicates with empty list
     if model.initsequence is None:
         # Custom model requires an init sequence
