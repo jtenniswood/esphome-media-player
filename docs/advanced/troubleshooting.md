@@ -57,7 +57,7 @@ If the folder name is different in your error, delete that folder instead. If yo
 
 Older versions of the project loaded the speaker-group helper through a relative file path that ESPHome resolves incorrectly for remote packages. Update your package to the latest `main` version, choose **Clean Build Files** from the device menu, and compile again.
 
-If your configuration is pinned to an older commit, update or remove the pinned `ref`. As a temporary workaround, place [speaker_group_helpers.h](https://raw.githubusercontent.com/jtenniswood/esphome-media-player/main/components/speaker_group_helpers/speaker_group_helpers.h) at `/config/common/addon/speaker_group_helpers.h` on the Home Assistant host.
+If your configuration is pinned to an older commit, update or remove the pinned `ref`. The old helper path resolves differently depending on where your main YAML file is stored, so there is no single manual file location that works reliably for pinned remote packages.
 
 ## The screen is black / not responding
 
