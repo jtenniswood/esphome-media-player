@@ -1,0 +1,4 @@
+interface:
+  display_name: "PR Review Feedback"
+  short_description: "Address open PR feedback safely"
+  default_prompt: "Use $pr-review to address actionable feedback on the current pull request."
