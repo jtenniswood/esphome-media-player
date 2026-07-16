@@ -28,9 +28,6 @@ esp32:
   framework:
     type: esp-idf
     sdkconfig_options:
-      # The S3 RGB panel scans from PSRAM while LVGL and artwork decoding also
-      # use PSRAM. Recover the LCD DMA at VSYNC if that stream stalls.
-      CONFIG_LCD_RGB_RESTART_IN_VSYNC: "y"
       # Keep the RGB bounce-buffer refill ISR alive while flash writes
       # (NVS/preferences saves) briefly disable the flash cache. Without these
       # the scan-out underflows during any flash write and the panel can show
