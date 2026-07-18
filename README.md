@@ -1,5 +1,8 @@
 # ESPHome Media Player for Home Assistant
 
+> [!IMPORTANT]
+> **Support for ESPHome Media Player is ending.** Please migrate to [EspControl](https://jtenniswood.github.io/espcontrol/), which includes all the features from this project and more. Follow the [migration guide](https://jtenniswood.github.io/espcontrol/getting-started/migrate-esphome-media-player) to move your device across.
+
 Turn an ESP32 touchscreen into a dedicated music controller for your home.
 
 This project gives Home Assistant users a small, always-on display for their speakers. It shows album artwork, track details, playback progress, volume, and useful controls without needing to open the Home Assistant app or pick up a phone.

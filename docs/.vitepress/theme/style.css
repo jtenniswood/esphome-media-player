@@ -1,3 +1,7 @@
+:root {
+  --vp-layout-top-height: 52px;
+}
+
 .sp-support-btn {
   position: fixed;
   right: 28px;
@@ -5,6 +9,12 @@
   z-index: 150;
   display: inline-block;
   line-height: 0;
+}
+
+@media (max-width: 640px) {
+  :root {
+    --vp-layout-top-height: 68px;
+  }
 }
 
 .sp-support-btn img {

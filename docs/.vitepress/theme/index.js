@@ -1,5 +1,6 @@
 import { defineAsyncComponent, h } from 'vue'
 import DefaultTheme from 'vitepress/theme'
+import MigrationBanner from './components/MigrationBanner.vue'
 import SupportButton from './components/SupportButton.vue'
 import './style.css'
 
@@ -7,6 +8,7 @@ export default {
   extends: DefaultTheme,
   Layout() {
     return h(DefaultTheme.Layout, null, {
+      'layout-top': () => h(MigrationBanner),
       'layout-bottom': () => h(SupportButton),
     })
   },
